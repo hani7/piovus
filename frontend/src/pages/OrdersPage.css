@@ -1,0 +1,32 @@
+.orders-page { padding-top: calc(var(--navbar-height) + 40px); padding-bottom: 80px; min-height: 80vh; max-width: 800px; margin: 0 auto; }
+.orders-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--color-gray-200); }
+.orders-title { font-family: var(--font-serif); font-size: 2rem; font-weight: 500; }
+
+.orders-empty { text-align: center; padding: 60px 0; background: var(--color-gray-100); border-radius: var(--radius-lg); }
+.orders-empty p { margin-bottom: 24px; color: var(--color-gray-500); }
+
+.orders-list { display: flex; flex-direction: column; gap: 24px; }
+.order-card { background: white; border: 1px solid var(--color-gray-200); border-radius: var(--radius-lg); overflow: hidden; }
+
+.order-card__header { padding: 20px 24px; background: var(--color-gray-100); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid var(--color-gray-200); }
+.order-id { font-weight: 600; font-size: 1.1rem; margin-bottom: 4px; }
+.order-date { font-size: 0.85rem; color: var(--color-gray-500); }
+
+.order-status { padding: 6px 12px; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.status-pending { background: #fff3cd; color: #856404; }
+.status-confirmed { background: #d4edda; color: #155724; }
+.status-shipped { background: #cce5ff; color: #004085; }
+.status-delivered { background: #d1ecf1; color: #0c5460; }
+.status-cancelled { background: #f8d7da; color: #721c24; }
+
+.order-card__items { padding: 24px; border-bottom: 1px solid var(--color-gray-200); display: flex; flex-direction: column; gap: 12px; }
+.order-item { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.9rem; }
+.order-item__name { color: var(--color-black); }
+.order-item__variant { color: var(--color-gray-500); font-size: 0.8rem; }
+.order-item__price { font-weight: 500; }
+
+.order-card__footer { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; background: var(--color-cream); }
+.order-address { font-size: 0.85rem; color: var(--color-gray-700); }
+.order-total { display: flex; align-items: baseline; gap: 12px; }
+.order-total span { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-gray-500); }
+.order-total strong { font-family: var(--font-serif); font-size: 1.4rem; color: var(--color-accent); }

@@ -1,0 +1,17 @@
+.category-page { padding-top: var(--navbar-height); }
+.category-page__hero {
+  background: linear-gradient(135deg, var(--color-black), #2a0d14);
+  color: white;
+  padding: 60px 0 40px;
+}
+.category-page__title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+.category-page__count {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.1em;
+}

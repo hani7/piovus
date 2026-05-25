@@ -1,0 +1,194 @@
+import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams, Link } from 'react-router-dom'
+import ProductCard from '../components/ProductCard'
+import { getProducts, getCategories } from '../api/products'
+import './ShopPage.css'
+
+const SORT_OPTIONS = [
+  { value: '-created_at', label: 'Plus récents' },
+  { value: 'price', label: 'Prix croissant' },
+  { value: '-price', label: 'Prix décroissant' },
+  { value: 'name', label: 'Nom A-Z' },
+]
+
+export default function ShopPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [totalCount, setTotalCount] = useState(0)
+  const [page, setPage] = useState(1)
+
+  const selectedCategory = searchParams.get('category') || ''
+  const searchQuery = searchParams.get('search') || ''
+  const sortBy = searchParams.get('sort') || '-created_at'
+  const showNew = searchParams.get('new') === 'true'
+
+  const fetchProducts = useCallback(() => {
+    setLoading(true)
+    const params = { ordering: sortBy, page }
+    if (selectedCategory) params['category__slug'] = selectedCategory
+    if (searchQuery) params.search = searchQuery
+    if (showNew) params.is_new = true
+
+    getProducts(params)
+      .then((r) => {
+        setProducts(r.data.results || r.data)
+        setTotalCount(r.data.count || r.data.length)
+      })
+      .finally(() => setLoading(false))
+  }, [selectedCategory, searchQuery, sortBy, showNew, page])
+
+  useEffect(() => {
+    getCategories().then((r) => setCategories(r.data.results || r.data))
+  }, [])
+
+  useEffect(() => {
+    setPage(1)
+  }, [selectedCategory, searchQuery, sortBy, showNew])
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
+
+  const updateParam = (key, value) => {
+    const p = new URLSearchParams(searchParams)
+    if (value) p.set(key, value)
+    else p.delete(key)
+    setSearchParams(p)
+  }
+
+  return (
+    <main className="shop-page page-enter">
+      {/* Breadcrumb */}
+      <div className="shop-page__breadcrumb container">
+        <Link to="/">Accueil</Link> / <span>Nos Produits</span>
+        {selectedCategory && (
+          <> / <span>{categories.find(c => c.slug === selectedCategory)?.name}</span></>
+        )}
+      </div>
+
+      <div className="container shop-page__layout">
+        {/* ── Sidebar Filters ─────────────────────── */}
+        <aside className="shop-filters">
+          <h3 className="shop-filters__title">Filtres</h3>
+
+          {/* Search */}
+          <div className="shop-filters__section">
+            <p className="shop-filters__label">Recherche</p>
+            <input
+              className="form-input"
+              type="text"
+              placeholder="Rechercher..."
+              value={searchQuery}
+              onChange={(e) => updateParam('search', e.target.value)}
+              id="filter-search"
+            />
+          </div>
+
+          {/* Categories */}
+          <div className="shop-filters__section">
+            <p className="shop-filters__label">Catégories</p>
+            <button
+              className={`shop-filters__cat ${!selectedCategory ? 'active' : ''}`}
+              onClick={() => updateParam('category', '')}
+              id="filter-cat-all"
+            >
+              Tous les produits
+              <span>{totalCount}</span>
+            </button>
+            {categories.map((c) => (
+              <button
+                key={c.slug}
+                className={`shop-filters__cat ${selectedCategory === c.slug ? 'active' : ''}`}
+                onClick={() => updateParam('category', c.slug)}
+                id={`filter-cat-${c.slug}`}
+              >
+                {c.name}
+                <span>{c.product_count}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* New only */}
+          <div className="shop-filters__section">
+            <label className="shop-filters__toggle" htmlFor="filter-new">
+              <input
+                type="checkbox"
+                id="filter-new"
+                checked={showNew}
+                onChange={(e) => updateParam('new', e.target.checked ? 'true' : '')}
+              />
+              <span>Nouvelles arrivées uniquement</span>
+            </label>
+          </div>
+
+          {/* Reset */}
+          {(selectedCategory || searchQuery || showNew) && (
+            <button
+              className="btn btn-outline shop-filters__reset"
+              onClick={() => setSearchParams({})}
+              id="filter-reset"
+            >
+              Réinitialiser les filtres
+            </button>
+          )}
+        </aside>
+
+        {/* ── Product Grid ─────────────────────────── */}
+        <div className="shop-main">
+          <div className="shop-main__toolbar">
+            <p className="shop-main__count">
+              {loading ? '...' : `${totalCount} produit${totalCount !== 1 ? 's' : ''}`}
+              {searchQuery && <span> pour «&nbsp;{searchQuery}&nbsp;»</span>}
+            </p>
+            <select
+              value={sortBy}
+              onChange={(e) => updateParam('sort', e.target.value)}
+              className="shop-main__sort"
+              id="sort-select"
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {loading ? (
+            <div className="spinner" />
+          ) : products.length === 0 ? (
+            <div className="shop-empty">
+              <p>Aucun produit trouvé.</p>
+              <button className="btn btn-accent" onClick={() => setSearchParams({})} id="shop-empty-reset">
+                Voir tous les produits
+              </button>
+            </div>
+          ) : (
+            <div className="products-grid">
+              {products.map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalCount > 12 && (
+            <div className="shop-pagination">
+              <button
+                className="btn btn-outline"
+                disabled={page === 1}
+                onClick={() => setPage(page - 1)}
+                id="page-prev"
+              >← Précédent</button>
+              <span className="shop-pagination__info">Page {page} / {Math.ceil(totalCount / 12)}</span>
+              <button
+                className="btn btn-outline"
+                disabled={page >= Math.ceil(totalCount / 12)}
+                onClick={() => setPage(page + 1)}
+                id="page-next"
+              >Suivant →</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  )
+}

@@ -50,6 +50,7 @@ export default function AdminProducts() {
   const [editVariantId, setEditVariantId] = useState(null)
   const fileRef = useRef()
   const variantFileRef = useRef()
+  const variantFormRef = useRef()
 
   const load = () => {
     setLoading(true)
@@ -124,6 +125,14 @@ export default function AdminProducts() {
     setEditVariantId(v.id)
     setNewVariant({ name: v.name, color_hex: v.color_hex || '#000000', stock: v.stock })
     setVariantFile(null)
+    setTimeout(() => {
+      if (variantFormRef.current) {
+        variantFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        // Optionally focus the name input
+        const input = variantFormRef.current.querySelector('input')
+        if (input) input.focus()
+      }
+    }, 50)
   }
 
   const cancelEditVariant = () => {
@@ -359,7 +368,7 @@ export default function AdminProducts() {
                         )}
 
                         {/* Add / Edit new variant */}
-                        <div style={{ borderTop: '1px dashed var(--admin-border)', paddingTop: '15px' }}>
+                        <div ref={variantFormRef} style={{ borderTop: '1px dashed var(--admin-border)', paddingTop: '15px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                             <h4 style={{ fontSize: '0.95rem' }}>{editVariantId ? 'Modifier la variation' : 'Ajouter une variation'}</h4>
                             {editVariantId && (

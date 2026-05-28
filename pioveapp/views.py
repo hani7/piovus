@@ -1,10 +1,12 @@
 from rest_framework import viewsets, generics, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from django.db.models import Sum, Count
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
 
@@ -18,6 +20,8 @@ from .serializers import (
     UserSerializer, RegisterSerializer,
     OrderSerializer, OrderCreateSerializer,
     ReviewSerializer,
+    AdminProductSerializer, AdminCategorySerializer,
+    AdminBannerSerializer, AdminOrderSerializer, AdminOrderStatusSerializer,
 )
 
 
@@ -198,3 +202,79 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save(update_fields=['total'])
 
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+
+# ─── Admin Views ──────────────────────────────────────────────────────────────
+
+class AdminDashboardView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        total_orders = Order.objects.count()
+        pending_orders = Order.objects.filter(status='pending').count()
+        total_revenue = Order.objects.exclude(status='cancelled').aggregate(
+            rev=Sum('total')
+        )['rev'] or 0
+        total_products = Product.objects.count()
+        active_products = Product.objects.filter(is_active=True).count()
+        total_categories = Category.objects.count()
+
+        recent_orders = Order.objects.select_related('user').prefetch_related('items')[:10]
+        recent_serialized = AdminOrderSerializer(recent_orders, many=True).data
+
+        # Orders per status
+        status_counts = {
+            s: Order.objects.filter(status=s).count()
+            for s, _ in Order.STATUS_CHOICES
+        }
+
+        return Response({
+            'total_orders': total_orders,
+            'pending_orders': pending_orders,
+            'total_revenue': float(total_revenue),
+            'total_products': total_products,
+            'active_products': active_products,
+            'total_categories': total_categories,
+            'status_counts': status_counts,
+            'recent_orders': recent_serialized,
+        })
+
+
+class AdminProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all().select_related('category').order_by('-created_at')
+    serializer_class = AdminProductSerializer
+    permission_classes = [IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
+    search_fields = ['name', 'description']
+    filterset_fields = ['category', 'is_active', 'is_featured', 'is_new']
+    ordering_fields = ['created_at', 'price', 'stock', 'name']
+
+
+class AdminCategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all().order_by('order', 'name')
+    serializer_class = AdminCategorySerializer
+    permission_classes = [IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+
+class AdminBannerViewSet(viewsets.ModelViewSet):
+    queryset = Banner.objects.all().order_by('order')
+    serializer_class = AdminBannerSerializer
+    permission_classes = [IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+
+class AdminOrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all().select_related('user').prefetch_related('items').order_by('-created_at')
+    permission_classes = [IsAdminUser]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['status']
+    search_fields = ['guest_name', 'guest_phone', 'user__username', 'user__first_name']
+    http_method_names = ['get', 'patch', 'head', 'options']
+
+    def get_serializer_class(self):
+        if self.action == 'partial_update':
+            return AdminOrderStatusSerializer
+        return AdminOrderSerializer
+

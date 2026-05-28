@@ -103,7 +103,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser', 'profile']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -171,3 +171,66 @@ class OrderCreateSerializer(serializers.Serializer):
     city = serializers.CharField(required=False, allow_blank=True)
     notes = serializers.CharField(required=False, allow_blank=True)
     items = OrderItemCreateSerializer(many=True)
+
+
+# ─── Admin Serializers ────────────────────────────────────────────────────────
+
+class AdminCategorySerializer(serializers.ModelSerializer):
+    product_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug', 'image', 'order', 'is_active', 'product_count']
+        read_only_fields = ['slug']
+
+    def get_product_count(self, obj):
+        return obj.products.count()
+
+
+class AdminProductSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    is_promo = serializers.BooleanField(read_only=True)
+    effective_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = Product
+        fields = [
+            'id', 'name', 'slug', 'category', 'category_name',
+            'description', 'price', 'promo_price', 'effective_price', 'is_promo',
+            'stock', 'is_featured', 'is_new', 'is_active',
+            'thumbnail', 'created_at', 'updated_at',
+        ]
+        read_only_fields = ['slug', 'created_at', 'updated_at']
+
+
+class AdminBannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Banner
+        fields = ['id', 'title', 'subtitle', 'image', 'cta_label', 'cta_url', 'promo_code', 'is_active', 'order']
+
+
+class AdminOrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    customer_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = [
+            'id', 'customer_name', 'user', 'guest_name', 'guest_phone', 'guest_email',
+            'shipping_address', 'wilaya', 'city',
+            'status', 'status_display', 'total', 'notes',
+            'items', 'created_at', 'updated_at',
+        ]
+        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items']
+
+    def get_customer_name(self, obj):
+        if obj.user:
+            return obj.user.get_full_name() or obj.user.username
+        return obj.guest_name or 'Client anonyme'
+
+
+class AdminOrderStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['status']

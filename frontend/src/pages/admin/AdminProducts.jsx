@@ -47,6 +47,7 @@ export default function AdminProducts() {
   const [variants, setVariants] = useState([])
   const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10 })
   const [variantFile, setVariantFile] = useState(null)
+  const [editVariantId, setEditVariantId] = useState(null)
   const fileRef = useRef()
   const variantFileRef = useRef()
 
@@ -119,7 +120,20 @@ export default function AdminProducts() {
     load()
   }
 
-  const handleAddVariant = async (e) => {
+  const openEditVariant = (v) => {
+    setEditVariantId(v.id)
+    setNewVariant({ name: v.name, color_hex: v.color_hex || '#000000', stock: v.stock })
+    setVariantFile(null)
+  }
+
+  const cancelEditVariant = () => {
+    setEditVariantId(null)
+    setNewVariant({ name: '', color_hex: '#000000', stock: 10 })
+    setVariantFile(null)
+    if (variantFileRef.current) variantFileRef.current.value = ''
+  }
+
+  const handleSaveVariant = async (e) => {
     e.preventDefault()
     if (!editId) return
     setSaving(true)
@@ -131,11 +145,14 @@ export default function AdminProducts() {
       fd.append('stock', newVariant.stock)
       if (variantFile) fd.append('image', variantFile)
       
-      const res = await client.post('/admin/variants/', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-      setVariants([...variants, res.data])
-      setNewVariant({ name: '', color_hex: '#000000', stock: 10 })
-      setVariantFile(null)
-      if (variantFileRef.current) variantFileRef.current.value = ''
+      if (editVariantId) {
+        const res = await client.patch(`/admin/variants/${editVariantId}/`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+        setVariants(variants.map(v => v.id === editVariantId ? res.data : v))
+      } else {
+        const res = await client.post('/admin/variants/', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+        setVariants([...variants, res.data])
+      }
+      cancelEditVariant()
       load()
     } catch (err) {
       alert('Erreur: ' + JSON.stringify(err.response?.data || err.message))
@@ -330,7 +347,10 @@ export default function AdminProducts() {
                                   <div style={{ fontWeight: 500 }}>{v.name}</div>
                                   <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>Stock: {v.stock}</div>
                                 </div>
-                                <button type="button" className="btn-danger" style={{ padding: '4px 8px', fontSize: '0.8rem' }} onClick={() => handleDeleteVariant(v.id)}>Suppr.</button>
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                  <button type="button" className="btn-edit" style={{ padding: '4px 8px', fontSize: '0.8rem' }} onClick={() => openEditVariant(v)}>Modifier</button>
+                                  <button type="button" className="btn-danger" style={{ padding: '4px 8px', fontSize: '0.8rem' }} onClick={() => handleDeleteVariant(v.id)}>Suppr.</button>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -338,9 +358,14 @@ export default function AdminProducts() {
                           <p style={{ color: 'var(--admin-text-muted)', marginBottom: '15px', fontSize: '0.9rem' }}>Aucune variation pour ce produit.</p>
                         )}
 
-                        {/* Add new variant */}
+                        {/* Add / Edit new variant */}
                         <div style={{ borderTop: '1px dashed var(--admin-border)', paddingTop: '15px' }}>
-                          <h4 style={{ fontSize: '0.95rem', marginBottom: '10px' }}>Ajouter une variation</h4>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                            <h4 style={{ fontSize: '0.95rem' }}>{editVariantId ? 'Modifier la variation' : 'Ajouter une variation'}</h4>
+                            {editVariantId && (
+                              <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.8rem' }} onClick={cancelEditVariant}>Annuler la modification</button>
+                            )}
+                          </div>
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label>Nom de la teinte *</label>
@@ -362,8 +387,8 @@ export default function AdminProducts() {
                               <input type="file" accept="image/*" className="form-control" style={{ padding: '8px' }} ref={variantFileRef} onChange={e => setVariantFile(e.target.files[0])} />
                             </div>
                           </div>
-                          <button type="button" className="btn-primary" style={{ marginTop: '15px', width: '100%', justifyContent: 'center' }} onClick={handleAddVariant} disabled={!newVariant.name || !newVariant.color_hex || saving}>
-                            Ajouter cette variation
+                          <button type="button" className="btn-primary" style={{ marginTop: '15px', width: '100%', justifyContent: 'center' }} onClick={handleSaveVariant} disabled={!newVariant.name || !newVariant.color_hex || saving}>
+                            {saving ? 'Enregistrement...' : editVariantId ? 'Enregistrer la variation' : 'Ajouter cette variation'}
                           </button>
                         </div>
 

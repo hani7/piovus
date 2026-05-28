@@ -187,10 +187,18 @@ class AdminCategorySerializer(serializers.ModelSerializer):
         return obj.products.count()
 
 
+class AdminProductVariantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductVariant
+        fields = ['id', 'product', 'name', 'color_hex', 'image', 'stock', 'sku']
+
+
 class AdminProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     is_promo = serializers.BooleanField(read_only=True)
     effective_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+    variants = AdminProductVariantSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
@@ -198,9 +206,10 @@ class AdminProductSerializer(serializers.ModelSerializer):
             'id', 'name', 'slug', 'category', 'category_name',
             'description', 'price', 'promo_price', 'effective_price', 'is_promo',
             'stock', 'is_featured', 'is_new', 'is_active',
-            'thumbnail', 'created_at', 'updated_at',
+            'thumbnail', 'created_at', 'updated_at', 'variants'
         ]
         read_only_fields = ['slug', 'created_at', 'updated_at']
+
 
 
 class AdminBannerSerializer(serializers.ModelSerializer):

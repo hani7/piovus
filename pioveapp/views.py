@@ -11,7 +11,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
 
 from .models import (
-    Category, Product, Banner, Order, OrderItem, Review, UserProfile
+    Category, Product, ProductVariant, Banner, Order, OrderItem, Review, UserProfile
 )
 from .serializers import (
     CategorySerializer,
@@ -20,7 +20,7 @@ from .serializers import (
     UserSerializer, RegisterSerializer,
     OrderSerializer, OrderCreateSerializer,
     ReviewSerializer,
-    AdminProductSerializer, AdminCategorySerializer,
+    AdminProductSerializer, AdminProductVariantSerializer, AdminCategorySerializer,
     AdminBannerSerializer, AdminOrderSerializer, AdminOrderStatusSerializer,
 )
 
@@ -249,6 +249,15 @@ class AdminProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
     filterset_fields = ['category', 'is_active', 'is_featured', 'is_new']
     ordering_fields = ['created_at', 'price', 'stock', 'name']
+
+
+class AdminProductVariantViewSet(viewsets.ModelViewSet):
+    queryset = ProductVariant.objects.all().select_related('product').order_by('id')
+    serializer_class = AdminProductVariantSerializer
+    permission_classes = [IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['product']
 
 
 class AdminCategoryViewSet(viewsets.ModelViewSet):

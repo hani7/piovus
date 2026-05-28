@@ -7,7 +7,7 @@ from .views import (
     RegisterView, LoginView, LogoutView, ProfileView,
     OrderViewSet,
     AdminDashboardView,
-    AdminProductViewSet, AdminCategoryViewSet,
+    AdminProductViewSet, AdminProductVariantViewSet, AdminCategoryViewSet,
     AdminBannerViewSet, AdminOrderViewSet,
 )
 
@@ -20,6 +20,7 @@ router.register(r'orders', OrderViewSet, basename='order')
 admin_router = DefaultRouter()
 admin_router.register(r'products', AdminProductViewSet, basename='admin-product')
 admin_router.register(r'categories', AdminCategoryViewSet, basename='admin-category')
+admin_router.register(r'variants', AdminProductVariantViewSet, basename='admin-variant')
 admin_router.register(r'banners', AdminBannerViewSet, basename='admin-banner')
 admin_router.register(r'orders', AdminOrderViewSet, basename='admin-order')
 

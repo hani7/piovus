@@ -43,7 +43,12 @@ export default function AdminProducts() {
   const [thumbPreview, setThumbPreview] = useState(null)
   const [saving, setSaving] = useState(false)
   const [page, setPage] = useState(1)
+  const [showVariants, setShowVariants] = useState(false)
+  const [variants, setVariants] = useState([])
+  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10 })
+  const [variantFile, setVariantFile] = useState(null)
   const fileRef = useRef()
+  const variantFileRef = useRef()
 
   const load = () => {
     setLoading(true)
@@ -79,6 +84,8 @@ export default function AdminProducts() {
       is_featured: p.is_featured, is_new: p.is_new, is_active: p.is_active,
     })
     setEditId(p.id); setThumbFile(null); setThumbPreview(p.thumbnail || null); setModal('edit')
+    setVariants(p.variants || [])
+    setShowVariants(false)
   }
 
   const handleThumb = (e) => {
@@ -109,6 +116,36 @@ export default function AdminProducts() {
   const handleDelete = async (id) => {
     if (!window.confirm('Supprimer ce produit ?')) return
     await client.delete(`/admin/products/${id}/`)
+    load()
+  }
+
+  const handleAddVariant = async (e) => {
+    e.preventDefault()
+    if (!editId) return
+    setSaving(true)
+    try {
+      const fd = new FormData()
+      fd.append('product', editId)
+      fd.append('name', newVariant.name)
+      fd.append('color_hex', newVariant.color_hex)
+      fd.append('stock', newVariant.stock)
+      if (variantFile) fd.append('image', variantFile)
+      
+      const res = await client.post('/admin/variants/', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      setVariants([...variants, res.data])
+      setNewVariant({ name: '', color_hex: '#000000', stock: 10 })
+      setVariantFile(null)
+      if (variantFileRef.current) variantFileRef.current.value = ''
+      load()
+    } catch (err) {
+      alert('Erreur: ' + JSON.stringify(err.response?.data || err.message))
+    } finally { setSaving(false) }
+  }
+
+  const handleDeleteVariant = async (vid) => {
+    if (!window.confirm('Supprimer cette variation ?')) return
+    await client.delete(`/admin/variants/${vid}/`)
+    setVariants(variants.filter(v => v.id !== vid))
     load()
   }
 
@@ -265,6 +302,75 @@ export default function AdminProducts() {
                     Nouveauté
                   </label>
                 </div>
+
+                {modal === 'edit' && (
+                  <div style={{ marginTop: '30px', borderTop: '1px solid var(--admin-border)', paddingTop: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Variations (Teintes / Couleurs)</h3>
+                      <button type="button" className="btn-secondary" onClick={() => setShowVariants(!showVariants)}>
+                        {showVariants ? 'Masquer' : 'Gérer les variations'}
+                      </button>
+                    </div>
+
+                    {showVariants && (
+                      <div className="variants-section" style={{ background: 'var(--admin-surface2)', padding: '15px', borderRadius: '8px' }}>
+                        
+                        {/* List existing variants */}
+                        {variants.length > 0 ? (
+                          <div style={{ display: 'grid', gap: '10px', marginBottom: '20px' }}>
+                            {variants.map(v => (
+                              <div key={v.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--admin-surface)', padding: '10px', borderRadius: '6px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                  {v.image ? (
+                                    <img src={v.image} alt={v.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                                  ) : (
+                                    <div style={{ width: '40px', height: '40px', background: 'var(--admin-border)', borderRadius: '4px' }} />
+                                  )}
+                                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: v.color_hex || '#000', border: '1px solid var(--admin-border)' }} title={v.color_hex}></div>
+                                  <div style={{ fontWeight: 500 }}>{v.name}</div>
+                                  <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>Stock: {v.stock}</div>
+                                </div>
+                                <button type="button" className="btn-danger" style={{ padding: '4px 8px', fontSize: '0.8rem' }} onClick={() => handleDeleteVariant(v.id)}>Suppr.</button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p style={{ color: 'var(--admin-text-muted)', marginBottom: '15px', fontSize: '0.9rem' }}>Aucune variation pour ce produit.</p>
+                        )}
+
+                        {/* Add new variant */}
+                        <div style={{ borderTop: '1px dashed var(--admin-border)', paddingTop: '15px' }}>
+                          <h4 style={{ fontSize: '0.95rem', marginBottom: '10px' }}>Ajouter une variation</h4>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Nom de la teinte *</label>
+                              <input className="form-control" value={newVariant.name} onChange={e => setNewVariant({ ...newVariant, name: e.target.value })} placeholder="Ex: Rouge passion" />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Couleur (Hex) *</label>
+                              <div style={{ display: 'flex', gap: '10px' }}>
+                                <input type="color" value={newVariant.color_hex} onChange={e => setNewVariant({ ...newVariant, color_hex: e.target.value })} style={{ width: '40px', height: '40px', padding: '2px', cursor: 'pointer', background: 'transparent', border: '1px solid var(--admin-border)', borderRadius: '4px' }} />
+                                <input className="form-control" value={newVariant.color_hex} onChange={e => setNewVariant({ ...newVariant, color_hex: e.target.value })} style={{ flex: 1 }} placeholder="#000000" />
+                              </div>
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Stock</label>
+                              <input type="number" min="0" className="form-control" value={newVariant.stock} onChange={e => setNewVariant({ ...newVariant, stock: e.target.value })} />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Image de la variation</label>
+                              <input type="file" accept="image/*" className="form-control" style={{ padding: '8px' }} ref={variantFileRef} onChange={e => setVariantFile(e.target.files[0])} />
+                            </div>
+                          </div>
+                          <button type="button" className="btn-primary" style={{ marginTop: '15px', width: '100%', justifyContent: 'center' }} onClick={handleAddVariant} disabled={!newVariant.name || !newVariant.color_hex || saving}>
+                            Ajouter cette variation
+                          </button>
+                        </div>
+
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="admin-modal-footer">
                 <button type="button" className="btn-secondary" onClick={() => setModal(null)}>Annuler</button>

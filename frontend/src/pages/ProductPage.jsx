@@ -32,6 +32,11 @@ export default function ProductPage() {
     setTimeout(() => setAdded(false), 2000)
   }
 
+  const handleVariantSelect = (v) => {
+    setSelectedVariant(v)
+    if (v.image) setSelectedImage(-1)
+  }
+
   if (loading) return <div className="product-page-loading"><div className="spinner" /></div>
   if (error || !product) return (
     <div className="product-page-error container">
@@ -59,10 +64,10 @@ export default function ProductPage() {
           {/* ── Images ─────────────────────────────── */}
           <div className="product-gallery">
             <div className="product-gallery__main">
-              {images.length > 0 ? (
+              {images.length > 0 || selectedVariant?.image ? (
                 <img
-                  src={images[selectedImage]?.image || product.thumbnail}
-                  alt={images[selectedImage]?.alt || product.name}
+                  src={selectedImage === -1 && selectedVariant?.image ? selectedVariant.image : (images[selectedImage]?.image || product.thumbnail)}
+                  alt={selectedImage === -1 && selectedVariant?.image ? selectedVariant.name : (images[selectedImage]?.alt || product.name)}
                 />
               ) : (
                 <div className="product-gallery__placeholder">
@@ -140,7 +145,7 @@ export default function ProductPage() {
                       key={v.id}
                       className={`swatch ${selectedVariant?.id === v.id ? 'swatch--active' : ''}`}
                       style={{ background: v.color_hex || '#cccccc' }}
-                      onClick={() => setSelectedVariant(v)}
+                      onClick={() => handleVariantSelect(v)}
                       title={v.name}
                       id={`variant-${v.id}`}
                     />

@@ -6,24 +6,49 @@ const EMPTY_FORM = {
   promo_price: '', stock: '', is_featured: false, is_new: false, is_active: true,
 }
 
+const PER_PAGE = 15
+
+function Pagination({ page, totalPages, onPage }) {
+  if (totalPages <= 1) return null
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
+    .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+    .reduce((acc, p, idx, arr) => {
+      if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...')
+      acc.push(p)
+      return acc
+    }, [])
+
+  return (
+    <div className="admin-pagination">
+      <button className="admin-page-btn" disabled={page === 1} onClick={() => onPage(page - 1)}>‹</button>
+      {pages.map((p, i) =>
+        p === '...'
+          ? <span key={`e${i}`} style={{ color: 'var(--admin-text-muted)', padding: '0 4px' }}>…</span>
+          : <button key={p} className={`admin-page-btn ${p === page ? 'active' : ''}`} onClick={() => onPage(p)}>{p}</button>
+      )}
+      <button className="admin-page-btn" disabled={page === totalPages} onClick={() => onPage(page + 1)}>›</button>
+    </div>
+  )
+}
+
 export default function AdminProducts() {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [modal, setModal] = useState(null) // null | 'add' | 'edit'
+  const [modal, setModal] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [editId, setEditId] = useState(null)
   const [thumbFile, setThumbFile] = useState(null)
   const [thumbPreview, setThumbPreview] = useState(null)
   const [saving, setSaving] = useState(false)
-  const [deleteId, setDeleteId] = useState(null)
+  const [page, setPage] = useState(1)
   const fileRef = useRef()
 
   const load = () => {
     setLoading(true)
     Promise.all([
-      client.get('/admin/products/?page_size=100'),
+      client.get('/admin/products/?page_size=500'),
       client.get('/admin/categories/?page_size=100'),
     ]).then(([p, c]) => {
       setProducts(p.data.results || p.data)
@@ -36,13 +61,13 @@ export default function AdminProducts() {
   const filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase())
   )
+  const totalPages = Math.ceil(filtered.length / PER_PAGE)
+  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+
+  const handleSearch = (val) => { setSearch(val); setPage(1) }
 
   const openAdd = () => {
-    setForm(EMPTY_FORM)
-    setEditId(null)
-    setThumbFile(null)
-    setThumbPreview(null)
-    setModal('add')
+    setForm(EMPTY_FORM); setEditId(null); setThumbFile(null); setThumbPreview(null); setModal('add')
   }
 
   const openEdit = (p) => {
@@ -53,10 +78,7 @@ export default function AdminProducts() {
       stock: p.stock,
       is_featured: p.is_featured, is_new: p.is_new, is_active: p.is_active,
     })
-    setEditId(p.id)
-    setThumbFile(null)
-    setThumbPreview(p.thumbnail || null)
-    setModal('edit')
+    setEditId(p.id); setThumbFile(null); setThumbPreview(p.thumbnail || null); setModal('edit')
   }
 
   const handleThumb = (e) => {
@@ -75,19 +97,13 @@ export default function AdminProducts() {
         if (v !== '' && v !== null && v !== undefined) fd.append(k, v)
       })
       if (thumbFile) fd.append('thumbnail', thumbFile)
-
-      if (modal === 'add') {
-        await client.post('/admin/products/', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-      } else {
-        await client.patch(`/admin/products/${editId}/`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-      }
-      setModal(null)
-      load()
+      const cfg = { headers: { 'Content-Type': 'multipart/form-data' } }
+      if (modal === 'add') await client.post('/admin/products/', fd, cfg)
+      else await client.patch(`/admin/products/${editId}/`, fd, cfg)
+      setModal(null); load()
     } catch (err) {
       alert('Erreur: ' + JSON.stringify(err.response?.data || err.message))
-    } finally {
-      setSaving(false)
-    }
+    } finally { setSaving(false) }
   }
 
   const handleDelete = async (id) => {
@@ -98,7 +114,12 @@ export default function AdminProducts() {
 
   return (
     <div>
-      <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 24 }}>Produits</h2>
+      <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 24 }}>
+        Produits
+        <span style={{ fontSize: '0.85rem', fontWeight: 400, color: 'var(--admin-text-muted)', marginLeft: 10 }}>
+          {filtered.length} produit{filtered.length !== 1 ? 's' : ''}
+        </span>
+      </h2>
 
       <div className="admin-card">
         <div className="admin-card-header">
@@ -109,7 +130,7 @@ export default function AdminProducts() {
             <input
               placeholder="Rechercher un produit..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => handleSearch(e.target.value)}
               id="products-search"
             />
           </div>
@@ -124,60 +145,53 @@ export default function AdminProducts() {
         {loading ? (
           <div className="admin-loading"><div className="spin" /><span>Chargement...</span></div>
         ) : (
-          <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Image</th>
-                  <th>Nom</th>
-                  <th>Catégorie</th>
-                  <th>Prix</th>
-                  <th>Stock</th>
-                  <th>Statut</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(p => (
-                  <tr key={p.id}>
-                    <td>
-                      {p.thumbnail
-                        ? <img src={p.thumbnail} alt={p.name} />
-                        : <div style={{ width: 44, height: 44, borderRadius: 8, background: 'var(--admin-surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20" style={{ color: 'var(--admin-text-muted)' }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                          </div>
-                      }
-                    </td>
-                    <td style={{ fontWeight: 500 }}>{p.name}</td>
-                    <td style={{ color: 'var(--admin-text-muted)' }}>{p.category_name || '—'}</td>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{Number(p.price).toLocaleString('fr-DZ')} DA</div>
-                      {p.is_promo && <div style={{ fontSize: '0.75rem', color: 'var(--admin-rose)' }}>{Number(p.promo_price).toLocaleString('fr-DZ')} DA promo</div>}
-                    </td>
-                    <td>
-                      <span style={{ color: p.stock === 0 ? 'var(--admin-danger)' : p.stock < 5 ? 'var(--admin-warning)' : 'var(--admin-success)', fontWeight: 600 }}>
-                        {p.stock}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${p.is_active ? 'badge-active' : 'badge-inactive'}`}>
-                        {p.is_active ? 'Actif' : 'Inactif'}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        <button className="btn-edit" onClick={() => openEdit(p)}>Modifier</button>
-                        <button className="btn-danger" onClick={() => handleDelete(p.id)}>Suppr.</button>
-                      </div>
-                    </td>
+          <>
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Image</th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Statut</th><th>Actions</th>
                   </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr><td colSpan={7}><div className="admin-empty"><p>Aucun produit trouvé.</p></div></td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {paginated.map(p => (
+                    <tr key={p.id}>
+                      <td>
+                        {p.thumbnail
+                          ? <img src={p.thumbnail} alt={p.name} />
+                          : <div style={{ width: 44, height: 44, borderRadius: 8, background: 'var(--admin-surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20" style={{ color: 'var(--admin-text-muted)' }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </div>
+                        }
+                      </td>
+                      <td style={{ fontWeight: 500 }}>{p.name}</td>
+                      <td style={{ color: 'var(--admin-text-muted)' }}>{p.category_name || '—'}</td>
+                      <td>
+                        <div style={{ fontWeight: 600 }}>{Number(p.price).toLocaleString('fr-DZ')} DA</div>
+                        {p.is_promo && <div style={{ fontSize: '0.75rem', color: 'var(--admin-rose)' }}>{Number(p.promo_price).toLocaleString('fr-DZ')} DA promo</div>}
+                      </td>
+                      <td>
+                        <span style={{ color: p.stock === 0 ? 'var(--admin-danger)' : p.stock < 5 ? 'var(--admin-warning)' : 'var(--admin-success)', fontWeight: 600 }}>
+                          {p.stock}
+                        </span>
+                      </td>
+                      <td><span className={`badge ${p.is_active ? 'badge-active' : 'badge-inactive'}`}>{p.is_active ? 'Actif' : 'Inactif'}</span></td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button className="btn-edit" onClick={() => openEdit(p)}>Modifier</button>
+                          <button className="btn-danger" onClick={() => handleDelete(p.id)}>Suppr.</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {paginated.length === 0 && (
+                    <tr><td colSpan={7}><div className="admin-empty"><p>Aucun produit trouvé.</p></div></td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination page={page} totalPages={totalPages} onPage={setPage} />
+          </>
         )}
       </div>
 
@@ -198,7 +212,7 @@ export default function AdminProducts() {
                   {thumbPreview && <img src={thumbPreview} className="thumb-preview" alt="preview" />}
                   <label className="form-file-label" htmlFor="thumb-upload">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    {thumbPreview ? 'Changer l\'image' : 'Choisir une image'}
+                    {thumbPreview ? "Changer l'image" : 'Choisir une image'}
                   </label>
                   <input id="thumb-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleThumb} ref={fileRef} />
                 </div>

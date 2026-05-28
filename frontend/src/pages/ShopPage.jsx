@@ -175,14 +175,37 @@ export default function ShopPage() {
               <button
                 className="btn btn-outline"
                 disabled={page === 1}
-                onClick={() => setPage(page - 1)}
+                onClick={() => { setPage(page - 1); window.scrollTo(0,0) }}
                 id="page-prev"
               >← Précédent</button>
-              <span className="shop-pagination__info">Page {page} / {Math.ceil(totalCount / 12)}</span>
+
+              {/* Page number buttons */}
+              {Array.from({ length: Math.ceil(totalCount / 12) }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === Math.ceil(totalCount / 12) || Math.abs(p - page) <= 2)
+                .reduce((acc, p, idx, arr) => {
+                  if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...')
+                  acc.push(p)
+                  return acc
+                }, [])
+                .map((p, i) =>
+                  p === '...' ? (
+                    <span key={`ellipsis-${i}`} style={{ padding: '0 4px', color: 'var(--color-muted)' }}>...</span>
+                  ) : (
+                    <button
+                      key={p}
+                      className={`btn ${p === page ? 'btn-accent' : 'btn-outline'}`}
+                      onClick={() => { setPage(p); window.scrollTo(0,0) }}
+                      id={`page-num-${p}`}
+                      style={{ minWidth: 36 }}
+                    >{p}</button>
+                  )
+                )
+              }
+
               <button
                 className="btn btn-outline"
                 disabled={page >= Math.ceil(totalCount / 12)}
-                onClick={() => setPage(page + 1)}
+                onClick={() => { setPage(page + 1); window.scrollTo(0,0) }}
                 id="page-next"
               >Suivant →</button>
             </div>

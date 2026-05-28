@@ -1,6 +1,30 @@
 import { useState, useEffect } from 'react'
 import client from '../../api/client'
 
+const PER_PAGE = 20
+
+function Pagination({ page, totalPages, onPage }) {
+  if (totalPages <= 1) return null
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
+    .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+    .reduce((acc, p, idx, arr) => {
+      if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...')
+      acc.push(p)
+      return acc
+    }, [])
+  return (
+    <div className="admin-pagination">
+      <button className="admin-page-btn" disabled={page === 1} onClick={() => onPage(page - 1)}>‹</button>
+      {pages.map((p, i) =>
+        p === '...'
+          ? <span key={`e${i}`} style={{ color: 'var(--admin-text-muted)', padding: '0 4px' }}>…</span>
+          : <button key={p} className={`admin-page-btn ${p === page ? 'active' : ''}`} onClick={() => onPage(p)}>{p}</button>
+      )}
+      <button className="admin-page-btn" disabled={page === totalPages} onClick={() => onPage(page + 1)}>›</button>
+    </div>
+  )
+}
+
 const STATUS_LABELS = {
   pending: 'En attente', confirmed: 'Confirmée',
   shipped: 'En livraison', delivered: 'Livrée', cancelled: 'Annulée',
@@ -17,13 +41,15 @@ export default function AdminOrders() {
   const [filter, setFilter] = useState('')
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState(null)
+  const [page, setPage] = useState(1)
 
   const load = () => {
     setLoading(true)
+    setPage(1)
     const params = new URLSearchParams()
     if (filter) params.append('status', filter)
     if (search) params.append('search', search)
-    params.append('page_size', 100)
+    params.append('page_size', 500)
     client.get(`/admin/orders/?${params}`)
       .then(r => setOrders(r.data.results || r.data))
       .finally(() => setLoading(false))
@@ -74,16 +100,17 @@ export default function AdminOrders() {
         {loading ? (
           <div className="admin-loading"><div className="spin" /><span>Chargement...</span></div>
         ) : (
-          <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>#</th><th>Client</th><th>Contact</th><th>Wilaya</th>
-                  <th>Total</th><th>Articles</th><th>Statut</th><th>Date</th><th>Détail</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map(o => (
+          <>
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>#</th><th>Client</th><th>Contact</th><th>Wilaya</th>
+                    <th>Total</th><th>Articles</th><th>Statut</th><th>Date</th><th>Détail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.slice((page - 1) * PER_PAGE, page * PER_PAGE).map(o => (
                   <tr key={o.id}>
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>#{o.id}</td>
                     <td style={{ fontWeight: 500 }}>{o.customer_name}</td>
@@ -114,12 +141,14 @@ export default function AdminOrders() {
                     </td>
                   </tr>
                 ))}
-                {orders.length === 0 && (
-                  <tr><td colSpan={9}><div className="admin-empty"><p>Aucune commande.</p></div></td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                  {orders.length === 0 && (
+                    <tr><td colSpan={9}><div className="admin-empty"><p>Aucune commande.</p></div></td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination page={page} totalPages={Math.ceil(orders.length / PER_PAGE)} onPage={setPage} />
+          </>
         )}
       </div>
 

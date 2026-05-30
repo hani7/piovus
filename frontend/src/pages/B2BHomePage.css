@@ -1,0 +1,146 @@
+.b2b-homepage {
+  background-color: #fcfcfc;
+  min-height: calc(100vh - var(--header-height));
+  padding-bottom: 60px;
+}
+
+.b2b-hero {
+  background: var(--color-dark);
+  color: #fff;
+  padding: 40px 0;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.b2b-hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-family: var(--font-heading);
+}
+
+.b2b-hero p {
+  color: var(--color-gray-300);
+  font-size: 1.1rem;
+}
+
+/* Category Icons */
+.b2b-categories-wrapper {
+  background: #fff;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--color-gray-200);
+  margin-bottom: 40px;
+}
+
+.b2b-categories-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scrollbar-width: thin;
+}
+
+.b2b-categories-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.b2b-categories-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.b2b-categories-scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.b2b-cat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 90px;
+  text-decoration: none;
+  color: var(--color-dark);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.b2b-cat-item:hover {
+  transform: translateY(-3px);
+  color: var(--color-accent);
+}
+
+.b2b-cat-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--color-cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.b2b-cat-item:hover .b2b-cat-icon {
+  border-color: var(--color-accent);
+}
+
+.b2b-cat-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.b2b-cat-icon span {
+  font-size: 1.5rem;
+  color: var(--color-accent);
+}
+
+.b2b-cat-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Products Section */
+.b2b-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.b2b-section-title {
+  font-size: 1.5rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.b2b-shop-link {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  transition: opacity 0.2s ease;
+}
+
+.b2b-shop-link:hover {
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .b2b-hero h1 {
+    font-size: 1.5rem;
+  }
+  .b2b-hero {
+    padding: 30px 0;
+  }
+  .b2b-section-title {
+    font-size: 1.25rem;
+  }
+}

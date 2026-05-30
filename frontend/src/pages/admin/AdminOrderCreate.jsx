@@ -16,7 +16,7 @@ const WILAYAS = [
   'El M\'Ghair','El Meniaa'
 ]
 
-export default function AdminOrderCreate() {
+export default function AdminOrderCreate({ isB2B = false }) {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
 
@@ -32,7 +32,6 @@ export default function AdminOrderCreate() {
     shipping_address: '',
     wilaya: '',
     city: '',
-    is_b2b: false,
     delivery_company_id: '',
     delivery_type: 'home',
     payment_method: 'cash',
@@ -89,7 +88,6 @@ export default function AdminOrderCreate() {
       guest_name: c.name || '',
       guest_phone: c.phone || '',
       guest_email: c.email || '',
-      is_b2b: c.is_b2b || false
     })
     setCustomerSearch('')
     setCustomerResults([])
@@ -125,8 +123,8 @@ export default function AdminOrderCreate() {
   const subtotal = cart.reduce((acc, item) => {
     const p = item.product
     let price = p.effective_price
-    if (form.is_b2b) {
-      price = p.b2b_price ? p.b2b_price : (p.effective_price * (p.units_per_carton || 1))
+    if (isB2B) {
+      price = p.b2b_price ? parseFloat(p.b2b_price) : (p.effective_price * (p.units_per_carton || 1))
     }
     return acc + (price * item.quantity)
   }, 0)
@@ -158,6 +156,7 @@ export default function AdminOrderCreate() {
     try {
       const payload = {
         ...form,
+        is_b2b: isB2B,
         items: cart.map(item => ({
           product_id: item.product.id,
           variant_id: item.variant ? item.variant.id : null,
@@ -178,8 +177,8 @@ export default function AdminOrderCreate() {
     <div className="admin-page" style={{ paddingBottom: 60 }}>
       <div className="admin-page-header">
         <h2 style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button className="btn-icon" onClick={() => navigate('/admin-panel/orders')}><ArrowLeft size={20}/></button>
-          Créer une Commande
+          <button className="btn-icon" onClick={() => navigate(isB2B ? '/admin-panel/orders-b2b' : '/admin-panel/orders')}><ArrowLeft size={20}/></button>
+          {isB2B ? 'Créer une Commande B2B' : 'Créer une Commande'}
         </h2>
         <button className="btn-primary" onClick={handleSubmit} disabled={saving}>
           {saving ? 'Création...' : 'Valider la commande'}
@@ -231,13 +230,12 @@ export default function AdminOrderCreate() {
               <label>Email (Optionnel)</label>
               <input type="email" className="form-control" value={form.guest_email} onChange={e => setForm({...form, guest_email: e.target.value})} />
             </div>
-
-            <div className="form-group" style={{ marginTop: 16 }}>
-              <label className="form-check">
-                <input type="checkbox" checked={form.is_b2b} onChange={e => setForm({...form, is_b2b: e.target.checked})} />
-                Appliquer la tarification B2B (Gros)
-              </label>
-            </div>
+            
+            {isB2B && (
+              <div style={{ marginTop: 16, padding: '12px 16px', background: 'rgba(240,184,106,0.15)', borderRadius: 8, color: 'var(--admin-warning)', fontSize: '0.85rem', fontWeight: 500 }}>
+                ⚠️ Mode B2B Actif : Les prix affichés sont automatiquement calculés selon la grille de gros (prix au carton ou prix B2B spécifique).
+              </div>
+            )}
           </div>
 
           {/* Delivery Details */}
@@ -306,7 +304,7 @@ export default function AdminOrderCreate() {
                         <img src={p.images?.[0]?.image || '/placeholder.png'} style={{width: 40, height: 40, objectFit: 'cover', borderRadius: 4}} alt=""/>
                         <div>
                           <strong>{p.name}</strong>
-                          <div style={{ fontSize: '0.8rem', color: '#666' }}>{form.is_b2b ? p.b2b_price || (p.effective_price * (p.units_per_carton||1)) : p.effective_price} DA</div>
+                          <div style={{ fontSize: '0.8rem', color: '#666' }}>{isB2B ? p.b2b_price || (p.effective_price * (p.units_per_carton||1)) : p.effective_price} DA</div>
                         </div>
                       </div>
                       <button className="btn-action-icon" onClick={() => {addToCart(p); setProductsSearch(''); setProductsResults([]);}}><Plus size={16}/></button>
@@ -321,7 +319,7 @@ export default function AdminOrderCreate() {
               {cart.map((item, idx) => {
                 const p = item.product
                 let price = p.effective_price
-                if (form.is_b2b) price = p.b2b_price ? p.b2b_price : (p.effective_price * (p.units_per_carton || 1))
+                if (isB2B) price = p.b2b_price ? parseFloat(p.b2b_price) : (p.effective_price * (p.units_per_carton || 1))
 
                 return (
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #eee' }}>

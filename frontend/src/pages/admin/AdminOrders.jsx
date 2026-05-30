@@ -180,7 +180,7 @@ export default function AdminOrders({ isB2B = false }) {
             </button>
             </div>
           )}
-          <button className="btn-primary" onClick={() => navigate('/admin-panel/orders/new')}>
+          <button className="btn-primary" onClick={() => navigate(isB2B ? '/admin-panel/orders-b2b/new' : '/admin-panel/orders/new')}>
             <Plus size={16}/> Créer une Commande
           </button>
         </div>

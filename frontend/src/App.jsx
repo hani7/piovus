@@ -4,7 +4,9 @@ import client from './api/client'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
+import B2BHomePage from './pages/B2BHomePage'
 import ShopPage from './pages/ShopPage'
+import { useAuthStore } from './store/authStore'
 import ProductPage from './pages/ProductPage'
 import CategoryPage from './pages/CategoryPage'
 import CartPage from './pages/CartPage'
@@ -48,6 +50,8 @@ function ScrollToTop() {
 export default function App() {
   const { pathname } = useLocation()
   const isAdmin = pathname.startsWith('/admin-panel')
+  const user = useAuthStore(s => s.user)
+  const isB2B = user?.profile?.is_b2b
   
   const [settings, setSettings] = useState(null)
   const [loadingSettings, setLoadingSettings] = useState(true)
@@ -74,7 +78,7 @@ export default function App() {
       {!isAdmin && <Navbar />}
       <Routes>
         {/* Public store */}
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={isB2B ? <B2BHomePage /> : <HomePage />} />
         <Route path="/shop" element={<ShopPage />} />
         <Route path="/produit/:slug" element={<ProductPage />} />
         <Route path="/category/:slug" element={<CategoryPage />} />
@@ -93,7 +97,8 @@ export default function App() {
           <Route path="categories" element={<AdminCategories />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="orders-b2b" element={<AdminOrders isB2B={true} />} />
-          <Route path="orders/new" element={<AdminOrderCreate />} />
+          <Route path="orders/new" element={<AdminOrderCreate isB2B={false} />} />
+          <Route path="orders-b2b/new" element={<AdminOrderCreate isB2B={true} />} />
           <Route path="orders/:id" element={<AdminOrderDetail />} />
           <Route path="banners" element={<AdminBanners />} />
           <Route path="delivery-companies" element={<AdminDeliveryCompanies />} />

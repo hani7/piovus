@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getProduct } from '../api/products'
+import { getProduct, getRelatedProducts } from '../api/products'
 import { useCartStore } from '../store/cartStore'
+import { useAuthStore } from '../store/authStore'
+import ProductCard from '../components/ProductCard'
 import './ProductPage.css'
 
 export default function ProductPage() {
@@ -13,7 +15,9 @@ export default function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
+  const [relatedProducts, setRelatedProducts] = useState([])
   const addItem = useCartStore((s) => s.addItem)
+  const user = useAuthStore((s) => s.user)
 
   useEffect(() => {
     setLoading(true)
@@ -24,6 +28,10 @@ export default function ProductPage() {
       })
       .catch(() => setError('Produit introuvable.'))
       .finally(() => setLoading(false))
+
+    getRelatedProducts(slug)
+      .then((r) => setRelatedProducts(r))
+      .catch(console.error)
   }, [slug])
 
   const handleAddToCart = () => {
@@ -65,10 +73,32 @@ export default function ProductPage() {
           <div className="product-gallery">
             <div className="product-gallery__main">
               {images.length > 0 || selectedVariant?.image ? (
-                <img
-                  src={selectedImage === -1 && selectedVariant?.image ? selectedVariant.image : (images[selectedImage]?.image || product.thumbnail)}
-                  alt={selectedImage === -1 && selectedVariant?.image ? selectedVariant.name : (images[selectedImage]?.alt || product.name)}
-                />
+                <>
+                  {selectedImage === -1 && selectedVariant?.image ? (
+                    <img src={selectedVariant.image} alt={selectedVariant.name} />
+                  ) : images[selectedImage]?.video ? (
+                    <video 
+                      src={images[selectedImage].video} 
+                      poster={images[selectedImage].image} 
+                      controls 
+                      autoPlay 
+                      loop 
+                      muted 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <img
+                      src={images[selectedImage]?.image || product.thumbnail}
+                      alt={images[selectedImage]?.alt || product.name}
+                    />
+                  )}
+                  {images.length > 1 && selectedImage !== -1 && (
+                    <>
+                      <button className="carousel-btn prev" onClick={() => setSelectedImage(selectedImage > 0 ? selectedImage - 1 : images.length - 1)}>‹</button>
+                      <button className="carousel-btn next" onClick={() => setSelectedImage(selectedImage < images.length - 1 ? selectedImage + 1 : 0)}>›</button>
+                    </>
+                  )}
+                </>
               ) : (
                 <div className="product-gallery__placeholder">
                   <svg width="60" height="60" fill="none" stroke="var(--color-gray-300)" strokeWidth="1.2" viewBox="0 0 24 24">
@@ -92,6 +122,11 @@ export default function ProductPage() {
                     id={`thumb-${i}`}
                   >
                     <img src={img.image} alt={img.alt || product.name} />
+                    {img.video && (
+                      <div className="thumb-video-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
@@ -100,9 +135,25 @@ export default function ProductPage() {
 
           {/* ── Info ───────────────────────────────── */}
           <div className="product-info">
-            <p className="product-info__category">
-              <Link to={`/category/${product.category_slug}`}>{product.category_name}</Link>
-            </p>
+            <div className="product-info__header">
+              <p className="product-info__category">
+                <Link to={`/category/${product.category_slug}`}>{product.category_name}</Link>
+              </p>
+              <div className="product-info__share">
+                <button onClick={() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Découvrez ce produit : ' + product.name + ' - ' + window.location.href)}`, '_blank')} title="Partager sur WhatsApp">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                </button>
+                <button onClick={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(product.name)}`, '_blank')} title="Partager sur Telegram">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+                <button onClick={() => window.open(`fb-messenger://share/?link=${encodeURIComponent(window.location.href)}`, '_blank')} title="Partager sur Messenger">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.48 2 2 6.14 2 11.25c0 2.92 1.48 5.51 3.8 7.18V22l3.46-1.9c1.07.29 2.22.45 3.4.45 5.52 0 10-4.14 10-9.25C22 6.14 17.52 2 12 2zm1.09 12.39-2.92-3.13-5.69 3.13 6.24-6.6 3.01 3.13 5.59-3.13-6.23 6.6z"/></svg>
+                </button>
+                <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert('Lien copié !') }} title="Copier le lien">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                </button>
+              </div>
+            </div>
             <h1 className="product-info__name">{product.name}</h1>
 
             {/* Rating */}
@@ -117,7 +168,16 @@ export default function ProductPage() {
 
             {/* Price */}
             <div className="product-info__pricing">
-              {product.is_promo ? (
+              {user?.profile?.is_b2b ? (
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span className="product-info__price" style={{ color: 'var(--admin-gold)' }}>
+                    {parseFloat(product.b2b_price || product.effective_price * (product.units_per_carton || 1)).toLocaleString('fr-DZ')} DA
+                  </span>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginTop: 4 }}>
+                    Le carton ({product.units_per_carton || 1} pcs)
+                  </span>
+                </div>
+              ) : product.is_promo ? (
                 <>
                   <span className="product-info__price product-info__price--promo">
                     {parseFloat(product.promo_price).toLocaleString('fr-DZ')} DA
@@ -144,7 +204,11 @@ export default function ProductPage() {
                     <button
                       key={v.id}
                       className={`swatch ${selectedVariant?.id === v.id ? 'swatch--active' : ''}`}
-                      style={{ background: v.color_hex || '#cccccc' }}
+                      style={{
+                        background: v.color_hex?.startsWith('http')
+                          ? `url(${v.color_hex}) center/cover`
+                          : (v.color_hex || '#cccccc')
+                      }}
                       onClick={() => handleVariantSelect(v)}
                       title={v.name}
                       id={`variant-${v.id}`}
@@ -229,6 +293,18 @@ export default function ProductPage() {
                   <p className="review-card__comment">{r.comment}</p>
                   <p className="review-card__date">{new Date(r.created_at).toLocaleDateString('fr-DZ')}</p>
                 </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Related Products ───────────────────── */}
+        {relatedProducts.length > 0 && (
+          <section className="product-related" style={{ marginTop: '40px', paddingTop: '40px', borderTop: '1px solid var(--color-gray-200)' }}>
+            <h2 className="section-title" style={{textAlign:'left', fontSize:'1.6rem'}}>Vous aimerez aussi</h2>
+            <div className="related-products-grid" style={{ marginTop: '20px' }}>
+              {relatedProducts.map(p => (
+                <ProductCard key={p.id} product={p} />
               ))}
             </div>
           </section>

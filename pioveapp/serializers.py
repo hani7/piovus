@@ -2,8 +2,16 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import (
     Category, Product, ProductImage, ProductVariant,
-    Banner, Order, OrderItem, Review, UserProfile
+    Banner, Order, OrderItem, Review, UserProfile,
+    DeliveryCompany, DeliveryRate, Customer, OrderStatusHistory, Coupon
 )
+
+
+# ─── Coupons ─────────────────────────────────────────────────────────────────
+class CouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coupon
+        fields = '__all__'
 
 
 # ─── Category ────────────────────────────────────────────────────────────────
@@ -22,7 +30,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
-        fields = ['id', 'image', 'alt', 'order']
+        fields = ['id', 'image', 'video', 'alt', 'order']
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
@@ -56,8 +64,8 @@ class ProductListSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id', 'name', 'slug', 'category_name', 'category_slug',
-            'price', 'promo_price', 'effective_price', 'is_promo',
-            'stock', 'is_featured', 'is_new', 'thumbnail',
+            'price', 'promo_price', 'b2b_price', 'effective_price', 'is_promo',
+            'units_per_carton', 'stock', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'thumbnail',
             'avg_rating', 'created_at',
         ]
 
@@ -88,22 +96,39 @@ class ProductDetailSerializer(ProductListSerializer):
 class BannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Banner
-        fields = ['id', 'title', 'subtitle', 'image', 'cta_label', 'cta_url', 'promo_code', 'order']
+        fields = ['id', 'title', 'subtitle', 'image', 'cta_label', 'cta_url', 'promo_code', 'placement', 'category', 'is_active', 'order']
 
 
 # ─── Auth / User ─────────────────────────────────────────────────────────────
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['phone', 'address', 'wilaya']
+        fields = ['phone', 'address', 'wilaya', 'is_b2b', 'company_name', 'nrc', 'nif', 'nrc_file', 'is_b2b_pending']
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = UserProfileSerializer(read_only=True)
+    profile = UserProfileSerializer()
 
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser', 'profile']
+        read_only_fields = ['is_staff', 'is_superuser']
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if profile_data is not None:
+            profile = getattr(instance, 'profile', None)
+            if profile:
+                for attr, value in profile_data.items():
+                    setattr(profile, attr, value)
+                profile.save()
+                
+        return instance
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -128,16 +153,69 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+class B2BRegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=6)
+    password2 = serializers.CharField(write_only=True)
+    phone = serializers.CharField(write_only=True, required=True)
+    company_name = serializers.CharField(write_only=True, required=True)
+    nrc = serializers.CharField(write_only=True, required=True)
+    nif = serializers.CharField(write_only=True, required=True)
+    nrc_file = serializers.FileField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'password', 'password2', 'phone', 'company_name', 'nrc', 'nif', 'nrc_file']
+
+    def validate(self, data):
+        if data['password'] != data['password2']:
+            raise serializers.ValidationError({'password': 'Les mots de passe ne correspondent pas.'})
+        return data
+
+    def create(self, validated_data):
+        phone = validated_data.pop('phone')
+        company_name = validated_data.pop('company_name')
+        nrc = validated_data.pop('nrc')
+        nif = validated_data.pop('nif')
+        nrc_file = validated_data.pop('nrc_file', None)
+        validated_data.pop('password2')
+        
+        user = User.objects.create_user(**validated_data)
+        UserProfile.objects.create(
+            user=user, 
+            phone=phone,
+            company_name=company_name,
+            nrc=nrc,
+            nif=nif,
+            nrc_file=nrc_file,
+            is_b2b=False,
+            is_b2b_pending=True
+        )
+        return user
+
+
 # ─── Order ───────────────────────────────────────────────────────────────────
 class OrderItemSerializer(serializers.ModelSerializer):
     subtotal = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    product_image = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
         fields = [
             'id', 'product', 'variant', 'product_name', 'variant_name',
-            'quantity', 'price_at_purchase', 'subtotal'
+            'quantity', 'price_at_purchase', 'subtotal', 'product_image'
         ]
+        
+    def get_product_image(self, obj):
+        request = self.context.get('request')
+        url = None
+        if obj.variant and obj.variant.image:
+            url = obj.variant.image.url
+        elif obj.product and obj.product.thumbnail:
+            url = obj.product.thumbnail.url
+            
+        if url and request:
+            return request.build_absolute_uri(url)
+        return url
 
 
 class OrderItemCreateSerializer(serializers.Serializer):
@@ -146,8 +224,16 @@ class OrderItemCreateSerializer(serializers.Serializer):
     quantity = serializers.IntegerField(min_value=1, default=1)
 
 
+class OrderStatusHistorySerializer(serializers.ModelSerializer):
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    class Meta:
+        model = OrderStatusHistory
+        fields = ['id', 'status', 'status_display', 'notes', 'created_at']
+
+
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    history = OrderStatusHistorySerializer(many=True, read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
@@ -155,10 +241,11 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user', 'guest_name', 'guest_phone', 'guest_email',
             'shipping_address', 'wilaya', 'city',
-            'status', 'status_display', 'total', 'notes',
-            'items', 'created_at',
+            'delivery_company_name', 'delivery_type', 'delivery_cost',
+            'status', 'status_display', 'payment_method', 'total', 'notes',
+            'items', 'history', 'created_at',
         ]
-        read_only_fields = ['user', 'status', 'total', 'created_at']
+        read_only_fields = ['user', 'status', 'total', 'created_at', 'delivery_cost', 'delivery_company_name', 'history']
 
 
 class OrderCreateSerializer(serializers.Serializer):
@@ -170,6 +257,13 @@ class OrderCreateSerializer(serializers.Serializer):
     wilaya = serializers.CharField(required=False, allow_blank=True)
     city = serializers.CharField(required=False, allow_blank=True)
     notes = serializers.CharField(required=False, allow_blank=True)
+    payment_method = serializers.ChoiceField(choices=['cash', 'cib'], default='cash')
+    delivery_company_id = serializers.IntegerField(required=False, allow_null=True)
+    delivery_type = serializers.ChoiceField(choices=['home', 'desk'], default='home')
+    
+    coupon_id = serializers.IntegerField(required=False, allow_null=True)
+    discount_amount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=0)
+    
     items = OrderItemCreateSerializer(many=True)
 
 
@@ -193,20 +287,27 @@ class AdminProductVariantSerializer(serializers.ModelSerializer):
         fields = ['id', 'product', 'name', 'color_hex', 'image', 'stock', 'sku']
 
 
+class AdminProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'product', 'image', 'video', 'alt', 'order']
+
+
 class AdminProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     is_promo = serializers.BooleanField(read_only=True)
     effective_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     variants = AdminProductVariantSerializer(many=True, read_only=True)
+    images = AdminProductImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'slug', 'category', 'category_name',
-            'description', 'price', 'promo_price', 'effective_price', 'is_promo',
-            'stock', 'is_featured', 'is_new', 'is_active',
-            'thumbnail', 'created_at', 'updated_at', 'variants'
+            'description', 'price', 'promo_price', 'b2b_price', 'effective_price', 'is_promo',
+            'units_per_carton', 'stock', 'min_stock_alert', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'is_active',
+            'thumbnail', 'created_at', 'updated_at', 'variants', 'images'
         ]
         read_only_fields = ['slug', 'created_at', 'updated_at']
 
@@ -215,31 +316,61 @@ class AdminProductSerializer(serializers.ModelSerializer):
 class AdminBannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Banner
-        fields = ['id', 'title', 'subtitle', 'image', 'cta_label', 'cta_url', 'promo_code', 'is_active', 'order']
-
-
+        fields = ['id', 'title', 'subtitle', 'image', 'cta_label', 'cta_url', 'promo_code', 'placement', 'category', 'is_active', 'order']
 class AdminOrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    history = OrderStatusHistorySerializer(many=True, read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     customer_name = serializers.SerializerMethodField()
+    is_blacklisted = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = [
             'id', 'customer_name', 'user', 'guest_name', 'guest_phone', 'guest_email',
             'shipping_address', 'wilaya', 'city',
-            'status', 'status_display', 'total', 'notes',
-            'items', 'created_at', 'updated_at',
+            'delivery_company_name', 'delivery_type', 'delivery_cost',
+            'status', 'status_display', 'payment_status', 'payment_method', 'total', 'notes',
+            'items', 'history', 'created_at', 'updated_at', 'is_blacklisted', 'customer'
         ]
-        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items']
+        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted']
 
     def get_customer_name(self, obj):
         if obj.user:
             return obj.user.get_full_name() or obj.user.username
         return obj.guest_name or 'Client anonyme'
 
+    def get_is_blacklisted(self, obj):
+        if obj.customer:
+            return obj.customer.is_blacklisted
+        return False
+
 
 class AdminOrderStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['status']
+
+
+# ─── Delivery Serializers ────────────────────────────────────────────────────
+class DeliveryRateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeliveryRate
+        fields = ['id', 'company', 'wilaya_name', 'price_home', 'price_desk']
+
+
+class DeliveryCompanySerializer(serializers.ModelSerializer):
+    rates = DeliveryRateSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = DeliveryCompany
+        fields = ['id', 'name', 'is_active', 'rates']
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    total_orders = serializers.IntegerField(read_only=True)
+    total_spent = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = Customer
+        fields = ['id', 'name', 'phone', 'email', 'is_blacklisted', 'is_b2b', 'total_orders', 'total_spent', 'created_at', 'updated_at']

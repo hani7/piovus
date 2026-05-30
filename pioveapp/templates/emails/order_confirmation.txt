@@ -1,0 +1,21 @@
+Bonjour {{ order.guest_name|default:order.user.first_name }},
+
+Merci pour votre commande chez Piové Cosmetics !
+Votre commande n° {{ order.id }} a bien été enregistrée et est actuellement en attente de traitement.
+
+DÉTAILS DE LA COMMANDE :
+--------------------------------------------------
+{% for item in order.items.all %}
+- {{ item.product_name }}{% if item.variant_name %} ({{ item.variant_name }}){% endif %} x{{ item.quantity }} : {{ item.price_at_purchase }} DA
+{% endfor %}
+--------------------------------------------------
+TOTAL À PAYER À LA LIVRAISON : {{ order.total }} DA
+
+ADRESSE DE LIVRAISON :
+{{ order.guest_address }}
+Wilaya: {{ order.guest_wilaya }}
+Téléphone: {{ order.guest_phone }}
+
+Nous vous contacterons très prochainement pour confirmer l'expédition de votre colis.
+
+L'équipe Piové Cosmetics.

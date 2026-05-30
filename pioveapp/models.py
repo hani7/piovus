@@ -1,6 +1,35 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from decimal import Decimal
+
+
+class SiteSettings(models.Model):
+    is_maintenance_mode = models.BooleanField(default=False)
+    maintenance_message = models.TextField(default="Nous serons de retour très bientôt.")
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class UserActivityLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activity_logs')
+    action = models.CharField(max_length=255)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=500, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.action} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
 
 class Category(models.Model):
@@ -30,9 +59,14 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     promo_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    b2b_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    units_per_carton = models.PositiveIntegerField(default=1)
     stock = models.PositiveIntegerField(default=0)
+    min_stock_alert = models.PositiveIntegerField(default=5)
     is_featured = models.BooleanField(default=False)
     is_new = models.BooleanField(default=False)
+    is_bestseller = models.BooleanField(default=False)
+    is_promotion = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     thumbnail = models.ImageField(upload_to='products/thumbnails/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -61,6 +95,7 @@ class Product(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='products/images/')
+    video = models.FileField(upload_to='products/videos/', blank=True, null=True)
     alt = models.CharField(max_length=200, blank=True)
     order = models.PositiveIntegerField(default=0)
 
@@ -74,7 +109,7 @@ class ProductImage(models.Model):
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
     name = models.CharField(max_length=100)   # e.g. shade name
-    color_hex = models.CharField(max_length=7, blank=True)  # e.g. #FF0000
+    color_hex = models.CharField(max_length=255, blank=True)  # can hold hex or image URL
     image = models.ImageField(upload_to='products/variants/', blank=True, null=True)
     stock = models.PositiveIntegerField(default=0)
     sku = models.CharField(max_length=100, blank=True)
@@ -84,12 +119,22 @@ class ProductVariant(models.Model):
 
 
 class Banner(models.Model):
+    PLACEMENT_CHOICES = [
+        ('hero', 'Hero Slider (Accueil)'),
+        ('popup', 'Pop-up d\'entrée'),
+        ('home_section_1', 'Bandeau Section 1 (Accueil)'),
+        ('home_section_2', 'Bandeau Section 2 (Accueil)'),
+        ('top_banner', 'Bandeau Supérieur (Global)'),
+        ('category_banner', 'Bandeau Page Catégorie'),
+    ]
     title = models.CharField(max_length=200)
     subtitle = models.CharField(max_length=300, blank=True)
     image = models.ImageField(upload_to='banners/')
     cta_label = models.CharField(max_length=100, default='Découvrir')
     cta_url = models.CharField(max_length=200, default='/shop')
     promo_code = models.CharField(max_length=50, blank=True)
+    placement = models.CharField(max_length=50, choices=PLACEMENT_CHOICES, default='hero')
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True, blank=True, related_name='banners')
     is_active = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
 
@@ -105,20 +150,108 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     address = models.TextField(blank=True)
     wilaya = models.CharField(max_length=100, blank=True)
+    is_b2b = models.BooleanField(default=False)
+    # Nouveaux champs B2B
+    company_name = models.CharField(max_length=200, blank=True)
+    nrc = models.CharField(max_length=100, blank=True, verbose_name="Registre de Commerce")
+    nif = models.CharField(max_length=100, blank=True, verbose_name="Numéro d'Identification Fiscale")
+    nrc_file = models.FileField(upload_to='b2b_docs/', blank=True, null=True, verbose_name="Document NRC")
+    is_b2b_pending = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Profile — {self.user.username}"
 
 
+class DeliveryCompany(models.Model):
+    name = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name_plural = 'Delivery Companies'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class DeliveryRate(models.Model):
+    company = models.ForeignKey(DeliveryCompany, on_delete=models.CASCADE, related_name='rates')
+    wilaya_name = models.CharField(max_length=100)
+    price_home = models.DecimalField(max_digits=10, decimal_places=2, default=500.00)
+    price_desk = models.DecimalField(max_digits=10, decimal_places=2, default=300.00)
+
+    class Meta:
+        unique_together = ('company', 'wilaya_name')
+        ordering = ['wilaya_name']
+
+    def __str__(self):
+        return f"{self.company.name} - {self.wilaya_name}"
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=200, blank=True)
+    phone = models.CharField(max_length=20, unique=True)
+    email = models.EmailField(blank=True)
+    is_blacklisted = models.BooleanField(default=False)
+    is_b2b = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name or 'Inconnu'} - {self.phone}"
+
+
+class Coupon(models.Model):
+    DISCOUNT_TYPES = [
+        ('percentage', 'Pourcentage (%)'),
+        ('fixed', 'Montant fixe (DA)'),
+        ('bogo', 'Achetez X, Obtenez Y (BOGO)'),
+    ]
+    code = models.CharField(max_length=50, unique=True)
+    discount_type = models.CharField(max_length=20, choices=DISCOUNT_TYPES, default='percentage')
+    discount_value = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    # BOGO settings
+    buy_quantity = models.PositiveIntegerField(null=True, blank=True)
+    get_quantity = models.PositiveIntegerField(null=True, blank=True)
+    
+    # Constraints
+    min_order_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    usage_limit = models.PositiveIntegerField(null=True, blank=True)
+    times_used = models.PositiveIntegerField(default=0)
+    
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.code
+
+    def is_valid(self):
+        from django.utils import timezone
+        if not self.is_active:
+            return False
+        if self.usage_limit and self.times_used >= self.usage_limit:
+            return False
+        now = timezone.now()
+        if self.start_date and now < self.start_date:
+            return False
+        if self.end_date and now > self.end_date:
+            return False
+        return True
+
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'En attente'),
-        ('confirmed', 'Confirmée'),
+        ('confirmed', 'Confirmé'),
         ('shipped', 'En livraison'),
-        ('delivered', 'Livrée'),
+        ('fulfilled', 'Fulfilled'),
         ('cancelled', 'Annulée'),
+        ('returned', 'Retournée'),
     ]
 
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     # Guest fields (for guest checkout)
     guest_name = models.CharField(max_length=200, blank=True)
@@ -129,10 +262,22 @@ class Order(models.Model):
     shipping_address = models.TextField()
     wilaya = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)
+    delivery_company_name = models.CharField(max_length=100, blank=True)
+    delivery_type = models.CharField(max_length=20, choices=[('home', 'À domicile'), ('desk', 'Bureau / Point relais')], default='home')
+    delivery_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     # Order info
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_status = models.CharField(max_length=20, choices=[('unpaid', 'Non payé'), ('paid', 'Payé'), ('refunded', 'Remboursé')], default='unpaid')
+    payment_method = models.CharField(max_length=20, choices=[('cash', 'Paiement à la livraison'), ('cib', 'CIB ou Edahabia')], default='cash')
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    is_viewed = models.BooleanField(default=False)
+    
+    # Coupon fields
+    coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
     notes = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -146,7 +291,10 @@ class Order(models.Model):
         return f"Commande #{self.pk} — {name}"
 
     def recalculate_total(self):
-        self.total = sum(item.subtotal for item in self.items.all())
+        subtotal = sum(item.subtotal for item in self.items.all())
+        # We assume discount_amount is calculated during checkout and saved.
+        # Ensure total is not negative
+        self.total = max(Decimal('0'), subtotal - self.discount_amount)
         self.save(update_fields=['total'])
 
 
@@ -175,4 +323,17 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Avis {self.rating}★ — {self.product.name}"
+        return f"Avis sur {self.product.name} par {self.user.username}"
+
+
+class OrderStatusHistory(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='history')
+    status = models.CharField(max_length=20, choices=Order.STATUS_CHOICES)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.order} -> {self.get_status_display()} le {self.created_at}"

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Confirmation de votre commande</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f9f9f9; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .header { background: #000; color: #fff; padding: 30px 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
+        .content { padding: 30px; }
+        .content h2 { font-size: 18px; font-weight: 600; margin-top: 0; }
+        .order-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .order-table th, .order-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        .order-table th { font-weight: 600; font-size: 14px; color: #666; text-transform: uppercase; }
+        .order-table td { font-size: 15px; }
+        .total-row { font-weight: 700; font-size: 16px; }
+        .total-row td { border-bottom: none; border-top: 2px solid #333; }
+        .details-box { background: #fdfdfd; border: 1px solid #eee; padding: 15px; border-radius: 6px; margin-top: 30px; }
+        .details-box p { margin: 5px 0; font-size: 14px; }
+        .footer { text-align: center; padding: 20px; font-size: 13px; color: #888; background: #fdfdfd; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Piové Cosmetics</h1>
+        </div>
+        <div class="content">
+            <h2>Bonjour {{ order.guest_name|default:order.user.first_name }},</h2>
+            <p>Merci pour votre commande ! Celle-ci a bien été enregistrée sous le numéro <strong>#{{ order.id }}</strong>.</p>
+            <p>Voici le récapitulatif de vos articles :</p>
+            
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Qté</th>
+                        <th style="text-align: right;">Prix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>
+                            {{ item.product_name }}
+                            {% if item.variant_name %}<br><span style="font-size:12px; color:#666;">Teinte: {{ item.variant_name }}</span>{% endif %}
+                        </td>
+                        <td>{{ item.quantity }}</td>
+                        <td style="text-align: right;">{{ item.price_at_purchase }} DA</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td colspan="2">TOTAL (Paiement à la livraison)</td>
+                        <td style="text-align: right;">{{ order.total }} DA</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="details-box">
+                <h3 style="margin-top:0; font-size:15px;">Informations de livraison :</h3>
+                <p><strong>Nom :</strong> {{ order.guest_name|default:order.user.first_name }}</p>
+                <p><strong>Téléphone :</strong> {{ order.guest_phone }}</p>
+                <p><strong>Adresse :</strong> {{ order.guest_address }}</p>
+                <p><strong>Wilaya :</strong> {{ order.guest_wilaya }}</p>
+            </div>
+            
+            <p style="margin-top:30px;">Notre équipe vous contactera très prochainement pour confirmer l'expédition de votre colis.</p>
+        </div>
+        <div class="footer">
+            &copy; {% now "Y" %} Piové Cosmetics. Tous droits réservés.
+        </div>
+    </div>
+</body>
+</html>

@@ -14,7 +14,8 @@
 
 .order-status { padding: 6px 12px; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 .status-pending { background: #fff3cd; color: #856404; }
-.status-confirmed { background: #d4edda; color: #155724; }
+.status-confirmed { background: #e2d9f3; color: #5a32a3; }
+.status-fulfilled { background: #d4edda; color: #155724; }
 .status-shipped { background: #cce5ff; color: #004085; }
 .status-delivered { background: #d1ecf1; color: #0c5460; }
 .status-cancelled { background: #f8d7da; color: #721c24; }

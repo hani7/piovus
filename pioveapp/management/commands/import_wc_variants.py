@@ -41,6 +41,8 @@ class Command(BaseCommand):
         
         # 1. Map WooCommerce ID to Parent Product Name
         wc_id_to_name = {}
+        color_map = {}
+        import json
         with open(csv_path, newline='', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -50,6 +52,24 @@ class Command(BaseCommand):
                     name = row.get('Nom', '').strip()
                     if wc_id and name:
                         wc_id_to_name[wc_id] = name
+                        swatches_str = row.get('Swatches Attributes', '').strip()
+                        if swatches_str:
+                            try:
+                                swatches = json.loads(swatches_str)
+                                for attr_key, attr_data in swatches.items():
+                                    if attr_data.get('type') in ('color', 'image'):
+                                        for term_key, term_data in attr_data.get('terms', {}).items():
+                                            t_name = term_data.get('name', '').strip()
+                                            t_color = term_data.get('color', '').strip()
+                                            t_image = term_data.get('image', '').strip()
+                                            
+                                            if t_name:
+                                                if t_color:
+                                                    color_map[(name, t_name)] = t_color
+                                                elif t_image:
+                                                    color_map[(name, t_name)] = t_image
+                            except Exception:
+                                pass
 
         # 2. Cache database products by name
         products_by_name = {p.name.lower(): p for p in Product.objects.all()}
@@ -80,9 +100,20 @@ class Command(BaseCommand):
                 variant_name = variant_full_name
                 if ' - ' in variant_name:
                     variant_name = variant_name.split(' - ', 1)[1]
+                    
+                # If variant_name is not in map, try matching partially
+                color_hex = color_map.get((parent_name, variant_name), '')
+                if not color_hex:
+                    # try partial match in case WooCommerce changed the name slightly
+                    for (p_name, t_name), c_val in color_map.items():
+                        if p_name == parent_name and (t_name in variant_name or variant_name in t_name):
+                            color_hex = c_val
+                            break
 
                 # Create variant
                 stock_raw = row.get('Stock', '').strip()
+                stock = int(stock_raw) if stock_raw.isdigit() else 10
+                sku = row.get('UGS', '').strip()
                 stock = int(stock_raw) if stock_raw.isdigit() else 10
                 sku = row.get('UGS', '').strip()
 
@@ -90,7 +121,8 @@ class Command(BaseCommand):
                     product=parent_product,
                     name=variant_name,
                     stock=stock,
-                    sku=sku
+                    sku=sku,
+                    color_hex=color_hex
                 )
 
                 # Fix parent price if it's 0

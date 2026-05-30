@@ -62,7 +62,7 @@ export default function ShopPage() {
     <main className="shop-page page-enter">
       {/* Breadcrumb */}
       <div className="shop-page__breadcrumb container">
-        <Link to="/">Accueil</Link> / <span>Nos Produits</span>
+        <Link to="/">Accueil</Link> / <span>Boutique</span>
         {selectedCategory && (
           <> / <span>{categories.find(c => c.slug === selectedCategory)?.name}</span></>
         )}
@@ -170,7 +170,7 @@ export default function ShopPage() {
           )}
 
           {/* Pagination */}
-          {totalCount > 12 && (
+          {totalCount > 20 && (
             <div className="shop-pagination">
               <button
                 className="btn btn-outline"
@@ -180,8 +180,8 @@ export default function ShopPage() {
               >← Précédent</button>
 
               {/* Page number buttons */}
-              {Array.from({ length: Math.ceil(totalCount / 12) }, (_, i) => i + 1)
-                .filter(p => p === 1 || p === Math.ceil(totalCount / 12) || Math.abs(p - page) <= 2)
+              {Array.from({ length: Math.ceil(totalCount / 20) }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === Math.ceil(totalCount / 20) || Math.abs(p - page) <= 2)
                 .reduce((acc, p, idx, arr) => {
                   if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...')
                   acc.push(p)
@@ -204,7 +204,7 @@ export default function ShopPage() {
 
               <button
                 className="btn btn-outline"
-                disabled={page >= Math.ceil(totalCount / 12)}
+                disabled={page >= Math.ceil(totalCount / 20)}
                 onClick={() => { setPage(page + 1); window.scrollTo(0,0) }}
                 id="page-next"
               >Suivant →</button>

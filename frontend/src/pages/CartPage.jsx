@@ -1,10 +1,39 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
+import client from '../api/client'
 import './CartPage.css'
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem } = useCartStore()
+  const { items, updateQuantity, removeItem, coupon, applyCoupon, removeCoupon } = useCartStore()
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
+  const [couponCode, setCouponCode] = useState('')
+  const [couponError, setCouponError] = useState('')
+  const [isApplying, setIsApplying] = useState(false)
+
+  const handleApplyCoupon = async (e) => {
+    e.preventDefault()
+    if (!couponCode.trim()) return
+    setCouponError('')
+    setIsApplying(true)
+    try {
+      const payload = {
+        code: couponCode,
+        cart_total: total,
+        cart_items: items.map(i => ({ price: i.price, quantity: i.quantity }))
+      }
+      const res = await client.post('/apply-coupon/', payload)
+      if (res.data.success) {
+        applyCoupon(res.data)
+        setCouponCode('')
+      }
+    } catch (err) {
+      console.error(err)
+      setCouponError(err.response?.data?.error || "Erreur lors de l'application du code.")
+    } finally {
+      setIsApplying(false)
+    }
+  }
 
   if (items.length === 0) {
     return (
@@ -70,13 +99,42 @@ export default function CartPage() {
             <span>Sous-total</span>
             <span>{total.toLocaleString('fr-DZ')} DA</span>
           </div>
+
+          <div style={{ marginTop: 16, marginBottom: 16 }}>
+            {coupon ? (
+              <div style={{ background: 'var(--color-gray-100)', padding: 12, borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <span style={{ fontWeight: 600 }}>{coupon.code}</span>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--color-primary)' }}>
+                    -{coupon.discount_amount.toLocaleString('fr-DZ')} DA
+                  </div>
+                </div>
+                <button onClick={removeCoupon} style={{ background: 'none', border: 'none', color: 'var(--admin-danger)', cursor: 'pointer', fontSize: '1.2rem' }}>×</button>
+              </div>
+            ) : (
+              <form onSubmit={handleApplyCoupon} style={{ display: 'flex', gap: 8 }}>
+                <input 
+                  type="text" 
+                  placeholder="Code Promo" 
+                  value={couponCode} 
+                  onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                  style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--color-gray-300)', borderRadius: 4, outline: 'none' }}
+                />
+                <button type="submit" className="btn btn-primary" disabled={isApplying} style={{ padding: '8px 16px' }}>
+                  {isApplying ? '...' : 'Appliquer'}
+                </button>
+              </form>
+            )}
+            {couponError && <p style={{ color: 'var(--admin-danger)', fontSize: '0.85rem', marginTop: 8 }}>{couponError}</p>}
+          </div>
+
           <div className="cart-summary__row">
             <span>Livraison</span>
             <span className="cart-summary__muted">Calculée à l'étape suivante</span>
           </div>
           <div className="cart-summary__total">
             <span>Total</span>
-            <span>{total.toLocaleString('fr-DZ')} DA</span>
+            <span>{coupon ? coupon.new_total.toLocaleString('fr-DZ') : total.toLocaleString('fr-DZ')} DA</span>
           </div>
           <Link to="/checkout" className="btn btn-accent cart-summary__btn" id="cart-page-checkout">Commander</Link>
           <Link to="/shop" className="cart-summary__continue" id="cart-page-continue">Continuer mes achats</Link>

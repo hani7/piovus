@@ -7,11 +7,13 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-gz!&qj#^zt(hd%k-m6ruxtu3go83xrqhf+667th0^1w5k6bd++'
+import os
 
-DEBUG = True
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-gz!&qj#^zt(hd%k-m6ruxtu3go83xrqhf+667th0^1w5k6bd++')
 
-ALLOWED_HOSTS = ['*']
+DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -33,6 +35,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -40,6 +43,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Security settings for production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 ROOT_URLCONF = 'pioveecom.urls'
 
@@ -108,7 +122,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ],
     'DEFAULT_PAGINATION_CLASS': 'pioveecom.pagination.FlexiblePagination',
-    'PAGE_SIZE': 12,
+    'PAGE_SIZE': 20,
 }
 
 # ─── JWT ─────────────────────────────────────────────────────────────────────
@@ -117,3 +131,17 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
 }
+
+# ─── EMAIL CONFIGURATION ─────────────────────────────────────────────────────
+DEFAULT_FROM_EMAIL = 'Piové Cosmetics <contact@piovecosmetics.dz>'
+
+# Mode developpement : Affiche les emails dans la console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Configuration pour cPanel (à décommenter et configurer en production)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'mail.votre-domaine.dz'
+# EMAIL_PORT = 465
+# EMAIL_USE_SSL = True
+# EMAIL_HOST_USER = 'contact@votre-domaine.dz'
+# EMAIL_HOST_PASSWORD = 'VOTRE_MOT_DE_PASSE_EMAIL'

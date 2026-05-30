@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import client from '../api/client'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { createOrder } from '../api/orders'
@@ -13,10 +14,12 @@ const WILAYAS = [
   'Illizi','Bordj Bou Arréridj','Boumerdès','El Tarf','Tindouf','Tissemsilt',
   'El Oued','Khenchela','Souk Ahras','Tipaza','Mila','Aïn Defla','Naâma',
   'Aïn Témouchent','Ghardaïa','Relizane',
+  'Timimoun','Bordj Badji Mokhtar','Ouled Djellal','Béni Abbès','In Salah',
+  'In Guezzam','Touggourt','Djanet','El M\'Ghair','El Meniaa'
 ]
 
 export default function CheckoutPage() {
-  const { items, clearCart } = useCartStore()
+  const { items, clearCart, coupon } = useCartStore()
   const { user } = useAuthStore()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
@@ -34,7 +37,52 @@ export default function CheckoutPage() {
     wilaya: user?.profile?.wilaya || '',
     city: '',
     notes: '',
+    delivery_company_id: '',
+    delivery_type: 'home',
+    payment_method: 'cash',
   })
+
+  const [companies, setCompanies] = useState([])
+  const [deliveryCost, setDeliveryCost] = useState(0)
+
+  useEffect(() => {
+    client.get('/delivery-companies/').then(res => {
+      // only keep active ones
+      setCompanies(res.data.filter(c => c.is_active))
+    }).catch(console.error)
+  }, [])
+
+  // Auto-select and compute delivery cost when wilaya or companies change
+  useEffect(() => {
+    if (!form.wilaya || companies.length === 0) {
+      setDeliveryCost(0)
+      return
+    }
+
+    // Find available companies for this wilaya
+    const available = companies.filter(c => c.rates.some(r => r.wilaya_name === form.wilaya))
+    
+    let currentCompany = available.find(c => c.id === Number(form.delivery_company_id))
+    
+    // If current selected company is not available, pick the first one
+    if (!currentCompany && available.length > 0) {
+      currentCompany = available[0]
+      setForm(f => ({ ...f, delivery_company_id: currentCompany.id }))
+    } else if (available.length === 0) {
+      setForm(f => ({ ...f, delivery_company_id: '' }))
+      setDeliveryCost(0)
+      return
+    }
+
+    // Find rate
+    const rate = currentCompany?.rates.find(r => r.wilaya_name === form.wilaya)
+    if (rate) {
+      setDeliveryCost(form.delivery_type === 'desk' ? Number(rate.price_desk) : Number(rate.price_home))
+    } else {
+      setDeliveryCost(0)
+    }
+
+  }, [form.wilaya, form.delivery_company_id, form.delivery_type, companies])
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -47,6 +95,7 @@ export default function CheckoutPage() {
     if (!form.guest_phone.trim()) errs.guest_phone = 'Champ obligatoire'
     if (!form.shipping_address.trim()) errs.shipping_address = 'Champ obligatoire'
     if (!form.wilaya) errs.wilaya = 'Champ obligatoire'
+    if (!form.delivery_company_id) errs.delivery = 'Veuillez sélectionner un transporteur'
     return errs
   }
 
@@ -59,11 +108,14 @@ export default function CheckoutPage() {
     try {
       const payload = {
         ...form,
+        delivery_company_id: form.delivery_company_id ? Number(form.delivery_company_id) : null,
         items: items.map((i) => ({
           product_id: i.product.id,
           variant_id: i.variant?.id || null,
           quantity: i.quantity,
         })),
+        coupon_id: coupon ? coupon.id : null,
+        discount_amount: coupon ? coupon.discount_amount : 0
       }
       const res = await createOrder(payload)
       setOrderId(res.data.id)
@@ -158,18 +210,90 @@ export default function CheckoutPage() {
 
             {errors.submit && <p className="field-error" style={{marginBottom:'16px'}}>{errors.submit}</p>}
 
-            <div className="checkout-payment-notice">
-              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-              </svg>
-              <div>
-                <p className="payment-label">Mode de paiement</p>
-                <p className="payment-value">Paiement à la livraison (Cash on delivery)</p>
+            {/* Delivery Methods */}
+            {form.wilaya && companies.length > 0 && (
+              <div className="checkout-section">
+                <h3>Mode de livraison</h3>
+                {companies.filter(c => c.rates.some(r => r.wilaya_name === form.wilaya)).length === 0 ? (
+                  <p className="field-error">Aucun transporteur disponible pour cette wilaya.</p>
+                ) : (
+                  <div className="delivery-options" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {companies.filter(c => c.rates.some(r => r.wilaya_name === form.wilaya)).map(c => {
+                      const rate = c.rates.find(r => r.wilaya_name === form.wilaya)
+                      return (
+                        <div key={c.id} className={`delivery-card ${Number(form.delivery_company_id) === c.id ? 'active' : ''}`} style={{ border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, marginBottom: 12 }}>
+                            <input 
+                              type="radio" 
+                              name="delivery_company_id" 
+                              value={c.id} 
+                              checked={Number(form.delivery_company_id) === c.id}
+                              onChange={handleChange}
+                            />
+                            {c.name}
+                          </label>
+                          
+                          {Number(form.delivery_company_id) === c.id && (
+                            <div style={{ paddingLeft: 28, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                              <label style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                <span>
+                                  <input type="radio" name="delivery_type" value="home" checked={form.delivery_type === 'home'} onChange={handleChange} style={{ marginRight: 8 }} />
+                                  À domicile
+                                </span>
+                                <strong>{Number(rate.price_home)} DA</strong>
+                              </label>
+                              <label style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                <span>
+                                  <input type="radio" name="delivery_type" value="desk" checked={form.delivery_type === 'desk'} onChange={handleChange} style={{ marginRight: 8 }} />
+                                  Point relais / Bureau
+                                </span>
+                                <strong>{Number(rate.price_desk)} DA</strong>
+                              </label>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                    {errors.delivery && <span className="field-error">{errors.delivery}</span>}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="checkout-section">
+              <h3>Mode de paiement</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
+                  <input 
+                    type="radio" 
+                    name="payment_method" 
+                    value="cash" 
+                    checked={form.payment_method === 'cash'}
+                    onChange={handleChange}
+                  />
+                  <div>
+                    <div style={{ marginBottom: 4 }}>Paiement à la livraison</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Payez en espèces à la réception de votre commande.</div>
+                  </div>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
+                  <input 
+                    type="radio" 
+                    name="payment_method" 
+                    value="cib" 
+                    checked={form.payment_method === 'cib'}
+                    onChange={handleChange}
+                  />
+                  <div>
+                    <div style={{ marginBottom: 4 }}>CIB ou Edahabia</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Paiement sécurisé en ligne (les frais de livraison seront réglés à la réception).</div>
+                  </div>
+                </label>
               </div>
             </div>
 
             <button type="submit" className="btn btn-accent checkout-submit-btn" disabled={loading} id="submit-order-btn">
-              {loading ? 'Traitement...' : `Confirmer la commande — ${total.toLocaleString('fr-DZ')} DA`}
+              {loading ? 'Traitement...' : `Confirmer la commande — ${form.payment_method === 'cib' ? (coupon ? coupon.new_total : total).toLocaleString('fr-DZ') : ((coupon ? coupon.new_total : total) + deliveryCost).toLocaleString('fr-DZ')} DA`}
             </button>
           </form>
         </div>
@@ -199,13 +323,26 @@ export default function CheckoutPage() {
               <span>Sous-total</span>
               <span>{total.toLocaleString('fr-DZ')} DA</span>
             </div>
+            {coupon && (
+              <div className="checkout-summary__row" style={{ color: 'var(--color-primary)' }}>
+                <span>Code: {coupon.code}</span>
+                <span>-{coupon.discount_amount.toLocaleString('fr-DZ')} DA</span>
+              </div>
+            )}
             <div className="checkout-summary__row">
-              <span>Livraison</span>
-              <span className="checkout-summary__shipping">Calculée à la commande</span>
+              <span>Livraison {form.wilaya ? `(${form.wilaya})` : ''}</span>
+              <span className="checkout-summary__shipping">{deliveryCost > 0 ? `${deliveryCost.toLocaleString('fr-DZ')} DA` : 'Calculée à la commande'}</span>
             </div>
-            <div className="checkout-summary__row checkout-summary__row--total">
-              <span>Total estimé</span>
-              <span>{total.toLocaleString('fr-DZ')} DA</span>
+            <div className="checkout-summary__row checkout-summary__row--total" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: form.payment_method === 'cib' ? 8 : 0 }}>
+                <span>Total estimé {form.payment_method === 'cib' && '(en ligne)'}</span>
+                <span>{form.payment_method === 'cib' ? (coupon ? coupon.new_total : total).toLocaleString('fr-DZ') : ((coupon ? coupon.new_total : total) + deliveryCost).toLocaleString('fr-DZ')} DA</span>
+              </div>
+              {form.payment_method === 'cib' && deliveryCost > 0 && (
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400, width: '100%', textAlign: 'right' }}>
+                  + {deliveryCost.toLocaleString('fr-DZ')} DA à régler au livreur
+                </div>
+              )}
             </div>
           </div>
           <Link to="/cart" className="checkout-summary__edit" id="edit-cart-link">Modifier le panier</Link>

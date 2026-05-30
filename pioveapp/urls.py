@@ -4,11 +4,15 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
     CategoryViewSet, ProductViewSet, BannerViewSet,
-    RegisterView, LoginView, LogoutView, ProfileView,
+    RegisterView, B2BRegisterView, LoginView, LogoutView, ProfileView, VerifyOTPView, PasswordChangeView,
+    GoogleLoginView, FacebookLoginView,
     OrderViewSet,
-    AdminDashboardView,
-    AdminProductViewSet, AdminProductVariantViewSet, AdminCategoryViewSet,
-    AdminBannerViewSet, AdminOrderViewSet,
+    AdminDashboardView, AdminActivityLogView,
+    AdminProductViewSet, AdminProductVariantViewSet, AdminProductImageViewSet, AdminCategoryViewSet,
+    AdminBannerViewSet, AdminOrderViewSet, AdminCouponViewSet,
+    DeliveryCompanyViewSet, DeliveryRateViewSet, CustomerViewSet,
+    AdminNewsletterSendView, AdminReportView, ApplyCouponView,
+    SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet
 )
 
 router = DefaultRouter()
@@ -16,23 +20,41 @@ router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'products', ProductViewSet, basename='product')
 router.register(r'banners', BannerViewSet, basename='banner')
 router.register(r'orders', OrderViewSet, basename='order')
+router.register(r'delivery-companies', DeliveryCompanyViewSet, basename='delivery-company')
+router.register(r'delivery-rates', DeliveryRateViewSet, basename='delivery-rate')
 
 admin_router = DefaultRouter()
 admin_router.register(r'products', AdminProductViewSet, basename='admin-product')
 admin_router.register(r'categories', AdminCategoryViewSet, basename='admin-category')
 admin_router.register(r'variants', AdminProductVariantViewSet, basename='admin-variant')
+admin_router.register(r'images', AdminProductImageViewSet, basename='admin-image')
 admin_router.register(r'banners', AdminBannerViewSet, basename='admin-banner')
 admin_router.register(r'orders', AdminOrderViewSet, basename='admin-order')
+admin_router.register(r'customers', CustomerViewSet, basename='admin-customer')
+admin_router.register(r'coupons', AdminCouponViewSet, basename='admin-coupon')
+admin_router.register(r'b2b-requests', AdminB2BRequestViewSet, basename='admin-b2b-requests')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('settings/', SiteSettingsView.as_view(), name='site-settings'),
+    path('apply-coupon/', ApplyCouponView.as_view(), name='apply-coupon'),
     # Auth
     path('auth/register/', RegisterView.as_view(), name='auth-register'),
+    path('auth/register-b2b/', B2BRegisterView.as_view(), name='auth-register-b2b'),
     path('auth/login/', LoginView.as_view(), name='auth-login'),
+    path('auth/verify-otp/', VerifyOTPView.as_view(), name='auth-verify-otp'),
     path('auth/logout/', LogoutView.as_view(), name='auth-logout'),
     path('auth/profile/', ProfileView.as_view(), name='auth-profile'),
+    path('auth/password/change/', PasswordChangeView.as_view(), name='auth-password-change'),
+    path('auth/google/', GoogleLoginView.as_view(), name='auth-google'),
+    path('auth/facebook/', FacebookLoginView.as_view(), name='auth-facebook'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     # Admin
     path('admin/dashboard/', AdminDashboardView.as_view(), name='admin-dashboard'),
+    path('admin/reports/', AdminReportView.as_view(), name='admin-reports'),
+    path('admin/newsletter/send/', AdminNewsletterSendView.as_view(), name='admin-newsletter-send'),
+    path('admin/activity-logs/', AdminActivityLogView.as_view(), name='admin-activity-logs'),
+    path('admin/settings/', AdminSiteSettingsView.as_view(), name='admin-settings'),
+    path('admin/settings/toggle_maintenance/', AdminSiteSettingsView.as_view(), name='admin-settings-toggle'),
     path('admin/', include(admin_router.urls)),
 ]

@@ -55,7 +55,7 @@ export default function Navbar() {
               <span /><span /><span />
             </button>
             <nav className="navbar__links">
-              <Link to="/shop">Nos Produits</Link>
+              <Link to="/shop">Boutique</Link>
               {(categories || []).slice(0, 4).map((c) => (
                 <Link key={c.slug} to={`/category/${c.slug}`}>{c.name}</Link>
               ))}
@@ -64,8 +64,7 @@ export default function Navbar() {
 
           {/* Center: Logo */}
           <Link to="/" className="navbar__logo">
-            <span className="navbar__logo-text">Piové</span>
-            <span className="navbar__logo-sub">COSMETICS</span>
+            <img src="/logo.png" alt="Piové Cosmetics" className="navbar__logo-img" />
           </Link>
 
           {/* Right: Icons */}

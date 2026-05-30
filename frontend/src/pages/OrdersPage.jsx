@@ -10,6 +10,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
+
   useEffect(() => {
     if (!user) {
       navigate('/compte')
@@ -24,7 +25,7 @@ export default function OrdersPage() {
   if (!user) return null
 
   return (
-    <main className="orders-page page-enter container">
+    <main className="orders-page page-enter container" style={{ paddingTop: '120px' }}>
       <div className="orders-header">
         <h1 className="orders-title">Mes Commandes</h1>
         <Link to="/compte" className="btn btn-outline" id="orders-back-btn">Retour au compte</Link>
@@ -63,6 +64,32 @@ export default function OrdersPage() {
                     <p className="order-item__price">{parseFloat(item.subtotal).toLocaleString('fr-DZ')} DA</p>
                   </div>
                 ))}
+              </div>
+
+              <div className="order-card__timeline" style={{ padding: '24px', borderBottom: '1px solid var(--color-gray-200)', background: '#fafafa' }}>
+                <h4 style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--color-gray-500)', marginBottom: 16, letterSpacing: '0.05em' }}>Suivi de commande</h4>
+                <div style={{ position: 'relative', paddingLeft: 12 }}>
+                  <div style={{ position: 'absolute', left: 16, top: 8, bottom: 8, width: 2, background: 'var(--color-gray-200)', zIndex: 0 }}></div>
+                  
+                  {order.history && order.history.length > 0 ? (
+                    order.history.map((h, idx) => (
+                      <div key={h.id} style={{ position: 'relative', zIndex: 1, paddingLeft: 24, marginBottom: idx === order.history.length - 1 ? 0 : 20 }}>
+                        <div style={{ position: 'absolute', left: 0, top: 4, width: 10, height: 10, borderRadius: '50%', background: idx === 0 ? 'var(--color-accent)' : 'var(--color-gray-300)', border: '2px solid #fff' }}></div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-black)', marginBottom: 2 }}>{h.status_display}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginBottom: 4 }}>
+                          {new Date(h.created_at).toLocaleString('fr-DZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                        {h.notes && (
+                          <div style={{ background: '#fff', border: '1px solid var(--color-gray-200)', padding: '8px 12px', borderRadius: 6, fontSize: '0.85rem', color: 'var(--color-gray-700)', marginTop: 8 }}>
+                            {h.notes}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ paddingLeft: 24, fontSize: '0.85rem', color: 'var(--color-gray-500)', fontStyle: 'italic' }}>Aucun historique disponible.</div>
+                  )}
+                </div>
               </div>
 
               <div className="order-card__footer">

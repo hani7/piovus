@@ -1,10 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { useAuthStore } from './authStore'
 
 export const useCartStore = create(
   persist(
     (set, get) => ({
       items: [],
+      coupon: null, // { id, code, discount_amount, discount_type }
+
+      applyCoupon: (couponData) => set({ coupon: couponData }),
+      removeCoupon: () => set({ coupon: null }),
 
       addItem: (product, variant = null, quantity = 1) => {
         const items = get().items
@@ -26,7 +31,14 @@ export const useCartStore = create(
                 product,
                 variant,
                 quantity,
-                price: parseFloat(product.effective_price),
+                price: (() => {
+                  const user = useAuthStore.getState().user;
+                  const isB2B = user?.profile?.is_b2b;
+                  if (isB2B) {
+                    return parseFloat(product.b2b_price || product.effective_price * (product.units_per_carton || 1));
+                  }
+                  return parseFloat(product.effective_price);
+                })(),
               },
             ],
           })
@@ -48,7 +60,7 @@ export const useCartStore = create(
         }
       },
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ items: [], coupon: null }),
 
       get total() {
         return get().items.reduce(

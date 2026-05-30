@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import client from '../../api/client'
+import { Plus, Edit, Trash2, Image as ImageIcon, X } from 'lucide-react'
+import adminClient from '../../api/adminClient'
 
 const EMPTY_FORM = { name: '', order: 0, is_active: true }
 
@@ -15,12 +16,20 @@ export default function AdminCategories() {
 
   const load = () => {
     setLoading(true)
-    client.get('/admin/categories/?page_size=100')
+    adminClient.get('/admin/categories/?page_size=100')
       .then(r => setCats(r.data.results || r.data))
       .finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [])
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && modal) setModal(null)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [modal])
 
   const openAdd = () => {
     setForm(EMPTY_FORM); setEditId(null); setImgFile(null); setImgPreview(null); setModal('add')
@@ -39,8 +48,8 @@ export default function AdminCategories() {
       Object.entries(form).forEach(([k, v]) => fd.append(k, v))
       if (imgFile) fd.append('image', imgFile)
       const cfg = { headers: { 'Content-Type': 'multipart/form-data' } }
-      if (modal === 'add') await client.post('/admin/categories/', fd, cfg)
-      else await client.patch(`/admin/categories/${editId}/`, fd, cfg)
+      if (modal === 'add') await adminClient.post('/admin/categories/', fd, cfg)
+      else await adminClient.patch(`/admin/categories/${editId}/`, fd, cfg)
       setModal(null); load()
     } catch (err) {
       alert('Erreur: ' + JSON.stringify(err.response?.data || err.message))
@@ -49,7 +58,7 @@ export default function AdminCategories() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Supprimer cette catégorie ?')) return
-    await client.delete(`/admin/categories/${id}/`)
+    await adminClient.delete(`/admin/categories/${id}/`)
     load()
   }
 
@@ -94,8 +103,12 @@ export default function AdminCategories() {
                     <td><span className={`badge ${c.is_active ? 'badge-active' : 'badge-inactive'}`}>{c.is_active ? 'Active' : 'Inactive'}</span></td>
                     <td>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button className="btn-edit" onClick={() => openEdit(c)}>Modifier</button>
-                        <button className="btn-danger" onClick={() => handleDelete(c.id)}>Suppr.</button>
+                        <button className="btn-action-icon" onClick={() => openEdit(c)} title="Modifier">
+                          <Edit size={16} />
+                        </button>
+                        <button className="btn-action-icon" onClick={() => handleDelete(c.id)} title="Supprimer">
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -114,9 +127,7 @@ export default function AdminCategories() {
           <div className="admin-modal">
             <div className="admin-modal-header">
               <span className="admin-modal-title">{modal === 'add' ? 'Ajouter une catégorie' : 'Modifier la catégorie'}</span>
-              <button className="btn-icon" onClick={() => setModal(null)}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
+              <button type="button" className="admin-modal-close" onClick={() => setModal(null)}><X size={20}/></button>
             </div>
             <form onSubmit={handleSave}>
               <div className="admin-modal-body">

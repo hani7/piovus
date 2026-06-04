@@ -167,6 +167,7 @@ class UserProfile(models.Model):
     nif = models.CharField(max_length=100, blank=True, verbose_name="Numéro d'Identification Fiscale")
     nrc_file = models.FileField(upload_to='b2b_docs/', blank=True, null=True, verbose_name="Document NRC")
     is_b2b_pending = models.BooleanField(default=False)
+    loyalty_points = models.PositiveIntegerField(default=0, help_text="Points de fidélité (1 point = 1 DA)")
 
     def __str__(self):
         return f"Profile — {self.user.username}"
@@ -220,6 +221,7 @@ class Coupon(models.Model):
         ('bogo', 'Achetez X, Obtenez Y (BOGO)'),
     ]
     code = models.CharField(max_length=50, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='coupons', null=True, blank=True, help_text="Si défini, seul cet utilisateur peut utiliser le coupon.")
     discount_type = models.CharField(max_length=20, choices=DISCOUNT_TYPES, default='percentage')
     discount_value = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     

@@ -15,6 +15,7 @@ import AccountPage from './pages/AccountPage'
 import OrdersPage from './pages/OrdersPage'
 import AddressesPage from './pages/AddressesPage'
 import SettingsPage from './pages/SettingsPage'
+import LoyaltyPage from './pages/LoyaltyPage'
 import PromoBanner from './components/PromoBanner'
 import PromoPopup from './components/PromoPopup'
 import SideBanners from './components/SideBanners'
@@ -90,6 +91,7 @@ export default function App() {
         <Route path="/compte" element={<AccountPage />} />
         <Route path="/compte/commandes" element={<OrdersPage />} />
         <Route path="/compte/adresses" element={<AddressesPage />} />
+        <Route path="/compte/fidelite" element={<LoyaltyPage />} />
         <Route path="/compte/parametres" element={<SettingsPage />} />
 
         {/* Admin */}

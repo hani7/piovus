@@ -822,6 +822,27 @@ class AdminBannerViewSet(ActivityLogMixin, viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
 
+def handle_loyalty_points(order, old_status, new_status):
+    if old_status != 'fulfilled' and new_status == 'fulfilled':
+        if order.user and hasattr(order.user, 'profile') and not order.user.profile.is_b2b:
+            profile = order.user.profile
+            profile.loyalty_points += int(order.total)
+            
+            while profile.loyalty_points >= 5000:
+                profile.loyalty_points -= 5000
+                import uuid
+                from .models import Coupon
+                code = f"FIDELITE-{order.user.id}-{uuid.uuid4().hex[:6].upper()}"
+                Coupon.objects.create(
+                    code=code,
+                    user=order.user,
+                    discount_type='percentage',
+                    discount_value=10,
+                    usage_limit=1,
+                    is_active=True
+                )
+            profile.save(update_fields=['loyalty_points'])
+
 class AdminOrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all().select_related('user', 'customer').prefetch_related('items').order_by('-created_at')
     permission_classes = [IsAdminUser]
@@ -845,6 +866,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                 status=updated_instance.status,
                 notes=f"Statut modifié par un administrateur."
             )
+            handle_loyalty_points(updated_instance, old_status, updated_instance.status)
             
         from .models import UserActivityLog
         UserActivityLog.objects.create(
@@ -894,6 +916,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         updated_count = 0
         for order in orders:
             if order.status != new_status:
+                old_status = order.status
                 order.status = new_status
                 order.save(update_fields=['status'])
                 OrderStatusHistory.objects.create(
@@ -901,6 +924,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                     status=new_status,
                     notes="Statut modifié en masse."
                 )
+                handle_loyalty_points(order, old_status, new_status)
                 updated_count += 1
                 
         return Response({'message': f'{updated_count} commande(s) mise(s) à jour.'})

@@ -105,16 +105,17 @@ class BannerSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['phone', 'address', 'wilaya', 'is_b2b', 'company_name', 'nrc', 'nif', 'nrc_file', 'is_b2b_pending']
+        fields = ['phone', 'address', 'wilaya', 'is_b2b', 'company_name', 'nrc', 'nif', 'nrc_file', 'is_b2b_pending', 'loyalty_points']
 
 
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer()
+    coupons = CouponSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser', 'profile']
-        read_only_fields = ['is_staff', 'is_superuser']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser', 'profile', 'coupons']
+        read_only_fields = ['is_staff', 'is_superuser', 'coupons']
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', None)

@@ -14,10 +14,19 @@ export default function ProductPage() {
   const [selectedVariant, setSelectedVariant] = useState(null)
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
+  const [packaging, setPackaging] = useState('boite')
   const [added, setAdded] = useState(false)
   const [relatedProducts, setRelatedProducts] = useState([])
+  const [selectedRelated, setSelectedRelated] = useState([])
   const addItem = useCartStore((s) => s.addItem)
   const user = useAuthStore((s) => s.user)
+  const isB2B = user?.profile?.is_b2b
+
+  useEffect(() => {
+    if (product && isB2B && product.b2b_min_stock > 1) {
+      setQuantity(Math.max(quantity, product.b2b_min_stock))
+    }
+  }, [product, isB2B])
 
   useEffect(() => {
     setLoading(true)
@@ -35,15 +44,38 @@ export default function ProductPage() {
   }, [slug])
 
   const handleAddToCart = () => {
-    addItem(product, selectedVariant, quantity)
+    addItem(product, selectedVariant, quantity, isB2B ? packaging : 'boite')
+    
+    selectedRelated.forEach(rpId => {
+      const rp = product.related_products?.find(p => p.id === rpId)
+      if (rp) addItem(rp, null, 1)
+    })
+
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
+    setSelectedRelated([])
   }
 
   const handleVariantSelect = (v) => {
     setSelectedVariant(v)
     if (v.image) setSelectedImage(-1)
   }
+
+  const images = product?.images?.length > 0
+    ? product.images
+    : product?.thumbnail ? [{ image: product.thumbnail, alt: product.name }] : []
+
+  useEffect(() => {
+    if (images.length > 1) {
+      const timer = setInterval(() => {
+        setSelectedImage((prev) => {
+          if (prev === -1) return 0
+          return prev < images.length - 1 ? prev + 1 : 0
+        })
+      }, 4000)
+      return () => clearInterval(timer)
+    }
+  }, [images.length])
 
   if (loading) return <div className="product-page-loading"><div className="spinner" /></div>
   if (error || !product) return (
@@ -52,10 +84,6 @@ export default function ProductPage() {
       <Link to="/shop" className="btn btn-accent">Retour à la boutique</Link>
     </div>
   )
-
-  const images = product.images?.length > 0
-    ? product.images
-    : product.thumbnail ? [{ image: product.thumbnail, alt: product.name }] : []
 
   return (
     <main className="product-page page-enter">
@@ -168,14 +196,48 @@ export default function ProductPage() {
 
             {/* Price */}
             <div className="product-info__pricing">
-              {user?.profile?.is_b2b ? (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span className="product-info__price" style={{ color: 'var(--admin-gold)' }}>
-                    {parseFloat(product.b2b_price || product.effective_price * (product.units_per_carton || 1)).toLocaleString('fr-DZ')} DA
-                  </span>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginTop: 4 }}>
-                    Le carton ({product.units_per_carton || 1} pcs)
-                  </span>
+              {isB2B ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {/* Boîte */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '8px', border: packaging === 'boite' ? '2px solid var(--color-accent)' : '1px solid var(--color-gray-200)', borderRadius: 8 }}>
+                    <input type="radio" name="packaging" value="boite" checked={packaging === 'boite'} onChange={() => setPackaging('boite')} />
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontWeight: 'bold' }}>Par boîte (Unité)</span>
+                      <div style={{ color: 'var(--admin-gold)', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                        {product.b2b_promo_price_box ? (
+                          <>
+                            <span>{parseFloat(product.b2b_promo_price_box).toLocaleString('fr-DZ')} DA</span>
+                            <span style={{ textDecoration: 'line-through', color: 'var(--color-gray-500)', fontSize: '0.9rem', marginLeft: 8 }}>{parseFloat(product.b2b_price_box || product.b2b_price || product.effective_price).toLocaleString('fr-DZ')} DA</span>
+                          </>
+                        ) : (
+                          <span>{parseFloat(product.b2b_price_box || product.b2b_price || product.effective_price).toLocaleString('fr-DZ')} DA</span>
+                        )}
+                      </div>
+                    </div>
+                  </label>
+                  {/* Carton */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '8px', border: packaging === 'carton' ? '2px solid var(--color-accent)' : '1px solid var(--color-gray-200)', borderRadius: 8 }}>
+                    <input type="radio" name="packaging" value="carton" checked={packaging === 'carton'} onChange={() => setPackaging('carton')} />
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontWeight: 'bold' }}>Par carton ({product.units_per_carton || 1} pcs)</span>
+                      <div style={{ color: 'var(--admin-gold)', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                        {product.b2b_promo_price_carton ? (
+                          <>
+                            <span>{parseFloat(product.b2b_promo_price_carton).toLocaleString('fr-DZ')} DA</span>
+                            <span style={{ textDecoration: 'line-through', color: 'var(--color-gray-500)', fontSize: '0.9rem', marginLeft: 8 }}>{parseFloat(product.b2b_price_carton || product.b2b_price || (product.effective_price * (product.units_per_carton || 1))).toLocaleString('fr-DZ')} DA</span>
+                          </>
+                        ) : (
+                          <span>{parseFloat(product.b2b_price_carton || product.b2b_price || (product.effective_price * (product.units_per_carton || 1))).toLocaleString('fr-DZ')} DA</span>
+                        )}
+                      </div>
+                    </div>
+                  </label>
+                  
+                  {product.b2b_min_stock > 1 && (
+                    <div style={{ fontSize: '0.85rem', color: 'var(--admin-warning)', fontWeight: 'bold' }}>
+                      Quantité minimale de commande : {product.b2b_min_stock}
+                    </div>
+                  )}
                 </div>
               ) : product.is_promo ? (
                 <>
@@ -218,20 +280,45 @@ export default function ProductPage() {
               </div>
             )}
 
+            {/* Recommended Products Checkboxes */}
+            {product.related_products?.length > 0 && (
+              <div className="product-info__upsell" style={{ marginTop: '20px', padding: '15px', background: 'var(--color-gray-100)', borderRadius: '8px', marginBottom: '20px' }}>
+                <h4 style={{ fontSize: '0.9rem', marginBottom: '10px' }}>Produits recommandés avec cet article :</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {product.related_products.map(rp => (
+                    <label key={`upsell-${rp.id}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={selectedRelated.includes(rp.id)} 
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedRelated([...selectedRelated, rp.id])
+                          else setSelectedRelated(selectedRelated.filter(id => id !== rp.id))
+                        }}
+                      />
+                      {rp.thumbnail && (
+                        <img src={rp.thumbnail} alt={rp.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                      )}
+                      <span style={{ flex: 1 }}>{rp.name}</span>
+                      <strong style={{ color: 'var(--color-accent)' }}>{Number(rp.effective_price || rp.price).toLocaleString('fr-DZ')} DA</strong>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Quantity + Add to Cart */}
             <div className="product-info__actions">
               <div className="product-info__qty">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} id="qty-minus">−</button>
+                <button onClick={() => setQuantity(Math.max(isB2B && product.b2b_min_stock ? product.b2b_min_stock : 1, quantity - 1))} id="qty-minus">−</button>
                 <span>{quantity}</span>
                 <button onClick={() => setQuantity(quantity + 1)} id="qty-plus">+</button>
               </div>
               <button
                 className={`btn btn-accent product-info__add-btn ${added ? 'added' : ''}`}
                 onClick={handleAddToCart}
-                disabled={product.stock === 0}
                 id="add-to-cart-btn"
               >
-                {product.stock === 0 ? 'Rupture de stock' : added ? '✓ Ajouté au panier' : 'Ajouter au panier'}
+                {added ? '✓ Ajouté au panier' : 'Ajouter au panier'}
               </button>
             </div>
 
@@ -241,7 +328,7 @@ export default function ProductPage() {
                 ? <span className="stock-ok">En stock</span>
                 : product.stock > 0
                 ? <span className="stock-low">Plus que {product.stock} en stock</span>
-                : <span className="stock-none">Rupture de stock</span>
+                : <span className="stock-none">Rupture de stock (Précommande disponible)</span>
               }
             </p>
 

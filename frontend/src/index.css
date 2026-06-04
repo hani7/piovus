@@ -105,10 +105,10 @@ input, textarea, select {
   text-transform: uppercase;
   border-radius: var(--radius-full);
 }
-.badge-promo { background: var(--color-accent); color: var(--color-white); }
-.badge-new { background: var(--color-black); color: var(--color-white); }
-.badge-featured { background: var(--color-gold); color: var(--color-white); }
-.badge-bestseller { background: var(--color-gold); color: var(--color-white); }
+.badge-promo { background: #cc0000; color: var(--color-white); }
+.badge-new { background: #cc0000; color: var(--color-white); }
+.badge-featured { background: #cc0000; color: var(--color-white); }
+.badge-bestseller { background: #cc0000; color: var(--color-white); }
 
 /* ─── Buttons ───────────────────────────────────────────────── */
 .btn {

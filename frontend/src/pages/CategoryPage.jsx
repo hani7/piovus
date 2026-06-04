@@ -22,12 +22,19 @@ export default function CategoryPage() {
     ]).then(([prods, cats, bans]) => {
       setProducts(prods.data.results || prods.data)
       setTotalCount(prods.data.count || prods.data.length || 0)
+      
       const catList = cats.data.results || cats.data
-      const cat = catList.find((c) => c.slug === slug)
-      setCategory(cat)
+      const currentCat = catList.find((c) => c.slug === slug)
+      setCategory(currentCat)
       
       const allBanners = bans.data.results || bans.data
-      setCategoryBanners(allBanners.filter(b => b.placement === 'category_banner' && b.is_active && (!b.category || b.category === cat?.id)))
+      // On filtre les bannières actives, de type category_banner, et soit globales (sans catégorie), soit spécifiques à cette catégorie
+      const validBanners = allBanners.filter(b => {
+        if (b.placement !== 'category_banner' || b.is_active === false) return false
+        if (!b.category) return true // Global category banner
+        return currentCat && b.category === currentCat.id
+      })
+      setCategoryBanners(validBanners)
     }).finally(() => setLoading(false))
   }, [slug, page])
 
@@ -39,27 +46,28 @@ export default function CategoryPage() {
     <main className="category-page page-enter">
       <div className="category-page__hero">
         <div className="container">
-          <nav className="product-page__breadcrumb" style={{marginBottom:'8px'}}>
-            <Link to="/">Accueil</Link> / <Link to="/shop">Produits</Link> / <span>{category?.name || slug}</span>
-          </nav>
           <h1 className="category-page__title">{category?.name || slug}</h1>
-          <p className="category-page__count">{totalCount} produit{totalCount !== 1 ? 's' : ''}</p>
         </div>
       </div>
-      <div className="container" style={{padding:'40px var(--gutter) 80px'}}>
-        {categoryBanners.length > 0 && (
-          <div className="category-banners" style={{ marginBottom: '40px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+      {/* ── Bannières de Catégorie (Full Width ou Contenues) ── */}
+      {categoryBanners.length > 0 && (
+        <div className="container">
+          <div className="category-banners" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {categoryBanners.map(banner => (
-              <a key={banner.id} href={banner.cta_url || '#'} className="category-banner-link" style={{ display: 'block', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+              <a key={banner.id} href={banner.cta_url || '#'} className="category-banner-link" style={{ display: 'block', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                 <img 
                   src={banner.image} 
                   alt={banner.title} 
-                  style={{ width: '100%', maxHeight: '300px', objectFit: 'cover', display: 'block' }} 
+                  style={{ width: '100%', height: 'auto', maxHeight: '350px', objectFit: 'cover', display: 'block' }} 
                 />
               </a>
             ))}
           </div>
-        )}
+        </div>
+      )}
+
+      <div className="container" style={{padding: categoryBanners.length > 0 ? '40px var(--gutter) 80px' : '40px var(--gutter) 80px'}}>
 
         {loading ? <div className="spinner" /> : (
           <>

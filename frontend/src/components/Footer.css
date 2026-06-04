@@ -1,14 +1,14 @@
 .footer {
   background: var(--color-black);
   color: rgba(255,255,255,0.75);
-  margin-top: 80px;
+  margin-top: 50px;
 }
 
 .footer__top {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 48px;
-  padding: 64px var(--gutter);
+  padding: 50px var(--gutter) 80px;
 }
 
 @media (max-width: 900px) {

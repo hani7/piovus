@@ -42,7 +42,8 @@ export const NAV_ITEMS = [
     section: 'Livraison',
     links: [
       { to: '/admin-panel/delivery-companies', label: 'Transporteurs', icon: <Truck size={20} /> },
-      { to: '/admin-panel/delivery-rates', label: 'Tarifs', icon: <Banknote size={20} /> },
+      { to: '/admin-panel/delivery-rates', label: 'Tarifs (Détail)', icon: <Banknote size={20} /> },
+      { to: '/admin-panel/b2b-delivery-rates', label: 'Tarifs B2B', icon: <Banknote size={20} /> },
     ]
   },
 ]

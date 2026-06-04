@@ -136,7 +136,20 @@ export default function CartPage() {
             <span>Total</span>
             <span>{coupon ? coupon.new_total.toLocaleString('fr-DZ') : total.toLocaleString('fr-DZ')} DA</span>
           </div>
-          <Link to="/checkout" className="btn btn-accent cart-summary__btn" id="cart-page-checkout">Commander</Link>
+
+          {total < 1500 && (
+            <div style={{ padding: '10px', background: 'rgba(255,0,0,0.1)', color: 'var(--admin-danger)', borderRadius: '8px', marginBottom: '10px', fontSize: '0.85rem', textAlign: 'center', fontWeight: 'bold' }}>
+              Le montant minimum de commande est de 1 500 DA.<br/>
+              Il vous manque {(1500 - total).toLocaleString('fr-DZ')} DA.
+            </div>
+          )}
+
+          {total < 1500 ? (
+            <button className="btn btn-accent cart-summary__btn" disabled style={{ width: '100%' }}>Commander</button>
+          ) : (
+            <Link to="/checkout" className="btn btn-accent cart-summary__btn" id="cart-page-checkout">Commander</Link>
+          )}
+
           <Link to="/shop" className="cart-summary__continue" id="cart-page-continue">Continuer mes achats</Link>
         </aside>
       </div>

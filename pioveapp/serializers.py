@@ -64,8 +64,9 @@ class ProductListSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id', 'name', 'slug', 'category_name', 'category_slug',
-            'price', 'promo_price', 'b2b_price', 'effective_price', 'is_promo',
-            'units_per_carton', 'stock', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'thumbnail',
+            'price', 'promo_price', 'b2b_price', 'b2b_price_box', 'b2b_price_carton', 'b2b_promo_price_box', 'b2b_promo_price_carton', 'effective_price', 'is_promo',
+            'units_per_carton', 'b2b_min_stock', 'stock', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'thumbnail',
+            'weight_box', 'weight_carton',
             'avg_rating', 'created_at',
         ]
 
@@ -82,10 +83,11 @@ class ProductDetailSerializer(ProductListSerializer):
     variants = ProductVariantSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
     review_count = serializers.SerializerMethodField()
+    related_products = ProductListSerializer(many=True, read_only=True)
 
     class Meta(ProductListSerializer.Meta):
         fields = ProductListSerializer.Meta.fields + [
-            'description', 'images', 'variants', 'reviews', 'review_count', 'updated_at'
+            'description', 'images', 'variants', 'reviews', 'review_count', 'updated_at', 'related_products'
         ]
 
     def get_review_count(self, obj):
@@ -300,14 +302,18 @@ class AdminProductSerializer(serializers.ModelSerializer):
 
     variants = AdminProductVariantSerializer(many=True, read_only=True)
     images = AdminProductImageSerializer(many=True, read_only=True)
+    related_products = ProductListSerializer(many=True, read_only=True)
+    related_product_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), many=True, source='related_products', required=False
+    )
 
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'slug', 'category', 'category_name',
-            'description', 'price', 'promo_price', 'b2b_price', 'effective_price', 'is_promo',
-            'units_per_carton', 'stock', 'min_stock_alert', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'is_active',
-            'thumbnail', 'created_at', 'updated_at', 'variants', 'images'
+            'description', 'price', 'promo_price', 'b2b_price', 'b2b_price_box', 'b2b_price_carton', 'b2b_promo_price_box', 'b2b_promo_price_carton', 'effective_price', 'is_promo',
+            'units_per_carton', 'b2b_min_stock', 'stock', 'min_stock_alert', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'is_active',
+            'thumbnail', 'weight_box', 'weight_carton', 'created_at', 'updated_at', 'variants', 'images', 'related_products', 'related_product_ids'
         ]
         read_only_fields = ['slug', 'created_at', 'updated_at']
 
@@ -356,7 +362,7 @@ class AdminOrderStatusSerializer(serializers.ModelSerializer):
 class DeliveryRateSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliveryRate
-        fields = ['id', 'company', 'wilaya_name', 'price_home', 'price_desk']
+        fields = ['id', 'company', 'wilaya_name', 'price_home', 'price_desk', 'b2b_price_home', 'b2b_price_desk']
 
 
 class DeliveryCompanySerializer(serializers.ModelSerializer):

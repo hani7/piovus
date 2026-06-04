@@ -28,6 +28,8 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState({})
 
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
+  const isB2B = user?.profile?.is_b2b || false
+  const totalWeight = items.reduce((s, i) => s + (i.weight || 0) * i.quantity, 0)
 
   const [form, setForm] = useState({
     guest_name: user ? `${user.first_name} ${user.last_name}`.trim() : '',
@@ -77,7 +79,15 @@ export default function CheckoutPage() {
     // Find rate
     const rate = currentCompany?.rates.find(r => r.wilaya_name === form.wilaya)
     if (rate) {
-      setDeliveryCost(form.delivery_type === 'desk' ? Number(rate.price_desk) : Number(rate.price_home))
+      let baseHome = isB2B ? Number(rate.b2b_price_home || rate.price_home) : Number(rate.price_home)
+      let baseDesk = isB2B ? Number(rate.b2b_price_desk || rate.price_desk) : Number(rate.price_desk)
+      
+      let surcharge = 0
+      if (isB2B && totalWeight > 5) {
+        surcharge = Math.ceil(totalWeight - 5) * 50
+      }
+      
+      setDeliveryCost(form.delivery_type === 'desk' ? (baseDesk + surcharge) : (baseHome + surcharge))
     } else {
       setDeliveryCost(0)
     }
@@ -235,20 +245,37 @@ export default function CheckoutPage() {
                           
                           {Number(form.delivery_company_id) === c.id && (
                             <div style={{ paddingLeft: 28, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                              <label style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.9rem' }}>
-                                <span>
-                                  <input type="radio" name="delivery_type" value="home" checked={form.delivery_type === 'home'} onChange={handleChange} style={{ marginRight: 8 }} />
-                                  À domicile
-                                </span>
-                                <strong>{Number(rate.price_home)} DA</strong>
-                              </label>
-                              <label style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.9rem' }}>
-                                <span>
-                                  <input type="radio" name="delivery_type" value="desk" checked={form.delivery_type === 'desk'} onChange={handleChange} style={{ marginRight: 8 }} />
-                                  Point relais / Bureau
-                                </span>
-                                <strong>{Number(rate.price_desk)} DA</strong>
-                              </label>
+                              {(() => {
+                                let baseHome = isB2B ? Number(rate.b2b_price_home || rate.price_home) : Number(rate.price_home)
+                                let baseDesk = isB2B ? Number(rate.b2b_price_desk || rate.price_desk) : Number(rate.price_desk)
+                                let surcharge = 0
+                                if (isB2B && totalWeight > 5) {
+                                  surcharge = Math.ceil(totalWeight - 5) * 50
+                                }
+                                return (
+                                  <>
+                                    <label style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                      <span>
+                                        <input type="radio" name="delivery_type" value="home" checked={form.delivery_type === 'home'} onChange={handleChange} style={{ marginRight: 8 }} />
+                                        À domicile
+                                      </span>
+                                      <strong>{baseHome + surcharge} DA</strong>
+                                    </label>
+                                    <label style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                      <span>
+                                        <input type="radio" name="delivery_type" value="desk" checked={form.delivery_type === 'desk'} onChange={handleChange} style={{ marginRight: 8 }} />
+                                        Point relais / Bureau
+                                      </span>
+                                      <strong>{baseDesk + surcharge} DA</strong>
+                                    </label>
+                                    {isB2B && surcharge > 0 && (
+                                      <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: 4 }}>
+                                        * Inclus {surcharge} DA de supplément poids ({totalWeight.toFixed(2)} kg)
+                                      </div>
+                                    )}
+                                  </>
+                                )
+                              })()}
                             </div>
                           )}
                         </div>
@@ -292,7 +319,14 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-accent checkout-submit-btn" disabled={loading} id="submit-order-btn">
+            {total < 1500 && (
+              <div style={{ padding: '10px', background: 'rgba(255,0,0,0.1)', color: 'var(--admin-danger)', borderRadius: '8px', marginBottom: '16px', fontSize: '0.9rem', textAlign: 'center', fontWeight: 'bold' }}>
+                Le montant minimum de commande est de 1 500 DA.<br/>
+                Il vous manque {(1500 - total).toLocaleString('fr-DZ')} DA.
+              </div>
+            )}
+
+            <button type="submit" className="btn btn-accent checkout-submit-btn" disabled={loading || total < 1500} id="submit-order-btn">
               {loading ? 'Traitement...' : `Confirmer la commande — ${form.payment_method === 'cib' ? (coupon ? coupon.new_total : total).toLocaleString('fr-DZ') : ((coupon ? coupon.new_total : total) + deliveryCost).toLocaleString('fr-DZ')} DA`}
             </button>
           </form>
@@ -339,7 +373,7 @@ export default function CheckoutPage() {
                 <span>{form.payment_method === 'cib' ? (coupon ? coupon.new_total : total).toLocaleString('fr-DZ') : ((coupon ? coupon.new_total : total) + deliveryCost).toLocaleString('fr-DZ')} DA</span>
               </div>
               {form.payment_method === 'cib' && deliveryCost > 0 && (
-                <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400, width: '100%', textAlign: 'right' }}>
+                <div style={{ fontSize: '0.85rem', color: '#cc0000', fontWeight: 'bold', width: '100%', textAlign: 'right' }}>
                   + {deliveryCost.toLocaleString('fr-DZ')} DA à régler au livreur
                 </div>
               )}

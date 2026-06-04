@@ -4,7 +4,7 @@ import adminClient from '../../api/adminClient'
 
 const EMPTY_FORM = {
   name: '', category: '', description: '', price: '',
-  promo_price: '', b2b_price: '', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true,
+  promo_price: '', b2b_price: '', b2b_price_box: '', b2b_promo_price_box: '', b2b_price_carton: '', b2b_promo_price_carton: '', b2b_min_stock: 1, weight_box: '', weight_carton: '', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true,
 }
 
 function Pagination({ page, totalPages, onPage }) {
@@ -53,6 +53,10 @@ export default function AdminProducts() {
   const [gallery, setGallery] = useState([])
   const [galleryImageFile, setGalleryImageFile] = useState(null)
   const [galleryVideoFile, setGalleryVideoFile] = useState(null)
+
+  const [showRelated, setShowRelated] = useState(false)
+  const [relatedProducts, setRelatedProducts] = useState([])
+  const [relatedSearch, setRelatedSearch] = useState('')
 
   const [spreadsheetMode, setSpreadsheetMode] = useState(false)
   const [modifiedProducts, setModifiedProducts] = useState({})
@@ -103,6 +107,10 @@ export default function AdminProducts() {
       name: p.name, category: p.category || '',
       description: p.description || '',
       price: p.price, promo_price: p.promo_price || '', b2b_price: p.b2b_price || '',
+      b2b_price_box: p.b2b_price_box || '', b2b_promo_price_box: p.b2b_promo_price_box || '',
+      b2b_price_carton: p.b2b_price_carton || '', b2b_promo_price_carton: p.b2b_promo_price_carton || '',
+      b2b_min_stock: p.b2b_min_stock || 1,
+      weight_box: p.weight_box || '', weight_carton: p.weight_carton || '',
       stock: p.stock, min_stock_alert: p.min_stock_alert,
       is_featured: p.is_featured, is_new: p.is_new, is_bestseller: p.is_bestseller, is_promotion: p.is_promotion, is_active: p.is_active,
     })
@@ -111,6 +119,9 @@ export default function AdminProducts() {
     setShowVariants(false)
     setGallery(p.images || [])
     setShowGallery(false)
+    setRelatedProducts(p.related_products || [])
+    setShowRelated(false)
+    setRelatedSearch('')
   }
 
   const handleThumb = (e) => {
@@ -129,6 +140,13 @@ export default function AdminProducts() {
         if (v !== '' && v !== null && v !== undefined) fd.append(k, v)
       })
       if (thumbFile) fd.append('thumbnail', thumbFile)
+      
+      if (modal === 'edit') {
+        if (relatedProducts.length > 0) {
+          relatedProducts.forEach(rp => fd.append('related_product_ids', rp.id))
+        }
+      }
+
       const cfg = { headers: { 'Content-Type': 'multipart/form-data' } }
       if (modal === 'add') await adminClient.post('/admin/products/', fd, cfg)
       else await adminClient.patch(`/admin/products/${editId}/`, fd, cfg)
@@ -435,13 +453,58 @@ export default function AdminProducts() {
                     <label>Prix promo (DA)</label>
                     <input className="form-control" type="number" min="0" step="0.01" value={form.promo_price} onChange={e => setForm(f => ({ ...f, promo_price: e.target.value }))} placeholder="0.00" />
                   </div>
-                  <div className="form-group">
-                    <label>Prix Gros B2B (DA)</label>
-                    <input className="form-control" type="number" min="0" step="0.01" value={form.b2b_price} onChange={e => setForm(f => ({ ...f, b2b_price: e.target.value }))} placeholder="0.00" />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group" style={{ border: '1px solid var(--admin-border)', padding: 10, borderRadius: 8 }}>
+                    <label style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: 8, display: 'block' }}>Tarifs B2B - Boîte</label>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem' }}>Prix Boîte</label>
+                        <input className="form-control" type="number" min="0" step="0.01" value={form.b2b_price_box} onChange={e => setForm(f => ({ ...f, b2b_price_box: e.target.value }))} placeholder="0.00" />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem' }}>Promo Boîte</label>
+                        <input className="form-control" type="number" min="0" step="0.01" value={form.b2b_promo_price_box} onChange={e => setForm(f => ({ ...f, b2b_promo_price_box: e.target.value }))} placeholder="0.00" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="form-group" style={{ border: '1px solid var(--admin-border)', padding: 10, borderRadius: 8 }}>
+                    <label style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: 8, display: 'block' }}>Tarifs B2B - Carton</label>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem' }}>Prix Carton</label>
+                        <input className="form-control" type="number" min="0" step="0.01" value={form.b2b_price_carton} onChange={e => setForm(f => ({ ...f, b2b_price_carton: e.target.value }))} placeholder="0.00" />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem' }}>Promo Carton</label>
+                        <input className="form-control" type="number" min="0" step="0.01" value={form.b2b_promo_price_carton} onChange={e => setForm(f => ({ ...f, b2b_promo_price_carton: e.target.value }))} placeholder="0.00" />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 <div className="form-row">
+                  <div className="form-group" style={{ border: '1px solid var(--admin-border)', padding: 10, borderRadius: 8 }}>
+                    <label style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: 8, display: 'block' }}>Poids (Kg)</label>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem' }}>Poids Boîte (Kg)</label>
+                        <input className="form-control" type="number" min="0" step="0.01" value={form.weight_box} onChange={e => setForm(f => ({ ...f, weight_box: e.target.value }))} placeholder="0.00" />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem' }}>Poids Carton (Kg)</label>
+                        <input className="form-control" type="number" min="0" step="0.01" value={form.weight_carton} onChange={e => setForm(f => ({ ...f, weight_carton: e.target.value }))} placeholder="0.00" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Quantité Min B2B (MOQ)</label>
+                    <input className="form-control" type="number" min="1" value={form.b2b_min_stock} onChange={e => setForm(f => ({ ...f, b2b_min_stock: e.target.value }))} placeholder="1" />
+                  </div>
                   <div className="form-group">
                     <label>Stock</label>
                     <input className="form-control" type="number" min="0" value={form.stock} onChange={e => setForm(f => ({ ...f, stock: e.target.value }))} placeholder="0" />
@@ -634,6 +697,68 @@ export default function AdminProducts() {
                             {saving ? 'Ajout en cours...' : 'Ajouter à la galerie'}
                           </button>
                         </div>
+                      </div>
+                    )}
+                    {/* ── Produits Similaires ── */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', marginTop: '30px' }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Produits Similaires</h3>
+                      <button type="button" className="btn-secondary" onClick={() => setShowRelated(!showRelated)}>
+                        {showRelated ? 'Masquer' : 'Gérer les produits similaires'}
+                      </button>
+                    </div>
+                    {showRelated && (
+                      <div className="related-section" style={{ background: 'var(--admin-surface2)', padding: '15px', borderRadius: '8px' }}>
+                        
+                        {relatedProducts.length > 0 ? (
+                          <div style={{ display: 'grid', gap: '10px', marginBottom: '15px' }}>
+                            {relatedProducts.map(rp => (
+                              <div key={`rp-${rp.id}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--admin-surface)', padding: '10px', borderRadius: '6px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                  {rp.thumbnail ? (
+                                    <img src={rp.thumbnail} alt={rp.name} style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} />
+                                  ) : (
+                                    <div style={{ width: '30px', height: '30px', background: 'var(--admin-border)', borderRadius: '4px' }} />
+                                  )}
+                                  <div style={{ fontWeight: 500, fontSize: '0.9rem' }}>{rp.name}</div>
+                                </div>
+                                <button type="button" className="btn-action-icon text-danger" onClick={() => setRelatedProducts(relatedProducts.filter(r => r.id !== rp.id))}>
+                                  <X size={16} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p style={{ color: 'var(--admin-text-muted)', marginBottom: '15px', fontSize: '0.9rem' }}>Aucun produit similaire sélectionné.</p>
+                        )}
+
+                        {relatedProducts.length < 5 && (
+                          <div style={{ borderTop: '1px dashed var(--admin-border)', paddingTop: '15px' }}>
+                            <h4 style={{ fontSize: '0.95rem', marginBottom: '10px' }}>Rechercher un produit à ajouter</h4>
+                            <input 
+                              className="form-control" 
+                              placeholder="Rechercher par nom..." 
+                              value={relatedSearch} 
+                              onChange={e => setRelatedSearch(e.target.value)}
+                              style={{ marginBottom: '10px' }}
+                            />
+                            {relatedSearch && (
+                              <div style={{ maxHeight: '150px', overflowY: 'auto', background: 'var(--admin-surface)', border: '1px solid var(--admin-border)', borderRadius: '6px' }}>
+                                {products.filter(p => p.id !== editId && !relatedProducts.some(rp => rp.id === p.id) && p.name.toLowerCase().includes(relatedSearch.toLowerCase())).slice(0, 10).map(p => (
+                                  <div key={`search-${p.id}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', borderBottom: '1px solid var(--admin-border)' }}>
+                                    <span style={{ fontSize: '0.85rem' }}>{p.name}</span>
+                                    <button type="button" className="btn-secondary" style={{ padding: '2px 8px', fontSize: '0.75rem' }} onClick={() => {
+                                      setRelatedProducts([...relatedProducts, p])
+                                      setRelatedSearch('')
+                                    }}>Ajouter</button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {relatedProducts.length >= 5 && (
+                          <p style={{ color: 'var(--admin-warning)', fontSize: '0.85rem', marginTop: '10px' }}>Limite de 5 produits similaires atteinte.</p>
+                        )}
                       </div>
                     )}
                   </div>

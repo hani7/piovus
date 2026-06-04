@@ -1,0 +1,125 @@
+.product-carousel-section {
+  margin-bottom: 3rem;
+}
+
+.carousel-header {
+  background: #000;
+  color: #fff;
+  text-align: center;
+  padding: 0.5rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.carousel-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.carousel-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 50px; /* Ajoute de l'espace sur les côtés pour les flèches */
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  border: 1px solid #eaeaea;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.carousel-btn.left {
+  left: 0;
+}
+
+.carousel-btn.right {
+  right: 0;
+}
+
+.carousel-btn:hover {
+  background: #000;
+  color: #fff;
+}
+
+.carousel-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 1.5rem;
+  padding-bottom: 1rem;
+  scrollbar-width: none; /* Firefox */
+  flex: 1;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.carousel-item {
+  flex: 0 0 calc(20% - 1.2rem); /* 5 items per row */
+  scroll-snap-align: start;
+}
+
+@media (max-width: 1200px) {
+  .carousel-item {
+    flex: 0 0 calc(25% - 1.125rem); /* 4 items per row */
+  }
+}
+
+@media (max-width: 992px) {
+  .carousel-item {
+    flex: 0 0 calc(33.333% - 1rem); /* 3 items per row */
+  }
+}
+
+@media (max-width: 768px) {
+  .carousel-item {
+    flex: 0 0 calc(50% - 0.75rem); /* 2 items per row */
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-item {
+    flex: 0 0 calc(80% - 1rem); /* 1.2 items per row */
+  }
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1.5rem;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-gray-300, #ccc);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.carousel-dot.active {
+  background: var(--color-black, #000);
+  width: 24px;
+  border-radius: 4px;
+}

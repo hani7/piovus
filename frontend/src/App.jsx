@@ -17,6 +17,7 @@ import AddressesPage from './pages/AddressesPage'
 import SettingsPage from './pages/SettingsPage'
 import PromoBanner from './components/PromoBanner'
 import PromoPopup from './components/PromoPopup'
+import SideBanners from './components/SideBanners'
 import MaintenancePage from './pages/MaintenancePage'
 
 // Admin
@@ -31,6 +32,7 @@ import AdminOrderDetail from './pages/admin/AdminOrderDetail'
 import AdminBanners from './pages/admin/AdminBanners'
 import AdminDeliveryCompanies from './pages/admin/AdminDeliveryCompanies'
 import AdminDeliveryRates from './pages/admin/AdminDeliveryRates'
+import AdminB2BDeliveryRates from './pages/admin/AdminB2BDeliveryRates'
 import AdminCustomers from './pages/admin/AdminCustomers'
 import AdminBlacklist from './pages/admin/AdminBlacklist'
 import AdminB2BRequests from './pages/admin/AdminB2BRequests'
@@ -76,6 +78,7 @@ export default function App() {
       <ScrollToTop />
       {!isAdmin && <PromoBanner />}
       {!isAdmin && <Navbar />}
+      {!isAdmin && <SideBanners />}
       <Routes>
         {/* Public store */}
         <Route path="/" element={isB2B ? <B2BHomePage /> : <HomePage />} />
@@ -103,6 +106,7 @@ export default function App() {
           <Route path="banners" element={<AdminBanners />} />
           <Route path="delivery-companies" element={<AdminDeliveryCompanies />} />
           <Route path="delivery-rates" element={<AdminDeliveryRates />} />
+          <Route path="b2b-delivery-rates" element={<AdminB2BDeliveryRates />} />
           <Route path="customers" element={<AdminCustomers />} />
           <Route path="coupons" element={<AdminCoupons />} />
           <Route path="b2b-requests" element={<AdminB2BRequests />} />

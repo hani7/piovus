@@ -1,6 +1,6 @@
 /* ─── Hero ──────────────────────────────────────────────────── */
 .hero {
-  min-height: 90vh;
+  min-height: 60vh;
   display: flex;
   align-items: center;
   position: relative;
@@ -188,18 +188,25 @@
 
 /* ─── Categories Grid ───────────────────────────────────────── */
 .categories-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   gap: 20px;
+  padding-bottom: 20px;
+  scrollbar-width: thin; /* Firefox */
 }
-@media (max-width: 768px) {
-  .categories-grid { grid-template-columns: repeat(2, 1fr); }
+
+.categories-grid::-webkit-scrollbar {
+  height: 8px;
 }
-@media (max-width: 480px) {
-  .categories-grid { grid-template-columns: 1fr; }
+
+.categories-grid::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-300);
+  border-radius: 4px;
 }
 
 .cat-card {
+  flex: 0 0 clamp(260px, 30vw, 350px);
   position: relative;
   aspect-ratio: 4/3;
   border-radius: var(--radius-lg);

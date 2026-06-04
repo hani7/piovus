@@ -59,8 +59,15 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     promo_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    b2b_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    b2b_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True) # Legacy
+    b2b_price_box = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    b2b_promo_price_box = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    b2b_price_carton = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    b2b_promo_price_carton = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     units_per_carton = models.PositiveIntegerField(default=1)
+    weight_box = models.DecimalField(max_digits=6, decimal_places=2, default=0.00, help_text="Poids par boîte (kg)")
+    weight_carton = models.DecimalField(max_digits=6, decimal_places=2, default=0.00, help_text="Poids par carton (kg)")
+    b2b_min_stock = models.PositiveIntegerField(default=1, help_text="Quantité minimale de commande (MOQ) pour B2B")
     stock = models.PositiveIntegerField(default=0)
     min_stock_alert = models.PositiveIntegerField(default=5)
     is_featured = models.BooleanField(default=False)
@@ -68,6 +75,7 @@ class Product(models.Model):
     is_bestseller = models.BooleanField(default=False)
     is_promotion = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    related_products = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='related_to')
     thumbnail = models.ImageField(upload_to='products/thumbnails/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -126,8 +134,10 @@ class Banner(models.Model):
         ('home_section_2', 'Bandeau Section 2 (Accueil)'),
         ('top_banner', 'Bandeau Supérieur (Global)'),
         ('category_banner', 'Bandeau Page Catégorie'),
+        ('side_left', 'Bannière Flottante Gauche'),
+        ('side_right', 'Bannière Flottante Droite'),
     ]
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, blank=True, null=True)
     subtitle = models.CharField(max_length=300, blank=True)
     image = models.ImageField(upload_to='banners/')
     cta_label = models.CharField(max_length=100, default='Découvrir')
@@ -179,6 +189,8 @@ class DeliveryRate(models.Model):
     wilaya_name = models.CharField(max_length=100)
     price_home = models.DecimalField(max_digits=10, decimal_places=2, default=500.00)
     price_desk = models.DecimalField(max_digits=10, decimal_places=2, default=300.00)
+    b2b_price_home = models.DecimalField(max_digits=10, decimal_places=2, default=500.00)
+    b2b_price_desk = models.DecimalField(max_digits=10, decimal_places=2, default=300.00)
 
     class Meta:
         unique_together = ('company', 'wilaya_name')

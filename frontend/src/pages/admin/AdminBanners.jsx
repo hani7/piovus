@@ -12,6 +12,8 @@ const PLACEMENT_LABELS = {
   'home_section_2': 'Bandeau Section 2 (Accueil)',
   'top_banner': 'Bandeau Supérieur (Global)',
   'category_banner': 'Bandeau Page Catégorie',
+  'side_left': 'Bannière Flottante Gauche',
+  'side_right': 'Bannière Flottante Droite',
 }
 
 export default function AdminBanners() {
@@ -175,7 +177,7 @@ export default function AdminBanners() {
               <div className="form-row">
                 <div className="form-group">
                   <label>Titre</label>
-                  <input className="form-input" required value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} />
+                  <input className="form-input" value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} />
                 </div>
                 <div className="form-group">
                   <label>Sous-titre</label>

@@ -2,6 +2,13 @@
   RewriteEngine On
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
+  
+  # Do not rewrite API, Admin, Media, and Static paths so Django can handle them
+  RewriteCond %{REQUEST_URI} !^/api/
+  RewriteCond %{REQUEST_URI} !^/admin/
+  RewriteCond %{REQUEST_URI} !^/media/
+  RewriteCond %{REQUEST_URI} !^/static/
+  
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]

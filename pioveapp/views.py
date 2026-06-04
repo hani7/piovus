@@ -40,10 +40,17 @@ from .serializers import (
 
 
 # ─── Categories ──────────────────────────────────────────────────────────────
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.filter(is_active=True)
     serializer_class = CategorySerializer
     lookup_field = 'slug'
+
+    @method_decorator(cache_page(60 * 15))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 
 # ─── Products ─────────────────────────────────────────────────────────────────
@@ -114,6 +121,10 @@ class BannerViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = BannerSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['placement']
+
+    @method_decorator(cache_page(60 * 15))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 
 # ─── Auth ─────────────────────────────────────────────────────────────────────

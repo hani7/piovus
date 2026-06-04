@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer__top container">
         <div className="footer__brand">
-          <p className="footer__logo">Piové</p>
+          <img src="/logo-white.jpg" alt="Piové Cosmetics" className="footer__logo" />
           <p className="footer__tagline">Sublimez votre beauté</p>
           <p className="footer__desc">
             Piové Cosmetics vous propose une sélection de produits de maquillage

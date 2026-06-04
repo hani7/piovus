@@ -19,11 +19,11 @@
 }
 
 .footer__logo {
-  font-family: var(--font-serif);
-  font-size: 2rem;
-  color: var(--color-white);
-  font-weight: 600;
-  margin-bottom: 4px;
+  width: 140px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 8px;
+  display: block;
 }
 .footer__tagline {
   font-size: 0.7rem;

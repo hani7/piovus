@@ -152,7 +152,7 @@ export default function AdminLayout() {
       {/* Sidebar */}
       <aside className={`admin-sidebar ${!isSidebarOpen ? 'collapsed' : ''}`}>
         <div className="admin-sidebar-logo">
-          <h1>PIOVÉ</h1>
+          <img src="/logo.png" alt="PIOVÉ" style={{ height: '35px', width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)', alignSelf: 'flex-start', marginBottom: '8px' }} />
           <span>Admin Panel</span>
         </div>
 

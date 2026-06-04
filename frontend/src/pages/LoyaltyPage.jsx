@@ -65,9 +65,8 @@ export default function LoyaltyPage() {
               }} 
             />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--color-gray-600)', fontWeight: 600 }}>
-            <span>0</span>
-            <span>5000 Points</span>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.85rem', color: 'var(--color-gray-600)', fontWeight: 600 }}>
+            <span>Objectif: 5000 Points</span>
           </div>
 
           <p style={{ marginTop: 24, fontSize: '0.9rem', color: 'var(--color-gray-600)', lineHeight: 1.5, textAlign: 'center' }}>

@@ -6,6 +6,7 @@ import './admin.css'
 export default function AdminNewsletter() {
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
+  const [attachment, setAttachment] = useState(null)
   const [sending, setSending] = useState(false)
   const [feedback, setFeedback] = useState(null)
 
@@ -16,10 +17,20 @@ export default function AdminNewsletter() {
     setSending(true)
     setFeedback(null)
     try {
-      const res = await adminClient.post('/admin/newsletter/send/', { subject, message })
+      const formData = new FormData()
+      formData.append('subject', subject)
+      formData.append('message', message)
+      if (attachment) {
+        formData.append('attachment', attachment)
+      }
+
+      const res = await adminClient.post('/admin/newsletter/send/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
       setFeedback({ type: 'success', text: res.data.message })
       setSubject('')
       setMessage('')
+      setAttachment(null)
     } catch (err) {
       setFeedback({ type: 'error', text: err.response?.data?.error || "Erreur lors de l'envoi" })
     } finally {
@@ -67,6 +78,17 @@ export default function AdminNewsletter() {
               placeholder="Rédigez votre email ici. Vous pouvez utiliser des balises HTML pour le formatage (<b>gras</b>, <br> saut de ligne, <a href='...'>lien</a>)."
               style={{ fontFamily: 'monospace' }}
             />
+          </div>
+
+          <div className="form-group" style={{ marginTop: 20 }}>
+            <label>Pièce jointe (Image ou PDF) - Optionnel</label>
+            <input 
+              type="file" 
+              className="form-input" 
+              accept="image/*,.pdf"
+              onChange={(e) => setAttachment(e.target.files[0])}
+            />
+            {attachment && <small style={{display: 'block', marginTop: 5, color: '#666'}}>Fichier sélectionné : {attachment.name}</small>}
           </div>
 
           <div className="admin-modal-actions" style={{ justifyContent: 'flex-start', marginTop: 20 }}>

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
-import { LayoutDashboard, Package, MapPin, Settings, LogOut, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Package, MapPin, Settings, LogOut, ChevronRight, Gift } from 'lucide-react'
 import './AccountPage.css'
 
 const GOOGLE_CLIENT_ID = "GOOGLE_CLIENT_ID_PLACEHOLDER"
@@ -43,6 +43,9 @@ export default function AccountPage() {
               </Link>
               <Link to="/compte/adresses" className="account-nav-item">
                 <MapPin size={20} /> Mes Adresses
+              </Link>
+              <Link to="/compte/fidelite" className="account-nav-item">
+                <Gift size={20} /> Fidélité & Portefeuille
               </Link>
               <Link to="/compte/parametres" className="account-nav-item">
                 <Settings size={20} /> Paramètres
@@ -87,6 +90,15 @@ export default function AccountPage() {
                 <div className="card-info">
                   <h3>Paramètres</h3>
                   <p>Modifier vos informations personnelles et mot de passe</p>
+                </div>
+                <ChevronRight size={20} className="card-chevron" />
+              </Link>
+
+              <Link to="/compte/fidelite" className="account-card premium-card">
+                <div className="card-icon-wrapper"><Gift size={24} /></div>
+                <div className="card-info">
+                  <h3>Fidélité & Portefeuille</h3>
+                  <p>Consulter vos points et vos bons d'achat gagnés</p>
                 </div>
                 <ChevronRight size={20} className="card-chevron" />
               </Link>

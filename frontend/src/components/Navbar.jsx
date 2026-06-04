@@ -113,7 +113,7 @@ export default function Navbar() {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''}`}>
         <div className="sidebar__header">
-          <span className="sidebar__logo">Piové</span>
+          <img src="/logo.png" alt="Piové Cosmetics" style={{ height: '30px' }} />
           <button onClick={closeSidebar} className="sidebar__close" id="sidebar-close-btn">✕</button>
         </div>
         <nav className="sidebar__nav">

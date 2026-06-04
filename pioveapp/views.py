@@ -1314,20 +1314,34 @@ class AdminNewsletterSendView(APIView):
         if not emails:
             return Response({'error': 'Aucun client avec une adresse email valide trouvé.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        def send_newsletter(subject, html_content, recipient_list):
+        attachment = request.FILES.get('attachment')
+        attachment_name, attachment_content, attachment_mimetype = None, None, None
+        if attachment:
+            attachment_name = attachment.name
+            attachment_content = attachment.read()
+            attachment_mimetype = attachment.content_type
+
+        def send_newsletter(subject, html_content, recipient_list, att_name=None, att_content=None, att_mime=None):
             try:
+                from django.template.loader import render_to_string
+                rendered_html = render_to_string('emails/newsletter.html', {'message': html_content})
+                
                 msg = EmailMultiAlternatives(
                     subject=subject,
                     body="Veuillez utiliser un client email compatible HTML pour lire ce message.",
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     bcc=recipient_list
                 )
-                msg.attach_alternative(html_content, "text/html")
+                msg.attach_alternative(rendered_html, "text/html")
+                
+                if att_name and att_content and att_mime:
+                    msg.attach(att_name, att_content, att_mime)
+                    
                 msg.send(fail_silently=True)
             except Exception as e:
                 pass
                 
-        threading.Thread(target=send_newsletter, args=(subject, message_html, emails)).start()
+        threading.Thread(target=send_newsletter, args=(subject, message_html, emails, attachment_name, attachment_content, attachment_mimetype)).start()
         
         return Response({'message': f'Newsletter envoyée à {len(emails)} clients avec succès.'})
 

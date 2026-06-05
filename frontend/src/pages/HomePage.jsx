@@ -64,48 +64,52 @@ export default function HomePage() {
             backgroundPosition: 'center'
           }}
         >
-          <div className="hero__content container">
-            <div className="hero__text">
-              <p className="hero__eyebrow">{heroBanners[slide].subtitle}</p>
-              <h1 className="hero__title">{heroBanners[slide].title}</h1>
-              <div className="hero__ctas" style={{ marginTop: '2rem' }}>
-                <Link to={heroBanners[slide].cta_url || '/shop'} className="btn btn-accent hero__cta">
-                  {heroBanners[slide].cta_label || 'Découvrir'}
-                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginLeft: '8px' }}>
-                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                  </svg>
-                </Link>
-              </div>
-            </div>
+        <div className="hero__content container">
+          <div className="hero__text">
+            <p className="hero__eyebrow">{heroBanners[slide].subtitle}</p>
+            <h1 className="hero__title">{heroBanners[slide].title}</h1>
           </div>
+        </div>
+
+        {/* Button above dots */}
+        <div className="hero__bottom">
+          <Link to={heroBanners[slide].cta_url || '/shop'} className="btn btn-accent hero__cta">
+            {heroBanners[slide].cta_label || 'Découvrir'}
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginLeft: '8px' }}>
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </Link>
 
           {heroBanners.length > 1 && (
-            <>
-              {/* Controls */}
-              <button className="hero__prev" onClick={prevSlide} aria-label="Précédent" id="hero-prev">
-                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <polyline points="15 18 9 12 15 6"/>
-                </svg>
-              </button>
-              <button className="hero__next" onClick={nextSlide} aria-label="Suivant" id="hero-next">
-                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-              </button>
-              <div className="hero__dots">
-                {heroBanners.map((_, i) => (
-                  <button
-                    key={i}
-                    className={`hero__dot ${i === slide ? 'hero__dot--active' : ''}`}
-                    onClick={() => setSlide(i)}
-                    aria-label={`Slide ${i + 1}`}
-                    id={`hero-dot-${i}`}
-                  />
-                ))}
-              </div>
-            </>
+            <div className="hero__dots">
+              {heroBanners.map((_, i) => (
+                <button
+                  key={i}
+                  className={`hero__dot ${i === slide ? 'hero__dot--active' : ''}`}
+                  onClick={() => setSlide(i)}
+                  aria-label={`Slide ${i + 1}`}
+                  id={`hero-dot-${i}`}
+                />
+              ))}
+            </div>
           )}
-        </section>
+        </div>
+
+        {heroBanners.length > 1 && (
+          <>
+            <button className="hero__prev" onClick={prevSlide} aria-label="Précédent" id="hero-prev">
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <button className="hero__next" onClick={nextSlide} aria-label="Suivant" id="hero-next">
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </>
+        )}
+      </section>
       )}
 
 

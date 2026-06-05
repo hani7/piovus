@@ -1,11 +1,14 @@
 /* ─── Hero ──────────────────────────────────────────────────── */
+.homepage {
+  padding-top: var(--navbar-height);
+}
+
 .hero {
   min-height: 60vh;
   display: flex;
   align-items: center;
   position: relative;
   overflow: hidden;
-  margin-top: var(--navbar-height);
   transition: background 0.8s ease;
 }
 

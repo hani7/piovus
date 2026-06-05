@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import ProductCard from './ProductCard'
 import './ProductCarousel.css'
 
-export default function ProductCarousel({ title, products, isLoading }) {
+export default function ProductCarousel({ title, products, isLoading, className = "" }) {
   const scrollRef = useRef(null)
   const [activeDot, setActiveDot] = useState(0)
   const [dotsCount, setDotsCount] = useState(1)
@@ -50,7 +50,7 @@ export default function ProductCarousel({ title, products, isLoading }) {
 
   if (isLoading) {
     return (
-      <section className="product-carousel-section">
+      <section className={`product-carousel-section ${className}`}>
         {title && (
           <div className="carousel-header">
             <h2 className="carousel-title">{title.toUpperCase()}</h2>
@@ -66,7 +66,7 @@ export default function ProductCarousel({ title, products, isLoading }) {
   if (!products || products.length === 0) return null
 
   return (
-    <section className="product-carousel-section">
+    <section className={`product-carousel-section ${className}`}>
       {title && (
         <div className="carousel-header">
           <h2 className="carousel-title">{title.toUpperCase()}</h2>

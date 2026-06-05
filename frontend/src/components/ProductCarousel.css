@@ -126,7 +126,7 @@
 
 /* ─── Promo Theme ───────────────────────────────────────────────────────── */
 .product-carousel-section.promo-carousel-theme {
-  background-color: #cc0000;
+  background-color: #b30000;
   padding: 40px 0;
   margin-top: 2rem;
   margin-bottom: 0;
@@ -142,19 +142,14 @@
 }
 
 .promo-carousel-theme .product-card {
-  background-color: #b30000;
-  border-color: rgba(255, 255, 255, 0.1);
+  background-color: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
-.promo-carousel-theme .product-card__name,
-.promo-carousel-theme .product-card__price,
-.promo-carousel-theme .product-card__category {
-  color: #fff !important;
-}
-
+/* We don't override text color to white anymore since background is white */
 .promo-carousel-theme .carousel-btn {
   background-color: rgba(255, 255, 255, 0.9);
-  color: #cc0000;
+  color: #b30000;
   border: none;
 }
 

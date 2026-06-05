@@ -181,6 +181,7 @@
 .checkout-success__actions {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 16px;
   margin-top: 32px;
 }

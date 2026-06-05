@@ -215,6 +215,11 @@
   align-items: center;
   gap: 16px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+@media (max-width: 480px) {
+  .product-info__actions { flex-direction: column; align-items: stretch; }
+  .product-info__qty { justify-content: center; }
 }
 .product-info__qty {
   display: flex;

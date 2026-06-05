@@ -205,6 +205,17 @@ input, textarea, select {
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 28px;
 }
+@media (max-width: 600px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+@media (max-width: 360px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* ─── Loading Spinner ───────────────────────────────────────── */
 .spinner {

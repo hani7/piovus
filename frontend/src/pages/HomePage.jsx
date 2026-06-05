@@ -131,14 +131,14 @@ export default function HomePage() {
             <div className="spinner" />
           ) : featured.length > 0 ? (
             <div className="best-sellers-grid">
-              {featured.slice(0, 8).map(product => (
+              {featured.slice(0, 6).map(product => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
           ) : (
             <p className="best-sellers-empty">Aucun produit disponible</p>
           )}
-          {featured.length > 8 && (
+          {featured.length > 6 && (
             <div className="best-sellers-cta">
               <Link to="/shop?featured=true" className="btn btn-outline" id="see-all-bestsellers">
                 Voir tous les Best Sellers

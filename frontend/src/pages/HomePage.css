@@ -214,9 +214,12 @@
 }
 .best-sellers-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
   margin-top: 8px;
+}
+@media (max-width: 1200px) {
+  .best-sellers-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
 }
 @media (max-width: 1024px) {
   .best-sellers-grid { grid-template-columns: repeat(3, 1fr); }

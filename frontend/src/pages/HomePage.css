@@ -1,6 +1,10 @@
 /* ─── Hero ──────────────────────────────────────────────────── */
 .homepage {
-  padding-top: var(--navbar-height);
+  padding-top: 0;
+}
+
+.homepage > section:first-child {
+  padding-top: calc(var(--navbar-height) + 40px) !important;
 }
 
 .hero {

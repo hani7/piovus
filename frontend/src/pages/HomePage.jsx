@@ -124,9 +124,7 @@ export default function HomePage() {
       {/* ── Best Sellers Block ───────────────────────────── */}
       <section className="section best-sellers-section" id="best-sellers">
         <div className="container">
-          <p className="section-subtitle">Nos Favoris</p>
-          <h2 className="section-title">Nos Best Sellers</h2>
-          <div className="section-line" />
+          <h2 className="section-title" style={{ marginBottom: '24px' }}>Nos Best Sellers</h2>
           {loading ? (
             <div className="spinner" />
           ) : featured.length > 0 ? (

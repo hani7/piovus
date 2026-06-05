@@ -204,6 +204,36 @@
   }
 }
 
+/* ─── Best Sellers Section ──────────────────────────────────── */
+.best-sellers-section {
+  background: var(--color-cream);
+}
+.best-sellers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 8px;
+}
+@media (max-width: 1024px) {
+  .best-sellers-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .best-sellers-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+@media (max-width: 400px) {
+  .best-sellers-grid { grid-template-columns: 1fr; }
+}
+.best-sellers-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+.best-sellers-empty {
+  text-align: center;
+  color: var(--color-gray-500);
+  padding: 40px 0;
+}
+
 /* ─── USP Bar ───────────────────────────────────────────────── */
 .usp-bar {
   background: var(--color-black);

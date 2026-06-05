@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { getFeaturedProducts, getNewArrivals, getCategories, getBanners } from '../api/products'
 import ProductCarousel from '../components/ProductCarousel'
+import ProductCard from '../components/ProductCard'
 import CategoryCarouselSection from '../components/CategoryCarouselSection'
 import './HomePage.css'
 
@@ -113,9 +114,35 @@ export default function HomePage() {
       )}
 
 
-      {/* ── Best Offers & Best Sellers ───────────────────── */}
+      {/* ── Special Offers ────────────────────────────────── */}
       <ProductCarousel title="Offres Spéciales" products={newArrivals} isLoading={loading} />
-      <ProductCarousel title="Nos Best Sellers" products={featured} isLoading={loading} />
+
+      {/* ── Best Sellers Block ───────────────────────────── */}
+      <section className="section best-sellers-section" id="best-sellers">
+        <div className="container">
+          <p className="section-subtitle">Nos Favoris</p>
+          <h2 className="section-title">Nos Best Sellers</h2>
+          <div className="section-line" />
+          {loading ? (
+            <div className="spinner" />
+          ) : featured.length > 0 ? (
+            <div className="best-sellers-grid">
+              {featured.slice(0, 8).map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <p className="best-sellers-empty">Aucun produit disponible</p>
+          )}
+          {featured.length > 8 && (
+            <div className="best-sellers-cta">
+              <Link to="/shop?featured=true" className="btn btn-outline" id="see-all-bestsellers">
+                Voir tous les Best Sellers
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* ── Categories ───────────────────────────────────── */}
       <section className="section" id="categories-section">

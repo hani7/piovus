@@ -328,7 +328,7 @@ export default function ProductPage() {
                 ? <span className="stock-ok">En stock</span>
                 : product.stock > 0
                 ? <span className="stock-low">Plus que {product.stock} en stock</span>
-                : <span className="stock-none">Rupture de stock (Précommande disponible)</span>
+                : <span className="stock-none">Rupture de stock</span>
               }
             </p>
 

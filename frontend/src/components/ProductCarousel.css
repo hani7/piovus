@@ -123,3 +123,50 @@
   width: 24px;
   border-radius: 4px;
 }
+
+/* ─── Promo Theme ───────────────────────────────────────────────────────── */
+.product-carousel-section.promo-carousel-theme {
+  background-color: #cc0000;
+  padding: 40px 0;
+  margin-top: 2rem;
+  margin-bottom: 0;
+}
+
+.promo-carousel-theme .carousel-header {
+  background: transparent;
+  margin-bottom: 2rem;
+}
+
+.promo-carousel-theme .carousel-title {
+  color: #fff;
+}
+
+.promo-carousel-theme .product-card {
+  background-color: #b30000;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.promo-carousel-theme .product-card__name,
+.promo-carousel-theme .product-card__price,
+.promo-carousel-theme .product-card__category {
+  color: #fff !important;
+}
+
+.promo-carousel-theme .carousel-btn {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #cc0000;
+  border: none;
+}
+
+.promo-carousel-theme .carousel-btn:hover {
+  background-color: #fff;
+  color: #000;
+}
+
+.promo-carousel-theme .carousel-dot {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.promo-carousel-theme .carousel-dot.active {
+  background: #fff;
+}

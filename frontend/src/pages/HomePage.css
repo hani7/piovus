@@ -210,6 +210,7 @@
 /* ─── Best Sellers Section ──────────────────────────────────── */
 .best-sellers-section {
   background: var(--color-cream);
+  padding-top: 10px;
 }
 .best-sellers-grid {
   display: grid;

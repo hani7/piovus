@@ -149,7 +149,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Promotions ───────────────────────────────────── */}
-      <ProductCarousel title="En Promotion" products={promotions} isLoading={loading} />
+      <ProductCarousel title="En Promotion" products={promotions} isLoading={loading} className="promo-carousel-theme" />
 
       {/* ── Categories ───────────────────────────────────── */}
       <section className="section" id="categories-section">

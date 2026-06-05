@@ -70,13 +70,19 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='featured')
     def featured(self, request):
-        qs = self.get_queryset().filter(is_featured=True)[:8]
+        qs = self.get_queryset().filter(is_bestseller=True)[:8]
         serializer = ProductListSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='new-arrivals')
     def new_arrivals(self, request):
         qs = self.get_queryset().filter(is_new=True)[:8]
+        serializer = ProductListSerializer(qs, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='promotions')
+    def promotions(self, request):
+        qs = self.get_queryset().filter(is_promotion=True)[:8]
         serializer = ProductListSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 

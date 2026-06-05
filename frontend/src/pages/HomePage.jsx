@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { getFeaturedProducts, getNewArrivals, getCategories, getBanners } from '../api/products'
+import { getFeaturedProducts, getNewArrivals, getCategories, getBanners, getPromotions } from '../api/products'
 import ProductCarousel from '../components/ProductCarousel'
 import ProductCard from '../components/ProductCard'
 import CategoryCarouselSection from '../components/CategoryCarouselSection'
@@ -9,6 +9,7 @@ import './HomePage.css'
 export default function HomePage() {
   const [featured, setFeatured] = useState([])
   const [newArrivals, setNewArrivals] = useState([])
+  const [promotions, setPromotions] = useState([])
   const [categories, setCategories] = useState([])
   const [heroBanners, setHeroBanners] = useState([])
   const [slide, setSlide] = useState(0)
@@ -18,12 +19,14 @@ export default function HomePage() {
     Promise.all([
       getFeaturedProducts(),
       getNewArrivals(),
+      getPromotions(),
       getCategories(),
       getBanners()
     ])
-      .then(([feat, newArr, cats, bans]) => {
+      .then(([feat, newArr, promos, cats, bans]) => {
         setFeatured(feat.data.results || feat.data)
         setNewArrivals(newArr.data.results || newArr.data)
+        setPromotions(promos.data.results || promos.data)
         setCategories(cats.data.results || cats.data)
         
         const allBanners = bans.data.results || bans.data
@@ -32,6 +35,7 @@ export default function HomePage() {
       })
       .finally(() => setLoading(false))
   }, [])
+
 
   const nextSlide = useCallback(() => {
     if (heroBanners.length > 0) {
@@ -143,6 +147,9 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      {/* ── Promotions ───────────────────────────────────── */}
+      <ProductCarousel title="En Promotion" products={promotions} isLoading={loading} />
 
       {/* ── Categories ───────────────────────────────────── */}
       <section className="section" id="categories-section">

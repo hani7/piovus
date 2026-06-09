@@ -131,7 +131,7 @@ export default function CheckoutPage() {
       if (res.data.satim_payment_url) {
         window.location.href = res.data.satim_payment_url
       } else if (res.data.satim_error) {
-        setErrors({ submit: `Échec d'initialisation du paiement: ${res.data.satim_error}` })
+        window.location.href = `/payment-result?status=fail&reason=init_failed`
       } else {
         setOrderId(res.data.id)
         setSuccess(true)

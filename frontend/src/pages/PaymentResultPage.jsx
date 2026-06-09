@@ -24,6 +24,7 @@ export default function PaymentResultPage() {
             {reason === 'missing_params' && 'Les paramètres de retour SATIM sont manquants.'}
             {reason === 'order_not_found' && 'La commande est introuvable.'}
             {reason === 'payment_failed' && 'La transaction a été refusée par votre banque ou annulée.'}
+            {reason === 'init_failed' && 'Le portail de paiement SATIM est temporairement indisponible ou mal configuré.'}
             {!reason && 'Une erreur inconnue s\'est produite lors du paiement.'}
           </p>
           <p>Votre commande a été enregistrée en attente de paiement. Vous pouvez réessayer plus tard.</p>

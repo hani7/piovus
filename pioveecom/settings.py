@@ -179,7 +179,7 @@ MYLERZ_PASSWORD = os.environ.get('MYLERZ_PASSWORD', 'PioveShipping2025*')
 MYLERZ_WAREHOUSE_NAME = os.environ.get('MYLERZ_WAREHOUSE_NAME', 'piovestore')
 
 # ─── SATIM (CIB/EDAHABIA) DELIVERY API ────────────────────────────────────────
-SATIM_USER_NAME = os.environ.get('SATIM_USER_NAME', '')
-SATIM_PASSWORD = os.environ.get('SATIM_PASSWORD', '')
-SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID', '')
-SATIM_BASE_URL = os.environ.get('SATIM_BASE_URL', 'https://test.satim.dz/payment/rest')
+SATIM_USER_NAME = os.environ.get('SATIM_USER_NAME', 'piovecosmetics9ktupK4l0')
+SATIM_PASSWORD = os.environ.get('SATIM_PASSWORD', 'kslH0UwV4P0Bv3hD')
+SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID', 'E002000032')
+SATIM_BASE_URL = os.environ.get('SATIM_BASE_URL', 'https://cib.satim.dz/payment/rest')

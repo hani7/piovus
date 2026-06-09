@@ -18,6 +18,11 @@ export default function AdminOrderDetail() {
   const [detail, setDetail] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // Mylerz states
+  const [mylerzLoading, setMylerzLoading] = useState(false)
+  const [trackingData, setTrackingData] = useState(null)
+  const [showTracking, setShowTracking] = useState(false)
+
   const load = () => {
     setLoading(true)
     adminClient.get(`/admin/orders/${id}/`)
@@ -34,6 +39,47 @@ export default function AdminOrderDetail() {
   const handleStatus = async (newStatus) => {
     await adminClient.patch(`/admin/orders/${id}/`, { status: newStatus })
     load()
+  }
+
+  const handleMylerzShip = async () => {
+    if (!window.confirm('Voulez-vous générer un colis Mylerz pour cette commande ?')) return
+    setMylerzLoading(true)
+    try {
+      await adminClient.post(`/admin/orders/${id}/mylerz_ship/`)
+      alert('Colis Mylerz créé avec succès.')
+      load()
+    } catch (e) {
+      alert(e.response?.data?.message || 'Erreur lors de la création du colis.')
+    } finally {
+      setMylerzLoading(false)
+    }
+  }
+
+  const handleMylerzTrack = async () => {
+    setMylerzLoading(true)
+    try {
+      const res = await adminClient.get(`/admin/orders/${id}/mylerz_track/`)
+      setTrackingData(res.data.tracking)
+      setShowTracking(true)
+    } catch (e) {
+      alert(e.response?.data?.message || 'Erreur de suivi.')
+    } finally {
+      setMylerzLoading(false)
+    }
+  }
+
+  const handleMylerzCancel = async () => {
+    if (!window.confirm('Voulez-vous vraiment annuler cet envoi sur Mylerz ?')) return
+    setMylerzLoading(true)
+    try {
+      await adminClient.post(`/admin/orders/${id}/mylerz_cancel/`)
+      alert('Envoi annulé avec succès.')
+      load()
+    } catch (e) {
+      alert(e.response?.data?.message || 'Erreur lors de l\'annulation.')
+    } finally {
+      setMylerzLoading(false)
+    }
   }
 
   if (loading) return <div className="admin-loading"><div className="spin" /><span>Chargement...</span></div>
@@ -173,24 +219,86 @@ export default function AdminOrderDetail() {
 
         {/* RIGHT COLUMN: Sidebar Info & TIMELINE */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          
-          {/* Actions */}
-          <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-             <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>Actions</h4>
-             <button className="btn btn-black" style={{ width: '100%', marginBottom: 10, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }} onClick={() => window.print()}>
-               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-               Imprimer la facture
-             </button>
-             <button className="btn btn-outline" style={{ width: '100%', color: '#dc3545', borderColor: '#dc3545', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }} onClick={async () => {
-               if(window.confirm('Supprimer cette commande ?')) {
-                 await adminClient.delete(`/admin/orders/${detail.id}/`);
-                 navigate('/admin-panel/orders')
-               }
-             }}>
-               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-               Supprimer
-             </button>
-          </div>
+           {/* Actions */}
+           <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>Actions</h4>
+              <button className="btn btn-black" style={{ width: '100%', marginBottom: 10, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }} onClick={() => window.print()}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Imprimer la facture
+              </button>
+              <button className="btn btn-outline" style={{ width: '100%', color: '#dc3545', borderColor: '#dc3545', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }} onClick={async () => {
+                if(window.confirm('Supprimer cette commande ?')) {
+                  await adminClient.delete(`/admin/orders/${detail.id}/`);
+                  navigate('/admin-panel/orders')
+                }
+              }}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Supprimer
+              </button>
+           </div>
+
+           {/* Mylerz Delivery */}
+           <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+             <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+               Mylerz Livraison
+               {mylerzLoading && <div className="spin" style={{ width: 14, height: 14, borderWidth: 2 }}></div>}
+             </h4>
+             
+             {detail.mylerz_barcode ? (
+               <div>
+                 <div style={{ background: '#f8fafc', padding: 12, borderRadius: 6, marginBottom: 12 }}>
+                   <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 4 }}>Code Barres:</div>
+                   <div style={{ fontWeight: 600, color: '#0f172a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                     {detail.mylerz_barcode}
+                     <button onClick={() => navigator.clipboard.writeText(detail.mylerz_barcode)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6' }}>
+                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                     </button>
+                   </div>
+                   {detail.mylerz_pickup_code && (
+                     <>
+                       <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 8, marginBottom: 4 }}>Code Collecte:</div>
+                       <div style={{ fontWeight: 600, color: '#0f172a' }}>{detail.mylerz_pickup_code}</div>
+                     </>
+                   )}
+                   <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 8, marginBottom: 4 }}>Statut Mylerz:</div>
+                   <div style={{ fontWeight: 600, color: '#3b82f6' }}>{detail.mylerz_status || 'En attente'}</div>
+                 </div>
+
+                 <div style={{ display: 'flex', gap: 10, flexDirection: 'column' }}>
+                   <button className="btn btn-black" style={{ width: '100%', fontSize: '0.85rem' }} onClick={handleMylerzTrack} disabled={mylerzLoading}>
+                     🔍 Suivre le colis
+                   </button>
+                   {(!detail.mylerz_status || !detail.mylerz_status.toLowerCase().includes('cancel')) && (
+                     <button className="btn btn-outline" style={{ width: '100%', fontSize: '0.85rem', color: '#dc3545', borderColor: '#dc3545' }} onClick={handleMylerzCancel} disabled={mylerzLoading}>
+                       ❌ Annuler l'envoi
+                     </button>
+                   )}
+                 </div>
+
+                 {/* Tracking info display */}
+                 {showTracking && trackingData && (
+                   <div style={{ marginTop: 16, borderTop: '1px solid #e2e8f0', paddingTop: 12 }}>
+                     <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 8 }}>Historique Mylerz :</div>
+                     {trackingData.length > 0 ? trackingData.map((t, idx) => (
+                       <div key={idx} style={{ marginBottom: 8, paddingLeft: 10, borderLeft: '2px solid #cbd5e1' }}>
+                         <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b' }}>{t.Status || t.status}</div>
+                         <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{new Date(t.Date || t.date).toLocaleString('fr-DZ')}</div>
+                       </div>
+                     )) : <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Aucun suivi disponible.</div>}
+                   </div>
+                 )}
+               </div>
+             ) : (
+               <div>
+                 <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 12 }}>
+                   Aucun colis généré pour cette commande.
+                 </div>
+                 <button className="btn btn-black" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }} onClick={handleMylerzShip} disabled={mylerzLoading}>
+                   📦 Envoyer à Mylerz
+                 </button>
+               </div>
+             )}
+           </div>
 
           {/* Timeline - Suivi COMPLET */}
           <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>

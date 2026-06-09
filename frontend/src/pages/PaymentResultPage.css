@@ -1,0 +1,41 @@
+.payment-result-container {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.payment-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.result-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.success .result-icon {
+  color: #28a745;
+}
+
+.fail .result-icon {
+  color: #dc3545;
+}
+
+.payment-card h2 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.payment-card p {
+  color: #666;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}

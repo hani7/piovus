@@ -273,7 +273,7 @@ class Order(models.Model):
     guest_email = models.EmailField(blank=True)
 
     # Shipping
-    shipping_address = models.TextField()
+    shipping_address = models.TextField(blank=True)
     wilaya = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)
     delivery_company_name = models.CharField(max_length=100, blank=True)
@@ -283,6 +283,11 @@ class Order(models.Model):
     # Order info
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     payment_status = models.CharField(max_length=20, choices=[('unpaid', 'Non payé'), ('paid', 'Payé'), ('refunded', 'Remboursé')], default='unpaid')
+
+    # Mylerz integration
+    mylerz_barcode = models.CharField(max_length=100, blank=True, verbose_name='Code-barres Mylerz')
+    mylerz_pickup_code = models.CharField(max_length=100, blank=True, verbose_name='Code de collecte Mylerz')
+    mylerz_status = models.CharField(max_length=200, blank=True, verbose_name='Statut Mylerz')
     payment_method = models.CharField(max_length=20, choices=[('cash', 'Paiement à la livraison'), ('cib', 'CIB ou Edahabia')], default='cash')
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     

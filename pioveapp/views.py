@@ -624,6 +624,24 @@ class OrderViewSet(viewsets.ModelViewSet):
             
             threading.Thread(target=send_order_email, args=(order.id, recipient_email)).start()
 
+        # CIB / Edahabia Payment Registration
+        if order.payment_method == 'cib':
+            from .satim_service import register_order
+            satim_res = register_order(order)
+            if satim_res.get('success'):
+                # We return the SATIM formUrl in the response so React can redirect
+                return Response({
+                    **OrderSerializer(order).data,
+                    'satim_payment_url': satim_res.get('formUrl')
+                }, status=status.HTTP_201_CREATED)
+            else:
+                # If SATIM fails, we could either delete the order and return error, 
+                # or keep it as unpaid and return error. Let's keep it and return error msg.
+                return Response({
+                    **OrderSerializer(order).data,
+                    'satim_error': satim_res.get('message')
+                }, status=status.HTTP_201_CREATED)
+
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
 
@@ -885,6 +903,36 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             )
             handle_loyalty_points(updated_instance, old_status, updated_instance.status)
             
+            # --- MYLERZ AUTO-SHIP ---
+            if updated_instance.status == 'confirmed' and not updated_instance.mylerz_barcode:
+                from . import mylerz_service
+                def async_mylerz_ship(order_id):
+                    try:
+                        from .models import Order, OrderStatusHistory
+                        o = Order.objects.get(id=order_id)
+                        res = mylerz_service.create_shipment(o)
+                        if res.get('success'):
+                            o.mylerz_barcode = res.get('barcode', '')
+                            o.mylerz_pickup_code = res.get('pickup_code', '')
+                            o.mylerz_status = 'Shipment Created'
+                            o.save(update_fields=['mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'])
+                            OrderStatusHistory.objects.create(
+                                order=o,
+                                status=o.status,
+                                notes=f"Colis Mylerz généré auto. Barcode: {o.mylerz_barcode}"
+                            )
+                        else:
+                            msg = res.get('message', 'Erreur inconnue')
+                            OrderStatusHistory.objects.create(
+                                order=o,
+                                status=o.status,
+                                notes=f"Échec de création du colis Mylerz : {msg}"
+                            )
+                    except Exception as e:
+                        pass
+                import threading
+                threading.Thread(target=async_mylerz_ship, args=(updated_instance.id,)).start()
+
         from .models import UserActivityLog
         UserActivityLog.objects.create(
             user=self.request.user,
@@ -892,6 +940,61 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             ip_address=self.request.META.get('REMOTE_ADDR'),
                 user_agent=self.request.META.get('HTTP_USER_AGENT')
         )
+
+    @action(detail=True, methods=['post'])
+    def mylerz_ship(self, request, pk=None):
+        order = self.get_object()
+        if order.mylerz_barcode:
+            return Response({'error': 'Ce colis a déjà un code-barres Mylerz.'}, status=400)
+        from . import mylerz_service
+        res = mylerz_service.create_shipment(order)
+        if res.get('success'):
+            order.mylerz_barcode = res.get('barcode', '')
+            order.mylerz_pickup_code = res.get('pickup_code', '')
+            order.mylerz_status = 'Shipment Created'
+            order.save(update_fields=['mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'])
+            OrderStatusHistory.objects.create(
+                order=order,
+                status=order.status,
+                notes=f"Colis Mylerz généré manuellement. Barcode: {order.mylerz_barcode}"
+            )
+            return Response(res)
+        return Response(res, status=400)
+
+    @action(detail=True, methods=['get'])
+    def mylerz_track(self, request, pk=None):
+        order = self.get_object()
+        if not order.mylerz_barcode:
+            return Response({'error': 'Aucun code-barres Mylerz pour cette commande.'}, status=400)
+        from . import mylerz_service
+        res = mylerz_service.track_shipment(order.mylerz_barcode)
+        if res.get('success'):
+            tracking = res.get('tracking', [])
+            if tracking:
+                latest = tracking[0]
+                new_status = latest.get('Status') or latest.get('status')
+                if new_status and order.mylerz_status != new_status:
+                    order.mylerz_status = new_status
+                    order.save(update_fields=['mylerz_status'])
+        return Response(res)
+
+    @action(detail=True, methods=['post'])
+    def mylerz_cancel(self, request, pk=None):
+        order = self.get_object()
+        if not order.mylerz_barcode:
+            return Response({'error': 'Aucun code-barres Mylerz pour cette commande.'}, status=400)
+        from . import mylerz_service
+        res = mylerz_service.cancel_shipment(order.mylerz_barcode)
+        if res.get('success'):
+            order.mylerz_status = 'Cancelled on Mylerz'
+            order.save(update_fields=['mylerz_status'])
+            OrderStatusHistory.objects.create(
+                order=order,
+                status=order.status,
+                notes=f"Envoi Mylerz annulé."
+            )
+            return Response(res)
+        return Response(res, status=400)
 
     @action(detail=False, methods=['get'])
     def unviewed_counts(self, request):
@@ -942,6 +1045,37 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                     notes="Statut modifié en masse."
                 )
                 handle_loyalty_points(order, old_status, new_status)
+                
+                # --- MYLERZ AUTO-SHIP ---
+                if new_status == 'confirmed' and not order.mylerz_barcode:
+                    from . import mylerz_service
+                    def async_mylerz_ship(order_id):
+                        try:
+                            from .models import Order, OrderStatusHistory
+                            o = Order.objects.get(id=order_id)
+                            res = mylerz_service.create_shipment(o)
+                            if res.get('success'):
+                                o.mylerz_barcode = res.get('barcode', '')
+                                o.mylerz_pickup_code = res.get('pickup_code', '')
+                                o.mylerz_status = 'Shipment Created'
+                                o.save(update_fields=['mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'])
+                                OrderStatusHistory.objects.create(
+                                    order=o,
+                                    status=o.status,
+                                    notes=f"Colis Mylerz généré auto (en masse). Barcode: {o.mylerz_barcode}"
+                                )
+                            else:
+                                msg = res.get('message', 'Erreur inconnue')
+                                OrderStatusHistory.objects.create(
+                                    order=o,
+                                    status=o.status,
+                                    notes=f"Échec de création du colis Mylerz : {msg}"
+                                )
+                        except Exception as e:
+                            pass
+                    import threading
+                    threading.Thread(target=async_mylerz_ship, args=(order.id,)).start()
+                
                 updated_count += 1
                 
         return Response({'message': f'{updated_count} commande(s) mise(s) à jour.'})
@@ -1027,12 +1161,13 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                     <tbody>
             """
             for item in o.items.all():
+                subtotal = item.price_at_purchase * item.quantity
                 html += f"""
                         <tr>
                             <td>{item.product_name}</td>
                             <td>{item.quantity}</td>
-                            <td>{item.price} DA</td>
-                            <td>{item.subtotal} DA</td>
+                            <td>{item.price_at_purchase} DA</td>
+                            <td>{subtotal} DA</td>
                         </tr>
                 """
             html += f"""
@@ -1626,3 +1761,120 @@ class AdminB2BRequestViewSet(viewsets.ReadOnlyModelViewSet):
             user_agent=request.META.get('HTTP_USER_AGENT')
         )
         return Response({'status': 'rejected'})
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def mylerz_webhook(request):
+    """
+    Webhook endpoint for Mylerz Algeria to push status updates.
+    Expects a POST payload with Barcode and Status.
+    """
+    data = request.data
+    # Handling both single object or list of objects
+    if isinstance(data, dict):
+        events = [data]
+    elif isinstance(data, list):
+        events = data
+    else:
+        return Response({'error': 'Invalid payload format'}, status=400)
+
+    from pioveapp.management.commands.sync_mylerz import send_status_email
+    
+    updated = 0
+    for event in events:
+        barcode = event.get('Barcode') or event.get('barcode') or event.get('Package_Serial')
+        status_text = event.get('Status') or event.get('status')
+        
+        if not barcode or not status_text:
+            continue
+            
+        try:
+            order = Order.objects.filter(mylerz_barcode=barcode).first()
+            if not order and str(barcode).isdigit():
+                order = Order.objects.filter(id=barcode).first()
+                
+            if order and order.mylerz_status != status_text:
+                order.mylerz_status = status_text
+                order.save(update_fields=['mylerz_status'])
+                
+                m_status_lower = status_text.lower()
+                new_piove_status = None
+                
+                if m_status_lower in ['out for delivery', 'shuttling', 'forward delivery', 'dispatched']:
+                    new_piove_status = 'shipped'
+                elif m_status_lower in ['delivered', 'received by myler']:
+                    new_piove_status = 'fulfilled'
+                elif m_status_lower in ['returned', 'reverse delivery', 'returned to shipper']:
+                    new_piove_status = 'returned'
+                elif m_status_lower in ['cancelled']:
+                    new_piove_status = 'cancelled'
+
+                if new_piove_status and order.status != new_piove_status:
+                    order.status = new_piove_status
+                    order.save(update_fields=['status'])
+                    
+                    OrderStatusHistory.objects.create(
+                        order=order,
+                        status=new_piove_status,
+                        notes=f"Statut Mylerz mis à jour via Webhook : {status_text}"
+                    )
+                    
+                    send_status_email(order, new_piove_status, order.mylerz_barcode)
+                    updated += 1
+        except Exception as e:
+            pass
+
+    return Response({'success': True, 'updated': updated})
+
+from django.http import HttpResponseRedirect
+from .satim_service import confirm_order
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def satim_callback(request):
+    """
+    Called by SATIM when the user returns from the payment page.
+    """
+    order_id_satim = request.GET.get('orderId')
+    order_id_piove = request.GET.get('order_id')
+    
+    # URL to redirect the user to in React
+    frontend_base = settings.FRONTEND_URL
+    fail_url = f"{frontend_base}/payment-result?status=fail"
+    success_url = f"{frontend_base}/payment-result?status=success"
+
+    if not order_id_satim or not order_id_piove:
+        return HttpResponseRedirect(f"{fail_url}&reason=missing_params")
+
+    # Confirm order with SATIM
+    confirm_res = confirm_order(order_id_satim)
+    
+    try:
+        order = Order.objects.get(id=order_id_piove)
+    except Order.DoesNotExist:
+        return HttpResponseRedirect(f"{fail_url}&reason=order_not_found")
+
+    if confirm_res.get('success'):
+        # Payment was successful!
+        if order.payment_status != 'paid':
+            order.payment_status = 'paid'
+            order.status = 'confirmed' # Usually paid online orders are auto-confirmed
+            order.save(update_fields=['payment_status', 'status'])
+            
+            OrderStatusHistory.objects.create(
+                order=order,
+                status='confirmed',
+                notes=f"Paiement CIB/Edahabia réussi (ID transaction: {order_id_satim})."
+            )
+        return HttpResponseRedirect(success_url)
+    else:
+        # Payment failed or cancelled
+        OrderStatusHistory.objects.create(
+            order=order,
+            status=order.status,
+            notes=f"Échec de paiement CIB/Edahabia : {confirm_res.get('message')}"
+        )
+        return HttpResponseRedirect(f"{fail_url}&reason=payment_failed")

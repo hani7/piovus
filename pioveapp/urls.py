@@ -12,7 +12,8 @@ from .views import (
     AdminBannerViewSet, AdminOrderViewSet, AdminCouponViewSet,
     DeliveryCompanyViewSet, DeliveryRateViewSet, CustomerViewSet,
     AdminNewsletterSendView, AdminReportView, ApplyCouponView,
-    SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet
+    SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet,
+    mylerz_webhook, satim_callback
 )
 
 router = DefaultRouter()
@@ -38,6 +39,8 @@ urlpatterns = [
     path('', include(router.urls)),
     path('settings/', SiteSettingsView.as_view(), name='site-settings'),
     path('apply-coupon/', ApplyCouponView.as_view(), name='apply-coupon'),
+    path('mylerz/webhook/', mylerz_webhook, name='mylerz-webhook'),
+    path('satim/callback/', satim_callback, name='satim-callback'),
     # Auth
     path('auth/register/', RegisterView.as_view(), name='auth-register'),
     path('auth/register-b2b/', B2BRegisterView.as_view(), name='auth-register-b2b'),

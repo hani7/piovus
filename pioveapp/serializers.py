@@ -247,8 +247,9 @@ class OrderSerializer(serializers.ModelSerializer):
             'delivery_company_name', 'delivery_type', 'delivery_cost',
             'status', 'status_display', 'payment_method', 'total', 'notes',
             'items', 'history', 'created_at',
+            'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'
         ]
-        read_only_fields = ['user', 'status', 'total', 'created_at', 'delivery_cost', 'delivery_company_name', 'history']
+        read_only_fields = ['user', 'status', 'total', 'created_at', 'delivery_cost', 'delivery_company_name', 'history', 'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status']
 
 
 class OrderCreateSerializer(serializers.Serializer):
@@ -338,9 +339,10 @@ class AdminOrderSerializer(serializers.ModelSerializer):
             'shipping_address', 'wilaya', 'city',
             'delivery_company_name', 'delivery_type', 'delivery_cost',
             'status', 'status_display', 'payment_status', 'payment_method', 'total', 'notes',
-            'items', 'history', 'created_at', 'updated_at', 'is_blacklisted', 'customer'
+            'items', 'history', 'created_at', 'updated_at', 'is_blacklisted', 'customer',
+            'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'
         ]
-        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted']
+        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted', 'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status']
 
     def get_customer_name(self, obj):
         if obj.user:

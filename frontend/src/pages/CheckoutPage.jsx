@@ -103,7 +103,6 @@ export default function CheckoutPage() {
     const errs = {}
     if (!form.guest_name.trim()) errs.guest_name = 'Champ obligatoire'
     if (!form.guest_phone.trim()) errs.guest_phone = 'Champ obligatoire'
-    if (!form.shipping_address.trim()) errs.shipping_address = 'Champ obligatoire'
     if (!form.wilaya) errs.wilaya = 'Champ obligatoire'
     if (!form.delivery_company_id) errs.delivery = 'Veuillez sélectionner un transporteur'
     return errs
@@ -128,9 +127,15 @@ export default function CheckoutPage() {
         discount_amount: coupon ? coupon.discount_amount : 0
       }
       const res = await createOrder(payload)
-      setOrderId(res.data.id)
       clearCart()
-      setSuccess(true)
+      if (res.data.satim_payment_url) {
+        window.location.href = res.data.satim_payment_url
+      } else if (res.data.satim_error) {
+        setErrors({ submit: `Échec d'initialisation du paiement: ${res.data.satim_error}` })
+      } else {
+        setOrderId(res.data.id)
+        setSuccess(true)
+      }
     } catch (err) {
       setErrors({ submit: 'Une erreur est survenue. Veuillez réessayer.' })
     } finally {
@@ -149,7 +154,7 @@ export default function CheckoutPage() {
 
   if (success) {
     return (
-      <div className="checkout-success container page-enter">
+      <div className="checkout-success container page-enter" style={{ padding: '120px 20px', minHeight: '50vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div className="checkout-success__icon">✓</div>
         <h1>Commande confirmée !</h1>
         <p>Votre commande <strong>#{orderId}</strong> a bien été enregistrée.</p>
@@ -192,11 +197,6 @@ export default function CheckoutPage() {
 
             <div className="checkout-section">
               <h3>Adresse de livraison</h3>
-              <div className="form-group">
-                <label className="form-label" htmlFor="shipping_address">Adresse *</label>
-                <input className={`form-input ${errors.shipping_address ? 'error' : ''}`} id="shipping_address" name="shipping_address" value={form.shipping_address} onChange={handleChange} placeholder="N° rue, quartier..." />
-                {errors.shipping_address && <span className="field-error">{errors.shipping_address}</span>}
-              </div>
               <div className="checkout-grid-2">
                 <div className="form-group">
                   <label className="form-label" htmlFor="wilaya">Wilaya *</label>
@@ -311,8 +311,11 @@ export default function CheckoutPage() {
                     checked={form.payment_method === 'cib'}
                     onChange={handleChange}
                   />
-                  <div>
-                    <div style={{ marginBottom: 4 }}>CIB ou Edahabia</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>CIB ou Edahabia</span>
+                      <img src="/cib-edahabia.jpg" alt="CIB Edahabia" style={{ height: 24, objectFit: 'contain' }} />
+                    </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Paiement sécurisé en ligne (les frais de livraison seront réglés à la réception).</div>
                   </div>
                 </label>

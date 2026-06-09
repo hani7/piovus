@@ -171,3 +171,15 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_USE_SSL = True
 # EMAIL_HOST_USER = 'contact@votre-domaine.dz'
 # EMAIL_HOST_PASSWORD = 'VOTRE_MOT_DE_PASSE_EMAIL'
+
+# ─── MYLERZ DELIVERY API ──────────────────────────────────────────────────────
+MYLERZ_BASE_URL = os.environ.get('MYLERZ_BASE_URL', 'https://integration.algeria.mylerz.net')
+MYLERZ_USERNAME = os.environ.get('MYLERZ_USERNAME', 'piovestore')
+MYLERZ_PASSWORD = os.environ.get('MYLERZ_PASSWORD', 'PioveShipping2025*')
+MYLERZ_WAREHOUSE_NAME = os.environ.get('MYLERZ_WAREHOUSE_NAME', 'piovestore')
+
+# ─── SATIM (CIB/EDAHABIA) DELIVERY API ────────────────────────────────────────
+SATIM_USER_NAME = os.environ.get('SATIM_USER_NAME', '')
+SATIM_PASSWORD = os.environ.get('SATIM_PASSWORD', '')
+SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID', '')
+SATIM_BASE_URL = os.environ.get('SATIM_BASE_URL', 'https://test.satim.dz/payment/rest')

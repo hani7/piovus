@@ -20,6 +20,7 @@ import PromoBanner from './components/PromoBanner'
 import PromoPopup from './components/PromoPopup'
 import SideBanners from './components/SideBanners'
 import MaintenancePage from './pages/MaintenancePage'
+import PaymentResultPage from './pages/PaymentResultPage'
 
 // Admin
 import AdminLogin from './pages/admin/AdminLogin'
@@ -93,6 +94,7 @@ export default function App() {
         <Route path="/compte/adresses" element={<AddressesPage />} />
         <Route path="/compte/fidelite" element={<LoyaltyPage />} />
         <Route path="/compte/parametres" element={<SettingsPage />} />
+        <Route path="/payment-result" element={<PaymentResultPage />} />
 
         {/* Admin */}
         <Route path="/admin-panel/login" element={<AdminLogin />} />

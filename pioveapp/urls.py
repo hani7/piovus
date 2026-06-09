@@ -11,7 +11,7 @@ from .views import (
     AdminProductViewSet, AdminProductVariantViewSet, AdminProductImageViewSet, AdminCategoryViewSet,
     AdminBannerViewSet, AdminOrderViewSet, AdminCouponViewSet,
     DeliveryCompanyViewSet, DeliveryRateViewSet, CustomerViewSet,
-    AdminNewsletterSendView, AdminReportView, ApplyCouponView,
+    AdminNewsletterSendView, AdminNewsletterUploadImageView, AdminReportView, ApplyCouponView,
     SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet,
     mylerz_webhook, satim_callback
 )
@@ -56,6 +56,7 @@ urlpatterns = [
     path('admin/dashboard/', AdminDashboardView.as_view(), name='admin-dashboard'),
     path('admin/reports/', AdminReportView.as_view(), name='admin-reports'),
     path('admin/newsletter/send/', AdminNewsletterSendView.as_view(), name='admin-newsletter-send'),
+    path('admin/newsletter/upload-image/', AdminNewsletterUploadImageView.as_view(), name='admin-newsletter-upload-image'),
     path('admin/activity-logs/', AdminActivityLogView.as_view(), name='admin-activity-logs'),
     path('admin/settings/', AdminSiteSettingsView.as_view(), name='admin-settings'),
     path('admin/settings/toggle_maintenance/', AdminSiteSettingsView.as_view(), name='admin-settings-toggle'),

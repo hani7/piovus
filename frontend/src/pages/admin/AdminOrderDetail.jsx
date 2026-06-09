@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import adminClient from '../../api/adminClient'
+import { Printer, RefreshCw } from 'lucide-react'
 
 const STATUS_LABELS = {
   pending: 'En attente', confirmed: 'Confirmé',
@@ -61,6 +62,12 @@ export default function AdminOrderDetail() {
       const res = await adminClient.get(`/admin/orders/${id}/mylerz_track/`)
       setTrackingData(res.data.tracking)
       setShowTracking(true)
+      // also update status from tracking
+      if (res.data.tracking && res.data.tracking.length > 0) {
+        detail.mylerz_status = res.data.tracking[0].Status || res.data.tracking[0].status
+        setDetail({...detail})
+      }
+      alert('Statut actualisé.')
     } catch (e) {
       alert(e.response?.data?.message || 'Erreur de suivi.')
     } finally {
@@ -69,16 +76,28 @@ export default function AdminOrderDetail() {
   }
 
   const handleMylerzCancel = async () => {
-    if (!window.confirm('Voulez-vous vraiment annuler cet envoi sur Mylerz ?')) return
+    if (!window.confirm("Voulez-vous vraiment annuler l'envoi Mylerz ?")) return
     setMylerzLoading(true)
     try {
       await adminClient.post(`/admin/orders/${id}/mylerz_cancel/`)
       alert('Envoi annulé avec succès.')
       load()
     } catch (e) {
-      alert(e.response?.data?.message || 'Erreur lors de l\'annulation.')
+      alert(e.response?.data?.message || "Erreur lors de l'annulation.")
     } finally {
       setMylerzLoading(false)
+    }
+  }
+
+  const handlePrintSingleBordereau = async () => {
+    try {
+      const r = await adminClient.post('/admin/orders/bulk_packing_slips/', { ids: [id] })
+      const w = window.open('about:blank', '_blank')
+      w.document.open()
+      w.document.write(r.data)
+      w.document.close()
+    } catch (e) {
+      alert('Erreur lors de la génération du bordereau')
     }
   }
 
@@ -98,6 +117,14 @@ export default function AdminOrderDetail() {
           </div>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button 
+            className="btn" 
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: '0.85rem', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }}
+            onClick={() => window.print()}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Imprimer
+          </button>
           <span className={`badge ${STATUS_BADGE[detail.status]}`} style={{ padding: '6px 12px', fontSize: '0.85rem' }}>{STATUS_LABELS[detail.status]}</span>
         </div>
       </div>
@@ -264,13 +291,16 @@ export default function AdminOrderDetail() {
                    <div style={{ fontWeight: 600, color: '#3b82f6' }}>{detail.mylerz_status || 'En attente'}</div>
                  </div>
 
-                 <div style={{ display: 'flex', gap: 10, flexDirection: 'column' }}>
-                   <button className="btn btn-black" style={{ width: '100%', fontSize: '0.85rem' }} onClick={handleMylerzTrack} disabled={mylerzLoading}>
-                     🔍 Suivre le colis
+                 <div style={{ display: 'flex', gap: 8, flexDirection: 'column', marginTop: 12 }}>
+                   <button className="btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', fontSize: '0.85rem', background: '#f59e0b', color: 'white', borderRadius: 50, border: 'none' }} onClick={handleMylerzTrack} disabled={mylerzLoading}>
+                     <RefreshCw size={14}/> Actualiser
+                   </button>
+                   <button className="btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', fontSize: '0.85rem', background: '#8b5cf6', color: 'white', borderRadius: 50, border: 'none' }} onClick={handlePrintSingleBordereau} disabled={mylerzLoading}>
+                     <Printer size={14}/> Imprimer
                    </button>
                    {(!detail.mylerz_status || !detail.mylerz_status.toLowerCase().includes('cancel')) && (
-                     <button className="btn btn-outline" style={{ width: '100%', fontSize: '0.85rem', color: '#dc3545', borderColor: '#dc3545' }} onClick={handleMylerzCancel} disabled={mylerzLoading}>
-                       ❌ Annuler l'envoi
+                     <button className="btn" style={{ width: '100%', fontSize: '0.85rem', background: '#ef4444', color: 'white', borderRadius: 50, border: 'none' }} onClick={handleMylerzCancel} disabled={mylerzLoading}>
+                       Annuler Envoi
                      </button>
                    )}
                  </div>
@@ -293,8 +323,8 @@ export default function AdminOrderDetail() {
                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 12 }}>
                    Aucun colis généré pour cette commande.
                  </div>
-                 <button className="btn btn-black" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }} onClick={handleMylerzShip} disabled={mylerzLoading}>
-                   📦 Envoyer à Mylerz
+                 <button className="btn" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, background: '#3b82f6', color: 'white', borderRadius: 50, border: 'none', padding: '10px 0' }} onClick={handleMylerzShip} disabled={mylerzLoading}>
+                   Expédier
                  </button>
                </div>
              )}

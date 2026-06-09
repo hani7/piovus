@@ -270,3 +270,4 @@ input, textarea, select {
 ::-webkit-scrollbar-track { background: var(--color-gray-100); }
 ::-webkit-scrollbar-thumb { background: var(--color-gray-300); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+@media print { .admin-sidebar, .admin-topbar, .btn-icon, .btn { display: none !important; } .admin-main { margin-left: 0 !important; padding: 0 !important; } }

@@ -996,6 +996,71 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             return Response(res)
         return Response(res, status=400)
 
+    @action(detail=False, methods=['post'])
+    def bulk_mylerz_ship(self, request):
+        ids = request.data.get('ids', [])
+        if not ids:
+            return Response({'error': 'Aucun ID fourni.'}, status=400)
+        orders = Order.objects.filter(id__in=ids)
+        from . import mylerz_service
+        results = []
+        for order in orders:
+            if order.mylerz_barcode:
+                results.append({'id': order.id, 'success': False, 'error': 'Déjà envoyé'})
+                continue
+            res = mylerz_service.create_shipment(order)
+            if res.get('success'):
+                order.mylerz_barcode = res.get('barcode', '')
+                order.mylerz_pickup_code = res.get('pickup_code', '')
+                order.mylerz_status = 'Shipment Created'
+                order.save(update_fields=['mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'])
+                OrderStatusHistory.objects.create(
+                    order=order, status=order.status,
+                    notes=f"Colis Mylerz généré en masse. Barcode: {order.mylerz_barcode}"
+                )
+            res['id'] = order.id
+            results.append(res)
+        return Response({'results': results})
+
+    @action(detail=False, methods=['post'])
+    def bulk_mylerz_track(self, request):
+        ids = request.data.get('ids', [])
+        if not ids:
+            return Response({'error': 'Aucun ID fourni.'}, status=400)
+        orders = Order.objects.filter(id__in=ids).exclude(mylerz_barcode='')
+        from . import mylerz_service
+        updated = 0
+        for order in orders:
+            res = mylerz_service.track_shipment(order.mylerz_barcode)
+            if res.get('success'):
+                tracking = res.get('tracking', [])
+                if tracking:
+                    latest = tracking[0]
+                    new_status = latest.get('Status') or latest.get('status')
+                    if new_status and order.mylerz_status != new_status:
+                        order.mylerz_status = new_status
+                        order.save(update_fields=['mylerz_status'])
+                        updated += 1
+        return Response({'success': True, 'updated': updated})
+
+    @action(detail=False, methods=['post'])
+    def bulk_mylerz_cancel(self, request):
+        ids = request.data.get('ids', [])
+        if not ids:
+            return Response({'error': 'Aucun ID fourni.'}, status=400)
+        orders = Order.objects.filter(id__in=ids).exclude(mylerz_barcode='')
+        from . import mylerz_service
+        results = []
+        for order in orders:
+            res = mylerz_service.cancel_shipment(order.mylerz_barcode)
+            if res.get('success'):
+                order.mylerz_status = 'Cancelled on Mylerz'
+                order.save(update_fields=['mylerz_status'])
+                OrderStatusHistory.objects.create(order=order, status=order.status, notes="Envoi Mylerz annulé (en masse).")
+            res['id'] = order.id
+            results.append(res)
+        return Response({'results': results})
+
     @action(detail=False, methods=['get'])
     def unviewed_counts(self, request):
         unviewed_orders = Order.objects.filter(is_viewed=False)
@@ -1081,22 +1146,29 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         return Response({'message': f'{updated_count} commande(s) mise(s) à jour.'})
 
     @action(detail=False, methods=['post'])
-    def bulk_export_csv(self, request):
+    def bulk_export_excel(self, request):
+        import openpyxl
         ids = request.data.get('ids', [])
         qs = Order.objects.filter(id__in=ids).order_by('-created_at') if ids else self.get_queryset()
         
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="commandes_export.csv"'
-        response.write(u'\ufeff'.encode('utf8')) # BOM for Excel
-        writer = csv.writer(response)
-        writer.writerow(['ID', 'Date', 'Client', 'Telephone', 'Wilaya', 'Livraison', 'Statut', 'Paiement', 'Total'])
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Commandes"
+        ws.append(['ID', 'Date', 'Client', 'Telephone', 'Wilaya', 'Livraison', 'Statut', 'Paiement', 'Total'])
 
         for o in qs:
             customer = o.user.get_full_name() or o.user.username if o.user else (o.guest_name or 'Invité')
             phone = o.user.profile.phone if o.user and hasattr(o.user, 'profile') else o.guest_phone
-            writer.writerow([
+            # ensure naive datetime if needed, or openpyxl can handle timezone-aware datetime
+            from django.utils.timezone import localtime
+            local_dt = localtime(o.created_at)
+            
+            # Remove timezone info so Excel handles it correctly
+            local_dt_naive = local_dt.replace(tzinfo=None)
+            
+            ws.append([
                 o.id,
-                o.created_at.strftime('%Y-%m-%d %H:%M'),
+                local_dt_naive,
                 customer,
                 phone,
                 o.wilaya,
@@ -1105,6 +1177,10 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                 o.get_payment_status_display(),
                 float(o.total)
             ])
+            
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="commandes_export.xlsx"'
+        wb.save(response)
         return response
 
     @action(detail=False, methods=['post'])
@@ -1115,66 +1191,134 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         
         orders = Order.objects.filter(id__in=ids).select_related('user').prefetch_related('items')
         
-        # Simple HTML rendering for printing
+        # Mylerz AWB style HTML rendering for printing
         html = """
         <html>
         <head>
+            <meta charset="utf-8">
             <style>
-                body { font-family: sans-serif; font-size: 14px; }
-                .slip { page-break-after: always; padding: 40px; }
-                .slip:last-child { page-break-after: auto; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-                .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+                body { font-family: 'Inter', sans-serif; font-size: 13px; color: #000; margin: 0; padding: 0; background: #f0f0f0; }
+                .label-container { 
+                    width: 10.5cm; /* Standard shipping label width */
+                    height: 15cm; 
+                    background: #fff; 
+                    margin: 20px auto; 
+                    padding: 15px; 
+                    box-sizing: border-box; 
+                    page-break-after: always;
+                    border: 1px solid #ccc;
+                    position: relative;
+                }
+                @media print {
+                    body { background: #fff; }
+                    .label-container { border: none; margin: 0; padding: 10px; width: 100%; height: auto; min-height: 14cm; }
+                }
+                .label-container:last-child { page-break-after: auto; }
+                
+                .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
+                .brand { font-size: 22px; font-weight: 900; letter-spacing: 1px; }
+                .order-id { font-size: 16px; font-weight: 700; background: #000; color: #fff; padding: 4px 8px; border-radius: 4px; }
+                
+                .barcode-box { text-align: center; margin: 15px 0; padding: 10px; border: 2px dashed #000; border-radius: 6px; }
+                .barcode-box img { max-width: 100%; height: 60px; }
+                .tracking-number { font-size: 16px; font-weight: bold; letter-spacing: 2px; margin-top: 5px; }
+                
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
+                .info-box { border: 1px solid #000; padding: 8px; border-radius: 4px; }
+                .info-box h3 { margin: 0 0 5px 0; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 3px; color: #555; }
+                .info-box p { margin: 3px 0; font-size: 12px; }
+                .info-box strong { font-size: 13px; }
+                
+                .cod-box { background: #000; color: #fff; text-align: center; padding: 12px; margin: 15px 0; border-radius: 4px; }
+                .cod-box.paid { background: #10b981; }
+                .cod-box .amount { font-size: 24px; font-weight: 900; margin-top: 5px; }
+                .cod-box .status { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+                
+                .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
+                .items-table th, .items-table td { border: 1px solid #ccc; padding: 5px; text-align: left; }
+                .items-table th { background: #f8f8f8; font-weight: 600; text-transform: uppercase; }
+                
+                .footer { position: absolute; bottom: 15px; left: 15px; right: 15px; text-align: center; font-size: 10px; color: #666; border-top: 1px dashed #ccc; padding-top: 5px; }
             </style>
         </head>
         <body onload="window.print()">
         """
+        
         for o in orders:
             customer = o.user.get_full_name() or o.user.username if o.user else (o.guest_name or 'Invité')
             phone = o.user.profile.phone if o.user and hasattr(o.user, 'profile') else o.guest_phone
             
+            barcode_val = o.mylerz_barcode or f"CMD-{o.id}"
+            barcode_url = f"https://barcode.tec-it.com/barcode.ashx?data={barcode_val}&code=Code128"
+            
+            # Payment text
+            is_paid = o.payment_status == 'paid' or o.payment_method == 'cib'
+            payment_text = "PAYÉ EN LIGNE" if is_paid else "MONTANT À ENCAISSER (C.O.D)"
+            cod_amount = "0 DA" if is_paid else f"{float(o.total)} DA"
+            cod_class = "cod-box paid" if is_paid else "cod-box"
+            
+            mylerz_label = "Mylerz Tracking" if o.mylerz_barcode else "Order Barcode"
+            
             html += f"""
-            <div class="slip">
-                <div class="header">
-                    <div>
-                        <h2>PIOVÉ COSMETICS</h2>
-                        <p>Bon de livraison #{o.id}</p>
+            <div class="label-container">
+                <div class="header-row">
+                    <div class="brand">PIOVÉ</div>
+                    <div class="order-id">CMD #{o.id}</div>
+                </div>
+                
+                <div class="barcode-box">
+                    <img src="{barcode_url}" alt="Barcode" />
+                    <div class="tracking-number">{barcode_val}</div>
+                    <div style="font-size:10px; margin-top:2px;">{mylerz_label}</div>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-box">
+                        <h3>Expéditeur</h3>
+                        <p><strong>PIOVÉ COSMETICS</strong></p>
+                        <p>Alger, Algérie</p>
+                        <p>Tél: 07 83 77 36 59</p>
                     </div>
-                    <div>
+                    <div class="info-box">
                         <h3>Destinataire</h3>
-                        <p>{customer}<br>Tél: {phone}<br>{o.shipping_address}<br>{o.wilaya}</p>
+                        <p><strong>{customer}</strong></p>
+                        <p>Tél: <strong>{phone}</strong></p>
+                        <p>{o.shipping_address}</p>
+                        <p><strong>{o.wilaya}</strong></p>
                     </div>
                 </div>
-                <p><strong>Date de commande:</strong> {o.created_at.strftime('%Y-%m-%d %H:%M')}</p>
-                <p><strong>Méthode de livraison:</strong> {o.get_delivery_type_display()}</p>
                 
-                <table>
+                <div class="{cod_class}">
+                    <div class="status">{payment_text}</div>
+                    <div class="amount">{cod_amount}</div>
+                </div>
+                
+                <table class="items-table">
                     <thead>
                         <tr>
-                            <th>Produit</th>
-                            <th>Quantité</th>
-                            <th>Prix unitaire</th>
-                            <th>Sous-total</th>
+                            <th style="width: 40px; text-align: center;">QTE</th>
+                            <th>PRODUIT</th>
                         </tr>
                     </thead>
                     <tbody>
             """
+            
             for item in o.items.all():
-                subtotal = item.price_at_purchase * item.quantity
                 html += f"""
                         <tr>
+                            <td style="font-weight: bold; text-align: center;">{item.quantity}x</td>
                             <td>{item.product_name}</td>
-                            <td>{item.quantity}</td>
-                            <td>{item.price_at_purchase} DA</td>
-                            <td>{subtotal} DA</td>
                         </tr>
                 """
+                
             html += f"""
                     </tbody>
                 </table>
-                <p style="text-align: right; margin-top: 20px; font-size: 16px;"><strong>Total à payer: {o.total} DA</strong></p>
-                <p style="text-align: right; margin-top: 5px;"><strong>Statut paiement: {o.get_payment_status_display()}</strong></p>
+                
+                <div class="footer">
+                    Généré le {o.created_at.strftime('%d/%m/%Y %H:%M')} | Piové Cosmetics
+                </div>
             </div>
             """
             
@@ -1424,6 +1568,8 @@ class CustomerViewSet(viewsets.ModelViewSet):
         elif segment == 'inactive_30d':
             thirty_days_ago = timezone.now() - timedelta(days=30)
             qs = qs.filter(Q(last_order_date__lt=thirty_days_ago) | Q(last_order_date__isnull=True))
+        elif segment == 'blacklisted':
+            qs = qs.filter(is_blacklisted=True)
 
         return qs.order_by('-created_at')
 
@@ -1452,6 +1598,12 @@ class CustomerViewSet(viewsets.ModelViewSet):
 
 class AdminNewsletterSendView(APIView):
     permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        from .models import NewsletterHistory
+        history = NewsletterHistory.objects.all()[:100]  # Last 100
+        data = [{'id': h.id, 'subject': h.subject, 'sent_count': h.sent_count, 'created_at': h.created_at.isoformat()} for h in history]
+        return Response(data)
 
     def post(self, request):
         subject = request.data.get('subject')
@@ -1495,14 +1647,35 @@ class AdminNewsletterSendView(APIView):
                 
         threading.Thread(target=send_newsletter, args=(subject, message_html, emails, attachment_name, attachment_content, attachment_mimetype)).start()
         
+        from .models import NewsletterHistory
+        NewsletterHistory.objects.create(subject=subject, message=message_html, sent_count=len(emails))
+
         return Response({'message': f'Newsletter envoyée à {len(emails)} clients avec succès.'})
+
+
+class AdminNewsletterUploadImageView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        image = request.FILES.get('image')
+        if not image:
+            return Response({'error': 'Aucune image fournie.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        import uuid
+        from django.core.files.storage import default_storage
+        ext = image.name.split('.')[-1]
+        filename = f"newsletter/{uuid.uuid4().hex}.{ext}"
+        saved_path = default_storage.save(filename, image)
+        
+        url = request.build_absolute_uri(settings.MEDIA_URL + saved_path)
+        return Response({'url': url})
 
 
 class AdminReportView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        export = request.query_params.get('export', 'false').lower() == 'true'
+        export = request.query_params.get('export')
         start_date = request.query_params.get('start_date')
         end_date = request.query_params.get('end_date')
         group_by = request.query_params.get('group_by', 'day') # day, week, month
@@ -1520,7 +1693,7 @@ class AdminReportView(APIView):
             qs = qs.filter(created_at__date__lte=end_date)
 
         if export:
-            if request.query_params.get('export') == 'json':
+            if export == 'json':
                 full_orders = []
                 for o in qs.order_by('-created_at'):
                     customer = o.user.get_full_name() or o.user.username if o.user else (o.guest_name or 'Invité')
@@ -1535,13 +1708,13 @@ class AdminReportView(APIView):
                         'Date': o.created_at.strftime('%Y-%m-%d %H:%M'),
                         'Client': customer,
                         'Téléphone': phone or '',
-                        'Wilaya': o.wilaya or '',
-                        'Commune': o.commune or '',
-                        'Adresse': o.address or '',
+                        'Wilaya': getattr(o, 'wilaya', ''),
+                        'Commune': getattr(o, 'city', ''),
+                        'Adresse': getattr(o, 'shipping_address', ''),
                         'Statut': o.get_status_display(),
-                        'Sous-total': float(o.subtotal),
+                        'Sous-total': float(sum(item.subtotal for item in o.items.all())),
                         'Livraison': float(o.delivery_cost),
-                        'Remise': float(o.discount),
+                        'Remise': float(o.discount_amount),
                         'Total': float(o.total),
                         'Articles': " | ".join(items)
                     })
@@ -1842,7 +2015,7 @@ def satim_callback(request):
     order_id_piove = request.GET.get('order_id')
     
     # URL to redirect the user to in React
-    frontend_base = settings.FRONTEND_URL
+    frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
     fail_url = f"{frontend_base}/payment-result?status=fail"
     success_url = f"{frontend_base}/payment-result?status=success"
 

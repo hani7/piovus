@@ -44,12 +44,12 @@ export default function AdminCustomers() {
     fetchCustomers(searchTerm, filterType, segment)
   }
 
-  const openProfile = async (id) => {
-    setProfileModalId(id)
+  const openProfile = async (customer) => {
+    setProfileModalId(customer.id)
     setProfileLoading(true)
     try {
-      const res = await adminClient.get(`/admin/customers/${id}/customer_profile_details/`)
-      setProfileData(res.data)
+      const res = await adminClient.get(`/admin/customers/${customer.id}/customer_profile_details/`)
+      setProfileData({ ...customer, ...res.data })
     } catch (err) {
       alert("Erreur lors du chargement du profil.")
     } finally {
@@ -127,6 +127,11 @@ export default function AdminCustomers() {
           style={{ padding: '6px 12px', fontSize: '0.85rem', borderColor: segment === 'inactive_30d' ? '' : '#64748b', color: segment === 'inactive_30d' ? '#fff' : '#64748b', background: segment === 'inactive_30d' ? '#64748b' : 'transparent' }}
           onClick={() => setSegment('inactive_30d')}
         >💤 Inactifs (30 jours)</button>
+        <button 
+          className={`btn ${segment === 'blacklisted' ? 'btn-primary' : 'btn-outline'}`} 
+          style={{ padding: '6px 12px', fontSize: '0.85rem', borderColor: segment === 'blacklisted' ? '' : '#dc2626', color: segment === 'blacklisted' ? '#fff' : '#dc2626', background: segment === 'blacklisted' ? '#dc2626' : 'transparent' }}
+          onClick={() => setSegment('blacklisted')}
+        >🚫 Blacklisté</button>
       </div>
 
       <div className="admin-table-wrap">
@@ -166,15 +171,21 @@ export default function AdminCustomers() {
                   </td>
                   <td className="text-right">
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.8rem' }} onClick={() => openProfile(c.id)}>
-                        Profil complet
+                      <button 
+                        className="btn-icon" 
+                        style={{ padding: '4px', background: '#f1f5f9', borderRadius: 4, color: '#2563eb' }} 
+                        onClick={() => openProfile(c)} 
+                        title="Profil complet"
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                       </button>
                       <button 
-                        className={`btn ${c.is_blacklisted ? 'btn-outline' : 'btn-accent'}`}
-                        style={{ padding: '4px 8px', fontSize: '0.8rem', background: c.is_blacklisted ? 'transparent' : '#dc3545', color: c.is_blacklisted ? 'inherit' : '#fff', borderColor: c.is_blacklisted ? 'var(--color-gray-300)' : '#dc3545' }}
-                        onClick={() => toggleBlacklist(c)}
+                        className="btn-icon" 
+                        style={{ padding: '4px', background: c.is_blacklisted ? '#f1f5f9' : '#fef2f2', borderRadius: 4, color: c.is_blacklisted ? '#64748b' : '#dc2626' }} 
+                        onClick={() => toggleBlacklist(c)} 
+                        title={c.is_blacklisted ? 'Retirer Blacklist' : 'Mettre en Blacklist'}
                       >
-                        {c.is_blacklisted ? 'Retirer Blacklist' : 'Mettre en Blacklist'}
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
                       </button>
                     </div>
                   </td>
@@ -189,7 +200,7 @@ export default function AdminCustomers() {
         <div className="admin-modal-overlay" onClick={() => setProfileModalId(null)}>
           <div className="admin-modal" style={{ maxWidth: 800, width: '90%' }} onClick={e => e.stopPropagation()}>
             <div className="admin-modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Profil Client #{profileModalId}</h3>
+              <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Profil de {profileData?.name || 'Client #' + profileModalId}</h3>
               <button style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => setProfileModalId(null)}>&times;</button>
             </div>
             <div className="admin-modal-body">
@@ -198,6 +209,13 @@ export default function AdminCustomers() {
               ) : profileData ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                    <div style={{ background: 'var(--admin-surface2)', padding: 16, borderRadius: 8 }}>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--admin-text-muted)', marginBottom: 4 }}>Informations de contact</div>
+                      <div style={{ fontSize: '1rem', fontWeight: 600 }}>{profileData.name || 'Anonyme'}</div>
+                      <div style={{ fontSize: '0.9rem', color: '#475569', marginTop: 4 }}>📞 {profileData.phone || '—'}</div>
+                      <div style={{ fontSize: '0.9rem', color: '#475569', marginTop: 4 }}>✉️ {profileData.email || '—'}</div>
+                      {profileData.is_b2b && <div style={{ marginTop: 8 }}><span className="badge badge-info" style={{ background: 'var(--admin-gold)', color: '#fff' }}>B2B</span></div>}
+                    </div>
                     <div style={{ background: 'var(--admin-surface2)', padding: 16, borderRadius: 8 }}>
                       <div style={{ fontSize: '0.85rem', color: 'var(--admin-text-muted)', marginBottom: 4 }}>Total Lifetime Value (LTV)</div>
                       <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--admin-success)' }}>{Number(profileData.ltv).toLocaleString('fr-DZ')} DA</div>

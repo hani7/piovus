@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { X, Plus } from 'lucide-react'
+import { X, Plus, Trash2, Printer, RefreshCw } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 
 
 function Pagination({ page, totalPages, onPage }) {
-  if (totalPages <= 1) return null
+  const actualTotalPages = Math.max(1, totalPages)
+  if (actualTotalPages <= 1) return (
+    <div className="admin-pagination">
+      <button className="admin-page-btn" disabled>‹</button>
+      <button className="admin-page-btn active">1</button>
+      <button className="admin-page-btn" disabled>›</button>
+    </div>
+  )
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
     .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
     .reduce((acc, p, idx, arr) => {
@@ -122,21 +129,22 @@ export default function AdminOrders({ isB2B = false }) {
     }
   }
 
-  const handleBulkExportCsv = async () => {
+  const handleBulkExportExcel = async () => {
     try {
-      const r = await adminClient.post('/admin/orders/bulk_export_csv/', { ids: selectedIds }, { responseType: 'blob' })
+      const r = await adminClient.post('/admin/orders/bulk_export_excel/', { ids: selectedIds }, { responseType: 'blob' })
       const url = window.URL.createObjectURL(new Blob([r.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', 'commandes_export.csv')
+      link.setAttribute('download', 'commandes_export.xlsx')
       document.body.appendChild(link)
       link.click()
     } catch (e) {
-      alert('Erreur lors de l\'export CSV')
+      alert('Erreur lors de l\'export Excel')
     }
   }
 
   const handleBulkPackingSlips = async () => {
+    if (selectedIds.length === 0) return
     try {
       const r = await adminClient.post('/admin/orders/bulk_packing_slips/', { ids: selectedIds })
       const w = window.open('about:blank', '_blank')
@@ -148,41 +156,124 @@ export default function AdminOrders({ isB2B = false }) {
     }
   }
 
+  const handleBulkMylerzShip = async () => {
+    if (selectedIds.length === 0) return
+    if (!window.confirm('Voulez-vous générer les colis Mylerz pour les commandes sélectionnées ?')) return
+    try {
+      await adminClient.post('/admin/orders/bulk_mylerz_ship/', { ids: selectedIds })
+      alert('Action Mylerz effectuée.')
+      fetchOrders()
+    } catch (e) {
+      alert('Erreur lors de la génération Mylerz.')
+    }
+  }
+
+  const handleBulkMylerzTrack = async () => {
+    if (selectedIds.length === 0) return
+    try {
+      await adminClient.post('/admin/orders/bulk_mylerz_track/', { ids: selectedIds })
+      alert('Statuts Mylerz actualisés.')
+      fetchOrders()
+    } catch (e) {
+      alert("Erreur lors de l'actualisation Mylerz.")
+    }
+  }
+
+  const handleBulkMylerzCancel = async () => {
+    if (selectedIds.length === 0) return
+    if (!window.confirm('Voulez-vous vraiment annuler les envois Mylerz sélectionnés ?')) return
+    try {
+      await adminClient.post('/admin/orders/bulk_mylerz_cancel/', { ids: selectedIds })
+      alert('Envois Mylerz annulés.')
+      fetchOrders()
+    } catch (e) {
+      alert("Erreur lors de l'annulation Mylerz.")
+    }
+  }
+
+  const handlePrintSingleBordereau = async (id) => {
+    try {
+      const r = await adminClient.post('/admin/orders/bulk_packing_slips/', { ids: [id] })
+      const w = window.open('about:blank', '_blank')
+      w.document.open()
+      w.document.write(r.data)
+      w.document.close()
+    } catch (e) {
+      alert('Erreur lors de la génération du bordereau')
+    }
+  }
+
   const visibleOrders = orders.slice((page - 1) * perPage, page * perPage)
   const allVisibleSelected = visibleOrders.length > 0 && visibleOrders.every(o => selectedIds.includes(o.id))
 
+  const stats = {
+    total: orders.length,
+    revenue: orders.filter(o => o.status !== 'cancelled' && o.status !== 'returned').reduce((acc, o) => acc + Number(o.total) + Number(o.delivery_cost), 0),
+    pending: orders.filter(o => o.status === 'pending').length,
+    shipped: orders.filter(o => o.status === 'shipped' || o.status === 'fulfilled').length
+  }
+
   return (
     <div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 20 }}>
+        <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Total Commandes</span>
+          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{stats.total}</span>
+        </div>
+        <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Revenus (Est.)</span>
+          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981', marginTop: 4 }}>{stats.revenue.toLocaleString('fr-DZ')} DA</span>
+        </div>
+        <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>En Attente</span>
+          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b', marginTop: 4 }}>{stats.pending}</span>
+        </div>
+        <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Fulfilled</span>
+          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#3b82f6', marginTop: 4 }}>{stats.shipped}</span>
+        </div>
+      </div>
+
       <div className="admin-page-header">
         <h2 style={{ fontSize: '1.3rem', fontWeight: 700 }}>{isB2B ? 'Commandes B2B' : 'Commandes'}</h2>
         <div style={{ display: 'flex', gap: '12px' }}>
-          {selectedIds.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Actions ({selectedIds.length}) :</span>
+          {selectedIds.length > 0 ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: 4 }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap' }}>Actions ({selectedIds.length}) :</span>
               
               <select 
               className="admin-filter-select" 
-              style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+              style={{ padding: '6px 10px', fontSize: '0.8rem', minWidth: 140 }}
               onChange={(e) => { if (e.target.value) handleBulkStatusUpdate(e.target.value); e.target.value = ''; }}
             >
               <option value="">Marquer comme...</option>
               {Object.entries(STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
 
-            <button className="btn-secondary" style={{ padding: '6px 16px', fontSize: '0.85rem' }} onClick={handleBulkPackingSlips}>
-              🖨️ Bons de livraison
+            <button className="btn" style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#3b82f6', color: 'white', borderRadius: 50, border: 'none', whiteSpace: 'nowrap' }} onClick={handleBulkMylerzShip}>
+              Expédier
             </button>
-            <button className="btn-secondary" style={{ padding: '6px 16px', fontSize: '0.85rem', background: '#28a745' }} onClick={handleBulkExportCsv}>
-              📊 Exporter CSV
+            <button className="btn" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: '0.8rem', background: '#f59e0b', color: 'white', borderRadius: 50, border: 'none', whiteSpace: 'nowrap' }} onClick={handleBulkMylerzTrack}>
+              <RefreshCw size={14}/> Actualiser
             </button>
-            <button className="btn-danger" style={{ padding: '6px 16px', fontSize: '0.85rem' }} onClick={handleBulkDelete}>
-              Supprimer
+            <button className="btn" style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#ef4444', color: 'white', borderRadius: 50, border: 'none', whiteSpace: 'nowrap' }} onClick={handleBulkMylerzCancel}>
+              Annuler Envoi
+            </button>
+            <button className="btn" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: '0.8rem', background: '#8b5cf6', color: 'white', borderRadius: 50, border: 'none', whiteSpace: 'nowrap' }} onClick={handleBulkPackingSlips}>
+              <Printer size={14}/> Imprimer
+            </button>
+            <button className="btn" style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#10b981', color: 'white', borderRadius: 50, border: 'none', whiteSpace: 'nowrap' }} onClick={handleBulkExportExcel}>
+              📊 Exporter
+            </button>
+            <button className="btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px', background: '#1f2937', color: 'white', borderRadius: 50, border: 'none' }} title="Supprimer" onClick={handleBulkDelete}>
+              <Trash2 size={16}/>
             </button>
             </div>
+          ) : (
+            <button className="btn-primary" onClick={() => navigate(isB2B ? '/admin-panel/orders-b2b/new' : '/admin-panel/orders/new')}>
+              <Plus size={16}/> Créer une Commande
+            </button>
           )}
-          <button className="btn-primary" onClick={() => navigate(isB2B ? '/admin-panel/orders-b2b/new' : '/admin-panel/orders/new')}>
-            <Plus size={16}/> Créer une Commande
-          </button>
         </div>
       </div>
 
@@ -263,8 +354,10 @@ export default function AdminOrders({ isB2B = false }) {
                       <input type="checkbox" checked={allVisibleSelected} onChange={handleSelectAll} style={{ cursor: 'pointer' }} />
                     </th>
                     <th>#</th><th>Client</th><th>Contact</th><th>Wilaya</th>
-                    <th>T.Produits</th><th>Frais Livraison</th><th>Delivery</th><th>Total</th>
-                    <th>Paiement</th><th>Articles</th><th>Statut</th><th>Date</th><th>Actions</th>
+                    <th>T.Produits</th>
+                  <th>Livraison</th>
+                  <th>Delivery</th><th>Total</th>
+                    <th>Paiement</th><th>Statut</th><th>Date</th><th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -291,25 +384,24 @@ export default function AdminOrders({ isB2B = false }) {
                     <td style={{ fontWeight: 700, color: 'var(--color-black)' }}>{(Number(o.total) + Number(o.delivery_cost)).toLocaleString('fr-DZ')} DA</td>
                     <td>
                       {o.payment_method === 'cib' ? (
-                        <span className="badge" style={{ background: '#e0e7ff', color: '#3730a3', fontSize: '0.7rem' }}>En Ligne</span>
+                        <span className="badge" style={{ background: '#e0e7ff', color: '#3730a3', fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>En Ligne</span>
                       ) : (
-                        <span className="badge" style={{ background: '#f1f5f9', color: '#475569', fontSize: '0.7rem' }}>Cash</span>
+                        <span className="badge" style={{ background: '#f1f5f9', color: '#475569', fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>Cash</span>
                       )}
                     </td>
-                    <td>{o.items?.length || 0}</td>
                     <td>
-                      <span className={`badge ${STATUS_BADGE[o.status]}`}>
+                      <span className={`badge ${STATUS_BADGE[o.status]}`} style={{ fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>
                         {STATUS_LABELS[o.status]}
                       </span>
                     </td>
-                    <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>
-                      {new Date(o.created_at).toLocaleDateString('fr-DZ', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+                      {new Date(o.created_at).toLocaleDateString('fr-DZ', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false })}
                     </td>
                     <td>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button 
                           className="btn-icon" 
-                          style={{ padding: '4px', background: '#f1f5f9', borderRadius: 4, color: '#475569' }} 
+                          style={{ padding: '6px', background: '#f1f5f9', borderRadius: '50%', color: '#475569', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28 }} 
                           onClick={() => setDetail(o)} 
                           title="Aperçu rapide"
                         >
@@ -317,7 +409,7 @@ export default function AdminOrders({ isB2B = false }) {
                         </button>
                         <button 
                           className="btn-icon" 
-                          style={{ padding: '4px', background: '#f1f5f9', borderRadius: 4, color: '#2563eb' }} 
+                          style={{ padding: '6px', background: '#f1f5f9', borderRadius: '50%', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28 }} 
                           onClick={() => navigate(`/admin-panel/orders/${o.id}`)} 
                           title="Détails complets"
                         >
@@ -325,7 +417,7 @@ export default function AdminOrders({ isB2B = false }) {
                         </button>
                         <button 
                           className="btn-icon" 
-                          style={{ padding: '4px', background: '#fef2f2', borderRadius: 4, color: '#dc3545' }} 
+                          style={{ padding: '6px', background: '#fef2f2', borderRadius: '50%', color: '#dc3545', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28 }} 
                           onClick={async () => {
                             if(window.confirm('Supprimer cette commande ?')) {
                               await adminClient.delete(`/admin/orders/${o.id}/`);
@@ -357,9 +449,12 @@ export default function AdminOrders({ isB2B = false }) {
       {detail && (
         <div className="admin-modal-overlay" onClick={e => e.target === e.currentTarget && setDetail(null)}>
           <div className="admin-modal" style={{ maxWidth: 600 }}>
-            <div className="admin-modal-header">
+            <div className="admin-modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span className="admin-modal-title">Aperçu Commande #{detail.id}</span>
-              <button type="button" className="admin-modal-close" onClick={() => setDetail(null)}><X size={20}/></button>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--admin-text-muted)', marginRight: 16, fontWeight: 500, background: '#f1f5f9', padding: '4px 10px', borderRadius: 20 }}>{detail.items?.length || 0} article{detail.items?.length > 1 ? 's' : ''}</span>
+                <button type="button" className="admin-modal-close" onClick={() => setDetail(null)}><X size={20}/></button>
+              </div>
             </div>
             <div className="admin-modal-body">
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
@@ -391,8 +486,11 @@ export default function AdminOrders({ isB2B = false }) {
               </div>
             </div>
             <div className="admin-modal-footer" style={{ display: 'flex', justifyContent: 'space-between' }}>
-               <button className="btn-secondary" onClick={() => navigate(`/admin-panel/orders/${detail.id}`)}>Voir tout</button>
-               <button className="btn-secondary" onClick={() => setDetail(null)}>Fermer</button>
+               <button className="btn" style={{ background: '#eab308', color: 'white', borderRadius: 20, border: 'none', fontWeight: 600, padding: '8px 20px' }} onClick={() => navigate(`/admin-panel/orders/${detail.id}`)}>Voir tout</button>
+               <button className="btn" style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#3b82f6', color: 'white', border: 'none', borderRadius: 20, fontWeight: 600, padding: '8px 20px' }} onClick={() => handlePrintSingleBordereau(detail.id)}>
+                 🖨️ Bordereau
+               </button>
+               <button className="btn" style={{ background: '#dc3545', color: 'white', borderRadius: 20, border: 'none', fontWeight: 600, padding: '8px 20px' }} onClick={() => setDetail(null)}>Fermer</button>
             </div>
           </div>
         </div>

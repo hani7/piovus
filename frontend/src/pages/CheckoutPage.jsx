@@ -111,7 +111,12 @@ export default function CheckoutPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     const errs = validate()
-    if (Object.keys(errs).length > 0) { setErrors(errs); return }
+    if (Object.keys(errs).length > 0) { 
+      setErrors(errs); 
+      alert("Veuillez remplir tous les champs obligatoires (en rouge) avant de continuer.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return; 
+    }
 
     setLoading(true)
     try {

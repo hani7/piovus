@@ -116,14 +116,34 @@ export default function AdminOrderDetail() {
             Paiement à la livraison — {new Date(detail.created_at).toLocaleString('fr-DZ')}
           </div>
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          {detail.mylerz_barcode ? (
+             <>
+               <button className="admin-btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, backgroundColor: '#f59e0b', color: 'white', border: 'none', display: 'flex', alignItems: 'center' }} onClick={handleMylerzTrack} disabled={mylerzLoading}>
+                 <RefreshCw size={14} style={{ marginRight: 4 }} /> ACTUALISER
+               </button>
+               {(!detail.mylerz_status || !detail.mylerz_status.toLowerCase().includes('cancel')) && (
+                 <button className="admin-btn-danger" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, display: 'flex', alignItems: 'center' }} onClick={handleMylerzCancel} disabled={mylerzLoading}>
+                   ANNULER ENVOI
+                 </button>
+               )}
+               <button className="admin-btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, backgroundColor: '#8b5cf6', color: 'white', border: 'none', display: 'flex', alignItems: 'center' }} onClick={handlePrintSingleBordereau} disabled={mylerzLoading}>
+                 <Printer size={14} style={{ marginRight: 4 }} /> IMPRIMER
+               </button>
+             </>
+          ) : (
+             <button className="admin-btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, display: 'flex', alignItems: 'center', border: 'none' }} onClick={handleMylerzShip} disabled={mylerzLoading}>
+               EXPÉDIER
+             </button>
+          )}
+
           <button 
             className="btn" 
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: '0.85rem', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: '0.85rem', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 20 }}
             onClick={() => window.print()}
           >
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-            Imprimer
+            FACTURE
           </button>
           <span className={`badge ${STATUS_BADGE[detail.status]}`} style={{ padding: '6px 12px', fontSize: '0.85rem' }}>{STATUS_LABELS[detail.status]}</span>
         </div>

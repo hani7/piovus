@@ -24,6 +24,7 @@ export default function CheckoutPage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [redirecting, setRedirecting] = useState(false)
   const [orderId, setOrderId] = useState(null)
   const [errors, setErrors] = useState({})
 
@@ -134,8 +135,10 @@ export default function CheckoutPage() {
       const res = await createOrder(payload)
       clearCart()
       if (res.data.satim_payment_url) {
+        setRedirecting(true)
         window.location.href = res.data.satim_payment_url
       } else if (res.data.satim_error) {
+        setRedirecting(true)
         window.location.href = `/payment-result?status=fail&reason=init_failed`
       } else {
         setOrderId(res.data.id)
@@ -148,9 +151,19 @@ export default function CheckoutPage() {
     }
   }
 
+  if (redirecting) {
+    return (
+      <div className="checkout-empty container page-enter" style={{ minHeight: '50vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="spin" style={{ width: 40, height: 40, marginBottom: 20, borderWidth: 3 }}></div>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: 10 }}>Redirection sécurisée...</h2>
+        <p style={{ color: 'var(--color-gray-500)' }}>Veuillez patienter pendant que nous vous redirigeons vers la passerelle de paiement SATIM.</p>
+      </div>
+    )
+  }
+
   if (items.length === 0 && !success) {
     return (
-      <div className="checkout-empty container">
+      <div className="checkout-empty container page-enter">
         <p>Votre panier est vide.</p>
         <Link to="/shop" className="btn btn-accent" id="checkout-empty-shop">Continuer mes achats</Link>
       </div>

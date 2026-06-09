@@ -2018,9 +2018,17 @@ def satim_callback(request):
     frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
     fail_url = f"{frontend_base}/payment-result?status=fail"
     success_url = f"{frontend_base}/payment-result?status=success"
+    cancel_url = f"{frontend_base}/payment-result?status=cancelled"
 
     if not order_id_satim or not order_id_piove:
-        return HttpResponseRedirect(f"{fail_url}&reason=missing_params")
+        if order_id_piove:
+            try:
+                order = Order.objects.get(id=order_id_piove)
+                order.status = 'cancelled'
+                order.save(update_fields=['status'])
+            except Order.DoesNotExist:
+                pass
+        return HttpResponseRedirect(f"{cancel_url}&reason=missing_params")
 
     # Confirm order with SATIM
     confirm_res = confirm_order(order_id_satim)
@@ -2045,9 +2053,11 @@ def satim_callback(request):
         return HttpResponseRedirect(success_url)
     else:
         # Payment failed or cancelled
+        order.status = 'cancelled'
+        order.save(update_fields=['status'])
         OrderStatusHistory.objects.create(
             order=order,
-            status=order.status,
-            notes=f"Échec de paiement CIB/Edahabia : {confirm_res.get('message')}"
+            status='cancelled',
+            notes=f"Paiement CIB/Edahabia annulé ou échoué : {confirm_res.get('message')}"
         )
-        return HttpResponseRedirect(f"{fail_url}&reason=payment_failed")
+        return HttpResponseRedirect(f"{cancel_url}&reason=payment_failed")

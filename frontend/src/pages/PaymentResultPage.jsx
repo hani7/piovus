@@ -16,6 +16,16 @@ export default function PaymentResultPage() {
           <p>Merci pour votre achat. Votre commande a été payée et confirmée avec succès.</p>
           <Link to="/shop" className="btn btn-primary">Continuer mes achats</Link>
         </div>
+      ) : status === 'cancelled' ? (
+        <div className="payment-card fail" style={{ borderColor: '#f59e0b' }}>
+          <span className="material-icons result-icon" style={{ color: '#f59e0b' }}>cancel</span>
+          <h2 style={{ color: '#f59e0b' }}>Paiement annulé</h2>
+          <p>Vous avez annulé la transaction de paiement. Votre commande a été annulée.</p>
+          <p>Si vous le souhaitez, vous pouvez repasser commande en choisissant un autre mode de paiement.</p>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 20 }}>
+            <Link to="/shop" className="btn btn-primary">Refaire une commande</Link>
+          </div>
+        </div>
       ) : (
         <div className="payment-card fail">
           <span className="material-icons result-icon">error</span>

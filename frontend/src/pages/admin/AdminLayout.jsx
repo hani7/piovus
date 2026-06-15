@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useNavigate, Outlet, Navigate, Link } from 'react-router-dom'
-import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search } from 'lucide-react'
+import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 import './admin.css'
 import CommandMenu from './CommandMenu'
@@ -44,6 +44,12 @@ export const NAV_ITEMS = [
       { to: '/admin-panel/delivery-companies', label: 'Transporteurs', icon: <Truck size={20} /> },
       { to: '/admin-panel/delivery-rates', label: 'Tarifs (Détail)', icon: <Banknote size={20} /> },
       { to: '/admin-panel/b2b-delivery-rates', label: 'Tarifs B2B', icon: <Banknote size={20} /> },
+    ]
+  },
+  {
+    section: 'Configuration',
+    links: [
+      { to: '/admin-panel/settings', label: 'Paramètres', icon: <Settings size={20} /> },
     ]
   },
 ]

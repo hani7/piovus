@@ -7,6 +7,17 @@ from decimal import Decimal
 class SiteSettings(models.Model):
     is_maintenance_mode = models.BooleanField(default=False)
     maintenance_message = models.TextField(default="Nous serons de retour très bientôt.")
+    # Free shipping
+    free_shipping_threshold = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        help_text="Montant minimum pour bénéficier de la livraison gratuite (0 = désactivé)"
+    )
+    # New account discount
+    new_account_discount_enabled = models.BooleanField(default=False)
+    new_account_discount_percent = models.DecimalField(
+        max_digits=5, decimal_places=2, default=10,
+        help_text="Pourcentage de remise offert lors de la création d'un compte"
+    )
 
     def save(self, *args, **kwargs):
         self.pk = 1

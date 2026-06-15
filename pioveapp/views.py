@@ -1855,7 +1855,10 @@ class SiteSettingsView(APIView):
         settings = SiteSettings.load()
         return Response({
             'is_maintenance_mode': settings.is_maintenance_mode,
-            'maintenance_message': settings.maintenance_message
+            'maintenance_message': settings.maintenance_message,
+            'free_shipping_threshold': float(settings.free_shipping_threshold),
+            'new_account_discount_enabled': settings.new_account_discount_enabled,
+            'new_account_discount_percent': float(settings.new_account_discount_percent),
         })
 
 class AdminSiteSettingsView(APIView):
@@ -1866,18 +1869,19 @@ class AdminSiteSettingsView(APIView):
         settings = SiteSettings.load()
         return Response({
             'is_maintenance_mode': settings.is_maintenance_mode,
-            'maintenance_message': settings.maintenance_message
+            'maintenance_message': settings.maintenance_message,
+            'free_shipping_threshold': float(settings.free_shipping_threshold),
+            'new_account_discount_enabled': settings.new_account_discount_enabled,
+            'new_account_discount_percent': float(settings.new_account_discount_percent),
         })
 
     def post(self, request):
         from .models import SiteSettings
         settings = SiteSettings.load()
         
-        # simple toggle
         if request.path.endswith('toggle_maintenance/'):
             settings.is_maintenance_mode = not settings.is_maintenance_mode
             settings.save()
-            
             from .models import UserActivityLog
             action_text = "Activé" if settings.is_maintenance_mode else "Désactivé"
             UserActivityLog.objects.create(
@@ -1887,13 +1891,33 @@ class AdminSiteSettingsView(APIView):
                 user_agent=request.META.get('HTTP_USER_AGENT')
             )
             return Response({'is_maintenance_mode': settings.is_maintenance_mode})
-            
+
+        # General settings update
+        changed = False
         msg = request.data.get('maintenance_message')
         if msg is not None:
             settings.maintenance_message = msg
+            changed = True
+
+        threshold = request.data.get('free_shipping_threshold')
+        if threshold is not None:
+            settings.free_shipping_threshold = threshold
+            changed = True
+
+        discount_enabled = request.data.get('new_account_discount_enabled')
+        if discount_enabled is not None:
+            settings.new_account_discount_enabled = bool(discount_enabled)
+            changed = True
+
+        discount_percent = request.data.get('new_account_discount_percent')
+        if discount_percent is not None:
+            settings.new_account_discount_percent = discount_percent
+            changed = True
+
+        if changed:
             settings.save()
             return Response({'message': 'Paramètres mis à jour.'})
-            
+
         return Response({'error': 'Requête invalide.'}, status=400)
 
 

@@ -42,6 +42,7 @@ import AdminNewsletter from './pages/admin/AdminNewsletter'
 import AdminCoupons from './pages/admin/AdminCoupons'
 import AdminReports from './pages/admin/AdminReports'
 import AdminUserHistory from './pages/admin/AdminUserHistory'
+import AdminSettings from './pages/admin/AdminSettings'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -118,6 +119,7 @@ export default function App() {
           <Route path="newsletter" element={<AdminNewsletter />} />
           <Route path="reports" element={<AdminReports />} />
           <Route path="history" element={<AdminUserHistory />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
       {!isAdmin && <Footer />}

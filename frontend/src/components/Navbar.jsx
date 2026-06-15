@@ -43,7 +43,7 @@ export default function Navbar() {
   return (
     <>
       <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
-        <div className="navbar__inner container">
+        <div className="navbar__inner navbar__inner--wide">
           {/* Left: Hamburger + Nav links */}
           <div className="navbar__left">
             <button
@@ -55,10 +55,11 @@ export default function Navbar() {
               <span /><span /><span />
             </button>
             <nav className="navbar__links">
-              <Link to="/shop">Boutique</Link>
-              {(categories || []).slice(0, 4).map((c) => (
+              {(categories || []).map((c) => (
                 <Link key={c.slug} to={`/category/${c.slug}`}>{c.name}</Link>
               ))}
+              <Link to="/category/skin-body-care">Skin &amp; Body Care</Link>
+              <Link to="/category/accessories">Accessories</Link>
             </nav>
           </div>
 

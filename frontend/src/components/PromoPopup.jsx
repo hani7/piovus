@@ -19,7 +19,7 @@ export default function PromoPopup() {
         if (results && results.length > 0) {
           setBanner(results[0])
           // Add small delay for better UX
-          setTimeout(() => setIsVisible(true), 1500)
+          setTimeout(() => setIsVisible(true), 5000)
         }
       })
       .catch((err) => console.error('Failed to load popup banner:', err))

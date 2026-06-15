@@ -52,7 +52,7 @@
   left: 0;
   right: 0;
   padding: 12px;
-  background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+  background: transparent;
   display: flex;
   justify-content: center;
   gap: 12px;

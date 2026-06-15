@@ -33,7 +33,8 @@ export default function CheckoutPage() {
   const totalWeight = items.reduce((s, i) => s + (i.weight || 0) * i.quantity, 0)
 
   const [form, setForm] = useState({
-    guest_name: user ? `${user.first_name} ${user.last_name}`.trim() : '',
+    guest_first_name: user?.first_name || '',
+    guest_last_name: user?.last_name || '',
     guest_phone: user?.profile?.phone || '',
     guest_email: user?.email || '',
     shipping_address: user?.profile?.address || '',
@@ -41,7 +42,7 @@ export default function CheckoutPage() {
     city: '',
     notes: '',
     delivery_company_id: '',
-    delivery_type: 'home',
+    delivery_type: 'home', // always home delivery
     payment_method: 'cash',
   })
 
@@ -102,7 +103,8 @@ export default function CheckoutPage() {
 
   const validate = () => {
     const errs = {}
-    if (!form.guest_name.trim()) errs.guest_name = 'Champ obligatoire'
+    if (!form.guest_first_name.trim()) errs.guest_first_name = 'Champ obligatoire'
+    if (!form.guest_last_name.trim()) errs.guest_last_name = 'Champ obligatoire'
     if (!form.guest_phone.trim()) errs.guest_phone = 'Champ obligatoire'
     if (!form.wilaya) errs.wilaya = 'Champ obligatoire'
     if (!form.delivery_company_id) errs.delivery = 'Veuillez sélectionner un transporteur'
@@ -123,6 +125,7 @@ export default function CheckoutPage() {
     try {
       const payload = {
         ...form,
+        guest_name: `${form.guest_first_name.trim()} ${form.guest_last_name.trim()}`.trim(),
         delivery_company_id: form.delivery_company_id ? Number(form.delivery_company_id) : null,
         items: items.map((i) => ({
           product_id: i.product.id,
@@ -195,21 +198,30 @@ export default function CheckoutPage() {
 
             <div className="checkout-section">
               <h3>Informations de livraison</h3>
+              {/* Row 1: Prénom + Nom */}
               <div className="checkout-grid-2">
                 <div className="form-group">
-                  <label className="form-label" htmlFor="guest_name">Nom complet *</label>
-                  <input className={`form-input ${errors.guest_name ? 'error' : ''}`} id="guest_name" name="guest_name" value={form.guest_name} onChange={handleChange} placeholder="Votre nom complet" />
-                  {errors.guest_name && <span className="field-error">{errors.guest_name}</span>}
+                  <label className="form-label" htmlFor="guest_first_name">Prénom *</label>
+                  <input className={`form-input ${errors.guest_first_name ? 'error' : ''}`} id="guest_first_name" name="guest_first_name" value={form.guest_first_name} onChange={handleChange} placeholder="Prénom" />
+                  {errors.guest_first_name && <span className="field-error">{errors.guest_first_name}</span>}
                 </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="guest_last_name">Nom *</label>
+                  <input className={`form-input ${errors.guest_last_name ? 'error' : ''}`} id="guest_last_name" name="guest_last_name" value={form.guest_last_name} onChange={handleChange} placeholder="Nom de famille" />
+                  {errors.guest_last_name && <span className="field-error">{errors.guest_last_name}</span>}
+                </div>
+              </div>
+              {/* Row 2: Téléphone + Email */}
+              <div className="checkout-grid-2">
                 <div className="form-group">
                   <label className="form-label" htmlFor="guest_phone">Téléphone *</label>
                   <input className={`form-input ${errors.guest_phone ? 'error' : ''}`} id="guest_phone" name="guest_phone" value={form.guest_phone} onChange={handleChange} placeholder="0550 000 000" />
                   {errors.guest_phone && <span className="field-error">{errors.guest_phone}</span>}
                 </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="guest_email">Email (optionnel)</label>
-                <input className="form-input" id="guest_email" name="guest_email" type="email" value={form.guest_email} onChange={handleChange} placeholder="email@exemple.com" />
+                <div className="form-group">
+                  <label className="form-label" htmlFor="guest_email">Email (optionnel)</label>
+                  <input className="form-input" id="guest_email" name="guest_email" type="email" value={form.guest_email} onChange={handleChange} placeholder="email@exemple.com" />
+                </div>
               </div>
             </div>
 
@@ -272,20 +284,10 @@ export default function CheckoutPage() {
                                 }
                                 return (
                                   <>
-                                    <label style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.9rem' }}>
-                                      <span>
-                                        <input type="radio" name="delivery_type" value="home" checked={form.delivery_type === 'home'} onChange={handleChange} style={{ marginRight: 8 }} />
-                                        À domicile
-                                      </span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: 500 }}>
+                                      <span>À domicile</span>
                                       <strong>{baseHome + surcharge} DA</strong>
-                                    </label>
-                                    <label style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.9rem' }}>
-                                      <span>
-                                        <input type="radio" name="delivery_type" value="desk" checked={form.delivery_type === 'desk'} onChange={handleChange} style={{ marginRight: 8 }} />
-                                        Point relais / Bureau
-                                      </span>
-                                      <strong>{baseDesk + surcharge} DA</strong>
-                                    </label>
+                                    </div>
                                     {isB2B && surcharge > 0 && (
                                       <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: 4 }}>
                                         * Inclus {surcharge} DA de supplément poids ({totalWeight.toFixed(2)} kg)

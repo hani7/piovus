@@ -23,6 +23,14 @@
   gap: 16px;
 }
 
+/* Full-width variant — no container constraint */
+.navbar__inner--wide {
+  padding-left: 24px;
+  padding-right: 24px;
+  max-width: 100%;
+  width: 100%;
+}
+
 /* Left */
 .navbar__left {
   display: flex;

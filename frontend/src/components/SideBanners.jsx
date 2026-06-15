@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { X } from 'lucide-react'
 import client from '../api/client'
 import './SideBanners.css'
@@ -8,6 +7,7 @@ export default function SideBanners() {
   const [leftBanners, setLeftBanners] = useState([])
   const [rightBanners, setRightBanners] = useState([])
   const [hiddenBanners, setHiddenBanners] = useState([])
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     client.get('/banners/')
@@ -21,6 +21,10 @@ export default function SideBanners() {
         }
       })
       .catch((err) => console.error('Failed to load side banners:', err))
+
+    // Slide in after 5 seconds
+    const timer = setTimeout(() => setVisible(true), 5000)
+    return () => clearTimeout(timer)
   }, [])
 
   const handleClose = (e, id) => {
@@ -29,36 +33,52 @@ export default function SideBanners() {
     setHiddenBanners(prev => [...prev, id])
   }
 
+  const renderMedia = (banner) => {
+    if (banner.video) {
+      return (
+        <video
+          src={banner.video}
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      )
+    }
+    return <img src={banner.image} alt={banner.title || ''} />
+  }
+
   if (leftBanners.length === 0 && rightBanners.length === 0) return null
 
   return (
     <>
       {leftBanners.filter(b => !hiddenBanners.includes(b.id)).map((banner, index) => (
-        <div 
-          key={`left-${banner.id}-${index}`} 
-          className="side-banner side-banner--left"
-          style={{ bottom: `${20 + index * 130}px` }}
+        <div
+          key={`left-${banner.id}-${index}`}
+          className={`side-banner side-banner--left${visible ? ' side-banner--visible' : ''}`}
+          style={{ bottom: `${20 + index * 210}px` }}
         >
           <button className="side-banner__close" onClick={(e) => handleClose(e, banner.id)}>
-            <X size={14} />
+            <X size={12} />
           </button>
-          <a href={banner.cta_url || '#'} style={{ display: 'block' }}>
-            <img src={banner.image} alt={banner.title || 'Bannière gauche'} />
+          <a href={banner.cta_url || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>
+            {renderMedia(banner)}
           </a>
         </div>
       ))}
-      
+
       {rightBanners.filter(b => !hiddenBanners.includes(b.id)).map((banner, index) => (
-        <div 
-          key={`right-${banner.id}-${index}`} 
-          className="side-banner side-banner--right"
-          style={{ bottom: `${20 + index * 130}px` }}
+        <div
+          key={`right-${banner.id}-${index}`}
+          className={`side-banner side-banner--right${visible ? ' side-banner--visible' : ''}`}
+          style={{ bottom: `${20 + index * 210}px` }}
         >
           <button className="side-banner__close" onClick={(e) => handleClose(e, banner.id)}>
-            <X size={14} />
+            <X size={12} />
           </button>
-          <a href={banner.cta_url || '#'} style={{ display: 'block' }}>
-            <img src={banner.image} alt={banner.title || 'Bannière droite'} />
+          <a href={banner.cta_url || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>
+            {renderMedia(banner)}
           </a>
         </div>
       ))}

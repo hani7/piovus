@@ -55,11 +55,11 @@ export default function Navbar() {
               <span /><span /><span />
             </button>
             <nav className="navbar__links">
-              {(categories || []).map((c) => (
-                <Link key={c.slug} to={`/category/${c.slug}`}>{c.name}</Link>
-              ))}
-              <Link to="/category/skin-body-care">Skin &amp; Body Care</Link>
-              <Link to="/category/accessories">Accessories</Link>
+              {(categories || [])
+                .filter(c => c.slug !== 'offres-speciales' && c.slug !== 'offres-speciales')
+                .map((c) => (
+                  <Link key={c.slug} to={`/category/${c.slug}`}>{c.name}</Link>
+                ))}
             </nav>
           </div>
 

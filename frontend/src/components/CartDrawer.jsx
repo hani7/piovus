@@ -31,6 +31,7 @@ export default function CartDrawer({ open, onClose }) {
             </svg>
             <p>Votre panier est vide</p>
             <Link to="/shop" onClick={onClose} className="btn btn-accent">Découvrir nos produits</Link>
+            <Link to="/shop?best_sellers=true" onClick={onClose} className="btn btn-outline" style={{ marginTop: 10 }}>⭐ Nos Best Sellers</Link>
           </div>
         ) : (
           <>

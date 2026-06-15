@@ -6,6 +6,7 @@ import './ShopPage.css'
 
 const SORT_OPTIONS = [
   { value: '-created_at', label: 'Plus récents' },
+  { value: '-total_sold', label: 'Meilleures ventes' },
   { value: 'price', label: 'Prix croissant' },
   { value: '-price', label: 'Prix décroissant' },
   { value: 'name', label: 'Nom A-Z' },
@@ -21,7 +22,8 @@ export default function ShopPage() {
 
   const selectedCategory = searchParams.get('category') || ''
   const searchQuery = searchParams.get('search') || ''
-  const sortBy = searchParams.get('sort') || '-created_at'
+  const isBestSellers = searchParams.get('best_sellers') === 'true'
+  const sortBy = searchParams.get('sort') || (isBestSellers ? '-total_sold' : '-created_at')
   const showNew = searchParams.get('new') === 'true'
 
   const fetchProducts = useCallback(() => {
@@ -30,6 +32,7 @@ export default function ShopPage() {
     if (selectedCategory) params['category__slug'] = selectedCategory
     if (searchQuery) params.search = searchQuery
     if (showNew) params.is_new = true
+    if (isBestSellers) params.ordering = '-total_sold'
 
     getProducts(params)
       .then((r) => {
@@ -37,7 +40,7 @@ export default function ShopPage() {
         setTotalCount(r.data.count || r.data.length)
       })
       .finally(() => setLoading(false))
-  }, [selectedCategory, searchQuery, sortBy, showNew, page])
+  }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, page])
 
   useEffect(() => {
     getCategories().then((r) => setCategories(r.data.results || r.data))
@@ -45,7 +48,7 @@ export default function ShopPage() {
 
   useEffect(() => {
     setPage(1)
-  }, [selectedCategory, searchQuery, sortBy, showNew])
+  }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers])
 
   useEffect(() => {
     fetchProducts()
@@ -62,11 +65,17 @@ export default function ShopPage() {
     <main className="shop-page page-enter">
       {/* Breadcrumb */}
       <div className="shop-page__breadcrumb container">
-        <Link to="/">Accueil</Link> / <span>Boutique</span>
+        <Link to="/">Accueil</Link> / {isBestSellers ? <span>Meilleures Ventes</span> : <span>Boutique</span>}
         {selectedCategory && (
           <> / <span>{categories.find(c => c.slug === selectedCategory)?.name}</span></>
         )}
       </div>
+      {isBestSellers && (
+        <div className="container" style={{ paddingTop: '16px' }}>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 700, letterSpacing: '0.04em' }}>⭐ Nos Meilleures Ventes</h1>
+          <p style={{ color: 'var(--color-gray-500)', marginTop: 4 }}>Les produits préférés de nos clientes</p>
+        </div>
+      )}
 
       <div className="container shop-page__layout">
         {/* ── Sidebar Filters ─────────────────────── */}

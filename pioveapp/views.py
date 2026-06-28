@@ -2039,7 +2039,7 @@ def satim_callback(request):
     order_id_piove = request.GET.get('order_id')
     
     # URL to redirect the user to in React
-    frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+    frontend_base = getattr(settings, 'FRONTEND_URL', 'https://app.piovecosmetics.dz')
     
     def redirect_with_params(base, status, reason=None, msg=None):
         from urllib.parse import urlencode

@@ -41,8 +41,8 @@ def register_order(order):
     
     # For now, we will construct the return URL to hit our Django backend API.
     # We must use the absolute API URL so SATIM knows where to redirect.
-    frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
-    api_host = frontend_url.replace('http://localhost:5173', 'http://localhost:8000') # local fallback
+    frontend_url = getattr(settings, 'FRONTEND_URL', 'https://app.piovecosmetics.dz')
+    api_host = frontend_url.replace('https://app.piovecosmetics.dz', 'http://localhost:8000') # local fallback
     if getattr(settings, 'ALLOWED_HOSTS', []):
         if 'api.piovecosmetics.dz' in settings.ALLOWED_HOSTS:
             api_host = 'https://api.piovecosmetics.dz'

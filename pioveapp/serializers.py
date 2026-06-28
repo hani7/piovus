@@ -23,7 +23,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'image', 'order', 'product_count']
 
     def get_product_count(self, obj):
-        return obj.products.filter(is_active=True).count()
+        return obj.multi_products.filter(is_active=True).count()
 
 
 # ─── Product Images & Variants ───────────────────────────────────────────────
@@ -282,7 +282,7 @@ class AdminCategorySerializer(serializers.ModelSerializer):
         read_only_fields = ['slug']
 
     def get_product_count(self, obj):
-        return obj.products.count()
+        return obj.multi_products.count()
 
 
 class AdminProductVariantSerializer(serializers.ModelSerializer):

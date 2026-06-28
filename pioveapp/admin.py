@@ -22,7 +22,7 @@ class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
     def product_count(self, obj):
-        return obj.products.filter(is_active=True).count()
+        return obj.multi_products.filter(is_active=True).count()
     product_count.short_description = 'Produits'
 
 

@@ -138,6 +138,7 @@ export default function CheckoutPage() {
       const res = await createOrder(payload)
       clearCart()
       if (res.data.satim_payment_url) {
+        localStorage.setItem('lastOrder', JSON.stringify(res.data))
         setRedirecting(true)
         window.location.href = res.data.satim_payment_url
       } else if (res.data.satim_error) {

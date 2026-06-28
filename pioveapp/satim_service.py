@@ -31,8 +31,9 @@ def register_order(order):
 
     url = f"{SATIM_BASE_URL}/register.do"
     
-    # Amount is in cents (DA * 100)
-    amount = int(float(order.total) * 100)
+    # Amount is in cents (DA * 100). We exclude delivery cost from the SATIM payment 
+    # so the customer pays it directly to the delivery driver.
+    amount = int(float(order.total - order.delivery_cost) * 100)
     order_number = _generate_order_number(order.id)
     
     # Save the order_number temporarily to the order if we want to cross-check later,

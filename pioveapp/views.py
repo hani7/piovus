@@ -2040,9 +2040,14 @@ def satim_callback(request):
     
     # URL to redirect the user to in React
     frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
-    fail_url = f"{frontend_base}/payment-result?status=fail"
-    success_url = f"{frontend_base}/payment-result?status=success"
-    cancel_url = f"{frontend_base}/payment-result?status=cancelled"
+    
+    def redirect_with_params(base, status, reason=None, msg=None):
+        from urllib.parse import urlencode
+        params = {'status': status}
+        if order_id_piove: params['order_id'] = order_id_piove
+        if reason: params['reason'] = reason
+        if msg: params['msg'] = msg
+        return HttpResponseRedirect(f"{base}/payment-result?{urlencode(params)}")
 
     if not order_id_satim or not order_id_piove:
         if order_id_piove:
@@ -2052,7 +2057,7 @@ def satim_callback(request):
                 order.save(update_fields=['status'])
             except Order.DoesNotExist:
                 pass
-        return HttpResponseRedirect(f"{cancel_url}&reason=missing_params")
+        return redirect_with_params(frontend_base, 'cancelled', reason='missing_params')
 
     # Confirm order with SATIM
     confirm_res = confirm_order(order_id_satim)
@@ -2060,7 +2065,7 @@ def satim_callback(request):
     try:
         order = Order.objects.get(id=order_id_piove)
     except Order.DoesNotExist:
-        return HttpResponseRedirect(f"{fail_url}&reason=order_not_found")
+        return redirect_with_params(frontend_base, 'fail', reason='order_not_found')
 
     if confirm_res.get('success'):
         # Payment was successful!
@@ -2074,14 +2079,15 @@ def satim_callback(request):
                 status='confirmed',
                 notes=f"Paiement CIB/Edahabia réussi (ID transaction: {order_id_satim})."
             )
-        return HttpResponseRedirect(success_url)
+        return redirect_with_params(frontend_base, 'success')
     else:
         # Payment failed or cancelled
         order.status = 'cancelled'
         order.save(update_fields=['status'])
+        fail_msg = confirm_res.get('message', 'Paiement annulé ou échoué.')
         OrderStatusHistory.objects.create(
             order=order,
             status='cancelled',
-            notes=f"Paiement CIB/Edahabia annulé ou échoué : {confirm_res.get('message')}"
+            notes=f"Paiement CIB/Edahabia annulé ou échoué : {fail_msg}"
         )
-        return HttpResponseRedirect(f"{cancel_url}&reason=payment_failed")
+        return redirect_with_params(frontend_base, 'cancelled', reason='payment_failed', msg=fail_msg)

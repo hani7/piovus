@@ -28,12 +28,16 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'promo_price', 'stock', 'is_featured', 'is_new', 'is_active']
+    list_display = ['name', 'get_categories', 'price', 'promo_price', 'stock', 'is_featured', 'is_new', 'is_active']
     list_editable = ['price', 'promo_price', 'stock', 'is_featured', 'is_new', 'is_active']
-    list_filter = ['category', 'is_featured', 'is_new', 'is_active']
+    list_filter = ['categories', 'is_featured', 'is_new', 'is_active']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
     inlines = [ProductImageInline, ProductVariantInline]
+
+    def get_categories(self, obj):
+        return ", ".join([c.name for c in obj.categories.all()])
+    get_categories.short_description = 'Catégories'
 
 
 @admin.register(Banner)

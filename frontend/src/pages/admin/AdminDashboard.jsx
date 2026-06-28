@@ -168,13 +168,13 @@ export default function AdminDashboard() {
             {outOfStock.length > 0 && (
               <div style={{ borderBottom: '1px solid var(--admin-border)' }}>
                 <div style={{ padding: '12px 20px', background: '#fef2f2', color: '#991b1b', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  Rupture de stock ({outOfStock.length})
+                  Alertes Stock ({outOfStock.length})
                 </div>
                 <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                   {outOfStock.map(p => (
                     <li key={`oos-${p.id}`} style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--admin-text)' }}>{p.name}</span>
-                      <span className="badge badge-danger">Stock : 0</span>
+                      <span className={`badge ${p.stock <= 0 ? 'badge-danger' : 'badge-warning'}`}>Stock : {p.stock}</span>
                     </li>
                   ))}
                 </ul>

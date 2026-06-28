@@ -325,14 +325,14 @@ export default function ProductPage() {
             </div>
 
             {/* Stock indicator */}
-            <p className="product-info__stock">
-              {product.stock > 10
-                ? <span className="stock-ok">En stock</span>
-                : product.stock > 0
-                ? <span className="stock-low">Plus que {product.stock} en stock</span>
-                : <span className="stock-none">Rupture de stock</span>
-              }
-            </p>
+            {product.stock > 0 && (
+              <p className="product-info__stock">
+                {product.stock > 10
+                  ? <span className="stock-ok">En stock</span>
+                  : <span className="stock-low">Plus que {product.stock} en stock</span>
+                }
+              </p>
+            )}
 
             {/* Description */}
             <div className="product-info__desc">

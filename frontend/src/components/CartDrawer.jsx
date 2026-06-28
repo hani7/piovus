@@ -1,12 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
-import { useAuthStore } from '../store/authStore'
 import './CartDrawer.css'
 
 export default function CartDrawer({ open, onClose }) {
   const { items, removeItem, updateQuantity } = useCartStore()
-  const user = useAuthStore((s) => s.user)
-  const isB2B = user?.profile?.is_b2b
   const navigate = useNavigate()
 
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
@@ -57,11 +54,7 @@ export default function CartDrawer({ open, onClose }) {
                   </div>
                   <div className="cart-item__controls">
                     <div className="qty-control">
-                      <button onClick={() => {
-                        const minQty = isB2B && item.product.b2b_min_stock ? item.product.b2b_min_stock : 1;
-                        if (item.quantity - 1 < minQty) return;
-                        updateQuantity(item.key, item.quantity - 1)
-                      }} id={`qty-minus-${item.key}`}>−</button>
+                      <button onClick={() => updateQuantity(item.key, item.quantity - 1)} id={`qty-minus-${item.key}`}>−</button>
                       <span>{item.quantity}</span>
                       <button onClick={() => updateQuantity(item.key, item.quantity + 1)} id={`qty-plus-${item.key}`}>+</button>
                     </div>

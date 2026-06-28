@@ -3,7 +3,7 @@ import { X, Edit, Trash2 } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 
 const EMPTY_FORM = {
-  name: '', category: '', description: '', price: '',
+  name: '', category_ids: [], description: '', price: '',
   promo_price: '', b2b_price: '', b2b_price_box: '', b2b_promo_price_box: '', b2b_price_carton: '', b2b_promo_price_carton: '', b2b_min_stock: 1, weight_box: '', weight_carton: '', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true,
 }
 
@@ -104,7 +104,7 @@ export default function AdminProducts() {
 
   const openEdit = (p) => {
     setForm({
-      name: p.name, category: p.category || '',
+      name: p.name, category_ids: p.category_ids || [],
       description: p.description || '',
       price: p.price, promo_price: p.promo_price || '', b2b_price: p.b2b_price || '',
       b2b_price_box: p.b2b_price_box || '', b2b_promo_price_box: p.b2b_promo_price_box || '',
@@ -137,7 +137,13 @@ export default function AdminProducts() {
     try {
       const fd = new FormData()
       Object.entries(form).forEach(([k, v]) => {
-        if (v !== '' && v !== null && v !== undefined) fd.append(k, v)
+        if (k === 'category_ids') {
+          v.forEach(val => fd.append('category_ids', val))
+        } else if (v === '' && ['promo_price', 'b2b_price', 'b2b_price_box', 'b2b_promo_price_box', 'b2b_price_carton', 'b2b_promo_price_carton', 'description'].includes(k)) {
+          fd.append(k, '')
+        } else if (v !== '' && v !== null && v !== undefined) {
+          fd.append(k, v)
+        }
       })
       if (thumbFile) fd.append('thumbnail', thumbFile)
       
@@ -357,7 +363,7 @@ export default function AdminProducts() {
                         }
                       </td>
                       <td style={{ fontWeight: 500 }}>{p.name}</td>
-                      <td style={{ color: 'var(--admin-text-muted)' }}>{p.category_name || '—'}</td>
+                      <td style={{ color: 'var(--admin-text-muted)' }}>{p.categories?.map(c => c.name).join(', ') || '—'}</td>
                       <td>
                         {spreadsheetMode ? (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -432,11 +438,14 @@ export default function AdminProducts() {
                 </div>
 
                 <div className="form-group">
-                  <label>Catégorie</label>
-                  <select className="form-control" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
-                    <option value="">— Aucune —</option>
+                  <label>Catégories</label>
+                  <select multiple className="form-control" style={{ height: '100px' }} value={form.category_ids} onChange={e => {
+                    const values = Array.from(e.target.selectedOptions, option => option.value);
+                    setForm(f => ({ ...f, category_ids: values }))
+                  }}>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
+                  <small style={{color: 'var(--admin-text-muted)'}}>Maintenez Ctrl (ou Cmd) pour sélectionner plusieurs catégories.</small>
                 </div>
 
                 <div className="form-group">

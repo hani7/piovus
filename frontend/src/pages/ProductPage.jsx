@@ -92,7 +92,7 @@ export default function ProductPage() {
         <nav className="product-page__breadcrumb">
           <Link to="/">Accueil</Link> /
           <Link to="/shop">Produits</Link> /
-          {product.category_name && <Link to={`/category/${product.category_slug}`}>{product.category_name}</Link>}
+          {product.categories && product.categories.length > 0 && <Link to={`/category/${product.categories[0].slug}`}>{product.categories[0].name}</Link>}
           / <span>{product.name}</span>
         </nav>
 
@@ -164,9 +164,11 @@ export default function ProductPage() {
           {/* ── Info ───────────────────────────────── */}
           <div className="product-info">
             <div className="product-info__header">
-              <p className="product-info__category">
-                <Link to={`/category/${product.category_slug}`}>{product.category_name}</Link>
-              </p>
+              {product.categories && product.categories.length > 0 && (
+                <p className="product-info__category">
+                  <Link to={`/category/${product.categories[0].slug}`}>{product.categories[0].name}</Link>
+                </p>
+              )}
               <div className="product-info__share">
                 <button onClick={() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Découvrez ce produit : ' + product.name + ' - ' + window.location.href)}`, '_blank')} title="Partager sur WhatsApp">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>

@@ -1,14 +1,13 @@
 .footer {
   background: var(--color-black);
   color: rgba(255,255,255,0.75);
-  margin-top: 50px;
 }
 
 .footer__top {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 48px;
-  padding: 50px var(--gutter) 80px;
+  padding: 100px var(--gutter) 80px;
 }
 
 @media (max-width: 900px) {
@@ -24,6 +23,7 @@
   object-fit: contain;
   margin-bottom: 8px;
   display: block;
+  filter: brightness(0) invert(1);
 }
 .footer__tagline {
   font-size: 0.7rem;

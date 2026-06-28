@@ -1,9 +1,7 @@
-/* Side banner wrapper — 9:16 portrait, small */
+/* Side banner wrapper */
 .side-banner {
   position: fixed;
   z-index: 900;
-  width: 110px;                        /* small width */
-  aspect-ratio: 9 / 16;               /* portrait 9:16 */
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
@@ -18,12 +16,26 @@
   pointer-events: auto;
 }
 
-/* Image fills the 9:16 frame */
-.side-banner img,
-.side-banner video {
+/* VIDEO banner: 9:16 portrait */
+.side-banner--video {
+  width: 110px;
+  aspect-ratio: 9 / 16;
+}
+.side-banner--video video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+/* IMAGE banner: natural size, capped */
+.side-banner--image {
+  width: auto;
+  max-width: 120px;
+}
+.side-banner--image img {
+  width: 100%;
+  height: auto;
   display: block;
   border-radius: 10px;
 }

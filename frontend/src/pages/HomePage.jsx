@@ -118,39 +118,14 @@ export default function HomePage() {
       )}
 
 
-      {/* ── Special Offers ────────────────────────────────── */}
-      <ProductCarousel title="Offres Spéciales" products={newArrivals} isLoading={loading} />
-
       {/* ── Best Sellers Block ───────────────────────────── */}
-      <section className="section best-sellers-section" id="best-sellers">
-        <div className="container">
-          <h2 className="section-title" style={{ marginBottom: '24px' }}>Nos Best Sellers</h2>
-          {loading ? (
-            <div className="spinner" />
-          ) : featured.length > 0 ? (
-            <div className="best-sellers-grid">
-              {featured.slice(0, 6).map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <p className="best-sellers-empty">Aucun produit disponible</p>
-          )}
-          {featured.length > 6 && (
-            <div className="best-sellers-cta">
-              <Link to="/shop?featured=true" className="btn btn-outline" id="see-all-bestsellers">
-                Voir tous les Best Sellers
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
+      <ProductCarousel title="Nos Best Sellers" products={featured} isLoading={loading} />
 
-      {/* ── Promotions ───────────────────────────────────── */}
-      <ProductCarousel title="En Promotion" products={promotions} isLoading={loading} className="promo-carousel-theme" />
+      {/* ── Nouveautés ────────────────────────────────── */}
+      <ProductCarousel title="Nouveautés" products={newArrivals} isLoading={loading} className="promo-carousel-theme" />
 
       {/* ── Categories ───────────────────────────────────── */}
-      <section className="section" id="categories-section">
+      <section className="section" id="categories-section" style={{ paddingTop: '20px' }}>
         <div className="container">
           <p className="section-subtitle">Nos Collections</p>
           <h2 className="section-title">Explorez par Catégorie</h2>
@@ -174,6 +149,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── Offres Spéciales ───────────────────────────────────── */}
+      <ProductCarousel title="Offres Spéciales" products={promotions} isLoading={loading} className="promo-carousel-theme" />
 
 
       {/* ── Category Carousels ───────────────────────────── */}
@@ -203,24 +181,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Promo Banner ─────────────────────────────────── */}
-      <section className="promo-banner">
-        <div className="container promo-banner__inner">
-          <div className="promo-banner__text">
-            <p className="promo-banner__eyebrow">Offre Exclusive</p>
-            <h2 className="promo-banner__title">Nouvelle Arrivée — Up to 30% OFF</h2>
-            <p className="promo-banner__desc">
-              Découvrez notre nouvelle collection et profitez de remises exceptionnelles
-              sur une sélection de produits de beauté premium.
-            </p>
-            <Link to="/shop" className="btn btn-accent" id="promo-cta">Profiter de l'offre</Link>
-          </div>
-          <div className="promo-banner__deco">
-            <div className="promo-banner__circle promo-banner__circle--1" />
-            <div className="promo-banner__circle promo-banner__circle--2" />
-          </div>
-        </div>
-      </section>
+
 
     </main>
   )

@@ -42,7 +42,6 @@ export default function SideBanners() {
           loop
           muted
           playsInline
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
       )
     }
@@ -53,35 +52,41 @@ export default function SideBanners() {
 
   return (
     <>
-      {leftBanners.filter(b => !hiddenBanners.includes(b.id)).map((banner, index) => (
-        <div
-          key={`left-${banner.id}-${index}`}
-          className={`side-banner side-banner--left${visible ? ' side-banner--visible' : ''}`}
-          style={{ bottom: `${20 + index * 210}px` }}
-        >
-          <button className="side-banner__close" onClick={(e) => handleClose(e, banner.id)}>
-            <X size={12} />
-          </button>
-          <a href={banner.cta_url || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>
-            {renderMedia(banner)}
-          </a>
-        </div>
-      ))}
+      {leftBanners.filter(b => !hiddenBanners.includes(b.id)).map((banner, index) => {
+        const typeClass = banner.video ? 'side-banner--video' : 'side-banner--image'
+        return (
+          <div
+            key={`left-${banner.id}-${index}`}
+            className={`side-banner side-banner--left ${typeClass}${visible ? ' side-banner--visible' : ''}`}
+            style={{ bottom: `${20 + index * 210}px` }}
+          >
+            <button className="side-banner__close" onClick={(e) => handleClose(e, banner.id)}>
+              <X size={12} />
+            </button>
+            <a href={banner.cta_url || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>
+              {renderMedia(banner)}
+            </a>
+          </div>
+        )
+      })}
 
-      {rightBanners.filter(b => !hiddenBanners.includes(b.id)).map((banner, index) => (
-        <div
-          key={`right-${banner.id}-${index}`}
-          className={`side-banner side-banner--right${visible ? ' side-banner--visible' : ''}`}
-          style={{ bottom: `${20 + index * 210}px` }}
-        >
-          <button className="side-banner__close" onClick={(e) => handleClose(e, banner.id)}>
-            <X size={12} />
-          </button>
-          <a href={banner.cta_url || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>
-            {renderMedia(banner)}
-          </a>
-        </div>
-      ))}
+      {rightBanners.filter(b => !hiddenBanners.includes(b.id)).map((banner, index) => {
+        const typeClass = banner.video ? 'side-banner--video' : 'side-banner--image'
+        return (
+          <div
+            key={`right-${banner.id}-${index}`}
+            className={`side-banner side-banner--right ${typeClass}${visible ? ' side-banner--visible' : ''}`}
+            style={{ bottom: `${20 + index * 210}px` }}
+          >
+            <button className="side-banner__close" onClick={(e) => handleClose(e, banner.id)}>
+              <X size={12} />
+            </button>
+            <a href={banner.cta_url || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>
+              {renderMedia(banner)}
+            </a>
+          </div>
+        )
+      })}
     </>
   )
 }

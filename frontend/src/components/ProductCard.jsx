@@ -71,7 +71,7 @@ export default function ProductCard({ product }) {
         </div>
       </div>
       <div className="product-card__body">
-        <p className="product-card__category">{product.category_name}</p>
+        <p className="product-card__category">{product.categories?.[0]?.name}</p>
         <h3 className="product-card__name">
           <Link to={`/produit/${product.slug}`}>{product.name}</Link>
         </h3>

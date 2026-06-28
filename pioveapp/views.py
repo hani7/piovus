@@ -55,9 +55,9 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 # ─── Products ─────────────────────────────────────────────────────────────────
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Product.objects.filter(is_active=True).select_related('category').prefetch_related('images', 'variants', 'reviews')
+    queryset = Product.objects.filter(is_active=True).prefetch_related('categories', 'images', 'variants', 'reviews')
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category__slug', 'is_featured', 'is_new']
+    filterset_fields = ['categories__slug', 'is_featured', 'is_new']
     search_fields = ['name', 'description']
     ordering_fields = ['price', 'created_at', 'name']
     ordering = ['-is_featured', '-created_at']
@@ -88,7 +88,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='by-category/(?P<slug>[^/.]+)')
     def by_category(self, request, slug=None):
-        qs = self.get_queryset().filter(category__slug=slug)
+        qs = self.get_queryset().filter(categories__slug=slug)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = ProductListSerializer(page, many=True, context={'request': request})
@@ -101,8 +101,8 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         product = self.get_object()
         qs = self.get_queryset().none()
         
-        if product.category:
-            qs = self.get_queryset().filter(category=product.category).exclude(id=product.id)[:5]
+        if product.categories.exists():
+            qs = self.get_queryset().filter(categories__in=product.categories.all()).exclude(id=product.id).distinct()[:5]
             
         # Fallback if no products found in same category
         if not qs.exists():
@@ -763,13 +763,13 @@ class AdminDashboardView(APIView):
 
 
 class AdminProductViewSet(ActivityLogMixin, viewsets.ModelViewSet):
-    queryset = Product.objects.all().select_related('category').order_by('-created_at')
+    queryset = Product.objects.all().prefetch_related('categories').order_by('-created_at')
     serializer_class = AdminProductSerializer
     permission_classes = [IsAdminUser]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
     search_fields = ['name', 'description']
-    filterset_fields = ['category', 'is_active', 'is_featured', 'is_new']
+    filterset_fields = ['categories', 'is_active', 'is_featured', 'is_new']
     ordering_fields = ['created_at', 'price', 'stock', 'name']
 
     @action(detail=False, methods=['patch'])

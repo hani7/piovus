@@ -54,8 +54,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 # ─── Product (list - compact) ─────────────────────────────────────────────────
 class ProductListSerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source='category.name', read_only=True)
-    category_slug = serializers.CharField(source='category.slug', read_only=True)
+    categories = CategorySerializer(many=True, read_only=True)
     is_promo = serializers.BooleanField(read_only=True)
     effective_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     avg_rating = serializers.SerializerMethodField()
@@ -63,7 +62,7 @@ class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'slug', 'category_name', 'category_slug',
+            'id', 'name', 'slug', 'categories',
             'price', 'promo_price', 'b2b_price', 'b2b_price_box', 'b2b_price_carton', 'b2b_promo_price_box', 'b2b_promo_price_carton', 'effective_price', 'is_promo',
             'units_per_carton', 'b2b_min_stock', 'stock', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'thumbnail',
             'weight_box', 'weight_carton',
@@ -299,7 +298,10 @@ class AdminProductImageSerializer(serializers.ModelSerializer):
 
 
 class AdminProductSerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source='category.name', read_only=True)
+    categories = AdminCategorySerializer(many=True, read_only=True)
+    category_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), many=True, source='categories', required=False
+    )
     is_promo = serializers.BooleanField(read_only=True)
     effective_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
@@ -313,7 +315,7 @@ class AdminProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'slug', 'category', 'category_name',
+            'id', 'name', 'slug', 'categories', 'category_ids',
             'description', 'price', 'promo_price', 'b2b_price', 'b2b_price_box', 'b2b_price_carton', 'b2b_promo_price_box', 'b2b_promo_price_carton', 'effective_price', 'is_promo',
             'units_per_carton', 'b2b_min_stock', 'stock', 'min_stock_alert', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'is_active',
             'thumbnail', 'weight_box', 'weight_carton', 'created_at', 'updated_at', 'variants', 'images', 'related_products', 'related_product_ids'

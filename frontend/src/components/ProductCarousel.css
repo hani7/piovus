@@ -126,7 +126,7 @@
 
 /* ─── Promo Theme ───────────────────────────────────────────────────────── */
 .product-carousel-section.promo-carousel-theme {
-  background-color: #b30000;
+  background-color: #cc0000;
   padding: 40px 0;
   margin-top: 2rem;
   margin-bottom: 0;
@@ -149,7 +149,7 @@
 /* We don't override text color to white anymore since background is white */
 .promo-carousel-theme .carousel-btn {
   background-color: rgba(255, 255, 255, 0.9);
-  color: #b30000;
+  color: #cc0000;
   border: none;
 }
 

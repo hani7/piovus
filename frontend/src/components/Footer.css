@@ -1,3 +1,25 @@
+/* ─── USP Bar ───────────────────────────────────────────────── */
+.usp-bar {
+  background: var(--color-black);
+  color: white;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.usp-bar__inner {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.usp-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.usp-item__icon { font-size: 1.5rem; }
+.usp-item__label { font-size: 0.85rem; font-weight: 600; }
+.usp-item__sub { font-size: 0.72rem; color: rgba(255,255,255,0.5); }
+
 .footer {
   background: var(--color-black);
   color: rgba(255,255,255,0.75);

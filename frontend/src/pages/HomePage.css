@@ -245,26 +245,6 @@
   padding: 40px 0;
 }
 
-/* ─── USP Bar ───────────────────────────────────────────────── */
-.usp-bar {
-  background: var(--color-black);
-  color: white;
-  padding: 24px 0;
-}
-.usp-bar__inner {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-.usp-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.usp-item__icon { font-size: 1.5rem; }
-.usp-item__label { font-size: 0.85rem; font-weight: 600; }
-.usp-item__sub { font-size: 0.72rem; color: rgba(255,255,255,0.5); }
 
 /* ─── Categories Grid ───────────────────────────────────────── */
 .categories-grid {

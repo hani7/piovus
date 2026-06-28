@@ -4,6 +4,24 @@ import './Footer.css'
 export default function Footer() {
   return (
     <footer className="footer">
+      <div className="usp-bar">
+        <div className="container usp-bar__inner">
+          {[
+            { icon: '🚚', label: 'Livraison Gratuite', sub: 'À partir de 5000 DA' },
+            { icon: '💳', label: 'Paiement à la livraison', sub: 'Cash on delivery' },
+            { icon: '✨', label: 'Produits Authentiques', sub: '100% originaux' },
+            { icon: '↩️', label: 'Retour Facile', sub: '7 jours pour changer' },
+          ].map((u, i) => (
+            <div key={i} className="usp-item">
+              <span className="usp-item__icon">{u.icon}</span>
+              <div>
+                <p className="usp-item__label">{u.label}</p>
+                <p className="usp-item__sub">{u.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="footer__top container">
         <div className="footer__brand">
           <img src="/logo.png" alt="Piové Cosmetics" className="footer__logo" />

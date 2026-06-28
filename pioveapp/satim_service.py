@@ -90,7 +90,7 @@ def confirm_order(satim_order_id):
     if not SATIM_USER_NAME or not SATIM_PASSWORD:
         return {'success': False, 'message': 'SATIM not configured.'}
 
-    url = f"{SATIM_BASE_URL}/confirmOrder.do"
+    url = f"{SATIM_BASE_URL}/getOrderStatusExtended.do"
     
     params = {
         'language': 'fr',
@@ -104,17 +104,24 @@ def confirm_order(satim_order_id):
         resp.raise_for_status()
         data = resp.json()
         
-        # SATIM returns params['respCode_desc'], 'Amount', 'OrderNumber', 'approvalCode' in 'params'
-        # The exact JSON structure requires us to check if there is an error
+        # In getOrderStatusExtended.do:
+        # orderStatus 2 means Paid/Deposited
+        # error_code usually 0 if request is valid
         error_code = data.get('ErrorCode') or data.get('errorCode')
+        order_status = data.get('orderStatus') or data.get('OrderStatus')
+        
         if error_code and str(error_code) != '0':
-            msg = data.get('ErrorMessage') or data.get('errorMessage') or 'Erreur de paiement.'
+            msg = data.get('ErrorMessage') or data.get('errorMessage') or 'Erreur de paiement SATIM.'
             return {'success': False, 'message': msg, 'raw': data}
             
-        return {
-            'success': True,
-            'data': data
-        }
+        if str(order_status) == '2':
+            return {
+                'success': True,
+                'data': data
+            }
+        else:
+            action_code = data.get('actionCodeDescription') or 'Paiement non complété.'
+            return {'success': False, 'message': action_code, 'raw': data}
             
     except Exception as e:
         logger.error(f"SATIM confirm request exception: {e}")

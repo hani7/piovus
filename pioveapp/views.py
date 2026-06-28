@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, F
 from django.db.models.functions import TruncDate, TruncWeek, TruncMonth
 import csv
 from django.http import HttpResponse
@@ -714,8 +714,8 @@ class AdminDashboardView(APIView):
         recent_serialized = AdminOrderSerializer(recent_orders, many=True).data
 
         # Urgent Alerts
-        out_of_stock_products = Product.objects.filter(stock__lte=0).values('id', 'name', 'stock')[:10]
-        out_of_stock_variants = ProductVariant.objects.filter(stock__lte=0).select_related('product')[:10]
+        out_of_stock_products = Product.objects.filter(stock__lte=F('min_stock_alert')).values('id', 'name', 'stock')[:10]
+        out_of_stock_variants = ProductVariant.objects.filter(stock__lte=F('product__min_stock_alert')).select_related('product')[:10]
         out_of_stock_list = list(out_of_stock_products) + [{'id': v.product.id, 'name': f"{v.product.name} ({v.name})", 'stock': v.stock} for v in out_of_stock_variants]
         
         fraud_orders = Order.objects.filter(status='pending', customer__is_blacklisted=True).order_by('-created_at')[:10]

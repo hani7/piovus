@@ -118,17 +118,24 @@ export default function PaymentResultPage() {
   }
 
   // Determine error message
-  let errorMessage = "Une erreur est survenue lors du paiement."
+  let errorMessage = "Paiement échoué ou annulé."
   
-  // Specific fallback override for the user's request:
-  if (!msgParam || msgParam === 'Paiement annulé ou échoué.' || msgParam === 'null' || msgParam === 'undefined') {
+  const redirectTimeStr = localStorage.getItem('satimRedirectTime')
+  const timeElapsed = redirectTimeStr ? (Date.now() - parseInt(redirectTimeStr, 10)) : 0
+  
+  // If user requested the specific timeout message ONLY when it takes a lot of time (> 1 min)
+  if (timeElapsed > 60000) {
     errorMessage = "Votre transaction a été rejetée, Délai de traitement dépassé, veuillez réessayer ultérieurement."
-  } else if (msgParam) {
+  } else if (msgParam && msgParam !== 'Paiement annulé ou échoué.' && msgParam !== 'null' && msgParam !== 'undefined') {
+    // If SATIM sent a real error message, and it's not a timeout, we can show it
     errorMessage = `Paiement refusé : ${msgParam}`
-  }
-  
-  if (reason === 'timeout') {
-    errorMessage = "Votre transaction a été rejetée, Délai de traitement dépassé, veuillez réessayer ultérieurement."
+  } else if (reason === 'missing_params') {
+    errorMessage = "Paramètres de retour manquants."
+  } else if (reason === 'order_not_found') {
+    errorMessage = "Commande introuvable."
+  } else {
+    // They cancelled within less than a minute
+    errorMessage = "Vous avez annulé le paiement ou une erreur est survenue."
   }
 
   return (

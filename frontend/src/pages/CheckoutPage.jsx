@@ -139,6 +139,7 @@ export default function CheckoutPage() {
       clearCart()
       if (res.data.satim_payment_url) {
         localStorage.setItem('lastOrder', JSON.stringify(res.data))
+        localStorage.setItem('satimRedirectTime', Date.now().toString())
         setRedirecting(true)
         window.location.href = res.data.satim_payment_url
       } else if (res.data.satim_error) {

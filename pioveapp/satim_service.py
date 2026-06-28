@@ -39,13 +39,7 @@ def register_order(order):
     # Save the order_number temporarily to the order if we want to cross-check later,
     # but we can just rely on the wooId/order_id we pass in the returnUrl.
     
-    # For now, we will construct the return URL to hit our Django backend API.
-    # We must use the absolute API URL so SATIM knows where to redirect.
-    frontend_url = getattr(settings, 'FRONTEND_URL', 'https://app.piovecosmetics.dz')
-    api_host = frontend_url.replace('https://app.piovecosmetics.dz', 'http://localhost:8000') # local fallback
-    if getattr(settings, 'ALLOWED_HOSTS', []):
-        if 'api.piovecosmetics.dz' in settings.ALLOWED_HOSTS:
-            api_host = 'https://api.piovecosmetics.dz'
+    api_host = getattr(settings, 'API_URL', 'https://api.piovecosmetics.dz')
 
     return_url = f"{api_host}/api/satim/callback/?order_id={order.id}"
     fail_url = f"{api_host}/api/satim/callback/?order_id={order.id}"

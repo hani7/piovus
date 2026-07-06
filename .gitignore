@@ -7,3 +7,7 @@ __pycache__/
 !.env.example
 .DS_Store
 db.sqlite3
+
+# Apache config - managed directly on server
+.htaccess
+

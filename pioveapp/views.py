@@ -859,10 +859,21 @@ class AdminBannerViewSet(ActivityLogMixin, viewsets.ModelViewSet):
 
 def handle_loyalty_points(order, old_status, new_status):
     if old_status != 'fulfilled' and new_status == 'fulfilled':
-        if order.user and hasattr(order.user, 'profile') and not order.user.profile.is_b2b:
-            profile = order.user.profile
-            profile.loyalty_points += int(order.total)
-            
+        try:
+            if not order.user:
+                return  # Commande invité — pas de points
+            # Refresh profile depuis la DB pour éviter données stale
+            try:
+                profile = order.user.profile
+                profile.refresh_from_db()
+            except Exception:
+                return  # Pas de profil
+            if profile.is_b2b:
+                return  # Pas de points pour B2B
+            points_to_add = int(order.total or 0)
+            if points_to_add <= 0:
+                return
+            profile.loyalty_points += points_to_add
             while profile.loyalty_points >= 5000:
                 profile.loyalty_points -= 5000
                 import uuid
@@ -877,6 +888,9 @@ def handle_loyalty_points(order, old_status, new_status):
                     is_active=True
                 )
             profile.save(update_fields=['loyalty_points'])
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Loyalty points error for order {order.id}: {e}")
 
 class AdminOrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all().select_related('user', 'customer').prefetch_related('items').order_by('-created_at')

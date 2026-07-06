@@ -106,13 +106,13 @@ export default function ProductPage() {
                     <img src={selectedVariant.image} alt={selectedVariant.name} />
                   ) : images[selectedImage]?.video ? (
                     <video 
-                      src={images[selectedImage].video} 
-                      poster={images[selectedImage].image} 
+                      key={images[selectedImage].video}
+                      src={images[selectedImage].video + '#t=0.001'} 
+                      poster={images[selectedImage].image || undefined} 
                       controls 
-                      autoPlay 
-                      loop 
-                      muted 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      preload="auto"
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#000' }}
                     />
                   ) : (
                     <img

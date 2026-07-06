@@ -292,6 +292,8 @@ class AdminProductVariantSerializer(serializers.ModelSerializer):
 
 
 class AdminProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = ProductImage
         fields = ['id', 'product', 'image', 'video', 'alt', 'order']

@@ -11,6 +11,25 @@ LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp', 'migr
 try:
     import django
     django.setup()
+
+    # ── Fix: create missing M2M table if it doesn't exist ──────────────────
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' "
+            "AND name='pioveapp_product_categories'"
+        )
+        if not cursor.fetchone():
+            cursor.execute("""
+                CREATE TABLE "pioveapp_product_categories" (
+                    "id"          integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    "product_id"  integer NOT NULL REFERENCES "pioveapp_product" ("id"),
+                    "category_id" integer NOT NULL REFERENCES "pioveapp_category" ("id"),
+                    UNIQUE ("product_id", "category_id")
+                )
+            """)
+
+    # ── Run pending migrations ───────────────────────────────────────────────
     from django.core.management import call_command
     out = io.StringIO()
     call_command('migrate', interactive=False, verbosity=1, stdout=out)
@@ -18,14 +37,16 @@ try:
     with open(LOG_PATH, 'w') as f:
         f.write("=== MIGRATE SUCCESS ===\n")
         f.write(out.getvalue())
+
 except Exception:
     try:
         os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
         with open(LOG_PATH, 'w') as f:
-            f.write("=== MIGRATE FAILED ===\n")
+            f.write("=== STARTUP FAILED ===\n")
             f.write(traceback.format_exc())
     except Exception:
         pass
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
+

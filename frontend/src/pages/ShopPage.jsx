@@ -104,7 +104,6 @@ export default function ShopPage() {
               id="filter-cat-all"
             >
               Tous les produits
-              <span>{totalCount}</span>
             </button>
             {categories.map((c) => (
               <button
@@ -147,10 +146,6 @@ export default function ShopPage() {
         {/* ── Product Grid ─────────────────────────── */}
         <div className="shop-main">
           <div className="shop-main__toolbar">
-            <p className="shop-main__count">
-              {loading ? '...' : `${totalCount} produit${totalCount !== 1 ? 's' : ''}`}
-              {searchQuery && <span> pour «&nbsp;{searchQuery}&nbsp;»</span>}
-            </p>
             <select
               value={sortBy}
               onChange={(e) => updateParam('sort', e.target.value)}

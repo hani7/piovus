@@ -4,7 +4,7 @@ import adminClient from '../../api/adminClient'
 
 const EMPTY_FORM = {
   name: '', category_ids: [], description: '', price: '',
-  promo_price: '', b2b_price: '', b2b_price_box: '', b2b_promo_price_box: '', b2b_price_carton: '', b2b_promo_price_carton: '', b2b_min_stock: 1, weight_box: '', weight_carton: '', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true,
+  promo_price: '', b2b_price: '', b2b_price_box: '', b2b_promo_price_box: '', b2b_price_carton: '', b2b_promo_price_carton: '', b2b_min_stock: 1, weight_box: '', weight_carton: '', contenance: '', contenance_unit: 'g', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true,
 }
 
 function Pagination({ page, totalPages, onPage }) {
@@ -111,6 +111,7 @@ export default function AdminProducts() {
       b2b_price_carton: p.b2b_price_carton || '', b2b_promo_price_carton: p.b2b_promo_price_carton || '',
       b2b_min_stock: p.b2b_min_stock || 1,
       weight_box: p.weight_box || '', weight_carton: p.weight_carton || '',
+      contenance: p.contenance || '', contenance_unit: p.contenance_unit || 'g',
       stock: p.stock, min_stock_alert: p.min_stock_alert,
       is_featured: p.is_featured, is_new: p.is_new, is_bestseller: p.is_bestseller, is_promotion: p.is_promotion, is_active: p.is_active,
     })

@@ -20,10 +20,39 @@ def run_migration_view(request):
 
 def setup_view(request):
     """
-    One-shot setup: runs migrations + seeds categories + creates superuser.
-    Call once at https://api.piovecosmetics.dz/api/setup/
+    One-shot setup: fixes M2M table via raw SQL + runs migrations + seeds categories.
+    Call at https://api.piovecosmetics.dz/api/setup/
     """
     log = []
+
+    # Step 1: Fix the missing M2M table directly with raw SQL (bypasses migration state)
+    try:
+        from django.db import connection
+        with connection.cursor() as cursor:
+            # Check if table exists
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='pioveapp_product_categories'")
+            exists = cursor.fetchone()
+            if not exists:
+                cursor.execute("""
+                    CREATE TABLE "pioveapp_product_categories" (
+                        "id"          integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        "product_id"  integer NOT NULL REFERENCES "pioveapp_product" ("id"),
+                        "category_id" integer NOT NULL REFERENCES "pioveapp_category" ("id"),
+                        UNIQUE ("product_id", "category_id")
+                    )
+                """)
+                log.append("✅ Table 'pioveapp_product_categories' CREATED via raw SQL")
+            else:
+                log.append("ℹ️  Table 'pioveapp_product_categories' already exists")
+
+            # Also list all tables for diagnostics
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+            tables = [row[0] for row in cursor.fetchall()]
+            log.append(f"📋 DB Tables: {', '.join(tables)}")
+    except Exception:
+        log.append("❌ Raw SQL fix FAILED:\n" + traceback.format_exc())
+
+    # Step 2: Run migrations
     try:
         from django.core.management import call_command
         out = io.StringIO()
@@ -32,6 +61,7 @@ def setup_view(request):
     except Exception:
         log.append("❌ Migrations FAILED:\n" + traceback.format_exc())
 
+    # Step 3: Seed categories
     try:
         from pioveapp.models import Category
         CATEGORIES = [
@@ -51,11 +81,12 @@ def setup_view(request):
     except Exception:
         log.append("❌ Categories FAILED:\n" + traceback.format_exc())
 
+    # Step 4: Create/verify admin user
     try:
         from django.contrib.auth.models import User
         if not User.objects.filter(username='lotfi').exists():
             User.objects.create_superuser('lotfi', 'lotfi@piovecosmetics.dz', 'piove2026')
-            log.append("✅ Superuser 'lotfi' created (password: piove2026) — CHANGE IT NOW!")
+            log.append("✅ Superuser 'lotfi' created (password: piove2026)")
         else:
             log.append("ℹ️  User 'lotfi' already exists.")
     except Exception:

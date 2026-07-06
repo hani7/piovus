@@ -1,5 +1,6 @@
 ---
 deployment:
   tasks:
+    - /home/piover97/virtualenv/bck/3.12/bin/python /home/piover97/bck/manage.py migrate --noinput 2>&1 || true
     - mkdir -p /home/piover97/bck/tmp
     - touch /home/piover97/bck/tmp/restart.txt

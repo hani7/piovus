@@ -18,6 +18,11 @@ class SiteSettings(models.Model):
         max_digits=5, decimal_places=2, default=10,
         help_text="Pourcentage de remise offert lors de la création d'un compte"
     )
+    # Meta Pixel
+    meta_pixel_id = models.CharField(
+        max_length=50, blank=True, default='',
+        help_text="ID du pixel Meta (Facebook) — ex: 2139405799887149"
+    )
 
     def save(self, *args, **kwargs):
         self.pk = 1

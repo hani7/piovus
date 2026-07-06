@@ -1859,6 +1859,7 @@ class SiteSettingsView(APIView):
             'free_shipping_threshold': float(settings.free_shipping_threshold),
             'new_account_discount_enabled': settings.new_account_discount_enabled,
             'new_account_discount_percent': float(settings.new_account_discount_percent),
+            'meta_pixel_id': settings.meta_pixel_id or '',
         })
 
 class AdminSiteSettingsView(APIView):
@@ -1873,6 +1874,7 @@ class AdminSiteSettingsView(APIView):
             'free_shipping_threshold': float(settings.free_shipping_threshold),
             'new_account_discount_enabled': settings.new_account_discount_enabled,
             'new_account_discount_percent': float(settings.new_account_discount_percent),
+            'meta_pixel_id': settings.meta_pixel_id or '',
         })
 
     def post(self, request):
@@ -1912,6 +1914,11 @@ class AdminSiteSettingsView(APIView):
         discount_percent = request.data.get('new_account_discount_percent')
         if discount_percent is not None:
             settings.new_account_discount_percent = discount_percent
+            changed = True
+
+        pixel_id = request.data.get('meta_pixel_id')
+        if pixel_id is not None:
+            settings.meta_pixel_id = pixel_id.strip()
             changed = True
 
         if changed:

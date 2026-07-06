@@ -9,6 +9,7 @@ export default function AdminSettings() {
     free_shipping_threshold: 0,
     new_account_discount_enabled: false,
     new_account_discount_percent: 10,
+    meta_pixel_id: '',
   })
 
   useEffect(() => {
@@ -18,6 +19,7 @@ export default function AdminSettings() {
           free_shipping_threshold: res.data.free_shipping_threshold ?? 0,
           new_account_discount_enabled: res.data.new_account_discount_enabled ?? false,
           new_account_discount_percent: res.data.new_account_discount_percent ?? 10,
+          meta_pixel_id: res.data.meta_pixel_id ?? '',
         })
       })
       .catch(console.error)
@@ -124,6 +126,39 @@ export default function AdminSettings() {
             {form.new_account_discount_enabled && (
               <p style={{ fontSize: '0.78rem', color: 'var(--admin-success)', marginTop: 6 }}>
                 ✅ Un coupon de {form.new_account_discount_percent}% sera généré à chaque nouvelle inscription.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Meta Pixel ─────────────────────────── */}
+      <div className="admin-card" style={{ marginBottom: 24 }}>
+        <div className="admin-card-header">
+          <h2 style={{ fontSize: '1rem', fontWeight: 700 }}>📊 Meta Pixel (Facebook)</h2>
+        </div>
+        <div style={{ padding: '20px 24px' }}>
+          <p style={{ fontSize: '0.88rem', color: 'var(--admin-text-muted)', marginBottom: 16 }}>
+            Entrez votre <strong>Pixel ID</strong> pour activer le suivi des conversions Facebook.
+            Laissez vide pour désactiver.
+          </p>
+          <div className="form-group" style={{ maxWidth: 360 }}>
+            <label className="form-label">Pixel ID</label>
+            <input
+              type="text"
+              className="form-input"
+              value={form.meta_pixel_id}
+              onChange={e => setForm(f => ({ ...f, meta_pixel_id: e.target.value.trim() }))}
+              placeholder="Ex: 2139405799887149"
+              maxLength={50}
+            />
+            {form.meta_pixel_id ? (
+              <p style={{ fontSize: '0.78rem', color: 'var(--admin-success)', marginTop: 6 }}>
+                ✅ Pixel actif — ID: {form.meta_pixel_id}
+              </p>
+            ) : (
+              <p style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', marginTop: 6 }}>
+                ❌ Pixel désactivé
               </p>
             )}
           </div>

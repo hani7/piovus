@@ -511,6 +511,29 @@ export default function AdminProducts() {
                 </div>
 
                 <div className="form-row">
+                  <div className="form-group" style={{ border: '1px solid var(--admin-border)', padding: 10, borderRadius: 8 }}>
+                    <label style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: 8, display: 'block' }}>Contenance</label>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <div style={{ flex: 2 }}>
+                        <label style={{ fontSize: '0.8rem' }}>Valeur (ex: 5.3)</label>
+                        <input className="form-control" type="number" min="0" step="0.01" value={form.contenance} onChange={e => setForm(f => ({ ...f, contenance: e.target.value }))} placeholder="0.00" />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '0.8rem' }}>Unité</label>
+                        <select className="form-control" value={form.contenance_unit} onChange={e => setForm(f => ({ ...f, contenance_unit: e.target.value }))}>
+                          <option value="g">g</option>
+                          <option value="ml">ml</option>
+                          <option value="oz">oz</option>
+                          <option value="L">L</option>
+                          <option value="kg">kg</option>
+                          <option value="cl">cl</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-row">
                   <div className="form-group">
                     <label>Quantité Min B2B (MOQ)</label>
                     <input className="form-control" type="number" min="1" value={form.b2b_min_stock} onChange={e => setForm(f => ({ ...f, b2b_min_stock: e.target.value }))} placeholder="1" />

@@ -1,4 +1,5 @@
 ---
 deployment:
   tasks:
+    - mkdir -p /home/piover97/bck/tmp
     - touch /home/piover97/bck/tmp/restart.txt

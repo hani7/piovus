@@ -258,7 +258,7 @@ export default function AdminProducts() {
     try {
       const fd = new FormData()
       fd.append('product', editId)
-      fd.append('image', galleryImageFile)
+      if (galleryImageFile) fd.append('image', galleryImageFile)
       if (galleryVideoFile) fd.append('video', galleryVideoFile)
       
       const res = await adminClient.post('/admin/images/', fd, { headers: { 'Content-Type': 'multipart/form-data' } })

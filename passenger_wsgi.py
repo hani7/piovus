@@ -4,32 +4,33 @@ import io
 import traceback
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# ── Load server-specific config from .env.server (not in git) ────────────────
+_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env.server')
+if os.path.exists(_config_file):
+    with open(_config_file) as _f:
+        for _line in _f:
+            _line = _line.strip()
+            if _line and '=' in _line and not _line.startswith('#'):
+                _key, _val = _line.split('=', 1)
+                os.environ.setdefault(_key.strip(), _val.strip())
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pioveecom.settings")
 
 LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp', 'migrate.log')
 
 try:
+    # ── Install PyMySQL as MySQLdb driver (for MySQL support) ────────────────
+    try:
+        import pymysql
+        pymysql.install_as_MySQLdb()
+    except ImportError:
+        pass  # Not installed yet, will work after pip install
+
     import django
     django.setup()
 
-    # ── Fix: create missing M2M table if it doesn't exist ──────────────────
-    from django.db import connection
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            "AND name='pioveapp_product_categories'"
-        )
-        if not cursor.fetchone():
-            cursor.execute("""
-                CREATE TABLE "pioveapp_product_categories" (
-                    "id"          integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-                    "product_id"  integer NOT NULL REFERENCES "pioveapp_product" ("id"),
-                    "category_id" integer NOT NULL REFERENCES "pioveapp_category" ("id"),
-                    UNIQUE ("product_id", "category_id")
-                )
-            """)
-
-    # ── Run pending migrations ───────────────────────────────────────────────
+    # ── Run pending migrations ────────────────────────────────────────────────
     from django.core.management import call_command
     out = io.StringIO()
     call_command('migrate', interactive=False, verbosity=1, stdout=out)
@@ -49,4 +50,3 @@ except Exception:
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
-

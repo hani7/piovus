@@ -77,12 +77,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'pioveecom.wsgi.application'
 
+# ─── DATABASE ────────────────────────────────────────────────────────────────
+# Production: set DATABASE_URL env var to mysql://user:pass@localhost/dbname
+# Local dev: uses SQLite automatically
 import dj_database_url
 DATABASES = {
     'default': dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
-        conn_health_checks=True,
     )
 }
 
@@ -160,17 +162,7 @@ SIMPLE_JWT = {
 
 # ─── EMAIL CONFIGURATION ─────────────────────────────────────────────────────
 DEFAULT_FROM_EMAIL = 'Piové Cosmetics <contact@piovecosmetics.dz>'
-
-# Mode developpement : Affiche les emails dans la console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# Configuration pour cPanel (à décommenter et configurer en production)
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'mail.votre-domaine.dz'
-# EMAIL_PORT = 465
-# EMAIL_USE_SSL = True
-# EMAIL_HOST_USER = 'contact@votre-domaine.dz'
-# EMAIL_HOST_PASSWORD = 'VOTRE_MOT_DE_PASSE_EMAIL'
 
 # ─── MYLERZ DELIVERY API ──────────────────────────────────────────────────────
 MYLERZ_BASE_URL = os.environ.get('MYLERZ_BASE_URL', 'https://integration.algeria.mylerz.net')
@@ -178,14 +170,13 @@ MYLERZ_USERNAME = os.environ.get('MYLERZ_USERNAME', 'piovestore')
 MYLERZ_PASSWORD = os.environ.get('MYLERZ_PASSWORD', 'PioveShipping2025*')
 MYLERZ_WAREHOUSE_NAME = os.environ.get('MYLERZ_WAREHOUSE_NAME', 'piovestore')
 
-# ─── SATIM (CIB/EDAHABIA) DELIVERY API ────────────────────────────────────────
+# ─── SATIM (CIB/EDAHABIA) PAYMENT API ────────────────────────────────────────
 SATIM_USER_NAME = os.environ.get('SATIM_USER_NAME', 'SAT2606161972')
 SATIM_PASSWORD = os.environ.get('SATIM_PASSWORD', 'satim120')
 SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID', 'E010903300')
 SATIM_BASE_URL = os.environ.get('SATIM_BASE_URL', 'https://test2.satim.dz/payment/rest')
 
-# Upload size limits (video support)
-DATA_UPLOAD_MAX_MEMORY_SIZE = 209715200  # 200MB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 209715200  # 200MB
+# ─── UPLOAD SIZE LIMITS (video support) ──────────────────────────────────────
+DATA_UPLOAD_MAX_MEMORY_SIZE = 209715200   # 200MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 209715200   # 200MB
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
-

@@ -746,9 +746,27 @@ export default function AdminProducts() {
                                 }}
                               >
                                 {i === 0 && <div className="cover-badge">Cover Image</div>}
-                                <img src={g.image} alt="galerie" />
-                                {g.video && (
-                                  <div style={{ position: 'absolute', bottom: 5, left: 5, background: 'rgba(0,0,0,0.6)', padding: '2px 4px', borderRadius: '4px', color: '#fff', fontSize: '0.7rem' }}>Vidéo</div>
+                                {g.video && !g.image ? (
+                                  /* Vidéo sans image → placeholder avec icône play */
+                                  <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1a1a2e, #16213e)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.4)' }}>
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+                                    </div>
+                                    <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: 1 }}>VIDÉO</span>
+                                  </div>
+                                ) : g.video && g.image ? (
+                                  /* Vidéo avec image poster */
+                                  <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                                    <img src={g.image} alt="poster" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.25)' }}>
+                                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="#333"><polygon points="5,3 19,12 5,21"/></svg>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  /* Image simple */
+                                  <img src={g.image} alt="galerie" />
                                 )}
                                 <button type="button" className="btn-danger" style={{ position: 'absolute', top: 5, right: 5, padding: '2px 5px', fontSize: '0.7rem' }} onClick={() => handleDeleteGallery(g.id)}>X</button>
                               </div>

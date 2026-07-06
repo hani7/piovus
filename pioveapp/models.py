@@ -81,6 +81,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True, max_length=250)
     description = models.TextField(blank=True)
+    short_description = models.CharField(max_length=300, blank=True, help_text="Courte description affichée sous la contenance sur la page produit")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     promo_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     b2b_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True) # Legacy

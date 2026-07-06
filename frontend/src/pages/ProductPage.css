@@ -370,3 +370,14 @@
   margin-bottom: 4px;
 }
 
+.product-info__short-desc {
+  font-size: 0.9rem;
+  color: var(--color-gray-600, #666);
+  font-style: italic;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  line-height: 1.5;
+  border-left: 3px solid var(--color-accent, #c94b7b);
+  padding-left: 10px;
+}
+

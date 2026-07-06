@@ -277,6 +277,11 @@ export default function ProductPage() {
               </div>
             )}
 
+            {/* Petite description */}
+            {product.short_description && (
+              <p className="product-info__short-desc">{product.short_description}</p>
+            )}
+
             {/* Variants (color swatches) */}
             {product.variants?.length > 0 && (
               <div className="product-info__variants">

@@ -3,7 +3,7 @@ import { X, Edit, Trash2 } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 
 const EMPTY_FORM = {
-  name: '', category_ids: [], description: '', price: '',
+  name: '', category_ids: [], description: '', short_description: '', price: '',
   promo_price: '', b2b_price: '', b2b_price_box: '', b2b_promo_price_box: '', b2b_price_carton: '', b2b_promo_price_carton: '', b2b_min_stock: 1, weight_box: '', weight_carton: '', contenance: '', contenance_unit: 'g', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true,
 }
 
@@ -106,6 +106,7 @@ export default function AdminProducts() {
     setForm({
       name: p.name, category_ids: p.category_ids || [],
       description: p.description || '',
+      short_description: p.short_description || '',
       price: p.price, promo_price: p.promo_price || '', b2b_price: p.b2b_price || '',
       b2b_price_box: p.b2b_price_box || '', b2b_promo_price_box: p.b2b_promo_price_box || '',
       b2b_price_carton: p.b2b_price_carton || '', b2b_promo_price_carton: p.b2b_promo_price_carton || '',
@@ -449,6 +450,12 @@ export default function AdminProducts() {
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                   <small style={{color: 'var(--admin-text-muted)'}}>Maintenez Ctrl (ou Cmd) pour sélectionner plusieurs catégories.</small>
+                </div>
+
+                <div className="form-group">
+                  <label>Petite description <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>(affichée sous la contenance)</span></label>
+                  <input className="form-control" value={form.short_description} onChange={e => setForm(f => ({ ...f, short_description: e.target.value }))} placeholder="Ex: Longue durée, résistant à l'eau..." maxLength={300} />
+                  <small style={{ color: 'var(--admin-text-muted)' }}>{(form.short_description || '').length}/300</small>
                 </div>
 
                 <div className="form-group">

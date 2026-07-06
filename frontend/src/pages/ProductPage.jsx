@@ -395,6 +395,18 @@ export default function ProductPage() {
                 </svg>
                 <span>Paiement à la livraison (COD)</span>
               </div>
+              <div className="delivery-row">
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <rect x="2" y="5" width="20" height="14" rx="2"/>
+                  <path d="M2 10h20"/>
+                  <path d="M6 15h4M14 15h4" strokeLinecap="round"/>
+                </svg>
+                <span>Paiement en ligne — Edahabia / CIB</span>
+                <span style={{ display: 'inline-flex', gap: 4, marginLeft: 6, alignItems: 'center' }}>
+                  <span style={{ background: '#00a651', color: '#fff', fontSize: '0.6rem', fontWeight: 800, padding: '1px 5px', borderRadius: 3, letterSpacing: 0.5 }}>EDAHABIA</span>
+                  <span style={{ background: '#1a3e7c', color: '#fff', fontSize: '0.6rem', fontWeight: 800, padding: '1px 5px', borderRadius: 3, letterSpacing: 0.5 }}>CIB</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>

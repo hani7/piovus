@@ -8,6 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.db.models import Sum, Count, F
 from django.db.models.functions import TruncDate, TruncWeek, TruncMonth
+from decimal import Decimal
 import csv
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend

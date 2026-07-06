@@ -1,0 +1,4 @@
+---
+deployment:
+  tasks:
+    - touch /home/piover97/bck/tmp/restart.txt

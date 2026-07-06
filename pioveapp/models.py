@@ -91,6 +91,8 @@ class Product(models.Model):
     units_per_carton = models.PositiveIntegerField(default=1)
     weight_box = models.DecimalField(max_digits=6, decimal_places=2, default=0.00, help_text="Poids par boîte (kg)")
     weight_carton = models.DecimalField(max_digits=6, decimal_places=2, default=0.00, help_text="Poids par carton (kg)")
+    contenance = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, help_text="Contenance du produit (ex: 5.3)")
+    contenance_unit = models.CharField(max_length=20, blank=True, default='g', help_text="Unité de contenance (g, ml, oz...)")
     b2b_min_stock = models.PositiveIntegerField(default=1, help_text="Quantité minimale de commande (MOQ) pour B2B")
     stock = models.PositiveIntegerField(default=0)
     min_stock_alert = models.PositiveIntegerField(default=5)

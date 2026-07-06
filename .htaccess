@@ -6,3 +6,19 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
 </IfModule>
+
+# Limite upload 200MB pour les vidéos
+LimitRequestBody 209715200
+
+# MIME types vidéo
+AddType video/mp4 .mp4
+AddType video/webm .webm
+AddType video/ogg .ogv
+
+# Headers pour streaming vidéo
+<IfModule mod_headers.c>
+  <FilesMatch "\.(mp4|webm|ogv)$">
+    Header set Accept-Ranges bytes
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+</IfModule>

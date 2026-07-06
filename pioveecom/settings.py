@@ -183,3 +183,9 @@ SATIM_USER_NAME = os.environ.get('SATIM_USER_NAME', 'SAT2606161972')
 SATIM_PASSWORD = os.environ.get('SATIM_PASSWORD', 'satim120')
 SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID', 'E010903300')
 SATIM_BASE_URL = os.environ.get('SATIM_BASE_URL', 'https://test2.satim.dz/payment/rest')
+
+# Upload size limits (video support)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 209715200  # 200MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 209715200  # 200MB
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
+

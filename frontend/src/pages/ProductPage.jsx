@@ -149,11 +149,23 @@ export default function ProductPage() {
                     onClick={() => setSelectedImage(i)}
                     id={`thumb-${i}`}
                   >
-                    <img src={img.image} alt={img.alt || product.name} />
-                    {img.video && (
-                      <div className="thumb-video-icon">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    {img.video && !img.image ? (
+                      /* Vidéo sans poster → placeholder play */
+                      <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#1a1a2e,#16213e)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, borderRadius: 4 }}>
+                        <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid rgba(255,255,255,0.5)' }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+                        </div>
+                        <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.55rem', fontWeight: 700, letterSpacing: 0.5 }}>VIDÉO</span>
                       </div>
+                    ) : (
+                      <>
+                        <img src={img.image} alt={img.alt || product.name} />
+                        {img.video && (
+                          <div className="thumb-video-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                          </div>
+                        )}
+                      </>
                     )}
                   </button>
                 ))}

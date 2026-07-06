@@ -124,7 +124,6 @@ export default function Navbar() {
           {(categories || []).map((c) => (
             <Link key={c.slug} to={`/category/${c.slug}`} onClick={closeSidebar} className="sidebar__link">
               {c.name}
-              <span className="sidebar__count">{c.product_count}</span>
             </Link>
           ))}
           <div className="sidebar__section-title">Mon Compte</div>

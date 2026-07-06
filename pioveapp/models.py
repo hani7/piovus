@@ -147,6 +147,8 @@ class ProductVariant(models.Model):
     image = models.ImageField(upload_to='products/variants/', blank=True, null=True)
     stock = models.PositiveIntegerField(default=0)
     sku = models.CharField(max_length=100, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Prix spécifique à cette variation (laissez vide pour utiliser le prix du produit)")
+    is_available = models.BooleanField(default=True, help_text="Disponibilité de cette variation")
 
     def __str__(self):
         return f"{self.product.name} — {self.name}"

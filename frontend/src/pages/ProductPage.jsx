@@ -267,14 +267,27 @@ export default function ProductPage() {
               </div>
             )}
 
+            {/* Variant price override */}
+            {selectedVariant?.price && (
+              <div style={{ marginTop: '6px', fontSize: '0.85rem', color: 'var(--admin-text-muted)' }}>
+                Prix pour <strong>{selectedVariant.name}</strong> :
+                <span style={{ marginLeft: 6, fontWeight: 700, color: 'var(--color-accent)', fontSize: '1rem' }}>
+                  {parseFloat(selectedVariant.price).toLocaleString('fr-DZ')} DA
+                </span>
+              </div>
+            )}
+
             {/* Variants (color swatches) */}
             {product.variants?.length > 0 && (
               <div className="product-info__variants">
                 <p className="product-info__variant-label">
                   Teinte: <strong>{selectedVariant?.name}</strong>
+                  {selectedVariant && !selectedVariant.is_available && (
+                    <span style={{ marginLeft: 8, fontSize: '0.75rem', color: '#f87171', fontWeight: 600 }}>Indisponible</span>
+                  )}
                 </p>
                 <div className="product-info__swatches">
-                  {product.variants.map((v) => (
+                  {product.variants.filter(v => v.is_available !== false).map((v) => (
                     <button
                       key={v.id}
                       className={`swatch ${selectedVariant?.id === v.id ? 'swatch--active' : ''}`}

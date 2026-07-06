@@ -45,7 +45,7 @@ export default function AdminProducts() {
   const [perPage, setPerPage] = useState(10)
   const [showVariants, setShowVariants] = useState(false)
   const [variants, setVariants] = useState([])
-  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10 })
+  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true })
   const [variantFile, setVariantFile] = useState(null)
   const [editVariantId, setEditVariantId] = useState(null)
 
@@ -197,7 +197,7 @@ export default function AdminProducts() {
 
   const openEditVariant = (v) => {
     setEditVariantId(v.id)
-    setNewVariant({ name: v.name, color_hex: v.color_hex || '#000000', stock: v.stock })
+    setNewVariant({ name: v.name, color_hex: v.color_hex || '#000000', stock: v.stock, price: v.price || '', is_available: v.is_available !== false })
     setVariantFile(null)
     setTimeout(() => {
       if (variantFormRef.current) {
@@ -211,7 +211,7 @@ export default function AdminProducts() {
 
   const cancelEditVariant = () => {
     setEditVariantId(null)
-    setNewVariant({ name: '', color_hex: '#000000', stock: 10 })
+    setNewVariant({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true })
     setVariantFile(null)
     if (variantFileRef.current) variantFileRef.current.value = ''
   }
@@ -226,6 +226,8 @@ export default function AdminProducts() {
       fd.append('name', newVariant.name)
       fd.append('color_hex', newVariant.color_hex)
       fd.append('stock', newVariant.stock)
+      fd.append('is_available', newVariant.is_available)
+      if (newVariant.price !== '' && newVariant.price !== null) fd.append('price', newVariant.price)
       if (variantFile) fd.append('image', variantFile)
       
       if (editVariantId) {
@@ -597,6 +599,10 @@ export default function AdminProducts() {
                                   <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: v.color_hex || '#000', border: '1px solid var(--admin-border)' }} title={v.color_hex}></div>
                                   <div style={{ fontWeight: 500 }}>{v.name}</div>
                                   <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>Stock: {v.stock}</div>
+                                  {v.price && <div style={{ color: 'var(--admin-gold)', fontSize: '0.85rem', fontWeight: 600 }}>{parseFloat(v.price).toLocaleString('fr-DZ')} DA</div>}
+                                  <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '20px', background: v.is_available ? '#1a472a' : '#5c1a1a', color: v.is_available ? '#4ade80' : '#f87171', fontWeight: 600 }}>
+                                    {v.is_available ? 'Disponible' : 'Indisponible'}
+                                  </span>
                                 </div>
                                 <div style={{ display: 'flex', gap: '6px' }}>
                                   <button type="button" className="btn-action-icon" style={{ width: 28, height: 28 }} onClick={() => openEditVariant(v)} title="Modifier">
@@ -640,6 +646,36 @@ export default function AdminProducts() {
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label>Image de la variation</label>
                               <input type="file" accept="image/*" className="form-control" style={{ padding: '8px' }} ref={variantFileRef} onChange={e => setVariantFile(e.target.files[0])} />
+                            </div>
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Prix spécifique (DA) <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>optionnel</span></label>
+                              <input type="number" min="0" step="0.01" className="form-control" value={newVariant.price} onChange={e => setNewVariant({ ...newVariant, price: e.target.value })} placeholder="Laissez vide = prix produit" />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Disponibilité</label>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
+                                <button
+                                  type="button"
+                                  onClick={() => setNewVariant({ ...newVariant, is_available: !newVariant.is_available })}
+                                  style={{
+                                    width: '52px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer',
+                                    background: newVariant.is_available ? '#22c55e' : '#ef4444',
+                                    position: 'relative', transition: 'background 0.2s'
+                                  }}
+                                >
+                                  <span style={{
+                                    position: 'absolute', top: '4px',
+                                    left: newVariant.is_available ? '28px' : '4px',
+                                    width: '20px', height: '20px', borderRadius: '50%',
+                                    background: '#fff', transition: 'left 0.2s'
+                                  }} />
+                                </button>
+                                <span style={{ fontWeight: 600, color: newVariant.is_available ? '#22c55e' : '#ef4444' }}>
+                                  {newVariant.is_available ? 'On' : 'Off'}
+                                </span>
+                              </div>
                             </div>
                           </div>
                           <button type="button" className="btn-primary" style={{ marginTop: '15px', width: '100%', justifyContent: 'center' }} onClick={handleSaveVariant} disabled={!newVariant.name || !newVariant.color_hex || saving}>

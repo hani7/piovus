@@ -36,7 +36,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 class ProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
-        fields = ['id', 'name', 'color_hex', 'image', 'stock', 'sku']
+        fields = ['id', 'name', 'color_hex', 'image', 'stock', 'sku', 'price', 'is_available']
 
 
 # ─── Review ──────────────────────────────────────────────────────────────────
@@ -288,7 +288,7 @@ class AdminCategorySerializer(serializers.ModelSerializer):
 class AdminProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
-        fields = ['id', 'product', 'name', 'color_hex', 'image', 'stock', 'sku']
+        fields = ['id', 'product', 'name', 'color_hex', 'image', 'stock', 'sku', 'price', 'is_available']
 
 
 class AdminProductImageSerializer(serializers.ModelSerializer):

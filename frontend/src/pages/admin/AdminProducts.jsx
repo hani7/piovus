@@ -249,7 +249,7 @@ export default function AdminProducts() {
   }
 
   const handleSaveGallery = async () => {
-    if (!editId || !galleryImageFile) return
+    if (!editId || (!galleryImageFile && !galleryVideoFile)) return
     setSaving(true)
     try {
       const fd = new FormData()
@@ -694,7 +694,7 @@ export default function AdminProducts() {
                           <h4 style={{ fontSize: '0.95rem', marginBottom: '10px' }}>Ajouter un média</h4>
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
-                              <label>Image (Miniature/Poster) *</label>
+                              <label>Image (Miniature/Poster)</label>
                               <input type="file" accept="image/*" className="form-control" style={{ padding: '8px' }} ref={galleryImageRef} onChange={e => setGalleryImageFile(e.target.files[0])} />
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -702,7 +702,7 @@ export default function AdminProducts() {
                               <input type="file" accept="video/mp4,video/webm" className="form-control" style={{ padding: '8px' }} ref={galleryVideoRef} onChange={e => setGalleryVideoFile(e.target.files[0])} />
                             </div>
                           </div>
-                          <button type="button" className="btn-primary" style={{ marginTop: '15px', width: '100%', justifyContent: 'center' }} onClick={handleSaveGallery} disabled={!galleryImageFile || saving}>
+                          <button type="button" className="btn-primary" style={{ marginTop: '15px', width: '100%', justifyContent: 'center' }} onClick={handleSaveGallery} disabled={(!galleryImageFile && !galleryVideoFile) || saving}>
                             {saving ? 'Ajout en cours...' : 'Ajouter à la galerie'}
                           </button>
                         </div>

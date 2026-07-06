@@ -126,7 +126,7 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='products/images/')
+    image = models.ImageField(upload_to='products/images/', blank=True, null=True)
     video = models.FileField(upload_to='products/videos/', blank=True, null=True)
     alt = models.CharField(max_length=200, blank=True)
     order = models.PositiveIntegerField(default=0)

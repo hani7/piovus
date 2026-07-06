@@ -1869,12 +1869,12 @@ class SiteSettingsView(APIView):
         from .models import SiteSettings
         settings = SiteSettings.load()
         return Response({
-            'is_maintenance_mode': settings.is_maintenance_mode,
-            'maintenance_message': settings.maintenance_message,
-            'free_shipping_threshold': float(settings.free_shipping_threshold),
-            'new_account_discount_enabled': settings.new_account_discount_enabled,
-            'new_account_discount_percent': float(settings.new_account_discount_percent),
-            'meta_pixel_id': settings.meta_pixel_id or '',
+            'is_maintenance_mode': getattr(settings, 'is_maintenance_mode', False),
+            'maintenance_message': getattr(settings, 'maintenance_message', ''),
+            'free_shipping_threshold': float(getattr(settings, 'free_shipping_threshold', 5000)),
+            'new_account_discount_enabled': getattr(settings, 'new_account_discount_enabled', False),
+            'new_account_discount_percent': float(getattr(settings, 'new_account_discount_percent', 0)),
+            'meta_pixel_id': getattr(settings, 'meta_pixel_id', '') or '',
         })
 
 class AdminSiteSettingsView(APIView):
@@ -1884,12 +1884,12 @@ class AdminSiteSettingsView(APIView):
         from .models import SiteSettings
         settings = SiteSettings.load()
         return Response({
-            'is_maintenance_mode': settings.is_maintenance_mode,
-            'maintenance_message': settings.maintenance_message,
-            'free_shipping_threshold': float(settings.free_shipping_threshold),
-            'new_account_discount_enabled': settings.new_account_discount_enabled,
-            'new_account_discount_percent': float(settings.new_account_discount_percent),
-            'meta_pixel_id': settings.meta_pixel_id or '',
+            'is_maintenance_mode': getattr(settings, 'is_maintenance_mode', False),
+            'maintenance_message': getattr(settings, 'maintenance_message', ''),
+            'free_shipping_threshold': float(getattr(settings, 'free_shipping_threshold', 5000)),
+            'new_account_discount_enabled': getattr(settings, 'new_account_discount_enabled', False),
+            'new_account_discount_percent': float(getattr(settings, 'new_account_discount_percent', 0)),
+            'meta_pixel_id': getattr(settings, 'meta_pixel_id', '') or '',
         })
 
     def post(self, request):

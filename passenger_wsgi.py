@@ -71,5 +71,11 @@ except Exception:
         f.write("=== STARTUP FAILED ===\n")
         f.write(traceback.format_exc())
 
-from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application()
+try:
+    from django.core.wsgi import get_wsgi_application
+    application = get_wsgi_application()
+except Exception:
+    import traceback
+    def application(environ, start_response):
+        start_response('500 Internal Server Error', [('Content-Type', 'text/plain')])
+        return [b"CRITICAL WSGI STARTUP ERROR:\n\n" + traceback.format_exc().encode('utf-8')]

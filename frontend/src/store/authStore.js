@@ -130,6 +130,15 @@ export const useAuthStore = create(
       },
 
       clearError: () => set({ error: null }),
+
+      refreshUser: async () => {
+        try {
+          const { getProfile } = await import('../api/auth')
+          const res = await getProfile()
+          set((state) => ({ user: { ...state.user, ...res.data } }))
+        } catch {}
+      },
+
     }),
     { name: 'piove-auth', partialize: (state) => ({ user: state.user, accessToken: state.accessToken, refreshToken: state.refreshToken }) }
   )

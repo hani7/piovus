@@ -23,7 +23,8 @@ adminClient.interceptors.response.use(
       original._retry = true
       try {
         const refresh = localStorage.getItem('admin_refresh_token')
-        const res = await axios.post('/api/auth/token/refresh/', { refresh })
+        const apiBase = import.meta.env.VITE_API_URL || '/api'
+        const res = await axios.post(`${apiBase}/auth/token/refresh/`, { refresh })
         localStorage.setItem('admin_access_token', res.data.access)
         original.headers.Authorization = `Bearer ${res.data.access}`
         return adminClient(original)

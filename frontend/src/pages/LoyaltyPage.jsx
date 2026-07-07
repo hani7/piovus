@@ -5,15 +5,17 @@ import { Gift, Copy, CheckCircle } from 'lucide-react'
 import './AccountPage.css' // We can reuse styles
 
 export default function LoyaltyPage() {
-  const { user } = useAuthStore()
+  const { user, refreshUser } = useAuthStore()
   const navigate = useNavigate()
   const [copiedCode, setCopiedCode] = useState(null)
 
   useEffect(() => {
     if (!user) {
       navigate('/compte')
+    } else {
+      refreshUser() // always fetch fresh points & coupons
     }
-  }, [user, navigate])
+  }, [user, navigate, refreshUser])
 
   if (!user) return null
 

@@ -13,7 +13,6 @@ os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
 try:
     import django
 except ImportError:
-    # Auto-install dependencies if Django is missing (e.g. new Python app)
     try:
         req_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'requirements.txt')
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', req_path, '--quiet'])
@@ -28,6 +27,7 @@ try:
 
     from django.db import connection
     with connection.cursor() as cursor:
+        # Step 1: Create M2M table if it doesn't exist
         cursor.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
             "AND name='pioveapp_product_categories'"
@@ -41,6 +41,23 @@ try:
                     UNIQUE ("product_id", "category_id")
                 )
             """)
+
+        # Step 2: If the table exists but migration 0037 isn't recorded,
+        # fake-apply it so Django doesn't try to recreate the table
+        try:
+            cursor.execute(
+                "SELECT id FROM django_migrations "
+                "WHERE app='pioveapp' AND name='0037_product_categories'"
+            )
+            if not cursor.fetchone():
+                from django.utils import timezone
+                cursor.execute(
+                    "INSERT INTO django_migrations (app, name, applied) "
+                    "VALUES ('pioveapp', '0037_product_categories', ?)",
+                    [timezone.now().isoformat()]
+                )
+        except Exception:
+            pass  # django_migrations may not exist yet on first run
 
     from django.core.management import call_command
     out = io.StringIO()

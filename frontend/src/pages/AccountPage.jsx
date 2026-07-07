@@ -262,22 +262,6 @@ export default function AccountPage() {
 
         {activeTab === 'b2b' && (
           <form className="auth-form" onSubmit={handleRegisterB2B} id="form-b2b">
-            <div className="form-group">
-              <label className="form-label" htmlFor="company_name">Nom de l'entreprise *</label>
-              <input className="form-input" id="company_name" value={b2bForm.company_name} onChange={(e) => setB2bForm({...b2bForm, company_name: e.target.value})} required />
-            </div>
-            <div className="checkout-grid-2">
-              <div className="form-group">
-                <label className="form-label" htmlFor="nrc">Registre de Commerce (RC) *</label>
-                <input className="form-input" id="nrc" value={b2bForm.nrc} onChange={(e) => setB2bForm({...b2bForm, nrc: e.target.value})} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="nif">NIF *</label>
-                <input className="form-input" id="nif" value={b2bForm.nif} onChange={(e) => setB2bForm({...b2bForm, nif: e.target.value})} required />
-              </div>
-            </div>
-            
-            <h3 className="section-title" style={{ fontSize: '1.1rem', marginTop: '20px', marginBottom: '15px' }}>Contact</h3>
             <div className="checkout-grid-2">
               <div className="form-group">
                 <label className="form-label" htmlFor="b2b_first_name">Prénom *</label>

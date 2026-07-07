@@ -8,10 +8,12 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file (if it exists)
-load_dotenv(BASE_DIR / '.env')
+try:
+    from dotenv import load_dotenv
+    # Load environment variables from .env file (if it exists)
+    load_dotenv(BASE_DIR / '.env')
+except ImportError:
+    pass
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 DEBUG = True #os.environ.get('DJANGO_DEBUG', 'False') == 'True'

@@ -28,6 +28,28 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState(null)
   const [errors, setErrors] = useState({})
 
+  const playSuccessSound = () => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      
+      // Success chime (two notes: C6 -> E6)
+      osc.frequency.setValueAtTime(1046.50, ctx.currentTime) // C6
+      gain.gain.setValueAtTime(0.1, ctx.currentTime)
+      osc.frequency.setValueAtTime(1318.51, ctx.currentTime + 0.15) // E6
+      
+      osc.start(ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5)
+      osc.stop(ctx.currentTime + 0.5)
+    } catch (e) {
+      console.warn("Audio not supported", e)
+    }
+  }
+
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
   const isB2B = user?.profile?.is_b2b || false
   const totalWeight = items.reduce((s, i) => s + (i.weight || 0) * i.quantity, 0)
@@ -148,6 +170,7 @@ export default function CheckoutPage() {
       } else {
         setOrderId(res.data.id)
         setSuccess(true)
+        playSuccessSound()
       }
     } catch (err) {
       setErrors({ submit: 'Une erreur est survenue. Veuillez réessayer.' })

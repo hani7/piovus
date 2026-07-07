@@ -32,6 +32,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'django_filters',
+    # Security Apps
+    'axes',
+    'admin_honeypot',
     # Local
     'pioveapp',
 ]
@@ -47,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
 
 X_FRAME_OPTIONS = 'DENY'
@@ -55,10 +59,29 @@ X_FRAME_OPTIONS = 'DENY'
 if not DEBUG:
     SECURE_SSL_REDIRECT = False  # cPanel handles SSL at proxy level
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
+    # Secure Cookies
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    
+    # HSTS & XSS
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 Year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# ─── AXES (Anti-Brute Force) ─────────────────────────────────────────────────
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = 24  # Hours before unlock
+AXES_LOCKOUT_TEMPLATE = '403.html'
 
 ROOT_URLCONF = 'pioveecom.urls'
 
@@ -111,7 +134,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ─── CORS & CSRF ────────────────────────────────────────────────────────────
-CORS_ALLOW_ALL_ORIGINS = True   # Allow all origins (same-owner frontend/backend)
+# We restrict to allowed domains for max security. 
+# (If API requests are blocked in prod, uncomment CORS_ALLOW_ALL_ORIGINS = True)
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://piovecosmetics.dz',
+    'https://www.piovecosmetics.dz',
+    'https://app.piovecosmetics.dz',
+]
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [

@@ -96,6 +96,7 @@ def setup_view(request):
 
 
 urlpatterns = [
+    path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('piove-secure-gate-2026/', admin.site.urls),
     path('api/', include('pioveapp.urls')),
 ]

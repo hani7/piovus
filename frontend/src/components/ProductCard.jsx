@@ -58,17 +58,6 @@ export default function ProductCard({ product }) {
           {isNew && <span className="badge badge-new">Nouveau</span>}
           {isBestSeller && <span className="badge badge-bestseller">Best Seller</span>}
         </div>
-        <div className="product-card__actions">
-          <button className="product-card__action-btn" title="Acheter maintenant" onClick={(e) => { e.preventDefault(); handleBuyNow(e); }}>
-            <Zap size={18} />
-          </button>
-          <button className="product-card__action-btn" title="Ajouter au panier" onClick={(e) => { e.preventDefault(); handleAddToCart(e); }}>
-            <ShoppingBag size={18} />
-          </button>
-          <Link to={`/produit/${product.slug}`} className="product-card__action-btn" title="Aperçu">
-            <Eye size={18} />
-          </Link>
-        </div>
       </div>
       <div className="product-card__body">
         <p className="product-card__category">{product.categories?.[0]?.name}</p>
@@ -108,6 +97,17 @@ export default function ProductCard({ product }) {
             <span className="product-card__rating-num">({product.avg_rating})</span>
           </div>
         )}
+        <div className="product-card__actions">
+          <button className="product-card__action-btn" title="Acheter maintenant" onClick={(e) => { e.preventDefault(); handleBuyNow(e); }}>
+            <Zap size={18} />
+          </button>
+          <button className="product-card__action-btn" title="Ajouter au panier" onClick={(e) => { e.preventDefault(); handleAddToCart(e); }}>
+            <ShoppingBag size={18} />
+          </button>
+          <Link to={`/produit/${product.slug}`} className="product-card__action-btn" title="Aperçu">
+            <Eye size={18} />
+          </Link>
+        </div>
       </div>
     </article>
   )

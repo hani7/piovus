@@ -2,7 +2,7 @@
    PIOVÉ COSMETICS — Design System
    ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 /* ─── CSS Variables ─────────────────────────────────────────── */
 :root {
@@ -20,8 +20,8 @@
   --color-gray-700: #444444;
   --color-gray-900: #111111;
 
-  --font-serif: 'Cormorant Garamond', Georgia, serif;
-  --font-sans: 'Jost', system-ui, sans-serif;
+  --font-serif: 'Poppins', system-ui, sans-serif;
+  --font-sans: 'Poppins', system-ui, sans-serif;
 
   --radius-sm: 4px;
   --radius-md: 8px;

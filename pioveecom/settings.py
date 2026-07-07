@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'django_filters',
     # Security Apps
     'axes',
-    'admin_honeypot',
     # Local
     'pioveapp',
 ]

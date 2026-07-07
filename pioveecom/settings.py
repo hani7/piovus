@@ -49,14 +49,12 @@ X_FRAME_OPTIONS = 'DENY'
 
 # Security settings for production
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = False  # cPanel handles SSL at proxy level
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
 
 ROOT_URLCONF = 'pioveecom.urls'
 
@@ -109,24 +107,29 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ─── CORS & CSRF ────────────────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS_ENV = os.environ.get('CORS_ALLOWED_ORIGINS')
-if CORS_ALLOWED_ORIGINS_ENV:
-    CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS_ENV.split(',')
-else:
-    CORS_ALLOWED_ORIGINS = [
-        'http://localhost:5173',
-        'http://127.0.0.1:5173',
-    ]
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://piovecosmetics.dz',
+    'https://www.piovecosmetics.dz',
+    'https://app.piovecosmetics.dz',
+    'https://api.piovecosmetics.dz',
+]
+# Allow extra origins from env var (comma-separated)
+_extra = os.environ.get('CORS_ALLOWED_ORIGINS', '')
+if _extra:
+    CORS_ALLOWED_ORIGINS += [o.strip() for o in _extra.split(',') if o.strip()]
+
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS_ENV = os.environ.get('CSRF_TRUSTED_ORIGINS')
-if CSRF_TRUSTED_ORIGINS_ENV:
-    CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS_ENV.split(',')
-else:
-    CSRF_TRUSTED_ORIGINS = [
-        'http://localhost:5173',
-        'http://127.0.0.1:5173',
-    ]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://piovecosmetics.dz',
+    'https://www.piovecosmetics.dz',
+    'https://app.piovecosmetics.dz',
+    'https://api.piovecosmetics.dz',
+]
 
 # ─── REST FRAMEWORK ──────────────────────────────────────────────────────────
 REST_FRAMEWORK = {

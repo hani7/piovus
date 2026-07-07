@@ -135,11 +135,18 @@ class BannerViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 # ─── Auth ─────────────────────────────────────────────────────────────────────
+from .recaptcha import verify_recaptcha
+
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
+        token = request.data.get('recaptcha_token')
+        valid, score = verify_recaptcha(token)
+        if not valid:
+            return Response({'error': 'La validation reCAPTCHA a échoué. Vous semblez être un robot.'}, status=status.HTTP_403_FORBIDDEN)
+            
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -157,6 +164,11 @@ class B2BRegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
+        token = request.data.get('recaptcha_token')
+        valid, score = verify_recaptcha(token)
+        if not valid:
+            return Response({'error': 'La validation reCAPTCHA a échoué.'}, status=status.HTTP_403_FORBIDDEN)
+            
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -175,6 +187,11 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        token = request.data.get('recaptcha_token')
+        valid, score = verify_recaptcha(token)
+        if not valid:
+            return Response({'error': 'La validation reCAPTCHA a échoué.'}, status=status.HTTP_403_FORBIDDEN)
+            
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(username=username, password=password)
@@ -491,6 +508,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         return OrderSerializer
 
     def create(self, request, *args, **kwargs):
+        token = request.data.get('recaptcha_token')
+        valid, score = verify_recaptcha(token)
+        if not valid:
+            return Response({'error': 'La validation reCAPTCHA a échoué. Votre commande n\'a pas pu être traitée.'}, status=status.HTTP_403_FORBIDDEN)
+            
         serializer = OrderCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data

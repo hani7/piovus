@@ -41,7 +41,7 @@ export default function LoyaltyPage() {
         <Link to="/compte" className="btn btn-outline">Retour au compte</Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: 32, alignItems: 'start' }}>
+      <div className="loyalty-grid">
         {/* Points & Progress */}
         <div className="premium-card" style={{ padding: 32, borderRadius: 16 }}>
           <h2 style={{ fontSize: '1.4rem', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>

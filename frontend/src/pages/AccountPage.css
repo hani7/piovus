@@ -338,3 +338,17 @@
     font-size: 1.8rem;
   }
 }
+
+/* Loyalty Page Grid */
+.loyalty-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .loyalty-grid {
+    grid-template-columns: 1fr;
+  }
+}

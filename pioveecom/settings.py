@@ -107,19 +107,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ─── CORS & CSRF ────────────────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'https://piovecosmetics.dz',
-    'https://www.piovecosmetics.dz',
-    'https://app.piovecosmetics.dz',
-    'https://api.piovecosmetics.dz',
-]
-# Allow extra origins from env var (comma-separated)
-_extra = os.environ.get('CORS_ALLOWED_ORIGINS', '')
-if _extra:
-    CORS_ALLOWED_ORIGINS += [o.strip() for o in _extra.split(',') if o.strip()]
-
+CORS_ALLOW_ALL_ORIGINS = True   # Allow all origins (same-owner frontend/backend)
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [

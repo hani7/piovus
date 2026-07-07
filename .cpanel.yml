@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - /home/piover97/virtualenv/zoro/3.12/bin/pip install -r /home/piover97/zoro/requirements.txt --quiet
-    - /home/piover97/virtualenv/zoro/3.12/bin/python /home/piover97/zoro/manage.py migrate --noinput 2>&1 || true
-    - mkdir -p /home/piover97/zoro/tmp
-    - touch /home/piover97/zoro/tmp/restart.txt
+    - /home/piover97/virtualenv/back/3.12/bin/pip install -r /home/piover97/back/requirements.txt --quiet
+    - /home/piover97/virtualenv/back/3.12/bin/python /home/piover97/back/manage.py migrate --noinput 2>&1 || true
+    - mkdir -p /home/piover97/back/tmp
+    - touch /home/piover97/back/tmp/restart.txt

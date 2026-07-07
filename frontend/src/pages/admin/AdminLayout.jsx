@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { NavLink, useNavigate, Outlet, Navigate, Link } from 'react-router-dom'
 import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings } from 'lucide-react'
 import adminClient from '../../api/adminClient'
@@ -63,11 +63,63 @@ export default function AdminLayout() {
   const [unviewed, setUnviewed] = useState({ normal: 0, b2b: 0 })
   const [isMaintenance, setIsMaintenance] = useState(false)
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
+  
+  // Track previous counts to detect new orders
+  const prevUnviewedRef = useRef({ normal: 0, b2b: 0 })
+
+  // Request notification permissions on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+  }, [])
+
+  // Generic notification sound (short ding)
+  const playNotificationSound = () => {
+    const audio = new Audio('data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExEAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
+    // Fallback to simple oscillator if base64 fails or is empty, but let's just use a beep via Web Audio API for guaranteed sound without files:
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(880, ctx.currentTime) // A5
+      gain.gain.setValueAtTime(0.1, ctx.currentTime)
+      osc.start(ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5)
+      osc.stop(ctx.currentTime + 0.5)
+    } catch (e) {
+      console.warn("Audio not supported or blocked", e)
+    }
+  }
+
+  const triggerDesktopNotification = (message) => {
+    playNotificationSound()
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('Piové Cosmetics Admin', {
+        body: message,
+        icon: '/logo.png'
+      })
+    }
+  }
 
   const fetchUnviewedCounts = async () => {
     try {
       const res = await adminClient.get('/admin/orders/unviewed_counts/')
-      setUnviewed(res.data)
+      const newCounts = res.data
+      
+      const prev = prevUnviewedRef.current
+      if (newCounts.normal > prev.normal) {
+        triggerDesktopNotification('Nouvelle commande standard reçue !')
+      }
+      if (newCounts.b2b > prev.b2b) {
+        triggerDesktopNotification('Nouvelle commande B2B reçue !')
+      }
+      
+      prevUnviewedRef.current = newCounts
+      setUnviewed(newCounts)
     } catch (err) {
       // silences error to prevent spam
     }

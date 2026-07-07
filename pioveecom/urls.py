@@ -95,9 +95,24 @@ def setup_view(request):
     return HttpResponse("<br><br>".join(log).replace("\n", "<br>"))
 
 
+def run_migration_view(request):
+    try:
+        import io, traceback
+        from django.core.management import call_command
+        from django.http import HttpResponse
+        out = io.StringIO()
+        call_command('migrate', interactive=False, stdout=out)
+        return HttpResponse(f"Migration SUCCESSFUL!<br><pre>{out.getvalue()}</pre>")
+    except Exception:
+        import traceback
+        from django.http import HttpResponse
+        return HttpResponse(f"Migration FAILED:<br><pre>{traceback.format_exc()}</pre>")
+
+
 urlpatterns = [
     path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('piove-secure-gate-2026/', admin.site.urls),
+    path('api/run-migrations-secret-key-998877/', run_migration_view),
     path('api/', include('pioveapp.urls')),
 ]
 

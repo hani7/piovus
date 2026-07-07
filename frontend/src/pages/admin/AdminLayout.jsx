@@ -64,15 +64,27 @@ export default function AdminLayout() {
   const [isMaintenance, setIsMaintenance] = useState(false)
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
   
-  // Track previous counts to detect new orders
-  const prevUnviewedRef = useRef({ normal: 0, b2b: 0 })
+  // Track previous counts to detect new orders. null means first load.
+  const prevUnviewedRef = useRef(null)
 
-  // Request notification permissions on mount
-  useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission()
+  const [notificationPerm, setNotificationPerm] = useState(
+    'Notification' in window ? Notification.permission : 'denied'
+  )
+
+  const requestNotificationPermission = () => {
+    if ('Notification' in window) {
+      Notification.requestPermission().then(perm => {
+        setNotificationPerm(perm)
+        if (perm === 'granted') {
+          playNotificationSound() // play a test sound
+          new Notification('Piové Cosmetics Admin', {
+            body: "Notifications activées avec succès !",
+            icon: '/logo.png'
+          })
+        }
+      })
     }
-  }, [])
+  }
 
   // Generic notification sound (short ding)
   const playNotificationSound = () => {
@@ -111,11 +123,13 @@ export default function AdminLayout() {
       const newCounts = res.data
       
       const prev = prevUnviewedRef.current
-      if (newCounts.normal > prev.normal) {
-        triggerDesktopNotification('Nouvelle commande standard reçue !')
-      }
-      if (newCounts.b2b > prev.b2b) {
-        triggerDesktopNotification('Nouvelle commande B2B reçue !')
+      if (prev !== null) {
+        if (newCounts.normal > prev.normal) {
+          triggerDesktopNotification('Nouvelle commande standard reçue !')
+        }
+        if (newCounts.b2b > prev.b2b) {
+          triggerDesktopNotification('Nouvelle commande B2B reçue !')
+        }
       }
       
       prevUnviewedRef.current = newCounts
@@ -294,9 +308,19 @@ export default function AdminLayout() {
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <button style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <button 
+                onClick={requestNotificationPermission}
+                title={notificationPerm === 'granted' ? "Notifications activées (Cliquer pour tester)" : "Activer les notifications"}
+                style={{ 
+                  background: 'none', border: 'none', 
+                  color: notificationPerm === 'granted' ? 'var(--admin-success)' : 'var(--admin-text-muted)', 
+                  cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' 
+                }}
+              >
                 <Bell size={20} />
-                <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: 'var(--admin-danger)', borderRadius: '50%', border: '2px solid var(--admin-surface)' }}></span>
+                {(unviewed.normal > 0 || unviewed.b2b > 0) && (
+                  <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: 'var(--admin-danger)', borderRadius: '50%', border: '2px solid var(--admin-surface)' }}></span>
+                )}
               </button>
               <div style={{ position: 'relative' }}>
                 <div className="admin-topbar-user" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} style={{ cursor: 'pointer' }}>

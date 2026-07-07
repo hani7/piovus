@@ -8,10 +8,14 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 import os
+from dotenv import load_dotenv
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-gz!&qj#^zt(hd%k-m6ruxtu3go83xrqhf+667th0^1w5k6bd++')
+# Load environment variables from .env file (if it exists)
+load_dotenv(BASE_DIR / '.env')
 
-DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
@@ -157,14 +161,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # ─── MYLERZ DELIVERY API ──────────────────────────────────────────────────────
 MYLERZ_BASE_URL = os.environ.get('MYLERZ_BASE_URL', 'https://integration.algeria.mylerz.net')
-MYLERZ_USERNAME = os.environ.get('MYLERZ_USERNAME', 'piovestore')
-MYLERZ_PASSWORD = os.environ.get('MYLERZ_PASSWORD', 'PioveShipping2025*')
-MYLERZ_WAREHOUSE_NAME = os.environ.get('MYLERZ_WAREHOUSE_NAME', 'piovestore')
+MYLERZ_USERNAME = os.environ.get('MYLERZ_USERNAME')
+MYLERZ_PASSWORD = os.environ.get('MYLERZ_PASSWORD')
+MYLERZ_WAREHOUSE_NAME = os.environ.get('MYLERZ_WAREHOUSE_NAME')
 
 # ─── SATIM (CIB/EDAHABIA) PAYMENT API ────────────────────────────────────────
-SATIM_USER_NAME = os.environ.get('SATIM_USER_NAME', 'SAT2606161972')
-SATIM_PASSWORD = os.environ.get('SATIM_PASSWORD', 'satim120')
-SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID', 'E010903300')
+SATIM_USER_NAME = os.environ.get('SATIM_USER_NAME')
+SATIM_PASSWORD = os.environ.get('SATIM_PASSWORD')
+SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID')
 SATIM_BASE_URL = os.environ.get('SATIM_BASE_URL', 'https://test2.satim.dz/payment/rest')
 
 # ─── UPLOAD SIZE LIMITS (video support) ──────────────────────────────────────

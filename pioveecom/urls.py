@@ -96,9 +96,7 @@ def setup_view(request):
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/run-migrations/', run_migration_view),
-    path('api/setup/', setup_view),
+    path('piove-secure-gate-2026/', admin.site.urls),
     path('api/', include('pioveapp.urls')),
 ]
 

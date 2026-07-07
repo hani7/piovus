@@ -32,8 +32,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'django_filters',
-    # Security Apps
-    'axes',
     # Local
     'pioveapp',
 ]
@@ -49,7 +47,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'axes.middleware.AxesMiddleware',
 ]
 
 X_FRAME_OPTIONS = 'DENY'
@@ -74,13 +71,10 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
 
 # ─── AXES (Anti-Brute Force) ─────────────────────────────────────────────────
-AUTHENTICATION_BACKENDS = [
-    'axes.backends.AxesStandaloneBackend',
-    'django.contrib.auth.backends.ModelBackend',
-]
-AXES_FAILURE_LIMIT = 5
-AXES_COOLOFF_TIME = 24  # Hours before unlock
-AXES_LOCKOUT_TEMPLATE = '403.html'
+# Axes removed to prevent 500 error if not installed on cPanel
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',
+# ]
 
 ROOT_URLCONF = 'pioveecom.urls'
 

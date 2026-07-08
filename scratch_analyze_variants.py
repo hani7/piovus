@@ -2,7 +2,7 @@ import csv
 import sqlite3
 
 csv_path = r"C:\Users\PC\Downloads\wc-product-export-fixed.csv"
-db_path = r"C:\Users\PC\Documents\piove\db.sqlite3"
+db_path = r"C:\Users\PC\Documents\piove\db (4).sqlite3"
 
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
@@ -38,37 +38,46 @@ with open(csv_path, encoding='utf-8-sig') as f:
     for row in reader:
         if row.get('Type') == 'variation':
             total_csv_variants += 1
-            parent_id = row.get('Parent')
-            if parent_id in csv_parent_map:
-                parent_name_lower = csv_parent_map[parent_id]
-                # Find product_id in Django DB
-                django_product_id = django_products.get(parent_name_lower)
+            full_variant_name = row.get('Nom', row.get('Name', ''))
+            
+            # The parent name is everything before " - "
+            if ' - ' in full_variant_name:
+                parent_name_raw = full_variant_name.rsplit(' - ', 1)[0].strip()
+                variant_name_raw = full_variant_name.rsplit(' - ', 1)[1].strip()
+            else:
+                continue # Can't infer parent name
                 
-                if django_product_id:
-                    full_variant_name = row.get('Nom', row.get('Name', ''))
-                    # Usually WooCommerce variant names are "Parent Name - Variant"
-                    variant_name = full_variant_name.split('-')[-1].strip() if '-' in full_variant_name else full_variant_name
+            parent_name_lower = parent_name_raw.lower()
+            django_product_id = django_products.get(parent_name_lower)
+            
+            if django_product_id:
+                existing_vars = django_variants.get(django_product_id, set())
+                if variant_name_raw.lower() not in existing_vars:
+                    # Insert this variant!
+                    image_url = row.get('Images', '')
+                    price = row.get('Tarif promo', '') or row.get('Tarif rgulier', '') or 200.0
                     
-                    # Check if this variant exists in Django
-                    existing_vars = django_variants.get(django_product_id, set())
-                    if variant_name.lower() not in existing_vars:
-                        missing_variants.append({
-                            'django_product_id': django_product_id,
-                            'parent_name': parent_name_lower,
-                            'variant_name': variant_name,
-                            'image': row.get('Images', ''),
-                            'price': row.get('Tarif promo', '') or row.get('Tarif rgulier', '') or 200.0
-                        })
-                else:
-                    print(f"WARNING: Parent product '{parent_name_lower}' not found in Django DB.")
+                    cursor.execute("SELECT MAX(id) FROM pioveapp_productvariant")
+                    max_id = (cursor.fetchone()[0] or 0) + 1
+                    
+                    cursor.execute("""
+                        INSERT INTO pioveapp_productvariant 
+                        (id, product_id, name, color_hex, is_available, price, image, stock, sku) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        max_id, 
+                        django_product_id, 
+                        variant_name_raw, 
+                        image_url, 
+                        1, 
+                        float(price),
+                        image_url,
+                        10,
+                        variant_name_raw
+                    ))
+                    
+                    missing_variants.append(variant_name_raw)
 
-print(f"Total variants in CSV: {total_csv_variants}")
-print(f"Total MISSING variants in Django DB: {len(missing_variants)}")
-
-# Print a summary of missing variants per product
-missing_summary = {}
-for mv in missing_variants:
-    missing_summary[mv['parent_name']] = missing_summary.get(mv['parent_name'], 0) + 1
-
-for name, count in missing_summary.items():
-    print(f"- {name.title()}: {count} missing variants")
+conn.commit()
+conn.close()
+print(f"Successfully inserted {len(missing_variants)} missing variants into db (4).sqlite3!")

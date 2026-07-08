@@ -309,20 +309,36 @@ export default function ProductPage() {
                   )}
                 </p>
                 <div className="product-info__swatches">
-                  {product.variants.filter(v => v.is_available !== false).map((v) => (
-                    <button
-                      key={v.id}
-                      className={`swatch ${selectedVariant?.id === v.id ? 'swatch--active' : ''}`}
-                      style={{
-                        background: v.color_hex?.startsWith('http')
-                          ? `url(${v.color_hex}) center/cover`
-                          : (v.color_hex || '#cccccc')
-                      }}
-                      onClick={() => handleVariantSelect(v)}
-                      title={v.name}
-                      id={`variant-${v.id}`}
-                    />
-                  ))}
+                  {product.variants.filter(v => v.is_available !== false).map((v) => {
+                    const isImage = v.color_hex?.startsWith('http');
+                    const code = v.name.split(' ')[0];
+                    return (
+                      <button
+                        key={v.id}
+                        className={`swatch ${selectedVariant?.id === v.id ? 'swatch--active' : ''}`}
+                        style={{
+                          background: isImage ? '#f0f0f0' : (v.color_hex || '#cccccc'),
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}
+                        onClick={() => handleVariantSelect(v)}
+                        title={v.name}
+                        id={`variant-${v.id}`}
+                      >
+                        {isImage && (
+                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 'bold', color: '#555', position: 'absolute', top: 0, left: 0 }}>
+                            {code}
+                            <img 
+                              src={v.color_hex} 
+                              alt={code}
+                              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                              onError={(e) => { e.target.style.display = 'none'; }}
+                            />
+                          </div>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             )}

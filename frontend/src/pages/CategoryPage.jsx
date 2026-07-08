@@ -9,12 +9,14 @@ export default function CategoryPage() {
   const [products, setProducts] = useState([])
   const [category, setCategory] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isFetching, setIsFetching] = useState(false)
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
   const [categoryBanners, setCategoryBanners] = useState([])
 
   useEffect(() => {
-    setLoading(true)
+    if (!category || category.slug !== slug) setLoading(true)
+    setIsFetching(true)
     Promise.all([
       getProductsByCategory(slug, { page }), 
       getCategories(),
@@ -35,7 +37,7 @@ export default function CategoryPage() {
         return currentCat && b.category === currentCat.id
       })
       setCategoryBanners(validBanners)
-    }).finally(() => setLoading(false))
+    }).finally(() => { setLoading(false); setIsFetching(false) })
   }, [slug, page])
 
   useEffect(() => {
@@ -67,10 +69,10 @@ export default function CategoryPage() {
         </div>
       )}
 
-      <div className="container" style={{padding: categoryBanners.length > 0 ? '40px var(--gutter) 80px' : '40px var(--gutter) 80px'}}>
+      <div className="container" style={{padding: categoryBanners.length > 0 ? '40px var(--gutter) 80px' : '40px var(--gutter) 80px', position: 'relative'}}>
 
         {loading ? <div className="spinner" /> : (
-          <>
+          <div style={{ opacity: isFetching ? 0.5 : 1, transition: 'opacity 0.2s', pointerEvents: isFetching ? 'none' : 'auto' }}>
             <div className="products-grid">
               {products.map((p) => <ProductCard key={p.id} product={p} />)}
             </div>
@@ -112,7 +114,7 @@ export default function CategoryPage() {
                 >Suivant →</button>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </main>

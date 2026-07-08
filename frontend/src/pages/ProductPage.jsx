@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useLocation } from 'react-router-dom'
 import { getProduct, getRelatedProducts } from '../api/products'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
@@ -8,8 +8,12 @@ import './ProductPage.css'
 
 export default function ProductPage() {
   const { slug } = useParams()
-  const [product, setProduct] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const location = useLocation()
+  const initialProduct = location.state?.initialProduct
+
+  const [product, setProduct] = useState(initialProduct || null)
+  const [loading, setLoading] = useState(!initialProduct)
+  const [isFetching, setIsFetching] = useState(false)
   const [error, setError] = useState(null)
   const [selectedVariant, setSelectedVariant] = useState(null)
   const [selectedImage, setSelectedImage] = useState(0)
@@ -29,14 +33,15 @@ export default function ProductPage() {
   }, [product, isB2B])
 
   useEffect(() => {
-    setLoading(true)
+    if (!product) setLoading(true)
+    setIsFetching(true)
     getProduct(slug)
       .then((r) => {
         setProduct(r.data)
         if (r.data.variants?.length > 0) setSelectedVariant(r.data.variants[0])
       })
-      .catch(() => setError('Produit introuvable.'))
-      .finally(() => setLoading(false))
+      .catch(() => { if (!product) setError('Produit introuvable.') })
+      .finally(() => { setLoading(false); setIsFetching(false) })
 
     getRelatedProducts(slug)
       .then((r) => setRelatedProducts(r))

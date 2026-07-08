@@ -19,7 +19,7 @@ export default function ProductCard({ product }) {
   const handleAddToCart = (e) => {
     e.preventDefault()
     if (hasVariants) {
-      navigate(`/produit/${product.slug}`)
+      navigate(`/produit/${product.slug}`, { state: { initialProduct: product } })
       return
     }
     addItem(product, null, 1)
@@ -31,7 +31,7 @@ export default function ProductCard({ product }) {
   const handleBuyNow = (e) => {
     e.preventDefault()
     if (hasVariants) {
-      navigate(`/produit/${product.slug}`)
+      navigate(`/produit/${product.slug}`, { state: { initialProduct: product } })
       return
     }
     addItem(product, null, 1)
@@ -41,7 +41,7 @@ export default function ProductCard({ product }) {
   return (
     <article className="product-card">
       <div className="product-card__image-wrap" id={`product-${product.id}`}>
-        <Link to={`/produit/${product.slug}`} style={{ display: 'block', width: '100%', height: '100%' }}>
+        <Link to={`/produit/${product.slug}`} state={{ initialProduct: product }} style={{ display: 'block', width: '100%', height: '100%' }}>
           {product.thumbnail ? (
             <img src={product.thumbnail} alt={product.name} className="product-card__img" loading="lazy" />
           ) : (
@@ -62,7 +62,7 @@ export default function ProductCard({ product }) {
       <div className="product-card__body">
         <p className="product-card__category">{product.categories?.[0]?.name}</p>
         <h3 className="product-card__name">
-          <Link to={`/produit/${product.slug}`}>{product.name}</Link>
+          <Link to={`/produit/${product.slug}`} state={{ initialProduct: product }}>{product.name}</Link>
         </h3>
         <div className="product-card__pricing">
           {isB2B ? (
@@ -104,7 +104,7 @@ export default function ProductCard({ product }) {
           <button className="product-card__action-btn" title="Ajouter au panier" onClick={(e) => { e.preventDefault(); handleAddToCart(e); }}>
             <ShoppingBag size={18} />
           </button>
-          <Link to={`/produit/${product.slug}`} className="product-card__action-btn" title="Aperçu">
+          <Link to={`/produit/${product.slug}`} state={{ initialProduct: product }} className="product-card__action-btn" title="Aperçu">
             <Eye size={18} />
           </Link>
         </div>

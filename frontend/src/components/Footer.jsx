@@ -59,7 +59,10 @@ export default function Footer() {
           <Link to="/compte">Mon Compte</Link>
           <Link to="/compte/commandes">Mes Commandes</Link>
           <Link to="/cart">Mon Panier</Link>
-          <a href="tel:+213000000000">+213 00 00 00 000</a>
+          <a href="tel:+213770263494">0770 26 34 94</a>
+          <p style={{ marginTop: '10px', fontSize: '0.9rem', color: 'var(--color-gray-500)', lineHeight: '1.4' }}>
+            N°29/A Zone d’activités<br/>Zeralda, Alger
+          </p>
           <a href="mailto:contact@piovecosmetics.dz">contact@piovecosmetics.dz</a>
         </div>
 
@@ -87,7 +90,7 @@ export default function Footer() {
 
       <div className="footer__bottom container">
         <p>© {new Date().getFullYear()} Piové Cosmetics. Tous droits réservés.</p>
-        <p>Fait avec ♥ en Algérie</p>
+        <p>Conception et développement <a href="https://wa.me/213783773657" target="_blank" rel="noreferrer" style={{color: '#006045', fontWeight: 'bold', textDecoration: 'none'}}>B Tech</a></p>
       </div>
     </footer>
   )

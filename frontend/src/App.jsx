@@ -21,6 +21,10 @@ import PromoPopup from './components/PromoPopup'
 import SideBanners from './components/SideBanners'
 import MaintenancePage from './pages/MaintenancePage'
 import PaymentResultPage from './pages/PaymentResultPage'
+import AboutPage from './pages/AboutPage'
+import ContactPage from './pages/ContactPage'
+import ShippingPage from './pages/ShippingPage'
+import FaqPage from './pages/FaqPage'
 
 // Admin
 import AdminLogin from './pages/admin/AdminLogin'
@@ -117,6 +121,10 @@ export default function App() {
         <Route path="/compte/fidelite" element={<LoyaltyPage />} />
         <Route path="/compte/parametres" element={<SettingsPage />} />
         <Route path="/payment-result" element={<PaymentResultPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/livraison" element={<ShippingPage />} />
+        <Route path="/faq" element={<FaqPage />} />
 
         {/* Admin */}
         <Route path="/admin-panel/login" element={<AdminLogin />} />

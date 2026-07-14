@@ -50,6 +50,10 @@ body {
   overflow-x: hidden;
 }
 
+/* espace avant footer sur toutes les pages */
+main { margin-bottom: 50px; }
+
+
 /* 50px space before footer on all pages */
 main { margin-bottom: 50px; }
 img { display: block; max-width: 100%; }

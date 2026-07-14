@@ -226,7 +226,7 @@
 @media (max-width: 768px) {
   .product-info__actions {
     position: fixed;
-    bottom: 60px; /* Above the MobileBottomNav */
+    bottom: 80px; /* Increased from 60px to give more space above MobileBottomNav */
     left: 0;
     right: 0;
     background: white;

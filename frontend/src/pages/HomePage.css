@@ -15,6 +15,12 @@
   overflow: hidden;
   transition: background 0.8s ease;
 }
+@media (max-width: 768px) {
+  .hero { min-height: 60vh; }
+}
+@media (max-width: 480px) {
+  .hero { min-height: 55vh; max-height: 70vh; }
+}
 
 .hero--1 {
   background: linear-gradient(135deg, #1a0a0e 0%, #3d1520 40%, #2a0d14 100%);
@@ -232,7 +238,7 @@
   .best-sellers-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
 }
 @media (max-width: 400px) {
-  .best-sellers-grid { grid-template-columns: 1fr; }
+  .best-sellers-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
 .best-sellers-cta {
   display: flex;

@@ -72,26 +72,33 @@ export default function ProductCarousel({ title, products, isLoading, className 
           <h2 className="carousel-title">{title.toUpperCase()}</h2>
         </div>
       )}
-      <div className="carousel-container container">
+      <div className="carousel-outer">
+        {/* Arrow LEFT — outside cards */}
         <button className="carousel-btn left" onClick={() => scroll('left')} aria-label="Défiler à gauche">
-          <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <svg width="40" height="40" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <div className="carousel-track" ref={scrollRef} onScroll={handleScroll}>
-          {products.map(p => (
-            <div className="carousel-item" key={p.id}>
-              <ProductCard product={p} />
-            </div>
-          ))}
+
+        {/* Cards track */}
+        <div className="carousel-track-wrapper container">
+          <div className="carousel-track" ref={scrollRef} onScroll={handleScroll}>
+            {products.map(p => (
+              <div className="carousel-item" key={p.id}>
+                <ProductCard product={p} />
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Arrow RIGHT — outside cards */}
         <button className="carousel-btn right" onClick={() => scroll('right')} aria-label="Défiler à droite">
-          <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <svg width="40" height="40" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </button>
       </div>
-      
+
       {dotsCount > 1 && (
         <div className="carousel-dots">
           {Array.from({ length: dotsCount }).map((_, i) => (

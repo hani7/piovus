@@ -46,7 +46,7 @@
 /* ─── Arrow buttons — OUTSIDE the card area ──────────────────────────────── */
 .product-carousel-btn {
   flex-shrink: 0;
-  width: 64px;
+  width: 80px;
   background: none;
   border: none;
   padding: 0;
@@ -63,13 +63,13 @@
 
 /* Tablet */
 @media (max-width: 768px) {
-  .product-carousel-btn { width: 44px; }
-  .product-carousel-btn svg { width: 36px !important; height: 36px !important; }
+  .product-carousel-btn { width: 60px; }
+  .product-carousel-btn svg { width: 48px !important; height: 48px !important; }
 }
 /* Mobile */
 @media (max-width: 480px) {
-  .product-carousel-btn { width: 34px; }
-  .product-carousel-btn svg { width: 28px !important; height: 28px !important; }
+  .product-carousel-btn { width: 48px; }
+  .product-carousel-btn svg { width: 40px !important; height: 40px !important; }
 }
 
 /* ─── Carousel items ──────────────────────────────────────────────────────── */

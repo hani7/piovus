@@ -44,7 +44,7 @@
 .carousel-track::-webkit-scrollbar { display: none; }
 
 /* ─── Arrow buttons — OUTSIDE the card area ──────────────────────────────── */
-.carousel-btn {
+.product-carousel-btn {
   flex-shrink: 0;
   width: 64px;
   background: none;
@@ -57,19 +57,19 @@
   opacity: 1;
   transition: transform 0.15s;
 }
-.carousel-btn:hover { transform: scale(1.15); }
-.carousel-btn.left  { justify-content: flex-start; }
-.carousel-btn.right { justify-content: flex-end; }
+.product-carousel-btn:hover { transform: scale(1.15); }
+.product-carousel-btn.left  { justify-content: flex-start; }
+.product-carousel-btn.right { justify-content: flex-end; }
 
 /* Tablet */
 @media (max-width: 768px) {
-  .carousel-btn { width: 44px; }
-  .carousel-btn svg { width: 36px !important; height: 36px !important; }
+  .product-carousel-btn { width: 44px; }
+  .product-carousel-btn svg { width: 36px !important; height: 36px !important; }
 }
 /* Mobile */
 @media (max-width: 480px) {
-  .carousel-btn { width: 34px; }
-  .carousel-btn svg { width: 28px !important; height: 28px !important; }
+  .product-carousel-btn { width: 34px; }
+  .product-carousel-btn svg { width: 28px !important; height: 28px !important; }
 }
 
 /* ─── Carousel items ──────────────────────────────────────────────────────── */
@@ -124,8 +124,11 @@
   background-color: #ffffff;
   border-color: rgba(0,0,0,0.1);
 }
-.promo-carousel-theme .carousel-btn {
+.promo-carousel-theme .product-carousel-btn {
   color: #fff;
+}
+.promo-carousel-theme .product-carousel-btn svg {
+  stroke: #fff;
 }
 .promo-carousel-theme .carousel-dot { background: rgba(255,255,255,0.4); }
 .promo-carousel-theme .carousel-dot.active { background: #fff; }

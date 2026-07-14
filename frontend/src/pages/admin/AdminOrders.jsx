@@ -360,7 +360,7 @@ export default function AdminOrders({ isB2B = false }) {
                     <th>#</th><th>Client</th><th>Contact</th><th>Wilaya</th>
                     <th>T.Produits</th>
                   <th>Livraison</th>
-                  <th>Delivery</th><th>Total</th>
+                  <th>Total</th>
                     <th>Paiement</th><th>Statut</th><th>Origine</th><th>Date</th><th>Actions</th>
                   </tr>
                 </thead>
@@ -384,7 +384,6 @@ export default function AdminOrders({ isB2B = false }) {
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem' }}>{o.wilaya || '—'}</td>
                     <td style={{ fontWeight: 600 }}>{Number(o.total).toLocaleString('fr-DZ')} DA</td>
                     <td style={{ color: 'var(--color-gray-500)' }}>{Number(o.delivery_cost).toLocaleString('fr-DZ')} DA</td>
-                    <td style={{ color: 'var(--color-gray-500)', fontSize: '0.85rem' }}>{o.delivery_company_name || '—'}</td>
                     <td style={{ fontWeight: 700, color: 'var(--color-black)' }}>{(Number(o.total) + Number(o.delivery_cost)).toLocaleString('fr-DZ')} DA</td>
                     <td>
                       {o.payment_method === 'cib' ? (

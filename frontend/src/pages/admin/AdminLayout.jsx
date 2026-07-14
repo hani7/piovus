@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useNavigate, Outlet, Navigate, Link } from 'react-router-dom'
-import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings } from 'lucide-react'
+import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings, Film } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 import './admin.css'
 import CommandMenu from './CommandMenu'
@@ -49,6 +49,7 @@ export const NAV_ITEMS = [
   {
     section: 'Configuration',
     links: [
+      { to: '/admin-panel/mediatheque', label: 'Médiathèque', icon: <Film size={20} /> },
       { to: '/admin-panel/settings', label: 'Paramètres', icon: <Settings size={20} /> },
     ]
   },

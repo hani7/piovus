@@ -74,7 +74,7 @@ export default function ProductCarousel({ title, products, isLoading, className 
       )}
       <div className="carousel-container container">
         <button className="carousel-btn left" onClick={() => scroll('left')} aria-label="Défiler à gauche">
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+          <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
@@ -86,7 +86,7 @@ export default function ProductCarousel({ title, products, isLoading, className 
           ))}
         </div>
         <button className="carousel-btn right" onClick={() => scroll('right')} aria-label="Défiler à droite">
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+          <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </button>

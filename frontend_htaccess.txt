@@ -1,0 +1,17 @@
+Options -MultiViews
+RewriteEngine On
+
+# React SPA — renvoie tout vers index.html (sauf fichiers existants)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [QSA,L]
+
+# Cache des assets statiques
+<FilesMatch "\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|ico|webp)$">
+    Header set Cache-Control "max-age=31536000, public, immutable"
+</FilesMatch>
+
+# Pas de cache pour index.html
+<FilesMatch "index\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+</FilesMatch>

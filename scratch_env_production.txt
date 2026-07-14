@@ -1,0 +1,19 @@
+# ============================================================
+# PIOVE COSMETICS — .env PRODUCTION SERVEUR
+# Placer ce fichier dans le dossier "piovus 2" sur le serveur
+# NE PAS commiter dans git
+# ============================================================
+
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=app.piovecosmetics.dz,api.piovecosmetics.dz,piovecosmetics.dz,www.piovecosmetics.dz
+
+SECRET_KEY=piove-prod-secret-key-change-this-to-something-random-2025
+
+FRONTEND_URL=https://app.piovecosmetics.dz
+API_URL=https://api.piovecosmetics.dz
+
+# SATIM CIB / Edahabia — Credentials Production
+SATIM_USER_NAME=piovecosmetics9ktupK4I0
+SATIM_PASSWORD=k5H0UwV4P0lIv3hD
+SATIM_TERMINAL_ID=E002000032
+SATIM_BASE_URL=https://cib.satim.dz/payment/rest

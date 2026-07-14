@@ -31,15 +31,16 @@
   background: none;
   border: none;
   border-radius: 0;
-  padding: 8px;
+  padding: 4px 2px;
   color: #000;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
-  transition: color 0.2s, transform 0.2s;
+  transition: opacity 0.2s, transform 0.15s;
   box-shadow: none;
+  opacity: 0.75;
 }
 
 .carousel-btn.left {
@@ -51,8 +52,8 @@
 }
 
 .carousel-btn:hover {
-  color: var(--color-accent, #c9485b);
-  transform: scale(1.2);
+  opacity: 1;
+  transform: scaleX(1.15);
 }
 
 .carousel-track {

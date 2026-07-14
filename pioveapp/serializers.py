@@ -336,6 +336,7 @@ class AdminOrderSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     customer_name = serializers.SerializerMethodField()
     is_blacklisted = serializers.SerializerMethodField()
+    source = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -358,6 +359,10 @@ class AdminOrderSerializer(serializers.ModelSerializer):
         if obj.customer:
             return obj.customer.is_blacklisted
         return False
+
+    def get_source(self, obj):
+        # Safe fallback in case column doesn't exist on production DB yet
+        return getattr(obj, 'source', '') or ''
 
 
 class AdminOrderStatusSerializer(serializers.ModelSerializer):

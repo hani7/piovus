@@ -16,8 +16,12 @@ except ImportError:
     pass
 
 SECRET_KEY = os.environ.get('SECRET_KEY') or os.environ.get('DJANGO_SECRET_KEY') or 'django-insecure-fallback-key-123456'
-DEBUG = True #os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+
+# Frontend URL (used in SATIM callback redirect)
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://piovecosmetics.dz')
+API_URL = os.environ.get('API_URL', 'https://api.piovecosmetics.dz')
 
 # Application definition
 INSTALLED_APPS = [
@@ -202,7 +206,9 @@ MYLERZ_WAREHOUSE_NAME = os.environ.get('MYLERZ_WAREHOUSE_NAME')
 SATIM_USER_NAME = os.environ.get('SATIM_USER_NAME')
 SATIM_PASSWORD = os.environ.get('SATIM_PASSWORD')
 SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID')
-SATIM_BASE_URL = os.environ.get('SATIM_BASE_URL', 'https://test2.satim.dz/payment/rest')
+# Production: https://cib.satim.dz/payment/rest
+# Test/sandbox: https://test2.satim.dz/payment/rest
+SATIM_BASE_URL = os.environ.get('SATIM_BASE_URL', 'https://cib.satim.dz/payment/rest')
 
 # ─── UPLOAD SIZE LIMITS (video support) ──────────────────────────────────────
 DATA_UPLOAD_MAX_MEMORY_SIZE = 209715200   # 200MB

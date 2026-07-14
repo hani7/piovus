@@ -10,6 +10,7 @@ export default function LoyaltyPage() {
   const [copiedCode, setCopiedCode] = useState(null)
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     if (!user) {
       navigate('/compte')
       return

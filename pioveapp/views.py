@@ -58,7 +58,14 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.filter(is_active=True).prefetch_related('categories', 'images', 'variants', 'reviews')
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['categories__slug', 'is_featured', 'is_new']
+    filterset_fields = {
+        'categories__slug': ['exact'],
+        'is_featured': ['exact'],
+        'is_new': ['exact'],
+        'is_bestseller': ['exact'],
+        'is_promotion': ['exact'],
+        'price': ['gte', 'lte'],
+    }
     search_fields = ['name', 'description']
     ordering_fields = ['price', 'created_at', 'name']
     ordering = ['-is_featured', '-created_at']

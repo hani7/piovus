@@ -25,6 +25,10 @@ export default function ShopPage() {
   const isBestSellers = searchParams.get('best_sellers') === 'true'
   const sortBy = searchParams.get('sort') || (isBestSellers ? '-total_sold' : '-created_at')
   const showNew = searchParams.get('new') === 'true'
+  const minPrice = searchParams.get('min_price') || ''
+  const maxPrice = searchParams.get('max_price') || ''
+  const filterBestseller = searchParams.get('bestseller') === 'true'
+  const filterPromo = searchParams.get('promo') === 'true'
 
   const fetchProducts = useCallback(() => {
     setLoading(true)
@@ -33,6 +37,10 @@ export default function ShopPage() {
     if (searchQuery) params.search = searchQuery
     if (showNew) params.is_new = true
     if (isBestSellers) params.ordering = '-total_sold'
+    if (minPrice) params.price__gte = minPrice
+    if (maxPrice) params.price__lte = maxPrice
+    if (filterBestseller) params.is_bestseller = true
+    if (filterPromo) params.is_promotion = true
 
     getProducts(params)
       .then((r) => {
@@ -40,7 +48,7 @@ export default function ShopPage() {
         setTotalCount(r.data.count || r.data.length)
       })
       .finally(() => setLoading(false))
-  }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, page])
+  }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, page, minPrice, maxPrice, filterBestseller, filterPromo])
 
   useEffect(() => {
     getCategories().then((r) => setCategories(r.data.results || r.data))
@@ -48,7 +56,7 @@ export default function ShopPage() {
 
   useEffect(() => {
     setPage(1)
-  }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers])
+  }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, minPrice, maxPrice, filterBestseller, filterPromo])
 
   useEffect(() => {
     fetchProducts()
@@ -117,21 +125,63 @@ export default function ShopPage() {
             ))}
           </div>
 
-          {/* New only */}
+          {/* Price */}
           <div className="shop-filters__section">
-            <label className="shop-filters__toggle" htmlFor="filter-new">
+            <p className="shop-filters__label">Prix (DA)</p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="number"
+                className="form-input"
+                placeholder="Min"
+                value={minPrice}
+                onChange={(e) => updateParam('min_price', e.target.value)}
+                style={{ width: '100%', padding: '8px' }}
+              />
+              <input
+                type="number"
+                className="form-input"
+                placeholder="Max"
+                value={maxPrice}
+                onChange={(e) => updateParam('max_price', e.target.value)}
+                style={{ width: '100%', padding: '8px' }}
+              />
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="shop-filters__section">
+            <p className="shop-filters__label">Filtres spéciaux</p>
+            <label className="shop-filters__toggle" htmlFor="filter-bestseller" style={{ marginBottom: '12px', display: 'flex', alignItems: 'center' }}>
+              <input
+                type="checkbox"
+                id="filter-bestseller"
+                checked={filterBestseller}
+                onChange={(e) => updateParam('bestseller', e.target.checked ? 'true' : '')}
+              />
+              <span>Best Sellers</span>
+            </label>
+            <label className="shop-filters__toggle" htmlFor="filter-promo" style={{ marginBottom: '12px', display: 'flex', alignItems: 'center' }}>
+              <input
+                type="checkbox"
+                id="filter-promo"
+                checked={filterPromo}
+                onChange={(e) => updateParam('promo', e.target.checked ? 'true' : '')}
+              />
+              <span>En promotion</span>
+            </label>
+            <label className="shop-filters__toggle" htmlFor="filter-new" style={{ display: 'flex', alignItems: 'center' }}>
               <input
                 type="checkbox"
                 id="filter-new"
                 checked={showNew}
                 onChange={(e) => updateParam('new', e.target.checked ? 'true' : '')}
               />
-              <span>Nouvelles arrivées uniquement</span>
+              <span>Nouveautés</span>
             </label>
           </div>
 
           {/* Reset */}
-          {(selectedCategory || searchQuery || showNew) && (
+          {(selectedCategory || searchQuery || showNew || minPrice || maxPrice || filterBestseller || filterPromo) && (
             <button
               className="btn btn-outline shop-filters__reset"
               onClick={() => setSearchParams({})}

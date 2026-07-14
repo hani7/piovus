@@ -46,23 +46,26 @@ export default function CategoryPage() {
 
   return (
     <main className="category-page page-enter">
-      <div className="category-page__hero">
-        <div className="container">
+      {/* ── Hero Banner (admin-managed) ── */}
+      <div
+        className="category-page__hero"
+        style={{
+          backgroundImage: categoryBanners.length > 0 ? `url(${categoryBanners[0].image})` : 'none',
+        }}
+      >
+        <div className="category-page__hero-overlay" />
+        <div className="category-page__hero-content">
           <h1 className="category-page__title">{category?.name || slug}</h1>
         </div>
       </div>
 
-      {/* ── Bannières de Catégorie (Full Width ou Contenues) ── */}
-      {categoryBanners.length > 0 && (
+      {/* Banners supp (2e, 3e...) en dessous si plusieurs */}
+      {categoryBanners.length > 1 && (
         <div className="container">
-          <div className="category-banners" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {categoryBanners.map(banner => (
-              <a key={banner.id} href={banner.cta_url || '#'} className="category-banner-link" style={{ display: 'block', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                <img 
-                  src={banner.image} 
-                  alt={banner.title} 
-                  style={{ width: '100%', height: 'auto', maxHeight: '350px', objectFit: 'cover', display: 'block' }} 
-                />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '24px' }}>
+            {categoryBanners.slice(1).map(banner => (
+              <a key={banner.id} href={banner.cta_url || '#'} style={{ display: 'block', borderRadius: '12px', overflow: 'hidden' }}>
+                <img src={banner.image} alt={banner.title} style={{ width: '100%', height: 'auto', maxHeight: '300px', objectFit: 'cover', display: 'block' }} />
               </a>
             ))}
           </div>

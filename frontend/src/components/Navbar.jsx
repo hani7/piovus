@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
-import { getCategories } from '../api/products'
+import { getCategories, getProducts } from '../api/products'
 import CartDrawer from './CartDrawer'
 import './Navbar.css'
 
@@ -12,8 +12,11 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
+  const [suggestions, setSuggestions] = useState([])
+  const [sugLoading, setSugLoading] = useState(false)
   const [categories, setCategories] = useState([])
   const searchRef = useRef(null)
+  const searchWrapRef = useRef(null)
   const navigate = useNavigate()
   const cartCount = useCartStore((s) => s.items.reduce((n, i) => n + i.quantity, 0))
   const { user, logout } = useAuthStore()
@@ -29,13 +32,45 @@ export default function Navbar() {
     if (searchOpen) searchRef.current?.focus()
   }, [searchOpen])
 
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target)) {
+        setSuggestions([])
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  // Debounced live search
+  useEffect(() => {
+    if (query.trim().length < 3) { setSuggestions([]); return }
+    const timer = setTimeout(() => {
+      setSugLoading(true)
+      getProducts({ search: query.trim(), page_size: 6 })
+        .then(r => setSuggestions(r.data.results || r.data || []))
+        .catch(() => setSuggestions([]))
+        .finally(() => setSugLoading(false))
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [query])
+
   const handleSearch = (e) => {
     e.preventDefault()
     if (query.trim()) {
       navigate(`/shop?search=${encodeURIComponent(query.trim())}`)
       setQuery('')
+      setSuggestions([])
       setSearchOpen(false)
     }
+  }
+
+  const goToProduct = (slug) => {
+    navigate(`/product/${slug}`)
+    setQuery('')
+    setSuggestions([])
+    setSearchOpen(false)
   }
 
   const closeSidebar = () => setSidebarOpen(false)
@@ -93,18 +128,57 @@ export default function Navbar() {
 
         {/* Search bar */}
         <div className={`navbar__search-bar ${searchOpen ? 'navbar__search-bar--open' : ''}`}>
-          <form onSubmit={handleSearch} className="container">
-            <input
-              ref={searchRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Rechercher un produit..."
-              id="search-input"
-            />
-            <button type="submit" id="search-submit-btn">Rechercher</button>
-            <button type="button" onClick={() => setSearchOpen(false)} className="search-close-btn" id="search-close-btn">✕</button>
-          </form>
+          <div ref={searchWrapRef} className="navbar__search-wrap">
+            <form onSubmit={handleSearch} className="container">
+              <input
+                ref={searchRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Rechercher un produit..."
+                id="search-input"
+                autoComplete="off"
+              />
+              <button type="submit" id="search-submit-btn">Rechercher</button>
+              <button type="button" onClick={() => { setSearchOpen(false); setSuggestions([]) }} className="search-close-btn" id="search-close-btn">✕</button>
+            </form>
+
+            {/* Suggestions dropdown */}
+            {query.trim().length >= 3 && (
+              <div className="search-suggestions">
+                {sugLoading && (
+                  <div className="search-sug-loading">Recherche...</div>
+                )}
+                {!sugLoading && suggestions.length === 0 && (
+                  <div className="search-sug-empty">Aucun résultat pour « {query} »</div>
+                )}
+                {!sugLoading && suggestions.map(p => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className="search-sug-item"
+                    onMouseDown={() => goToProduct(p.slug)}
+                  >
+                    <div className="search-sug-img">
+                      {p.thumbnail
+                        ? <img src={p.thumbnail} alt={p.name} />
+                        : <span className="search-sug-no-img">💄</span>
+                      }
+                    </div>
+                    <div className="search-sug-info">
+                      <span className="search-sug-name">{p.name}</span>
+                      <span className="search-sug-price">{Number(p.price).toLocaleString('fr-DZ')} DA</span>
+                    </div>
+                  </button>
+                ))}
+                {!sugLoading && suggestions.length > 0 && (
+                  <button type="button" className="search-sug-all" onMouseDown={handleSearch}>
+                    Voir tous les résultats pour « {query} »
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </header>
 

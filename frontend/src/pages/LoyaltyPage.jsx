@@ -12,10 +12,10 @@ export default function LoyaltyPage() {
   useEffect(() => {
     if (!user) {
       navigate('/compte')
-    } else {
-      refreshUser() // always fetch fresh points & coupons
+      return
     }
-  }, [user, navigate, refreshUser])
+    refreshUser()
+  }, []) // run once on mount only
 
   if (!user) return null
 

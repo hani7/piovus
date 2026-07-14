@@ -123,11 +123,14 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  padding-top: 10px;
   margin-bottom: 8px;
 }
 .product-info__share {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
+  margin-top: 0;
 }
 .product-info__share button {
   background: none;

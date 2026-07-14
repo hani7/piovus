@@ -78,12 +78,14 @@ export default function HomePage() {
 
         {/* Button above dots */}
         <div className="hero__bottom">
-          <Link to={heroBanners[slide].cta_url || '/shop'} className="btn btn-accent hero__cta">
-            {heroBanners[slide].cta_label || 'Découvrir'}
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginLeft: '8px' }}>
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-            </svg>
-          </Link>
+          {(heroBanners[slide].cta_label || heroBanners[slide].cta_url) && (
+            <Link to={heroBanners[slide].cta_url || '/shop'} className="btn btn-accent hero__cta">
+              {heroBanners[slide].cta_label || 'Découvrir'}
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginLeft: '8px' }}>
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </Link>
+          )}
 
           {heroBanners.length > 1 && (
             <div className="hero__dots">

@@ -6,7 +6,7 @@ import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { LayoutDashboard, Package, MapPin, Settings, LogOut, ChevronRight, Gift } from 'lucide-react'
 import './AccountPage.css'
 
-const GOOGLE_CLIENT_ID = "GOOGLE_CLIENT_ID_PLACEHOLDER"
+const GOOGLE_CLIENT_ID = "746718168962-ff9ui2vodk8emeioidd6ka5ai1p9qjos.apps.googleusercontent.com"
 const FACEBOOK_APP_ID = "FACEBOOK_APP_ID_PLACEHOLDER"
 
 export default function AccountPage() {
@@ -190,20 +190,37 @@ export default function AccountPage() {
   )
 
   return (
-    <main className="account-page page-enter container" style={{ paddingTop: '120px' }}>
-      <div className="auth-container">
-        <div className="auth-tabs">
-          <button className={`auth-tab ${activeTab === 'login' ? 'active' : ''}`} onClick={() => setActiveTab('login')} id="tab-login">Connexion</button>
-          <button className={`auth-tab ${activeTab === 'register' ? 'active' : ''}`} onClick={() => setActiveTab('register')} id="tab-register">Inscription</button>
-          <button className={`auth-tab ${activeTab === 'b2b' ? 'active' : ''}`} onClick={() => setActiveTab('b2b')} id="tab-b2b">Professionnel (B2B)</button>
-        </div>
+    <main className="account-page page-enter" style={{ paddingTop: '120px' }}>
 
-        {error && <div className="auth-error">{error}</div>}
+      {/* ── Tabs ────────────────────────────────────────────── */}
+      <div className="auth-tabs-row">
+        <button
+          className={`auth-tab-pill ${activeTab === 'login' ? 'active' : ''}`}
+          onClick={() => setActiveTab('login')}
+          id="tab-login"
+        >Connexion</button>
+        <button
+          className={`auth-tab-pill ${activeTab === 'register' ? 'active' : ''}`}
+          onClick={() => setActiveTab('register')}
+          id="tab-register"
+        >Inscription Client</button>
+        {/* B2B tab hidden for now */}
+        <button
+          className={`auth-tab-pill ${activeTab === 'b2b' ? 'active' : ''}`}
+          onClick={() => setActiveTab('b2b')}
+          id="tab-b2b"
+          style={{ display: 'none' }}
+        >Inscription B2B</button>
+      </div>
 
-        {activeTab === 'login' && (
-          <form className="auth-form" onSubmit={handleLogin} id="form-login">
+      {error && <div className="auth-error container" style={{ maxWidth: 520, margin: '0 auto 16px' }}>{error}</div>}
+
+      {/* ── LOGIN ─────────────────────────────────────────────── */}
+      {activeTab === 'login' && (
+        <div className="container auth-single-wrap">
+          <form className="auth-form-card" onSubmit={handleLogin} id="form-login">
             <div className="form-group">
-              <label className="form-label" htmlFor="login_username">Nom d'utilisateur</label>
+              <label className="form-label" htmlFor="login_username">Nom d'utilisateur ou Email</label>
               <input className="form-input" id="login_username" value={loginForm.username} onChange={(e) => setLoginForm({...loginForm, username: e.target.value})} required />
             </div>
             <div className="form-group">
@@ -215,98 +232,117 @@ export default function AccountPage() {
             </button>
             {SocialButtons()}
           </form>
-        )}
+        </div>
+      )}
 
-        {activeTab === 'register' && (
-          <form className="auth-form" onSubmit={handleRegister} id="form-register">
-            <div className="checkout-grid-2">
-              <div className="form-group">
-                <label className="form-label" htmlFor="first_name">Prénom *</label>
-                <input className="form-input" id="first_name" value={registerForm.first_name} onChange={(e) => setRegisterForm({...registerForm, first_name: e.target.value})} required />
+      {/* ── INSCRIPTION CLIENT (B2C) ─────────────────────────── */}
+      {activeTab === 'register' && (
+        <div className="container auth-single-wrap">
+          <form className="auth-form-card" onSubmit={handleRegister} id="form-register">
+              <div className="checkout-grid-2">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="first_name">Prénom *</label>
+                  <input className="form-input" id="first_name" value={registerForm.first_name} onChange={(e) => setRegisterForm({...registerForm, first_name: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="last_name">Nom *</label>
+                  <input className="form-input" id="last_name" value={registerForm.last_name} onChange={(e) => setRegisterForm({...registerForm, last_name: e.target.value})} required />
+                </div>
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="last_name">Nom *</label>
-                <input className="form-input" id="last_name" value={registerForm.last_name} onChange={(e) => setRegisterForm({...registerForm, last_name: e.target.value})} required />
+                <label className="form-label" htmlFor="username">Nom d'utilisateur *</label>
+                <input className="form-input" id="username" value={registerForm.username} onChange={(e) => setRegisterForm({...registerForm, username: e.target.value})} required />
               </div>
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="username">Nom d'utilisateur *</label>
-              <input className="form-input" id="username" value={registerForm.username} onChange={(e) => setRegisterForm({...registerForm, username: e.target.value})} required />
-            </div>
-            <div className="checkout-grid-2">
-              <div className="form-group">
-                <label className="form-label" htmlFor="email">Email *</label>
-                <input className="form-input" type="email" id="email" value={registerForm.email} onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})} required />
+              <div className="checkout-grid-2">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="email">Email *</label>
+                  <input className="form-input" type="email" id="email" value={registerForm.email} onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="phone">Téléphone *</label>
+                  <input className="form-input" id="phone" value={registerForm.phone} onChange={(e) => setRegisterForm({...registerForm, phone: e.target.value})} required />
+                </div>
               </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="phone">Téléphone *</label>
-                <input className="form-input" id="phone" value={registerForm.phone} onChange={(e) => setRegisterForm({...registerForm, phone: e.target.value})} required />
+              <div className="checkout-grid-2">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="password">Mot de passe *</label>
+                  <input className="form-input" type="password" id="password" value={registerForm.password} onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="password2">Confirmer *</label>
+                  <input className="form-input" type="password" id="password2" value={registerForm.password2} onChange={(e) => setRegisterForm({...registerForm, password2: e.target.value})} required />
+                </div>
               </div>
-            </div>
-            <div className="checkout-grid-2">
-              <div className="form-group">
-                <label className="form-label" htmlFor="password">Mot de passe *</label>
-                <input className="form-input" type="password" id="password" value={registerForm.password} onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="password2">Confirmer *</label>
-                <input className="form-input" type="password" id="password2" value={registerForm.password2} onChange={(e) => setRegisterForm({...registerForm, password2: e.target.value})} required />
-              </div>
-            </div>
-            <button type="submit" className="btn btn-black auth-submit" disabled={isLoading} id="btn-register">
-              {isLoading ? 'Inscription...' : "S'inscrire"}
-            </button>
-            {SocialButtons()}
-          </form>
-        )}
+              <button type="submit" className="btn btn-black auth-submit" disabled={isLoading} id="btn-register">
+                {isLoading ? 'Inscription...' : "S'inscrire"}
+              </button>
+              {SocialButtons()}
+            </form>
+        </div>
+      )}
 
-        {activeTab === 'b2b' && (
-          <form className="auth-form" onSubmit={handleRegisterB2B} id="form-b2b">
-            <div className="checkout-grid-2">
+      {/* ── INSCRIPTION B2B ──────────────────────────────────── */}
+      {activeTab === 'b2b' && (
+        <div className="container auth-single-wrap">
+          <form className="auth-form-card" onSubmit={handleRegisterB2B} id="form-b2b">
               <div className="form-group">
-                <label className="form-label" htmlFor="b2b_first_name">Prénom *</label>
-                <input className="form-input" id="b2b_first_name" value={b2bForm.first_name} onChange={(e) => setB2bForm({...b2bForm, first_name: e.target.value})} required />
+                <label className="form-label" htmlFor="company_name">Nom de l'entreprise *</label>
+                <input className="form-input" id="company_name" value={b2bForm.company_name} onChange={(e) => setB2bForm({...b2bForm, company_name: e.target.value})} required />
+              </div>
+              <div className="checkout-grid-2">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="nrc">Registre de Commerce (RC)</label>
+                  <input className="form-input" id="nrc" value={b2bForm.nrc} onChange={(e) => setB2bForm({...b2bForm, nrc: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="nif">NIF *</label>
+                  <input className="form-input" id="nif" value={b2bForm.nif} onChange={(e) => setB2bForm({...b2bForm, nif: e.target.value})} required />
+                </div>
+              </div>
+              <div className="checkout-grid-2">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="b2b_first_name">Prénom *</label>
+                  <input className="form-input" id="b2b_first_name" value={b2bForm.first_name} onChange={(e) => setB2bForm({...b2bForm, first_name: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="b2b_last_name">Nom *</label>
+                  <input className="form-input" id="b2b_last_name" value={b2bForm.last_name} onChange={(e) => setB2bForm({...b2bForm, last_name: e.target.value})} required />
+                </div>
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="b2b_last_name">Nom *</label>
-                <input className="form-input" id="b2b_last_name" value={b2bForm.last_name} onChange={(e) => setB2bForm({...b2bForm, last_name: e.target.value})} required />
+                <label className="form-label" htmlFor="b2b_username">Nom d'utilisateur *</label>
+                <input className="form-input" id="b2b_username" value={b2bForm.username} onChange={(e) => setB2bForm({...b2bForm, username: e.target.value})} required />
               </div>
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="b2b_username">Nom d'utilisateur *</label>
-              <input className="form-input" id="b2b_username" value={b2bForm.username} onChange={(e) => setB2bForm({...b2bForm, username: e.target.value})} required />
-            </div>
-            <div className="checkout-grid-2">
+              <div className="checkout-grid-2">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="b2b_email">Email *</label>
+                  <input className="form-input" type="email" id="b2b_email" value={b2bForm.email} onChange={(e) => setB2bForm({...b2bForm, email: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="b2b_phone">Téléphone *</label>
+                  <input className="form-input" id="b2b_phone" value={b2bForm.phone} onChange={(e) => setB2bForm({...b2bForm, phone: e.target.value})} required />
+                </div>
+              </div>
+              <div className="checkout-grid-2">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="b2b_password">Mot de passe *</label>
+                  <input className="form-input" type="password" id="b2b_password" value={b2bForm.password} onChange={(e) => setB2bForm({...b2bForm, password: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="b2b_password2">Confirmer *</label>
+                  <input className="form-input" type="password" id="b2b_password2" value={b2bForm.password2} onChange={(e) => setB2bForm({...b2bForm, password2: e.target.value})} required />
+                </div>
+              </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="b2b_email">Email *</label>
-                <input className="form-input" type="email" id="b2b_email" value={b2bForm.email} onChange={(e) => setB2bForm({...b2bForm, email: e.target.value})} required />
+                <label className="form-label" htmlFor="b2b_nrc_file">Copie du Registre de Commerce (Image/PDF) *</label>
+                <input className="form-input" type="file" id="b2b_nrc_file" accept=".pdf,image/*" onChange={(e) => setB2bForm({...b2bForm, nrc_file: e.target.files[0]})} required style={{ padding: '9px 12px' }} />
               </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="b2b_phone">Téléphone *</label>
-                <input className="form-input" id="b2b_phone" value={b2bForm.phone} onChange={(e) => setB2bForm({...b2bForm, phone: e.target.value})} required />
-              </div>
-            </div>
-            <div className="checkout-grid-2">
-              <div className="form-group">
-                <label className="form-label" htmlFor="b2b_password">Mot de passe *</label>
-                <input className="form-input" type="password" id="b2b_password" value={b2bForm.password} onChange={(e) => setB2bForm({...b2bForm, password: e.target.value})} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="b2b_password2">Confirmer *</label>
-                <input className="form-input" type="password" id="b2b_password2" value={b2bForm.password2} onChange={(e) => setB2bForm({...b2bForm, password2: e.target.value})} required />
-              </div>
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="b2b_nrc_file">Copie du Registre de Commerce (Image/PDF) *</label>
-              <input className="form-input" type="file" id="b2b_nrc_file" accept=".pdf,image/*" onChange={(e) => setB2bForm({...b2bForm, nrc_file: e.target.files[0]})} required style={{ padding: '9px 12px' }} />
-            </div>
-
-            <button type="submit" className="btn btn-black auth-submit" disabled={isLoading} id="btn-register-b2b">
-              {isLoading ? 'Envoi...' : "Demander un compte Pro"}
-            </button>
-          </form>
-        )}
-      </div>
+              <button type="submit" className="btn btn-black auth-submit" disabled={isLoading} id="btn-register-b2b">
+                {isLoading ? 'Envoi...' : "Demander un compte Pro"}
+              </button>
+            </form>
+        </div>
+      )}
     </main>
   )
 }

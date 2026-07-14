@@ -1,15 +1,52 @@
 .category-page { padding-top: var(--navbar-height); }
+
+/* ── Hero Banner ───────────────────────────────────────── */
 .category-page__hero {
-  background: transparent;
-  color: var(--color-black);
-  padding: 40px 0 0;
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background-color: #111;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+/* Dark overlay on top of image */
+.category-page__hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  z-index: 1;
+}
+
+/* Content: centered title */
+.category-page__hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
 .category-page__title {
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 400;
-  margin-bottom: 8px;
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.4);
+  margin: 0;
 }
+
+/* No banner = smaller plain dark hero */
+.category-page__hero:not([style*="url"]) {
+  height: 140px;
+  background: #111;
+}
+
 .category-page__count {
   font-size: 0.82rem;
   color: var(--color-muted);

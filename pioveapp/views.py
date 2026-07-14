@@ -711,26 +711,37 @@ class AdminDashboardView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        total_orders = Order.objects.count()
+        from django.db.models import Q
+
+        # ── Statuses that represent real revenue ─────────────────────────────
+        # COD: confirmed, shipped, fulfilled (not pending — not paid yet)
+        # SATIM/CIB: payment_status = 'paid' (callback confirmed)
+        REVENUE_Q = (
+            Q(payment_method='cash', status__in=['confirmed', 'shipped', 'fulfilled']) |
+            Q(payment_method='cib', payment_status='paid')
+        )
+
+        total_orders   = Order.objects.count()
         pending_orders = Order.objects.filter(status='pending').count()
-        
-        # Revenues
-        total_revenue = Order.objects.exclude(status='cancelled').aggregate(rev=Sum('total'))['rev'] or 0
-        
+
+        # Revenues — only real confirmed/paid orders
+        total_revenue  = Order.objects.filter(REVENUE_Q).aggregate(rev=Sum('total'))['rev'] or 0
+
         today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        daily_revenue = Order.objects.filter(created_at__gte=today).exclude(status='cancelled').aggregate(rev=Sum('total'))['rev'] or 0
-        
+        daily_revenue = Order.objects.filter(REVENUE_Q, created_at__gte=today).aggregate(rev=Sum('total'))['rev'] or 0
+
         seven_days_ago = timezone.now() - timedelta(days=6)
         seven_days_ago_start = seven_days_ago.replace(hour=0, minute=0, second=0, microsecond=0)
-        weekly_revenue = Order.objects.filter(created_at__gte=seven_days_ago_start).exclude(status='cancelled').aggregate(rev=Sum('total'))['rev'] or 0
+        weekly_revenue = Order.objects.filter(REVENUE_Q, created_at__gte=seven_days_ago_start).aggregate(rev=Sum('total'))['rev'] or 0
 
         # AOV & Conversion Rate
-        average_order_value = float(total_revenue) / total_orders if total_orders > 0 else 0
+        confirmed_count = Order.objects.filter(REVENUE_Q).count()
+        average_order_value = float(total_revenue) / confirmed_count if confirmed_count > 0 else 0
         total_customers = Customer.objects.count()
         conversion_rate = (total_orders / total_customers * 100) if total_customers > 0 else 0
 
-        total_products = Product.objects.count()
-        active_products = Product.objects.filter(is_active=True).count()
+        total_products   = Product.objects.count()
+        active_products  = Product.objects.filter(is_active=True).count()
         total_categories = Category.objects.count()
 
         recent_orders = Order.objects.select_related('user', 'customer').prefetch_related('items').order_by('-created_at')[:10]
@@ -740,7 +751,7 @@ class AdminDashboardView(APIView):
         out_of_stock_products = Product.objects.filter(stock__lte=F('min_stock_alert')).values('id', 'name', 'stock')[:10]
         out_of_stock_variants = ProductVariant.objects.filter(stock__lte=F('product__min_stock_alert')).select_related('product')[:10]
         out_of_stock_list = list(out_of_stock_products) + [{'id': v.product.id, 'name': f"{v.product.name} ({v.name})", 'stock': v.stock} for v in out_of_stock_variants]
-        
+
         fraud_orders = Order.objects.filter(status='pending', customer__is_blacklisted=True).order_by('-created_at')[:10]
         fraud_serialized = AdminOrderSerializer(fraud_orders, many=True).data
 
@@ -749,38 +760,45 @@ class AdminDashboardView(APIView):
             s: Order.objects.filter(status=s).count()
             for s, _ in Order.STATUS_CHOICES
         }
+        # Add payment breakdown
+        payment_counts = {
+            'satim_paid':    Order.objects.filter(payment_method='cib', payment_status='paid').count(),
+            'satim_pending': Order.objects.filter(payment_method='cib', payment_status='unpaid').count(),
+            'cod_total':     Order.objects.filter(payment_method='cash').count(),
+        }
 
-        # 7-day trends
+        # 7-day trends (only real revenue)
         recent_trend_orders = Order.objects.filter(created_at__gte=seven_days_ago_start)
-        
+
         trends = []
         for i in range(7):
             d = (seven_days_ago_start + timedelta(days=i)).date()
             day_orders = recent_trend_orders.filter(created_at__date=d)
             trends.append({
                 'date': d.strftime('%Y-%m-%d'),
-                'revenue': float(day_orders.exclude(status='cancelled').aggregate(r=Sum('total'))['r'] or 0),
+                'revenue': float(day_orders.filter(REVENUE_Q).aggregate(r=Sum('total'))['r'] or 0),
                 'orders': day_orders.count()
             })
 
         return Response({
-            'total_orders': total_orders,
-            'pending_orders': pending_orders,
-            'total_revenue': float(total_revenue),
-            'daily_revenue': float(daily_revenue),
-            'weekly_revenue': float(weekly_revenue),
+            'total_orders':        total_orders,
+            'pending_orders':      pending_orders,
+            'total_revenue':       float(total_revenue),
+            'daily_revenue':       float(daily_revenue),
+            'weekly_revenue':      float(weekly_revenue),
             'average_order_value': float(average_order_value),
-            'conversion_rate': float(conversion_rate),
-            'total_products': total_products,
-            'active_products': active_products,
-            'total_categories': total_categories,
-            'status_counts': status_counts,
-            'recent_orders': recent_serialized,
+            'conversion_rate':     float(conversion_rate),
+            'total_products':      total_products,
+            'active_products':     active_products,
+            'total_categories':    total_categories,
+            'status_counts':       status_counts,
+            'payment_counts':      payment_counts,
+            'recent_orders':       recent_serialized,
             'urgent_alerts': {
                 'out_of_stock': out_of_stock_list[:10],
                 'fraud_orders': fraud_serialized,
             },
-            'trends': trends,
+            'trends':          trends,
             'total_customers': total_customers,
         })
 

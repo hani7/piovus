@@ -1,56 +1,56 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import client from './api/client'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import MobileBottomNav from './components/MobileBottomNav'
-import HomePage from './pages/HomePage'
-import B2BHomePage from './pages/B2BHomePage'
-import ShopPage from './pages/ShopPage'
+const HomePage = lazy(() => import('./pages/HomePage'))
+const B2BHomePage = lazy(() => import('./pages/B2BHomePage'))
+const ShopPage = lazy(() => import('./pages/ShopPage'))
 import { useAuthStore } from './store/authStore'
-import ProductPage from './pages/ProductPage'
-import CategoryPage from './pages/CategoryPage'
-import CartPage from './pages/CartPage'
-import CheckoutPage from './pages/CheckoutPage'
-import AccountPage from './pages/AccountPage'
-import OrdersPage from './pages/OrdersPage'
-import AddressesPage from './pages/AddressesPage'
-import SettingsPage from './pages/SettingsPage'
-import LoyaltyPage from './pages/LoyaltyPage'
+const ProductPage = lazy(() => import('./pages/ProductPage'))
+const CategoryPage = lazy(() => import('./pages/CategoryPage'))
+const CartPage = lazy(() => import('./pages/CartPage'))
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'))
+const AccountPage = lazy(() => import('./pages/AccountPage'))
+const OrdersPage = lazy(() => import('./pages/OrdersPage'))
+const AddressesPage = lazy(() => import('./pages/AddressesPage'))
+const SettingsPage = lazy(() => import('./pages/SettingsPage'))
+const LoyaltyPage = lazy(() => import('./pages/LoyaltyPage'))
 import PromoBanner from './components/PromoBanner'
 import PromoPopup from './components/PromoPopup'
 import SideBanners from './components/SideBanners'
-import MaintenancePage from './pages/MaintenancePage'
-import PaymentResultPage from './pages/PaymentResultPage'
-import AboutPage from './pages/AboutPage'
-import ContactPage from './pages/ContactPage'
-import ShippingPage from './pages/ShippingPage'
-import FaqPage from './pages/FaqPage'
-import PrivacyPage from './pages/PrivacyPage'
-import TermsPage from './pages/TermsPage'
+const MaintenancePage = lazy(() => import('./pages/MaintenancePage'))
+const PaymentResultPage = lazy(() => import('./pages/PaymentResultPage'))
+const AboutPage = lazy(() => import('./pages/AboutPage'))
+const ContactPage = lazy(() => import('./pages/ContactPage'))
+const ShippingPage = lazy(() => import('./pages/ShippingPage'))
+const FaqPage = lazy(() => import('./pages/FaqPage'))
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
+const TermsPage = lazy(() => import('./pages/TermsPage'))
 
 // Admin
-import AdminLogin from './pages/admin/AdminLogin'
-import AdminLayout from './pages/admin/AdminLayout'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import AdminProducts from './pages/admin/AdminProducts'
-import AdminCategories from './pages/admin/AdminCategories'
-import AdminOrders from './pages/admin/AdminOrders'
-import AdminOrderCreate from './pages/admin/AdminOrderCreate'
-import AdminOrderDetail from './pages/admin/AdminOrderDetail'
-import AdminBanners from './pages/admin/AdminBanners'
-import AdminDeliveryCompanies from './pages/admin/AdminDeliveryCompanies'
-import AdminDeliveryRates from './pages/admin/AdminDeliveryRates'
-import AdminB2BDeliveryRates from './pages/admin/AdminB2BDeliveryRates'
-import AdminCustomers from './pages/admin/AdminCustomers'
-import AdminBlacklist from './pages/admin/AdminBlacklist'
-import AdminB2BRequests from './pages/admin/AdminB2BRequests'
-import AdminNewsletter from './pages/admin/AdminNewsletter'
-import AdminCoupons from './pages/admin/AdminCoupons'
-import AdminReports from './pages/admin/AdminReports'
-import AdminUserHistory from './pages/admin/AdminUserHistory'
-import AdminSettings from './pages/admin/AdminSettings'
-import AdminMediatheque from './pages/admin/AdminMediatheque'
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'))
+const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'))
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'))
+const AdminOrderCreate = lazy(() => import('./pages/admin/AdminOrderCreate'))
+const AdminOrderDetail = lazy(() => import('./pages/admin/AdminOrderDetail'))
+const AdminBanners = lazy(() => import('./pages/admin/AdminBanners'))
+const AdminDeliveryCompanies = lazy(() => import('./pages/admin/AdminDeliveryCompanies'))
+const AdminDeliveryRates = lazy(() => import('./pages/admin/AdminDeliveryRates'))
+const AdminB2BDeliveryRates = lazy(() => import('./pages/admin/AdminB2BDeliveryRates'))
+const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'))
+const AdminBlacklist = lazy(() => import('./pages/admin/AdminBlacklist'))
+const AdminB2BRequests = lazy(() => import('./pages/admin/AdminB2BRequests'))
+const AdminNewsletter = lazy(() => import('./pages/admin/AdminNewsletter'))
+const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'))
+const AdminReports = lazy(() => import('./pages/admin/AdminReports'))
+const AdminUserHistory = lazy(() => import('./pages/admin/AdminUserHistory'))
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
+const AdminMediatheque = lazy(() => import('./pages/admin/AdminMediatheque'))
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -111,53 +111,55 @@ export default function App() {
       {!isAdmin && <PromoBanner />}
       {!isAdmin && <Navbar />}
       {!isAdmin && <SideBanners />}
-      <Routes>
-        {/* Public store */}
-        <Route path="/" element={isB2B ? <B2BHomePage /> : <HomePage />} />
-        <Route path="/shop" element={<ShopPage />} />
-        <Route path="/produit/:slug" element={<ProductPage />} />
-        <Route path="/category/:slug" element={<CategoryPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/compte" element={<AccountPage />} />
-        <Route path="/compte/commandes" element={<OrdersPage />} />
-        <Route path="/compte/adresses" element={<AddressesPage />} />
-        <Route path="/compte/fidelite" element={<LoyaltyPage />} />
-        <Route path="/compte/parametres" element={<SettingsPage />} />
-        <Route path="/payment-result" element={<PaymentResultPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/livraison" element={<ShippingPage />} />
-        <Route path="/faq" element={<FaqPage />} />
-        <Route path="/confidentialite" element={<PrivacyPage />} />
-        <Route path="/conditions" element={<TermsPage />} />
+      <Suspense fallback={<div style={{height:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}>Chargement...</div>}>
+        <Routes>
+          {/* Public store */}
+          <Route path="/" element={isB2B ? <B2BHomePage /> : <HomePage />} />
+          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/produit/:slug" element={<ProductPage />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/compte" element={<AccountPage />} />
+          <Route path="/compte/commandes" element={<OrdersPage />} />
+          <Route path="/compte/adresses" element={<AddressesPage />} />
+          <Route path="/compte/fidelite" element={<LoyaltyPage />} />
+          <Route path="/compte/parametres" element={<SettingsPage />} />
+          <Route path="/payment-result" element={<PaymentResultPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/livraison" element={<ShippingPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+          <Route path="/confidentialite" element={<PrivacyPage />} />
+          <Route path="/conditions" element={<TermsPage />} />
 
-        {/* Admin */}
-        <Route path="/admin-panel/login" element={<AdminLogin />} />
-        <Route path="/admin-panel" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="categories" element={<AdminCategories />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="orders-b2b" element={<AdminOrders isB2B={true} />} />
-          <Route path="orders/new" element={<AdminOrderCreate isB2B={false} />} />
-          <Route path="orders-b2b/new" element={<AdminOrderCreate isB2B={true} />} />
-          <Route path="orders/:id" element={<AdminOrderDetail />} />
-          <Route path="banners" element={<AdminBanners />} />
-          <Route path="delivery-companies" element={<AdminDeliveryCompanies />} />
-          <Route path="delivery-rates" element={<AdminDeliveryRates />} />
-          <Route path="b2b-delivery-rates" element={<AdminB2BDeliveryRates />} />
-          <Route path="customers" element={<AdminCustomers />} />
-          <Route path="coupons" element={<AdminCoupons />} />
-          <Route path="b2b-requests" element={<AdminB2BRequests />} />
-          <Route path="blacklist" element={<AdminBlacklist />} />
-          <Route path="newsletter" element={<AdminNewsletter />} />
-          <Route path="reports" element={<AdminReports />} />
-          <Route path="history" element={<AdminUserHistory />} />
-          <Route path="mediatheque" element={<AdminMediatheque />} />
-          <Route path="settings" element={<AdminSettings />} />
-        </Route>
-      </Routes>
+          {/* Admin */}
+          <Route path="/admin-panel/login" element={<AdminLogin />} />
+          <Route path="/admin-panel" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="categories" element={<AdminCategories />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="orders-b2b" element={<AdminOrders isB2B={true} />} />
+            <Route path="orders/new" element={<AdminOrderCreate isB2B={false} />} />
+            <Route path="orders-b2b/new" element={<AdminOrderCreate isB2B={true} />} />
+            <Route path="orders/:id" element={<AdminOrderDetail />} />
+            <Route path="banners" element={<AdminBanners />} />
+            <Route path="delivery-companies" element={<AdminDeliveryCompanies />} />
+            <Route path="delivery-rates" element={<AdminDeliveryRates />} />
+            <Route path="b2b-delivery-rates" element={<AdminB2BDeliveryRates />} />
+            <Route path="customers" element={<AdminCustomers />} />
+            <Route path="coupons" element={<AdminCoupons />} />
+            <Route path="b2b-requests" element={<AdminB2BRequests />} />
+            <Route path="blacklist" element={<AdminBlacklist />} />
+            <Route path="newsletter" element={<AdminNewsletter />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="history" element={<AdminUserHistory />} />
+            <Route path="mediatheque" element={<AdminMediatheque />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+        </Routes>
+      </Suspense>
       {!isAdmin && <MobileBottomNav />}
       {!isAdmin && <Footer />}
       {!isAdmin && pathname === '/' && <PromoPopup />}

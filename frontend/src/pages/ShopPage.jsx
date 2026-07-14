@@ -29,7 +29,7 @@ export default function ShopPage() {
   const fetchProducts = useCallback(() => {
     setLoading(true)
     const params = { ordering: sortBy, page }
-    if (selectedCategory) params['category__slug'] = selectedCategory
+    if (selectedCategory) params['categories__slug'] = selectedCategory
     if (searchQuery) params.search = searchQuery
     if (showNew) params.is_new = true
     if (isBestSellers) params.ordering = '-total_sold'
@@ -113,7 +113,6 @@ export default function ShopPage() {
                 id={`filter-cat-${c.slug}`}
               >
                 {c.name}
-                <span>{c.product_count}</span>
               </button>
             ))}
           </div>

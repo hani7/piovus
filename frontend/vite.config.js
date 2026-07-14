@@ -21,11 +21,21 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom') || id.includes('zustand') || id.includes('axios')) {
+              return 'vendor';
+            }
+            if (id.includes('recharts')) {
+              return 'charts';
+            }
+            if (id.includes('xlsx')) {
+              return 'excel';
+            }
+          }
+        }
       }
     }
   }

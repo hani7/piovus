@@ -37,7 +37,18 @@
   .footer__top { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 580px) {
-  .footer__top { grid-template-columns: 1fr; }
+  .footer__top { 
+    grid-template-columns: 1fr; 
+    padding-top: 40px;
+    padding-bottom: 20px;
+  }
+  .footer__bottom {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
 }
 
 .footer__logo {

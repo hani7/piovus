@@ -68,8 +68,7 @@
 }
 /* Mobile */
 @media (max-width: 480px) {
-  .product-carousel-btn { width: 48px; }
-  .product-carousel-btn svg { width: 40px !important; height: 40px !important; }
+  .product-carousel-btn { display: none; }
 }
 
 /* ─── Carousel items ──────────────────────────────────────────────────────── */
@@ -81,7 +80,7 @@
 @media (max-width: 992px)  { .carousel-item { flex: 0 0 calc(33.333% - 1rem); } }
 @media (max-width: 768px)  { .carousel-item { flex: 0 0 calc(50% - 0.75rem); } }
 @media (max-width: 480px)  {
-  .carousel-item { flex: 0 0 calc(50% - 0.375rem); }
+  .carousel-item { flex: 0 0 calc(65% - 0.375rem); }
   .carousel-track { gap: 0.75rem; }
 }
 

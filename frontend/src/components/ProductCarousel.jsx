@@ -75,7 +75,7 @@ export default function ProductCarousel({ title, products, isLoading, className 
       <div className="carousel-outer">
         {/* Arrow LEFT — outside cards */}
         <button className="product-carousel-btn left" onClick={() => scroll('left')} aria-label="Défiler à gauche">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
@@ -93,7 +93,7 @@ export default function ProductCarousel({ title, products, isLoading, className 
 
         {/* Arrow RIGHT — outside cards */}
         <button className="product-carousel-btn right" onClick={() => scroll('right')} aria-label="Défiler à droite">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </button>

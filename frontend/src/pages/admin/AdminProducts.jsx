@@ -457,7 +457,7 @@ export default function AdminProducts() {
 
                 <div className="form-group">
                   <label>Petite description <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>(affichée sous la contenance)</span></label>
-                  <input className="form-control" value={form.short_description} onChange={e => setForm(f => ({ ...f, short_description: e.target.value }))} placeholder="Ex: Longue durée, résistant à l'eau..." maxLength={300} />
+                  <textarea className="form-control" rows={3} value={form.short_description} onChange={e => setForm(f => ({ ...f, short_description: e.target.value }))} placeholder="Ex: Longue durée, résistant à l'eau..." maxLength={300} style={{ resize: 'vertical', minHeight: '72px' }} />
                   <small style={{ color: 'var(--admin-text-muted)' }}>{(form.short_description || '').length}/300</small>
                 </div>
 

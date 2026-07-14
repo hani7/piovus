@@ -14,6 +14,7 @@ export default function AdminCustomers() {
   const [profileModalId, setProfileModalId] = useState(null)
   const [profileData, setProfileData] = useState(null)
   const [profileLoading, setProfileLoading] = useState(false)
+  const [selectedIds, setSelectedIds] = useState([])
 
   useEffect(() => {
     fetchCustomers(searchTerm, filterType, segment)
@@ -71,6 +72,35 @@ export default function AdminCustomers() {
     }
   }
 
+  const handleSelectAll = (e) => {
+    if (e.target.checked) setSelectedIds(customers.map(c => c.id))
+    else setSelectedIds([])
+  }
+
+  const handleSelect = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Supprimer ${selectedIds.length} client(s) ? Cette action est irréversible.`)) return
+    try {
+      await adminClient.post('/admin/customers/bulk_delete/', { ids: selectedIds })
+      setSelectedIds([])
+      fetchCustomers(searchTerm, filterType, segment)
+    } catch (err) {
+      alert('Erreur lors de la suppression.')
+    }
+  }
+
+  const handleDeleteSingle = async (id) => {
+    if (!window.confirm('Supprimer ce client ? Cette action est irréversible.')) return
+    try {
+      await adminClient.delete(`/admin/customers/${id}/`)
+      fetchCustomers(searchTerm, filterType, segment)
+    } catch (err) {
+      alert('Erreur lors de la suppression.')
+    }
+  }
 
 
   if (loading && customers.length === 0) return <div className="admin-loading"><div className="spinner" /></div>
@@ -80,6 +110,15 @@ export default function AdminCustomers() {
     <div className="admin-page">
       <div className="admin-page-header">
         <h2>Tous les clients</h2>
+        {selectedIds.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--admin-text-muted)' }}>{selectedIds.length} sélectionné(s)</span>
+            <button
+              onClick={handleBulkDelete}
+              style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: 20, padding: '6px 16px', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}
+            >Supprimer la sélection</button>
+          </div>
+        )}
       </div>
 
       <div className="admin-toolbar" style={{ marginBottom: 12 }}>
@@ -138,6 +177,14 @@ export default function AdminCustomers() {
         <table className="admin-table">
           <thead>
             <tr>
+              <th style={{ width: 36, textAlign: 'center' }}>
+                <input
+                  type="checkbox"
+                  checked={customers.length > 0 && selectedIds.length === customers.length}
+                  onChange={handleSelectAll}
+                  style={{ cursor: 'pointer' }}
+                />
+              </th>
               <th>ID</th>
               <th>Nom</th>
               <th>Téléphone</th>
@@ -154,6 +201,14 @@ export default function AdminCustomers() {
             ) : (
               customers.map(c => (
                 <tr key={c.id}>
+                  <td style={{ textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(c.id)}
+                      onChange={() => handleSelect(c.id)}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  </td>
                   <td>{c.id}</td>
                   <td><strong>{c.name || 'Client Anonyme'}</strong></td>
                   <td>{c.phone}</td>
@@ -187,7 +242,14 @@ export default function AdminCustomers() {
                       >
                         <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
                       </button>
-                    </div>
+                      <button 
+                        className="btn-icon" 
+                        style={{ padding: '4px', background: '#fef2f2', borderRadius: 4, color: '#dc2626' }} 
+                        onClick={() => handleDeleteSingle(c.id)} 
+                        title="Supprimer ce client"
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                      </button>
                   </td>
                 </tr>
               ))

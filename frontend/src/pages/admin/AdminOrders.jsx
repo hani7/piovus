@@ -357,7 +357,7 @@ export default function AdminOrders({ isB2B = false }) {
                     <th>T.Produits</th>
                   <th>Livraison</th>
                   <th>Delivery</th><th>Total</th>
-                    <th>Paiement</th><th>Statut</th><th>Date</th><th>Actions</th>
+                    <th>Paiement</th><th>Statut</th><th>Origine</th><th>Date</th><th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -393,6 +393,16 @@ export default function AdminOrders({ isB2B = false }) {
                       <span className={`badge ${STATUS_BADGE[o.status]}`} style={{ fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>
                         {STATUS_LABELS[o.status]}
                       </span>
+                    </td>
+                    <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
+                      {o.source ? (
+                        <span style={{
+                          background: o.source === 'fb' ? '#1877f2' : o.source === 'ig' ? '#e1306c' : o.source === 'direct' ? '#6366f1' : '#64748b',
+                          color: '#fff', padding: '2px 8px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 600
+                        }}>
+                          {o.source === 'fb' ? 'Facebook' : o.source === 'ig' ? 'Instagram' : o.source === 'direct' ? 'Direct' : o.source}
+                        </span>
+                      ) : <span style={{ color: 'var(--admin-text-muted)' }}>—</span>}
                     </td>
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
                       {new Date(o.created_at).toLocaleDateString('fr-DZ', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false })}

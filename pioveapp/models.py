@@ -332,6 +332,7 @@ class Order(models.Model):
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
     notes = models.TextField(blank=True)
+    source = models.CharField(max_length=100, blank=True, default='', help_text="Origine de la commande (ex: fb, ig, direct, referral)")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -390,3 +391,33 @@ class OrderStatusHistory(models.Model):
 
     def __str__(self):
         return f"{self.order} -> {self.get_status_display()} le {self.created_at}"
+
+
+class MediaFile(models.Model):
+    MEDIA_TYPE_CHOICES = [
+        ('image', 'Image'),
+        ('video', 'Vidéo'),
+    ]
+    name = models.CharField(max_length=255, blank=True)
+    file = models.FileField(upload_to='mediatheque/')
+    media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES, default='image')
+    file_size = models.PositiveIntegerField(default=0, help_text="Taille en octets")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+
+    def save(self, *args, **kwargs):
+        if self.file and not self.name:
+            self.name = self.file.name.split('/')[-1]
+        if self.file:
+            # Detect media type from extension
+            ext = self.file.name.lower().split('.')[-1]
+            if ext in ['mp4', 'webm', 'mov', 'avi', 'mkv']:
+                self.media_type = 'video'
+            else:
+                self.media_type = 'image'
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name or f"Media #{self.pk}"

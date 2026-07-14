@@ -9,6 +9,7 @@ export default function AdminReports() {
   const [orders, setOrders] = useState([])
   const [annualSummary, setAnnualSummary] = useState([])
   const [annualYear, setAnnualYear] = useState(new Date().getFullYear())
+  const [sourceStats, setSourceStats] = useState([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
     start_date: '',
@@ -37,12 +38,14 @@ export default function AdminReports() {
           setData(r.data.chart)
           setOrders(r.data.orders || [])
           setAnnualSummary(r.data.annual_summary || [])
+          setSourceStats(r.data.source_stats || [])
         } else if (Array.isArray(r.data)) {
           setData(r.data)
         } else {
           setData([])
           setOrders([])
           setAnnualSummary([])
+          setSourceStats([])
         }
       })
       .catch(e => {
@@ -50,6 +53,7 @@ export default function AdminReports() {
         setData([])
         setOrders([])
         setAnnualSummary([])
+        setSourceStats([])
       })
       .finally(() => setLoading(false))
   }
@@ -360,8 +364,39 @@ export default function AdminReports() {
           </div>
         </div>
       )}
-
-
+      {/* Source Stats */}
+      {!loading && sourceStats.length > 0 && (() => {
+        const total = sourceStats.reduce((acc, s) => acc + s.count, 0)
+        const SOURCE_COLORS = { fb: '#1877f2', ig: '#e1306c', direct: '#6366f1', referral: '#10b981' }
+        return (
+          <div className="admin-card" style={{ padding: '24px', marginBottom: '24px' }}>
+            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', fontWeight: 600, color: '#0f172a' }}>Origine des commandes</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {sourceStats.map(s => {
+                const pct = total > 0 ? Math.round((s.count / total) * 100) : 0
+                const color = SOURCE_COLORS[s.source] || '#64748b'
+                const label = s.source === 'fb' ? 'Facebook' : s.source === 'ig' ? 'Instagram' : s.source === 'direct' ? 'Direct' : s.source === 'referral' ? 'Référent' : s.source
+                return (
+                  <div key={s.source}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, alignItems: 'center' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, display: 'inline-block' }} />
+                        <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{label}</span>
+                      </span>
+                      <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                        <strong>{s.count}</strong> commande{s.count > 1 ? 's' : ''} &nbsp;·&nbsp; {s.revenue.toLocaleString('fr-DZ')} DA &nbsp;·&nbsp; {pct}%
+                      </span>
+                    </div>
+                    <div style={{ background: '#f1f5f9', borderRadius: 20, height: 8, overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, background: color, height: '100%', borderRadius: 20, transition: 'width 0.6s ease' }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Chart */}
       <div className="admin-card" style={{ padding: '24px' }}>

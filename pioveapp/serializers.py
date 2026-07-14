@@ -343,7 +343,7 @@ class AdminOrderSerializer(serializers.ModelSerializer):
             'id', 'customer_name', 'user', 'guest_name', 'guest_phone', 'guest_email',
             'shipping_address', 'wilaya', 'city',
             'delivery_company_name', 'delivery_type', 'delivery_cost',
-            'status', 'status_display', 'payment_status', 'payment_method', 'total', 'notes',
+            'status', 'status_display', 'payment_status', 'payment_method', 'total', 'notes', 'source',
             'items', 'history', 'created_at', 'updated_at', 'is_blacklisted', 'customer',
             'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'
         ]

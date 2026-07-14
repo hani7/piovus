@@ -1632,6 +1632,20 @@ class CustomerViewSet(viewsets.ModelViewSet):
             'order_history': orders_data
         })
 
+    @action(detail=False, methods=['post'])
+    def bulk_delete(self, request):
+        ids = request.data.get('ids', [])
+        if not ids:
+            return Response({'error': 'Aucun ID fourni.'}, status=status.HTTP_400_BAD_REQUEST)
+        deleted, _ = Customer.objects.filter(id__in=ids).delete()
+        return Response({'deleted': deleted})
+
+    @action(detail=True, methods=['delete'])
+    def delete_customer(self, request, pk=None):
+        customer = self.get_object()
+        customer.delete()
+        return Response({'status': 'deleted'})
+
 
 class AdminNewsletterSendView(APIView):
     permission_classes = [IsAdminUser]
@@ -1879,10 +1893,34 @@ class AdminReportView(APIView):
                 annual_data[m]['cancelled'] = stat['cancelled']
                 annual_data[m]['returned'] = stat['returned']
 
+        # Source stats (origin of orders)
+        from django.db.models import Count, Sum, Q
+        source_qs = Order.objects.all()
+        if start_date:
+            source_qs = source_qs.filter(created_at__date__gte=start_date)
+        if end_date:
+            source_qs = source_qs.filter(created_at__date__lte=end_date)
+
+        source_stats_raw = (
+            source_qs
+            .values('source')
+            .annotate(count=Count('id'), revenue=Sum('total'))
+            .order_by('-count')
+        )
+        source_stats = []
+        for s in source_stats_raw:
+            label = s['source'] or 'direct'
+            source_stats.append({
+                'source': label,
+                'count': s['count'],
+                'revenue': float(s['revenue'] or 0),
+            })
+
         return Response({
             'chart': chart_data,
             'orders': orders_data,
-            'annual_summary': annual_data
+            'annual_summary': annual_data,
+            'source_stats': source_stats,
         })
 
 class SiteSettingsView(APIView):

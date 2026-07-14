@@ -1,6 +1,5 @@
 ---
 deployment:
   tasks:
-    - /home/piover97/virtualenv/back/3.12/bin/python /home/piover97/back/manage.py migrate --noinput 2>&1 || true
-    - mkdir -p /home/piover97/back/tmp
-    - touch /home/piover97/back/tmp/restart.txt
+    - export DEPLOYPATH=/home/piovec9/piovus
+    - /bin/bash -c "cd $DEPLOYPATH && python passenger_wsgi.py 2>/dev/null || true"

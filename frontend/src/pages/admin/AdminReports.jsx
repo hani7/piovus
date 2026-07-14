@@ -367,7 +367,7 @@ export default function AdminReports() {
       {/* Source Stats */}
       {!loading && sourceStats.length > 0 && (() => {
         const total = sourceStats.reduce((acc, s) => acc + s.count, 0)
-        const SOURCE_COLORS = { fb: '#1877f2', ig: '#e1306c', direct: '#6366f1', referral: '#10b981' }
+        const SOURCE_COLORS = { fb: '#1877f2', ig: '#e1306c', direct: '#6366f1', referral: '#10b981', google: '#34a853', tiktok: '#010101' }
         return (
           <div className="admin-card" style={{ padding: '24px', marginBottom: '24px' }}>
             <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', fontWeight: 600, color: '#0f172a' }}>Origine des commandes</h3>

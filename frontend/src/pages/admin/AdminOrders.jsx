@@ -395,14 +395,22 @@ export default function AdminOrders({ isB2B = false }) {
                       </span>
                     </td>
                     <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
-                      {o.source ? (
-                        <span style={{
-                          background: o.source === 'fb' ? '#1877f2' : o.source === 'ig' ? '#e1306c' : o.source === 'direct' ? '#6366f1' : '#64748b',
-                          color: '#fff', padding: '2px 8px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 600
-                        }}>
-                          {o.source === 'fb' ? 'Facebook' : o.source === 'ig' ? 'Instagram' : o.source === 'direct' ? 'Direct' : o.source}
-                        </span>
-                      ) : <span style={{ color: 'var(--admin-text-muted)' }}>—</span>}
+                      {o.source ? (() => {
+                          const SRC = {
+                            fb:      { label: 'Facebook',  bg: '#1877f2' },
+                            ig:      { label: 'Instagram', bg: '#e1306c' },
+                            direct:  { label: 'Direct',    bg: '#6366f1' },
+                            google:  { label: 'Google',    bg: '#34a853' },
+                            tiktok:  { label: 'TikTok',    bg: '#010101' },
+                            referral:{ label: 'Référent',  bg: '#10b981' },
+                          }
+                          const s = SRC[o.source] || { label: o.source, bg: '#64748b' }
+                          return (
+                            <span style={{ background: s.bg, color: '#fff', padding: '2px 8px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 600 }}>
+                              {s.label}
+                            </span>
+                          )
+                        })()} : <span style={{ color: 'var(--admin-text-muted)' }}>—</span>}
                     </td>
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
                       {new Date(o.created_at).toLocaleDateString('fr-DZ', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false })}

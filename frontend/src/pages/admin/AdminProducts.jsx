@@ -35,6 +35,7 @@ export default function AdminProducts() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [filterCat, setFilterCat] = useState('')
   const [modal, setModal] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [editId, setEditId] = useState(null)
@@ -90,9 +91,11 @@ export default function AdminProducts() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [modal])
 
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = products.filter(p => {
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase())
+    const matchCat = filterCat === '' || p.categories?.some(c => String(c.id) === filterCat)
+    return matchSearch && matchCat
+  })
   const totalPages = Math.ceil(filtered.length / perPage)
   const paginated = filtered.slice((page - 1) * perPage, page * perPage)
 
@@ -304,6 +307,17 @@ export default function AdminProducts() {
                 id="products-search"
               />
             </div>
+            <select
+              className="admin-filter-select"
+              value={filterCat}
+              onChange={e => { setFilterCat(e.target.value); setPage(1) }}
+              style={{ minWidth: 160 }}
+            >
+              <option value="">Toutes les catégories</option>
+              {categories.map(c => (
+                <option key={c.id} value={String(c.id)}>{c.name}</option>
+              ))}
+            </select>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
               Afficher
               <select 

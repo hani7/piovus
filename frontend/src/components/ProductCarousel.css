@@ -95,7 +95,10 @@
 
 @media (max-width: 480px) {
   .carousel-item {
-    flex: 0 0 calc(80% - 1rem); /* 1.2 items per row */
+    flex: 0 0 calc(50% - 0.5rem); /* exactly 2 items per row */
+  }
+  .carousel-track {
+    gap: 0.75rem;
   }
 }
 

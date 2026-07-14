@@ -874,10 +874,22 @@ class AdminCategoryViewSet(ActivityLogMixin, viewsets.ModelViewSet):
 
 
 class AdminBannerViewSet(ActivityLogMixin, viewsets.ModelViewSet):
-    queryset = Banner.objects.all().order_by('order')
     serializer_class = AdminBannerSerializer
     permission_classes = [IsAdminUser]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_queryset(self):
+        from django.db import OperationalError as DBOperationalError
+        try:
+            qs = Banner.objects.all().order_by('order')
+            list(qs[:1])  # force evaluate to catch DB errors early
+            return qs
+        except (DBOperationalError, Exception):
+            # Fallback: defer category if column missing in prod DB
+            try:
+                return Banner.objects.defer('category').all().order_by('order')
+            except Exception:
+                return Banner.objects.none()
 
 
 def handle_loyalty_points(order, old_status, new_status):

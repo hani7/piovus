@@ -155,3 +155,27 @@
   color: var(--color-gray-500);
   margin-left: 4px;
 }
+
+@media (max-width: 480px) {
+  .product-card__body {
+    padding: 10px 12px 12px;
+  }
+  .product-card__actions {
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .product-card__action-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .product-card__action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  .product-card__name {
+    font-size: 0.85rem;
+  }
+  .product-card__price {
+    font-size: 0.95rem;
+  }
+}

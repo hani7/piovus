@@ -2185,3 +2185,89 @@ def satim_callback(request):
             notes=f"Paiement CIB/Edahabia annulé ou échoué : {fail_msg}"
         )
         return redirect_with_params(frontend_base, 'cancelled', reason='payment_failed', msg=fail_msg)
+
+
+# ─── Médiathèque — scan du dossier media/ ─────────────────────────────────────
+import os, mimetypes
+from django.core.files.storage import default_storage
+
+class AdminMediaView(APIView):
+    """
+    GET  /api/admin/media/  → liste tous les fichiers dans MEDIA_ROOT
+    POST /api/admin/media/  → upload un nouveau fichier
+    DELETE /api/admin/media/?path=xxx → supprime un fichier
+    """
+    permission_classes = [IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.avif'}
+    VIDEO_EXTS = {'.mp4', '.webm', '.mov', '.avi', '.mkv'}
+
+    def get(self, request):
+        media_root = settings.MEDIA_ROOT
+        media_url  = settings.MEDIA_URL
+        # Use request to build absolute URL for API server
+        api_base = request.build_absolute_uri('/')[:-1]
+
+        results = []
+        if os.path.exists(media_root):
+            for dirpath, _, filenames in os.walk(media_root):
+                for fname in sorted(filenames):
+                    ext = os.path.splitext(fname)[1].lower()
+                    if ext not in self.IMAGE_EXTS and ext not in self.VIDEO_EXTS:
+                        continue
+                    full_path = os.path.join(dirpath, fname)
+                    rel_path  = os.path.relpath(full_path, media_root).replace('\\', '/')
+                    file_url  = f"{api_base}{media_url}{rel_path}"
+                    try:
+                        size = os.path.getsize(full_path)
+                    except OSError:
+                        size = 0
+                    results.append({
+                        'id': rel_path,  # use relative path as unique id
+                        'name': fname,
+                        'folder': os.path.dirname(rel_path) or '/',
+                        'file': file_url,
+                        'file_type': 'video' if ext in self.VIDEO_EXTS else 'image',
+                        'size': size,
+                        'rel_path': rel_path,
+                    })
+
+        # Sort: newest folders first (banners, products, etc.)
+        results.sort(key=lambda x: x['folder'])
+        return Response({'count': len(results), 'results': results})
+
+    def post(self, request):
+        """Upload a new file to media/uploads/"""
+        uploaded = request.FILES.get('file')
+        if not uploaded:
+            return Response({'error': 'Aucun fichier fourni.'}, status=400)
+
+        ext = os.path.splitext(uploaded.name)[1].lower()
+        if ext not in self.IMAGE_EXTS and ext not in self.VIDEO_EXTS:
+            return Response({'error': 'Type de fichier non supporté.'}, status=400)
+
+        # Save to media/uploads/
+        save_path = f"uploads/{uploaded.name}"
+        saved = default_storage.save(save_path, uploaded)
+        api_base = request.build_absolute_uri('/')[:-1]
+        file_url = f"{api_base}{settings.MEDIA_URL}{saved}"
+        return Response({
+            'id': saved,
+            'name': uploaded.name,
+            'file': file_url,
+            'file_type': 'video' if ext in self.VIDEO_EXTS else 'image',
+        }, status=201)
+
+    def delete(self, request):
+        rel_path = request.query_params.get('path', '').strip('/')
+        if not rel_path:
+            return Response({'error': 'path requis'}, status=400)
+        # Security: prevent path traversal
+        if '..' in rel_path:
+            return Response({'error': 'Chemin invalide'}, status=400)
+        full_path = os.path.join(settings.MEDIA_ROOT, rel_path)
+        if os.path.isfile(full_path):
+            os.remove(full_path)
+            return Response({'deleted': rel_path})
+        return Response({'error': 'Fichier introuvable'}, status=404)

@@ -39,9 +39,9 @@ export default function AdminMediatheque() {
     load()
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Supprimer ce fichier ?')) return
-    await adminClient.delete(`/admin/media/${id}/`).catch(console.error)
+  const handleDelete = async (f) => {
+    if (!window.confirm(`Supprimer "${f.name}" ?\n⚠️ Attention : si cette image est utilisée par un produit ou une bannière, elle disparaîtra du site.`)) return
+    await adminClient.delete(`/admin/media/?path=${encodeURIComponent(f.rel_path)}`).catch(console.error)
     load()
   }
 
@@ -149,9 +149,12 @@ export default function AdminMediatheque() {
                 </div>
                 {/* Info */}
                 <div style={{ padding: '10px 12px' }}>
-                  <p style={{ fontSize: '0.78rem', fontWeight: 600, margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={f.name}>
+                  <p style={{ fontSize: '0.78rem', fontWeight: 600, margin: '0 0 2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={f.name}>
                     {isVideo ? <Video size={12} style={{ marginRight: 4 }} /> : <Image size={12} style={{ marginRight: 4 }} />}
                     {f.name || 'Sans nom'}
+                  </p>
+                  <p style={{ fontSize: '0.7rem', color: '#888', margin: '0 0 6px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    📁 {f.folder || '/'}
                   </p>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button
@@ -163,7 +166,7 @@ export default function AdminMediatheque() {
                       {copied === url ? 'Copié' : 'URL'}
                     </button>
                     <button
-                      onClick={() => handleDelete(f.id)}
+                      onClick={() => handleDelete(f)}
                       title="Supprimer"
                       style={{ padding: '4px 8px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, cursor: 'pointer', color: '#dc2626', display: 'flex', alignItems: 'center' }}
                     >

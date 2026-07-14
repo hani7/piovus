@@ -13,7 +13,7 @@ from .views import (
     DeliveryCompanyViewSet, DeliveryRateViewSet, CustomerViewSet,
     AdminNewsletterSendView, AdminNewsletterUploadImageView, AdminReportView, ApplyCouponView,
     SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet,
-    mylerz_webhook, satim_callback
+    mylerz_webhook, satim_callback, AdminMediaView
 )
 
 router = DefaultRouter()
@@ -55,6 +55,7 @@ urlpatterns = [
     # Admin
     path('admin/dashboard/', AdminDashboardView.as_view(), name='admin-dashboard'),
     path('admin/reports/', AdminReportView.as_view(), name='admin-reports'),
+    path('admin/media/', AdminMediaView.as_view(), name='admin-media'),
     path('admin/newsletter/send/', AdminNewsletterSendView.as_view(), name='admin-newsletter-send'),
     path('admin/newsletter/upload-image/', AdminNewsletterUploadImageView.as_view(), name='admin-newsletter-upload-image'),
     path('admin/activity-logs/', AdminActivityLogView.as_view(), name='admin-activity-logs'),

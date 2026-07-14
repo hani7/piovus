@@ -195,6 +195,7 @@ export default function ShopPage() {
         {/* ── Product Grid ─────────────────────────── */}
         <div className="shop-main">
           <div className="shop-main__toolbar">
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 600, fontFamily: 'var(--font-serif)', margin: 0 }}>NOS PRODUITS</h2>
             <select
               value={sortBy}
               onChange={(e) => updateParam('sort', e.target.value)}

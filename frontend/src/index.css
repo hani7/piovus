@@ -207,6 +207,7 @@ input, textarea, select {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 28px;
+  align-items: stretch;
 }
 @media (max-width: 900px) {
   .products-grid {
@@ -216,13 +217,13 @@ input, textarea, select {
 }
 @media (max-width: 768px) {
   .products-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr 1fr !important;
     gap: 12px;
   }
 }
 @media (max-width: 480px) {
   .products-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr 1fr !important;
     gap: 8px;
   }
 }

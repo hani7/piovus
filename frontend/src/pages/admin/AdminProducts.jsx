@@ -352,7 +352,7 @@ export default function AdminProducts() {
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th>Image</th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Statut</th><th>Actions</th>
+                    <th>Image</th><th>Nom</th><th>Catégorie</th><th>Contenance</th><th>Prix</th><th>Stock</th><th>Statut</th><th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -368,6 +368,9 @@ export default function AdminProducts() {
                       </td>
                       <td style={{ fontWeight: 500 }}>{p.name}</td>
                       <td style={{ color: 'var(--admin-text-muted)' }}>{p.categories?.map(c => c.name).join(', ') || '—'}</td>
+                      <td style={{ color: 'var(--admin-text-muted)', whiteSpace: 'nowrap' }}>
+                        {p.contenance ? `${p.contenance} ${p.contenance_unit || ''}` : '—'}
+                      </td>
                       <td>
                         {spreadsheetMode ? (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -404,7 +407,7 @@ export default function AdminProducts() {
                     </tr>
                   ))}
                   {paginated.length === 0 && (
-                    <tr><td colSpan={7}><div className="admin-empty"><p>Aucun produit trouvé.</p></div></td></tr>
+                    <tr><td colSpan={8}><div className="admin-empty"><p>Aucun produit trouvé.</p></div></td></tr>
                   )}
                 </tbody>
               </table>

@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import client from './api/client'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import MobileBottomNav from './components/MobileBottomNav'
 import HomePage from './pages/HomePage'
 import B2BHomePage from './pages/B2BHomePage'
 import ShopPage from './pages/ShopPage'
@@ -157,6 +158,7 @@ export default function App() {
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
+      {!isAdmin && <MobileBottomNav />}
       {!isAdmin && <Footer />}
       {!isAdmin && pathname === '/' && <PromoPopup />}
     </>

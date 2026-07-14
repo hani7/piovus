@@ -25,6 +25,8 @@ import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
 import ShippingPage from './pages/ShippingPage'
 import FaqPage from './pages/FaqPage'
+import PrivacyPage from './pages/PrivacyPage'
+import TermsPage from './pages/TermsPage'
 
 // Admin
 import AdminLogin from './pages/admin/AdminLogin'
@@ -125,6 +127,8 @@ export default function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/livraison" element={<ShippingPage />} />
         <Route path="/faq" element={<FaqPage />} />
+        <Route path="/confidentialite" element={<PrivacyPage />} />
+        <Route path="/conditions" element={<TermsPage />} />
 
         {/* Admin */}
         <Route path="/admin-panel/login" element={<AdminLogin />} />

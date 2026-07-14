@@ -72,6 +72,8 @@ export default function Footer() {
           <Link to="/contact">Contactez-nous</Link>
           <Link to="/livraison">Livraison & Retour</Link>
           <Link to="/faq">FAQ</Link>
+          <Link to="/confidentialite">Politique de Confidentialité</Link>
+          <Link to="/conditions">Conditions d'Utilisation</Link>
           <p className="footer__delivery-badge">
             <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>

@@ -22,39 +22,37 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0 50px; /* Ajoute de l'espace sur les côtés pour les flèches */
+  gap: 16px;
+  padding: 0 20px; /* small padding for the container */
 }
 
 .carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: white;
-  border: 1px solid #eaeaea;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  color: #333;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 8px;
+  color: #000;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: color 0.2s, transform 0.2s;
+  box-shadow: none;
 }
 
 .carousel-btn.left {
-  left: 0;
+  order: -1;
 }
 
 .carousel-btn.right {
-  right: 0;
+  order: 1;
 }
 
 .carousel-btn:hover {
-  background: #000;
-  color: #fff;
+  color: var(--color-accent, #c9485b);
+  transform: scale(1.2);
 }
 
 .carousel-track {

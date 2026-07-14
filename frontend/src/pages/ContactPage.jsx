@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function ContactPage() {
   return (
-    <main className="page-enter" style={{ padding: '60px 0', minHeight: '60vh' }}>
+    <main className="page-enter" style={{ paddingTop: 'calc(var(--navbar-height) + 40px)', paddingBottom: '60px', minHeight: '60vh' }}>
       <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
         <h1 style={{ fontSize: '2.5rem', marginBottom: '30px', textAlign: 'center' }}>Contactez-nous</h1>
         

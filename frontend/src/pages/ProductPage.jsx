@@ -26,6 +26,13 @@ export default function ProductPage() {
   const user = useAuthStore((s) => s.user)
   const isB2B = user?.profile?.is_b2b
 
+  // Prix effectif : prix de la variante si disponible, sinon prix promo ou prix produit
+  const displayPrice = selectedVariant?.price
+    ? parseFloat(selectedVariant.price)
+    : product
+      ? (product.is_promo ? parseFloat(product.promo_price) : parseFloat(product.price))
+      : 0
+
   useEffect(() => {
     if (product && isB2B && product.b2b_min_stock > 1) {
       setQuantity(Math.max(quantity, product.b2b_min_stock))
@@ -258,6 +265,16 @@ export default function ProductPage() {
                     </div>
                   )}
                 </div>
+              ) : selectedVariant?.price ? (
+                // Variation avec prix propre
+                <>
+                  <span className="product-info__price">
+                    {parseFloat(selectedVariant.price).toLocaleString('fr-DZ')} DA
+                  </span>
+                  <span className="product-info__price product-info__price--original" style={{ fontSize: '1rem' }}>
+                    {parseFloat(product.price).toLocaleString('fr-DZ')} DA
+                  </span>
+                </>
               ) : product.is_promo ? (
                 <>
                   <span className="product-info__price product-info__price--promo">
@@ -281,15 +298,6 @@ export default function ProductPage() {
               </div>
             )}
 
-            {/* Variant price override */}
-            {selectedVariant?.price && (
-              <div style={{ marginTop: '6px', fontSize: '0.85rem', color: 'var(--admin-text-muted)' }}>
-                Prix pour <strong>{selectedVariant.name}</strong> :
-                <span style={{ marginLeft: 6, fontWeight: 700, color: 'var(--color-accent)', fontSize: '1rem' }}>
-                  {parseFloat(selectedVariant.price).toLocaleString('fr-DZ')} DA
-                </span>
-              </div>
-            )}
 
             {/* Petite description */}
             {product.short_description && (

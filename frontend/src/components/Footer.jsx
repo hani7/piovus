@@ -103,19 +103,6 @@ export default function Footer() {
           <Link to="/faq">FAQ</Link>
           <Link to="/confidentialite">Politique de Confidentialité</Link>
           <Link to="/conditions">Conditions d'Utilisation</Link>
-          <p className="footer__delivery-badge">
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-            </svg>
-            Livraison dans toute l'Algérie
-          </p>
-          <p className="footer__delivery-badge">
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-            </svg>
-            Paiement à la livraison
-          </p>
         </div>
       </div>
 

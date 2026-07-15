@@ -11,10 +11,10 @@ export const useAuthStore = create(
       isLoading: false,
       error: null,
 
-      login: async (username, password, recaptcha_token) => {
+      login: async (username, password) => {
         set({ isLoading: true, error: null })
         try {
-          const res = await apiLogin({ username, password, recaptcha_token })
+          const res = await apiLogin({ username, password })
           
           if (res.data.mfa_required) {
             set({ isLoading: false })

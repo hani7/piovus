@@ -266,15 +266,10 @@ export default function ProductPage() {
                   )}
                 </div>
               ) : selectedVariant?.price ? (
-                // Variation avec prix propre
-                <>
-                  <span className="product-info__price">
-                    {parseFloat(selectedVariant.price).toLocaleString('fr-DZ')} DA
-                  </span>
-                  <span className="product-info__price product-info__price--original" style={{ fontSize: '1rem' }}>
-                    {parseFloat(product.price).toLocaleString('fr-DZ')} DA
-                  </span>
-                </>
+                // Variation avec prix propre — afficher seulement le prix de la variation
+                <span className="product-info__price">
+                  {parseFloat(selectedVariant.price).toLocaleString('fr-DZ')} DA
+                </span>
               ) : product.is_promo ? (
                 <>
                   <span className="product-info__price product-info__price--promo">

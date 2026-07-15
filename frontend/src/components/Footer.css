@@ -127,7 +127,8 @@
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid rgba(255,255,255,0.08);
-  padding-top: 30px; /* 20px existing + 10px extra space below line */
+  padding-top: 24px;
+  padding-bottom: 24px;
   font-size: 0.78rem;
   color: rgba(255,255,255,0.35);
 }

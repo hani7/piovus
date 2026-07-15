@@ -7,7 +7,9 @@
 }
 @media (max-width: 900px) {
   .checkout-page__layout { grid-template-columns: 1fr; }
-  .checkout-summary { order: -1; margin-bottom: 24px; position: static; }
+  .checkout-form-wrap { order: 1; }
+  .checkout-summary { order: 2; margin-bottom: 24px; position: static; }
+  .checkout-summary__items { max-height: 200px; }
 }
 
 .checkout-page__title {

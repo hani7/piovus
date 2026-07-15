@@ -171,6 +171,7 @@ export default function CheckoutPage() {
         setOrderId(res.data.id)
         setSuccess(true)
         playSuccessSound()
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     } catch (err) {
       const serverMsg = err?.response?.data?.error || err?.response?.data?.detail || JSON.stringify(err?.response?.data)
@@ -182,9 +183,9 @@ export default function CheckoutPage() {
 
   if (redirecting) {
     return (
-      <div className="checkout-empty container page-enter" style={{ minHeight: '50vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <div className="spin" style={{ width: 40, height: 40, marginBottom: 20, borderWidth: 3 }}></div>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: 10 }}>Redirection sécurisée...</h2>
+      <div className="checkout-empty container page-enter">
+        <div className="spin" style={{ width: 40, height: 40, borderWidth: 3 }}></div>
+        <h2 style={{ fontSize: '1.5rem' }}>Redirection sécurisée...</h2>
         <p style={{ color: 'var(--color-gray-500)' }}>Veuillez patienter pendant que nous vous redirigeons vers la passerelle de paiement SATIM.</p>
       </div>
     )
@@ -201,16 +202,20 @@ export default function CheckoutPage() {
 
   if (success) {
     return (
-      <div className="checkout-success container page-enter" style={{ padding: '120px 20px', minHeight: '50vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <div className="checkout-success__icon">✓</div>
-        <h1>Commande confirmée !</h1>
-        <p>Votre commande <strong>#{orderId}</strong> a bien été enregistrée.</p>
-        <p>Notre équipe vous contactera pour confirmer la livraison.</p>
-        <div className="checkout-success__actions">
-          <Link to="/" className="btn btn-outline" id="success-home">Retour à l'accueil</Link>
-          {user && <Link to="/compte/commandes" className="btn btn-accent" id="success-orders">Voir mes commandes</Link>}
+      <main className="checkout-page page-enter">
+        <div className="container">
+          <div className="checkout-success">
+            <div className="checkout-success__icon">✓</div>
+            <h1>Commande confirmée !</h1>
+            <p>Votre commande <strong>#{orderId}</strong> a bien été enregistrée.</p>
+            <p>Notre équipe vous contactera pour confirmer la livraison.</p>
+            <div className="checkout-success__actions">
+              <Link to="/" className="btn btn-outline" id="success-home">Retour à l'accueil</Link>
+              {user && <Link to="/compte/commandes" className="btn btn-accent" id="success-orders">Voir mes commandes</Link>}
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
     )
   }
 

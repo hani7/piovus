@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { LayoutDashboard, Package, MapPin, Settings, LogOut, ChevronRight, Gift } from 'lucide-react'
 import './AccountPage.css'
 
@@ -12,7 +11,6 @@ const FACEBOOK_APP_ID = "FACEBOOK_APP_ID_PLACEHOLDER"
 export default function AccountPage() {
   const { user, login, register, registerB2B, socialLoginAction, isLoading, error, logout } = useAuthStore()
   const navigate = useNavigate()
-  const { executeRecaptcha } = useGoogleReCaptcha()
   const [activeTab, setActiveTab] = useState('login') // 'login', 'register', 'b2b'
 
   const [loginForm, setLoginForm] = useState({ username: '', password: '' })
@@ -113,9 +111,7 @@ export default function AccountPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault()
-    if (!executeRecaptcha) return
-    const token = await executeRecaptcha('login')
-    const res = await login(loginForm.username, loginForm.password, token)
+    const res = await login(loginForm.username, loginForm.password)
     if (res.success) navigate('/compte')
   }
 
@@ -125,11 +121,7 @@ export default function AccountPage() {
       alert('Les mots de passe ne correspondent pas.')
       return
     }
-    if (!executeRecaptcha) return
-    const token = await executeRecaptcha('register')
-    
-    const payload = { ...registerForm, recaptcha_token: token }
-    const res = await register(payload)
+    const res = await register(registerForm)
     if (res.success) navigate('/compte')
   }
 
@@ -143,8 +135,6 @@ export default function AccountPage() {
       alert('Veuillez fournir une copie de votre registre de commerce.')
       return
     }
-    if (!executeRecaptcha) return
-    const token = await executeRecaptcha('register_b2b')
 
     const formData = new FormData()
     Object.keys(b2bForm).forEach(key => {
@@ -152,7 +142,6 @@ export default function AccountPage() {
         formData.append(key, b2bForm[key])
       }
     })
-    formData.append('recaptcha_token', token)
 
     const res = await registerB2B(formData)
     if (res.success) {

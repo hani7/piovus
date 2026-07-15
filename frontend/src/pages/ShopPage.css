@@ -3,7 +3,7 @@
 .shop-page__breadcrumb {
   font-size: 0.8rem;
   color: var(--color-gray-500);
-  padding: 8px 0;
+  padding: 8px var(--gutter);
   margin-bottom: 8px;
 }
 .shop-page__breadcrumb a:hover { color: var(--color-accent); }

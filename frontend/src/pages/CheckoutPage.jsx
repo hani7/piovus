@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { createOrder } from '../api/orders'
 import { useAuthStore } from '../store/authStore'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import './CheckoutPage.css'
 
 const WILAYAS = [
@@ -23,7 +22,6 @@ export default function CheckoutPage() {
   const { items, clearCart, coupon } = useCartStore()
   const { user } = useAuthStore()
   const navigate = useNavigate()
-  const { executeRecaptcha } = useGoogleReCaptcha()
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [redirecting, setRedirecting] = useState(false)
@@ -147,11 +145,6 @@ export default function CheckoutPage() {
 
     setLoading(true)
     try {
-      let recaptchaToken = null
-      if (executeRecaptcha) {
-        recaptchaToken = await executeRecaptcha('checkout')
-      }
-
       const payload = {
         ...form,
         guest_name: `${form.guest_first_name.trim()} ${form.guest_last_name.trim()}`.trim(),
@@ -163,7 +156,6 @@ export default function CheckoutPage() {
         })),
         coupon_id: coupon ? coupon.id : null,
         discount_amount: coupon ? coupon.discount_amount : 0,
-        recaptcha_token: recaptchaToken
       }
       const res = await createOrder(payload)
       clearCart()
@@ -181,7 +173,8 @@ export default function CheckoutPage() {
         playSuccessSound()
       }
     } catch (err) {
-      setErrors({ submit: 'Une erreur est survenue. Veuillez réessayer.' })
+      const serverMsg = err?.response?.data?.error || err?.response?.data?.detail || JSON.stringify(err?.response?.data)
+      setErrors({ submit: serverMsg || 'Une erreur est survenue. Veuillez réessayer.' })
     } finally {
       setLoading(false)
     }

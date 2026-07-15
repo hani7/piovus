@@ -134,6 +134,26 @@
   justify-content: center;
 }
 
+.payment-result__hotline {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-gray-200);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.payment-result__hotline p {
+  font-size: 0.85rem;
+  color: var(--color-gray-500);
+  margin: 0;
+}
+.payment-result__hotline img {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+}
+
 /* Print Styles */
 @media print {
   body * {

@@ -112,6 +112,11 @@ export default function PaymentResultPage() {
             {order && <button onClick={handlePrint} className="btn btn-outline">Télécharger le reçu</button>}
             <Link to="/shop" className="btn btn-accent">Continuer mes achats</Link>
           </div>
+
+          <div className="payment-result__hotline">
+            <p>Besoin d'aide ? Contactez-nous gratuitement :</p>
+            <img src="/3020.png" alt="3020 Appel Gratuit" style={{ height: 44, marginTop: 8 }} />
+          </div>
         </div>
       </main>
     )
@@ -153,6 +158,11 @@ export default function PaymentResultPage() {
         <div className="payment-result__actions">
           <Link to="/cart" className="btn btn-accent">Retourner au panier</Link>
           <Link to="/contact" className="btn btn-outline">Nous contacter</Link>
+        </div>
+
+        <div className="payment-result__hotline">
+          <p>Besoin d'aide ? Contactez-nous gratuitement :</p>
+          <img src="/3020.png" alt="3020 Appel Gratuit" style={{ height: 44, marginTop: 8 }} />
         </div>
       </div>
     </main>

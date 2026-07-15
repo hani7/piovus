@@ -7,10 +7,39 @@ export default function Footer() {
       <div className="usp-bar">
         <div className="container usp-bar__inner">
           {[
-            { icon: '🚚', label: 'Livraison Gratuite', sub: 'À partir de 5000 DA' },
-            { icon: '💳', label: 'Paiement à la livraison', sub: 'Cash on delivery' },
-            { icon: '✨', label: 'Produits Authentiques', sub: '100% originaux' },
-            { icon: '↩️', label: 'Retour Facile', sub: '7 jours pour changer' },
+            {
+              icon: (
+                <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                  <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+              ),
+              label: 'Livraison Gratuite', sub: 'À partir de 5000 DA'
+            },
+            {
+              icon: (
+                <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              ),
+              label: 'Paiement à la livraison', sub: 'Cash on delivery'
+            },
+            {
+              icon: (
+                <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              ),
+              label: 'Produits Authentiques', sub: '100% originaux'
+            },
+            {
+              icon: (
+                <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.28"/>
+                </svg>
+              ),
+              label: 'Retour Facile', sub: '7 jours pour changer'
+            },
           ].map((u, i) => (
             <div key={i} className="usp-item">
               <span className="usp-item__icon">{u.icon}</span>

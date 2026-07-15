@@ -62,20 +62,30 @@ export default function CartPage() {
           </div>
           {items.map((item) => (
             <div key={item.key} className="cart-row">
+
+              {/* Col 1 — Image only (desktop: image+name) */}
               <div className="cart-row__product">
                 <div className="cart-row__img">
                   {item.product.thumbnail ? (
                     <img src={item.product.thumbnail} alt={item.product.name} />
                   ) : <div className="cart-row__placeholder" />}
                 </div>
+                {/* Desktop: name shown inside product col */}
                 <div className="cart-row__info-block">
                   <Link to={`/produit/${item.product.slug}`} className="cart-row__name">{item.product.name}</Link>
                   {item.variant && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
                 </div>
               </div>
-              <div className="cart-row__price">
-                {item.price.toLocaleString('fr-DZ')} DA
+
+              {/* Col 2 row 1 — Mobile: name + price (hidden on desktop via CSS) */}
+              <div className="cart-row__info-standalone">
+                <Link to={`/produit/${item.product.slug}`} className="cart-row__name">{item.product.name}</Link>
+                {item.variant && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
+                <p style={{ fontWeight: 600, marginTop: 6, fontSize: '0.95rem' }}>{item.price.toLocaleString('fr-DZ')} DA</p>
               </div>
+
+              {/* Desktop: price / qty / total columns */}
+              <div className="cart-row__price">{item.price.toLocaleString('fr-DZ')} DA</div>
               <div className="cart-row__qty">
                 <div className="qty-control">
                   <button onClick={() => updateQuantity(item.key, item.quantity - 1)} id={`cart-minus-${item.key}`}>−</button>
@@ -83,12 +93,23 @@ export default function CartPage() {
                   <button onClick={() => updateQuantity(item.key, item.quantity + 1)} id={`cart-plus-${item.key}`}>+</button>
                 </div>
               </div>
-              <div className="cart-row__total">
-                {(item.price * item.quantity).toLocaleString('fr-DZ')} DA
+              <div className="cart-row__total">{(item.price * item.quantity).toLocaleString('fr-DZ')} DA</div>
+
+              {/* Col 2 row 2 — Mobile: qty + total (hidden on desktop via CSS) */}
+              <div className="cart-row__bottom">
+                <div className="qty-control">
+                  <button onClick={() => updateQuantity(item.key, item.quantity - 1)}>−</button>
+                  <span>{item.quantity}</span>
+                  <button onClick={() => updateQuantity(item.key, item.quantity + 1)}>+</button>
+                </div>
+                <span style={{ fontWeight: 600 }}>{(item.price * item.quantity).toLocaleString('fr-DZ')} DA</span>
               </div>
+
+              {/* Col 3 — Remove */}
               <div className="cart-row__action">
                 <button className="cart-row__remove" onClick={() => removeItem(item.key)} aria-label="Supprimer" id={`cart-remove-${item.key}`}>✕</button>
               </div>
+
             </div>
           ))}
         </div>

@@ -700,10 +700,10 @@ class AdminDashboardView(APIView):
         from django.db.models import Q
 
         # ── Statuses that represent real revenue ─────────────────────────────
-        # COD: confirmed, shipped, fulfilled (not pending — not paid yet)
-        # SATIM/CIB: payment_status = 'paid' (callback confirmed)
+        # COD: uniquement 'fulfilled' (livré + payé en main propre)
+        # CIB/Edahabia: payment_status = 'paid' (callback SATIM confirmé)
         REVENUE_Q = (
-            Q(payment_method='cash', status__in=['confirmed', 'shipped', 'fulfilled']) |
+            Q(payment_method='cash', status='fulfilled') |
             Q(payment_method='cib', payment_status='paid')
         )
 

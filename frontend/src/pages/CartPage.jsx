@@ -68,7 +68,7 @@ export default function CartPage() {
                     <img src={item.product.thumbnail} alt={item.product.name} />
                   ) : <div className="cart-row__placeholder" />}
                 </div>
-                <div>
+                <div className="cart-row__info-block">
                   <Link to={`/produit/${item.product.slug}`} className="cart-row__name">{item.product.name}</Link>
                   {item.variant && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
                 </div>

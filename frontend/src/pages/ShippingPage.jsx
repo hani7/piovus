@@ -14,7 +14,7 @@ export default function ShippingPage() {
           </p>
           <ul style={{ paddingLeft: '20px', marginBottom: '30px' }}>
             <li style={{ marginBottom: '10px' }}><strong>Délais de livraison :</strong> Entre 24h et 72h selon votre wilaya.</li>
-            <li style={{ marginBottom: '10px' }}><strong>Frais de livraison :</strong> Les frais varient selon votre localisation. La livraison est <strong>GRATUITE</strong> pour toute commande supérieure à 5000 DA !</li>
+            <li style={{ marginBottom: '10px' }}><strong>Frais de livraison :</strong> Les frais varient selon votre wilaya de résidence.</li>
             <li style={{ marginBottom: '10px' }}><strong>Suivi :</strong> Un numéro de suivi vous sera communiqué dès l'expédition de votre colis.</li>
           </ul>
 

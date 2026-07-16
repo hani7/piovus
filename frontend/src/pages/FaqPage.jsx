@@ -16,10 +16,6 @@ const FAQ_DATA = [
   {
     question: "Vos produits sont-ils originaux ?",
     answer: "Absolument. Nous garantissons que 100% des produits vendus sur Piové Cosmetics sont authentiques et de qualité certifiée."
-  },
-  {
-    question: "Comment bénéficier de la livraison gratuite ?",
-    answer: "La livraison vous est offerte automatiquement pour toute commande dont le montant total dépasse 5000 DA."
   }
 ];
 

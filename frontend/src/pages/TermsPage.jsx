@@ -27,7 +27,7 @@ export default function TermsPage() {
           </ul>
 
           <h2 style={{ fontSize: '1.4rem', fontWeight: '700', marginTop: '32px', marginBottom: '12px', color: '#000' }}>4. Livraison</h2>
-          <p>Nous livrons dans les 58 wilayas d'Algérie. Les délais de livraison sont généralement de 24h à 72h selon votre localisation. La livraison est <strong>gratuite</strong> pour toute commande supérieure à <strong>5000 DA</strong>.</p>
+          <p>Nous livrons dans les 58 wilayas d'Algérie. Les délais de livraison sont généralement de 24h à 72h selon votre localisation.</p>
 
           <h2 style={{ fontSize: '1.4rem', fontWeight: '700', marginTop: '32px', marginBottom: '12px', color: '#000' }}>5. Retours et remboursements</h2>
           <ul style={{ paddingLeft: '24px', marginTop: '10px', marginBottom: '16px' }}>

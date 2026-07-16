@@ -29,6 +29,66 @@
   --sidebar-collapsed-w: 72px;
 }
 
+/* ─── Dark Mode ────────────────────────────────────────────────────────────── */
+.admin-app.dark-mode {
+  --admin-bg: #0d1117;
+  --admin-surface: #161b22;
+  --admin-surface2: #1c2128;
+  --admin-border: rgba(255,255,255,0.07);
+  --admin-text: #e6edf3;
+  --admin-text-muted: #7d8590;
+}
+
+.admin-app.dark-mode .admin-topbar {
+  background: rgba(22, 27, 34, 0.92);
+  border-bottom-color: rgba(255,255,255,0.07);
+}
+
+.admin-app.dark-mode .admin-table tr:hover td {
+  background: var(--admin-surface2);
+}
+
+.admin-app.dark-mode .admin-table th {
+  background: var(--admin-surface2);
+}
+
+.admin-app.dark-mode .admin-stat-card {
+  border-color: rgba(255,255,255,0.07);
+  box-shadow: none;
+}
+
+.admin-app.dark-mode .admin-card {
+  border-color: rgba(255,255,255,0.07);
+  box-shadow: none;
+}
+
+.admin-app.dark-mode .form-control,
+.admin-app.dark-mode .admin-filter-select,
+.admin-app.dark-mode .admin-search {
+  background: var(--admin-surface2);
+  color: var(--admin-text);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.admin-app.dark-mode .admin-modal {
+  background: var(--admin-surface);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.admin-app.dark-mode .admin-modal-header,
+.admin-app.dark-mode .admin-modal-footer {
+  border-color: rgba(255,255,255,0.07);
+}
+
+.admin-app.dark-mode select option {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.admin-app.dark-mode ::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 .admin-app {

@@ -80,21 +80,38 @@ def create_shipment(order):
     if not items_summary:
         items_summary = f"Commande #{order.id}"
 
-    # Determine customer info
+    # Determine customer info — priority: Customer record > User profile > Guest fields
     customer_name = ''
     mobile_no = ''
     customer_email = ''
 
+    # 1. Try order.customer (most reliable — has direct phone field)
+    if order.customer:
+        customer_name = order.customer.name or ''
+        mobile_no = order.customer.phone or ''
+        customer_email = order.customer.email or ''
+
+    # 2. Try logged-in user + UserProfile
     if order.user:
-        customer_name = order.user.get_full_name() or order.user.username
-        mobile_no = getattr(order.user, 'profile', None) and order.user.profile.phone or ''
-        customer_email = order.user.email or ''
+        if not customer_name:
+            customer_name = order.user.get_full_name() or order.user.username or ''
+        if not customer_email:
+            customer_email = order.user.email or ''
+        if not mobile_no:
+            try:
+                mobile_no = order.user.profile.phone or ''
+            except Exception:
+                mobile_no = ''
+
+    # 3. Fallback to guest fields
     if not customer_name:
         customer_name = order.guest_name or 'Client'
     if not mobile_no:
         mobile_no = order.guest_phone or ''
     if not customer_email:
         customer_email = order.guest_email or ''
+
+    logger.info(f"Mylerz create_shipment order #{order.id}: name={customer_name!r}, phone={mobile_no!r}, email={customer_email!r}")
 
     # Determine payment type
     # If COD (cash on delivery) → Payment_Type = "Cash", COD_Value = total

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useNavigate, Outlet, Navigate, Link } from 'react-router-dom'
-import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings, Film } from 'lucide-react'
+import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings, Film, Sun, Moon } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 import './admin.css'
 import CommandMenu from './CommandMenu'
@@ -64,6 +64,11 @@ export default function AdminLayout() {
   const [unviewed, setUnviewed] = useState({ normal: 0, b2b: 0 })
   const [isMaintenance, setIsMaintenance] = useState(false)
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('admin_dark_mode') === 'true')
+
+  useEffect(() => {
+    localStorage.setItem('admin_dark_mode', darkMode)
+  }, [darkMode])
   
   // Track previous counts to detect new orders. null means first load.
   const prevUnviewedRef = useRef(null)
@@ -221,7 +226,7 @@ export default function AdminLayout() {
   const initials = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase()
 
   return (
-    <div className="admin-app">
+    <div className={`admin-app${darkMode ? ' dark-mode' : ''}`}>
       {/* Sidebar */}
       <aside className={`admin-sidebar ${!isSidebarOpen ? 'collapsed' : ''}`}>
         <div className="admin-sidebar-logo">
@@ -289,6 +294,14 @@ export default function AdminLayout() {
             </button>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              title={darkMode ? 'Passer en mode clair' : 'Passer en mode sombre'}
+              style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '6px', borderRadius: '8px', transition: 'all 0.2s' }}
+            >
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', color: isMaintenance ? 'var(--admin-danger)' : 'var(--admin-success)' }}>
                 {isMaintenance ? 'Maintenance' : 'En Ligne'}

@@ -204,6 +204,24 @@ export default function AdminOrders({ isB2B = false }) {
     }
   }
 
+  const handleMylerzTest = async () => {
+    try {
+      const res = await adminClient.get('/admin/orders/mylerz_test/')
+      const d = res.data
+      const lines = [
+        `Username configuré : ${d.username_set ? '✅ Oui' : '❌ Non'}`,
+        `Password configuré : ${d.password_set ? '✅ Oui' : '❌ Non'}`,
+        `Warehouse          : ${d.warehouse || '(vide)'}`,
+        `Base URL           : ${d.base_url}`,
+        `Authentification   : ${d.auth}`,
+        d.token_preview ? `Token (début)      : ${d.token_preview}` : '',
+      ].filter(Boolean).join('\n')
+      alert('=== DIAGNOSTIC MYLERZ ===\n\n' + lines)
+    } catch (e) {
+      alert('Erreur diagnostic: ' + (e.response?.data?.detail || e.message))
+    }
+  }
+
   const handlePrintSingleBordereau = async (id) => {
     try {
       const r = await adminClient.post('/admin/orders/bulk_packing_slips/', { ids: [id] })
@@ -285,6 +303,13 @@ export default function AdminOrders({ isB2B = false }) {
           ) : (
             <button className="btn-primary" onClick={() => navigate(isB2B ? '/admin-panel/orders-b2b/new' : '/admin-panel/orders/new')}>
               <Plus size={16}/> Créer une Commande
+            </button>
+            <button
+              onClick={handleMylerzTest}
+              title="Tester la connexion Mylerz"
+              style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#f1f5f9', color: '#475569', borderRadius: 50, border: '1px solid #e2e8f0', cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
+              🔧 Test Mylerz
             </button>
           )}
         </div>

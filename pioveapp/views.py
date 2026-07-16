@@ -996,20 +996,71 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def mylerz_test(self, request):
-        """Diagnostic: test Mylerz credentials and connection without creating a shipment."""
+        """Diagnostic: test Mylerz auth + test AddOrders with minimal payload."""
+        import requests as req_lib
+        import datetime
         from . import mylerz_service
         result = {
-            'username_set': bool(mylerz_service.MYLERZ_USERNAME),
+            'username': mylerz_service.MYLERZ_USERNAME or '(vide)',
             'password_set': bool(mylerz_service.MYLERZ_PASSWORD),
             'warehouse': mylerz_service.MYLERZ_WAREHOUSE,
             'base_url': mylerz_service.MYLERZ_BASE_URL,
         }
+        # Step 1: Auth
+        token = None
         try:
             token = mylerz_service.get_mylerz_token()
             result['auth'] = 'OK'
-            result['token_preview'] = token[:20] + '...' if token else None
         except Exception as e:
             result['auth'] = f'FAILED: {e}'
+            return Response(result)
+
+        # Step 2: Test AddOrders with minimal payload
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+        }
+        test_payload = [{
+            "PickupDueDate": (datetime.datetime.now() + datetime.timedelta(days=1)).isoformat(),
+            "Package_Serial": "DIAG-TEST-001",
+            "Description": "Test diagnostic",
+            "Total_Weight": 0.5,
+            "Service_Type": "DTD",
+            "Service": "ND",
+            "Service_Category": "Delivery",
+            "Payment_Type": "COD",
+            "COD_Value": 500.0,
+            "Pieces": [{"pieceNo": 1, "Weight": 0.5}],
+            "Customer_Name": "Test Client",
+            "Customer_Email": "test@piovecosmetics.dz",
+            "Mobile_No": "0770000000",
+            "Street": "Rue test Alger",
+            "City": "Alger",
+            "Neighborhood": "Alger Centre",
+            "District": "Alger Centre",
+            "Address_Category": "H",
+            "Special_Notes": "",
+            "Reference": "DIAG-001",
+            "WarehouseName": mylerz_service.MYLERZ_WAREHOUSE,
+            "AllowToOpenPackage": True,
+            "ValueOfGoods": 500.0,
+            "Country": "DZ",
+        }]
+        try:
+            resp = req_lib.post(
+                f"{mylerz_service.MYLERZ_BASE_URL}/api/Orders/AddOrders",
+                json=test_payload,
+                headers=headers,
+                timeout=20,
+            )
+            try:
+                result['addorders_status'] = resp.status_code
+                result['addorders_response'] = resp.json()
+            except Exception:
+                result['addorders_status'] = resp.status_code
+                result['addorders_response_raw'] = resp.text[:500]
+        except Exception as e:
+            result['addorders_error'] = str(e)
         return Response(result)
 
     @action(detail=True, methods=['post'])

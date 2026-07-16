@@ -1054,14 +1054,21 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         ids = request.data.get('ids', [])
         if not ids:
             return Response({'error': 'Aucun ID fourni.'}, status=400)
-        orders = Order.objects.filter(id__in=ids)
         from . import mylerz_service
+        # Check credentials first
+        if not mylerz_service.MYLERZ_USERNAME or not mylerz_service.MYLERZ_PASSWORD:
+            return Response({'error': 'Credentials Mylerz non configurés sur le serveur (MYLERZ_USERNAME / MYLERZ_PASSWORD manquants dans le .env).'}, status=400)
+        orders = Order.objects.filter(id__in=ids)
         results = []
         for order in orders:
             if order.mylerz_barcode:
-                results.append({'id': order.id, 'success': False, 'error': 'Déjà envoyé'})
+                results.append({'id': order.id, 'success': False, 'error': 'Déjà envoyé', 'message': 'Déjà envoyé'})
                 continue
-            res = mylerz_service.create_shipment(order)
+            try:
+                res = mylerz_service.create_shipment(order)
+            except Exception as e:
+                results.append({'id': order.id, 'success': False, 'message': str(e)})
+                continue
             if res.get('success'):
                 order.mylerz_barcode = res.get('barcode', '')
                 order.mylerz_pickup_code = res.get('pickup_code', '')

@@ -164,11 +164,20 @@ export default function AdminOrders({ isB2B = false }) {
     if (selectedIds.length === 0) return
     if (!window.confirm('Voulez-vous générer les colis Mylerz pour les commandes sélectionnées ?')) return
     try {
-      await adminClient.post('/admin/orders/bulk_mylerz_ship/', { ids: selectedIds })
-      alert('Action Mylerz effectuée.')
+      const res = await adminClient.post('/admin/orders/bulk_mylerz_ship/', { ids: selectedIds })
+      const results = res.data?.results || []
+      const failed = results.filter(r => !r.success)
+      const ok = results.filter(r => r.success)
+      if (failed.length === 0) {
+        alert(`✅ ${ok.length} colis Mylerz créé(s) avec succès.`)
+      } else {
+        const msgs = failed.map(r => `#${r.id}: ${r.message || r.error || 'Erreur inconnue'}`).join('\n')
+        alert(`⚠️ ${ok.length} réussi(s), ${failed.length} échec(s):\n\n${msgs}`)
+      }
       fetchOrders()
     } catch (e) {
-      alert('Erreur lors de la génération Mylerz.')
+      const msg = e.response?.data?.detail || e.response?.data?.error || e.message || 'Erreur inconnue'
+      alert(`Erreur Mylerz:\n${msg}`)
     }
   }
 

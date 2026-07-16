@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useNavigate, Outlet, Navigate, Link } from 'react-router-dom'
-import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings, Film, Sun, Moon } from 'lucide-react'
+import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings, Film, Sun, Moon, Maximize2, Minimize2 } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 import './admin.css'
 import CommandMenu from './CommandMenu'
@@ -65,10 +65,15 @@ export default function AdminLayout() {
   const [isMaintenance, setIsMaintenance] = useState(false)
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('admin_dark_mode') === 'true')
+  const [fullWidth, setFullWidth] = useState(() => localStorage.getItem('admin_full_width') === 'true')
 
   useEffect(() => {
     localStorage.setItem('admin_dark_mode', darkMode)
   }, [darkMode])
+
+  useEffect(() => {
+    localStorage.setItem('admin_full_width', fullWidth)
+  }, [fullWidth])
   
   // Track previous counts to detect new orders. null means first load.
   const prevUnviewedRef = useRef(null)
@@ -228,7 +233,7 @@ export default function AdminLayout() {
   return (
     <div className={`admin-app${darkMode ? ' dark-mode' : ''}`}>
       {/* Sidebar */}
-      <aside className={`admin-sidebar ${!isSidebarOpen ? 'collapsed' : ''}`}>
+      <aside className={`admin-sidebar ${!isSidebarOpen || fullWidth ? 'collapsed' : ''}`}>
         <div className="admin-sidebar-logo">
           <img src="/logo.png" alt="PIOVÉ" style={{ height: '35px', width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)', alignSelf: 'flex-start', marginBottom: '8px' }} />
           <span>Admin Panel</span>
@@ -294,6 +299,14 @@ export default function AdminLayout() {
             </button>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            {/* Full Width Toggle */}
+            <button
+              onClick={() => setFullWidth(!fullWidth)}
+              title={fullWidth ? 'Réduire (afficher sidebar)' : 'Plein écran (masquer sidebar)'}
+              style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '6px', borderRadius: '8px', transition: 'all 0.2s' }}
+            >
+              {fullWidth ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+            </button>
             {/* Dark Mode Toggle */}
             <button
               onClick={() => setDarkMode(!darkMode)}

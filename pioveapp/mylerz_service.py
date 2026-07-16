@@ -183,9 +183,26 @@ def create_shipment(order):
             headers=_auth_headers(),
             timeout=20,
         )
-        resp.raise_for_status()
-        data = resp.json()
-        logger.info(f"Mylerz AddOrders response for order #{order.id}: {data}")
+        # Don't use raise_for_status — we want to read the body even on HTTP error
+        try:
+            data = resp.json()
+        except Exception:
+            data = {'raw_text': resp.text, 'status_code': resp.status_code}
+
+        logger.info(f"Mylerz AddOrders HTTP {resp.status_code} for order #{order.id}: {data}")
+
+        if resp.status_code >= 400:
+            # HTTP error — extract message from response body
+            msg = (
+                data.get('Message') or
+                data.get('message') or
+                data.get('ErrorDescription') or
+                data.get('error_description') or
+                data.get('raw_text') or
+                f"Erreur HTTP {resp.status_code} de l'API Mylerz."
+            )
+            logger.warning(f"Mylerz HTTP {resp.status_code} for order #{order.id}: {msg}")
+            return {'success': False, 'barcode': None, 'pickup_code': None, 'message': msg, 'raw': data}
 
         # Parse response — Mylerz V1.3 uses IsErrorState and Value.Packages
         is_error = data.get('IsErrorState', True)
@@ -208,7 +225,7 @@ def create_shipment(order):
         else:
             # Try to extract the error message
             val = data.get('Value') or {}
-            msg = val.get('ErrorMessage') or data.get('ErrorDescription') or 'Erreur Mylerz (format inconnu).'
+            msg = val.get('ErrorMessage') or data.get('ErrorDescription') or data.get('Message') or f"Erreur Mylerz: {data}"
             logger.warning(f"Mylerz shipment failed for order #{order.id}: {msg}")
             return {'success': False, 'barcode': None, 'pickup_code': None, 'message': msg, 'raw': data}
 

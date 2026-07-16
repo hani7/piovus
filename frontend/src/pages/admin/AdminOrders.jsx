@@ -382,9 +382,9 @@ export default function AdminOrders({ isB2B = false }) {
                       {o.guest_phone || (o.user ? '—' : '—')}
                     </td>
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem' }}>{o.wilaya || '—'}</td>
-                    <td style={{ fontWeight: 600 }}>{Number(o.total).toLocaleString('fr-DZ')} DA</td>
+                    <td style={{ fontWeight: 600 }}>{(Number(o.total) - Number(o.delivery_cost)).toLocaleString('fr-DZ')} DA</td>
                     <td style={{ color: 'var(--color-gray-500)' }}>{Number(o.delivery_cost).toLocaleString('fr-DZ')} DA</td>
-                    <td style={{ fontWeight: 700, color: 'var(--color-black)' }}>{(Number(o.total) + Number(o.delivery_cost)).toLocaleString('fr-DZ')} DA</td>
+                    <td style={{ fontWeight: 700, color: 'var(--color-black)' }}>{Number(o.total).toLocaleString('fr-DZ')} DA</td>
                     <td>
                       {o.payment_method === 'cib' ? (
                         <span className="badge" style={{ background: '#e0e7ff', color: '#3730a3', fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>En Ligne</span>
@@ -509,7 +509,7 @@ export default function AdminOrders({ isB2B = false }) {
               <div style={{ borderTop: '1px solid var(--admin-border)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
                   <span style={{ color: 'var(--admin-text-muted)' }}>Sous-total</span>
-                  <span style={{ fontWeight: 500 }}>{Number(detail.total).toLocaleString('fr-DZ')} DA</span>
+                  <span style={{ fontWeight: 500 }}>{(Number(detail.total) - Number(detail.delivery_cost || 0)).toLocaleString('fr-DZ')} DA</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
                   <span style={{ color: 'var(--admin-text-muted)' }}>Livraison</span>
@@ -521,7 +521,7 @@ export default function AdminOrders({ isB2B = false }) {
                     <span className={`badge ${STATUS_BADGE[detail.status]}`}>{STATUS_LABELS[detail.status]}</span>
                   </div>
                   <div style={{ fontWeight: 700, fontSize: '1.15rem', color: 'var(--admin-gold, #b8860b)' }}>
-                    {(Number(detail.total) + Number(detail.delivery_cost || 0)).toLocaleString('fr-DZ')} DA
+                    {Number(detail.total).toLocaleString('fr-DZ')} DA
                   </div>
                 </div>
               </div>

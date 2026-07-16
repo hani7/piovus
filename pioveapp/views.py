@@ -994,6 +994,24 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                 user_agent=self.request.META.get('HTTP_USER_AGENT')
         )
 
+    @action(detail=False, methods=['get'])
+    def mylerz_test(self, request):
+        """Diagnostic: test Mylerz credentials and connection without creating a shipment."""
+        from . import mylerz_service
+        result = {
+            'username_set': bool(mylerz_service.MYLERZ_USERNAME),
+            'password_set': bool(mylerz_service.MYLERZ_PASSWORD),
+            'warehouse': mylerz_service.MYLERZ_WAREHOUSE,
+            'base_url': mylerz_service.MYLERZ_BASE_URL,
+        }
+        try:
+            token = mylerz_service.get_mylerz_token()
+            result['auth'] = 'OK'
+            result['token_preview'] = token[:20] + '...' if token else None
+        except Exception as e:
+            result['auth'] = f'FAILED: {e}'
+        return Response(result)
+
     @action(detail=True, methods=['post'])
     def mylerz_ship(self, request, pk=None):
         order = self.get_object()

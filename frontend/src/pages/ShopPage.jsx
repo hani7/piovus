@@ -183,7 +183,7 @@ export default function ShopPage() {
         )}
       </div>
 
-      {/* ── Toolbar: title + filter button */}
+      {/* ── Toolbar: title + filter button (mobile only) */}
       <div className="container shop-toolbar">
         <h2 className="shop-toolbar__title">NOS PRODUITS</h2>
         <button
@@ -199,30 +199,96 @@ export default function ShopPage() {
         </button>
       </div>
 
-      {/* ── Products */}
-      <div className="container shop-products-area">
-        {loading ? (
-          <div className="spinner" />
-        ) : products.length === 0 ? (
-          <div className="shop-empty">
-            <p>Aucun produit trouvé.</p>
-            <button className="btn btn-accent" onClick={() => setSearchParams({})} id="shop-empty-reset">
-              Voir tous les produits
+      {/* ── Desktop layout: sidebar sticky + products */}
+      <div className="container shop-page__body">
+
+        {/* Sidebar Desktop (visible on ≥992px only via CSS) */}
+        <aside className="shop-sidebar-desktop">
+          <div className="filter-drawer__section">
+            <p className="filter-drawer__label">Trier par</p>
+            <select value={sortBy} onChange={(e) => updateParam('sort', e.target.value)} className="form-input" id="sort-select-desktop">
+              {SORT_OPTIONS.map((o) => (<option key={o.value} value={o.value}>{o.label}</option>))}
+            </select>
+          </div>
+          <div className="filter-drawer__section">
+            <p className="filter-drawer__label">Recherche</p>
+            <input className="form-input" type="text" placeholder="Rechercher..." value={searchQuery}
+              onChange={(e) => updateParam('search', e.target.value)} id="filter-search-desktop" />
+          </div>
+          <div className="filter-drawer__section">
+            <p className="filter-drawer__label">Catégories</p>
+            <button className={`filter-cat-btn ${!selectedCategory ? 'active' : ''}`}
+              onClick={() => updateParam('category', '')} id="filter-cat-all-desktop">Tous les produits</button>
+            {categories.map((c) => (
+              <button key={c.slug}
+                className={`filter-cat-btn ${selectedCategory === c.slug ? 'active' : ''}`}
+                onClick={() => updateParam('category', c.slug)}
+                id={`filter-cat-desktop-${c.slug}`}>{c.name}</button>
+            ))}
+          </div>
+          <div className="filter-drawer__section">
+            <p className="filter-drawer__label">Prix (DA)</p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input type="number" className="form-input" placeholder="Min" value={minPrice}
+                onChange={(e) => updateParam('min_price', e.target.value)} style={{ padding: '8px' }} />
+              <input type="number" className="form-input" placeholder="Max" value={maxPrice}
+                onChange={(e) => updateParam('max_price', e.target.value)} style={{ padding: '8px' }} />
+            </div>
+          </div>
+          <div className="filter-drawer__section">
+            <p className="filter-drawer__label">Filtres spéciaux</p>
+            <label className="filter-toggle">
+              <input type="checkbox" checked={filterBestseller}
+                onChange={(e) => updateParam('bestseller', e.target.checked ? 'true' : '')} />
+              <span>⭐ Best Sellers</span>
+            </label>
+            <label className="filter-toggle">
+              <input type="checkbox" checked={filterPromo}
+                onChange={(e) => updateParam('promo', e.target.checked ? 'true' : '')} />
+              <span>🏷️ En promotion</span>
+            </label>
+            <label className="filter-toggle">
+              <input type="checkbox" checked={showNew}
+                onChange={(e) => updateParam('new', e.target.checked ? 'true' : '')} />
+              <span>✨ Nouveautés</span>
+            </label>
+          </div>
+          {hasActiveFilters && (
+            <button className="btn btn-outline" style={{ width: '100%', marginTop: '8px', fontSize: '0.8rem' }}
+              onClick={() => setSearchParams({})} id="filter-reset-desktop">
+              ✕ Réinitialiser
             </button>
-          </div>
-        ) : groups ? (
-          Object.entries(groups).map(([catName, catProducts]) => (
-            <section key={catName} className="shop-category-section">
-              <div className="products-grid">
-                {catProducts.map(p => <ProductCard key={p.id} product={p} />)}
+          )}
+        </aside>
+
+        {/* Products area */}
+        <div className="shop-products-wrapper">
+          <div className="shop-products-area">
+            {loading ? (
+              <div className="spinner" />
+            ) : products.length === 0 ? (
+              <div className="shop-empty">
+                <p>Aucun produit trouvé.</p>
+                <button className="btn btn-accent" onClick={() => setSearchParams({})} id="shop-empty-reset">
+                  Voir tous les produits
+                </button>
               </div>
-            </section>
-          ))
-        ) : (
-          <div className="products-grid">
-            {products.map(p => <ProductCard key={p.id} product={p} />)}
+            ) : groups ? (
+              Object.entries(groups).map(([catName, catProducts]) => (
+                <section key={catName} className="shop-category-section">
+                  <div className="products-grid">
+                    {catProducts.map(p => <ProductCard key={p.id} product={p} />)}
+                  </div>
+                </section>
+              ))
+            ) : (
+              <div className="products-grid">
+                {products.map(p => <ProductCard key={p.id} product={p} />)}
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
       </div>
     </main>
   )

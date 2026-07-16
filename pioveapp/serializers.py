@@ -199,11 +199,12 @@ class B2BRegisterSerializer(serializers.ModelSerializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     subtotal = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     product_image = serializers.SerializerMethodField()
+    variant_color = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
         fields = [
-            'id', 'product', 'variant', 'product_name', 'variant_name',
+            'id', 'product', 'variant', 'product_name', 'variant_name', 'variant_color',
             'quantity', 'price_at_purchase', 'subtotal', 'product_image'
         ]
         
@@ -218,6 +219,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
         if url and request:
             return request.build_absolute_uri(url)
         return url
+
+    def get_variant_color(self, obj):
+        if obj.variant and obj.variant.color_hex:
+            return obj.variant.color_hex
+        return None
 
 
 class OrderItemCreateSerializer(serializers.Serializer):

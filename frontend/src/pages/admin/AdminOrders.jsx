@@ -492,15 +492,38 @@ export default function AdminOrders({ isB2B = false }) {
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', borderBottom: '1px solid var(--admin-border)' }}>
                     <div>
                       <div style={{ fontWeight: 500, fontSize: '0.9rem' }}>{item.product_name}</div>
+                      {item.variant_name && (
+                        <div style={{ fontSize: '0.78rem', color: 'var(--admin-text-muted)', display: 'flex', alignItems: 'center', gap: 5, marginTop: 2 }}>
+                          {item.variant_color && (
+                            <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: '50%', background: item.variant_color, border: '1px solid rgba(0,0,0,0.15)', flexShrink: 0 }} />
+                          )}
+                          <span style={{ fontStyle: 'italic' }}>{item.variant_name}</span>
+                        </div>
+                      )}
                       <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)' }}>Qté: {item.quantity}</div>
                     </div>
                     <div style={{ fontWeight: 600 }}>{Number(item.subtotal).toLocaleString('fr-DZ')} DA</div>
                   </div>
                 ))}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className={`badge ${STATUS_BADGE[detail.status]}`}>{STATUS_LABELS[detail.status]}</span>
-                <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>Total: {Number(detail.total).toLocaleString('fr-DZ')} DA</div>
+              <div style={{ borderTop: '1px solid var(--admin-border)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'var(--admin-text-muted)' }}>Sous-total</span>
+                  <span style={{ fontWeight: 500 }}>{Number(detail.total).toLocaleString('fr-DZ')} DA</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'var(--admin-text-muted)' }}>Livraison</span>
+                  <span style={{ fontWeight: 500 }}>{Number(detail.delivery_cost || 0).toLocaleString('fr-DZ')} DA</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--admin-border)', paddingTop: 8, marginTop: 2 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontWeight: 700, fontSize: '1rem' }}>Total commande</span>
+                    <span className={`badge ${STATUS_BADGE[detail.status]}`}>{STATUS_LABELS[detail.status]}</span>
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: '1.15rem', color: 'var(--admin-gold, #b8860b)' }}>
+                    {(Number(detail.total) + Number(detail.delivery_cost || 0)).toLocaleString('fr-DZ')} DA
+                  </div>
+                </div>
               </div>
             </div>
             <div className="admin-modal-footer" style={{ display: 'flex', justifyContent: 'space-between' }}>

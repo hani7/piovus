@@ -230,10 +230,21 @@ def create_shipment(order):
                 data.get('Message') or
                 data.get('message') or
                 data.get('ErrorDescription') or
-                data.get('error_description') or
-                data.get('raw_text') or
-                f"Erreur HTTP {resp.status_code} de l'API Mylerz."
+                data.get('error_description')
             )
+            
+            if not msg and data.get('raw_text'):
+                raw = data.get('raw_text')
+                import re
+                match = re.search(r'<title>(.*?)</title>', raw, re.IGNORECASE | re.DOTALL)
+                if match:
+                    msg = "Erreur interne Mylerz: " + match.group(1).replace('<br>', ' - ').strip()
+                else:
+                    msg = raw[:200] + "..." # Truncate raw text
+                    
+            if not msg:
+                msg = f"Erreur HTTP {resp.status_code} de l'API Mylerz."
+                
             logger.warning(f"Mylerz HTTP {resp.status_code} for order #{order.id}: {msg}")
             return {'success': False, 'barcode': None, 'pickup_code': None, 'message': msg, 'raw': data}
 

@@ -50,7 +50,38 @@ export default function AdminOrderDetail() {
       alert('Colis Mylerz créé avec succès.')
       load()
     } catch (e) {
-      alert(e.response?.data?.message || 'Erreur lors de la création du colis.')
+      const msg = e.response?.data?.message || e.response?.data?.error || JSON.stringify(e.response?.data) || 'Erreur lors de la création du colis.'
+      alert('❌ ' + msg)
+    } finally {
+      setMylerzLoading(false)
+    }
+  }
+
+  const handleMylerzDebug = async () => {
+    setMylerzLoading(true)
+    try {
+      const res = await adminClient.get(`/admin/orders/${id}/mylerz_ship_debug/`)
+      const d = res.data
+      const html = `<!DOCTYPE html><html><head><title>Debug Mylerz #${id}</title>
+<style>body{font-family:monospace;background:#0f172a;color:#e2e8f0;padding:24px;margin:0}
+h2{color:#38bdf8}h3{color:#fbbf24;margin-top:20px}
+.ok{color:#4ade80}.err{color:#f87171}
+pre{background:#1e293b;padding:16px;border-radius:8px;overflow:auto;white-space:pre-wrap;word-break:break-all;font-size:12px;max-height:400px}
+</style></head><body>
+<h2>🔍 Debug Payload Mylerz — Commande #${d.order_id}</h2>
+<div class="${d.mylerz_barcode_already_set ? 'err' : 'ok'}">
+  Barcode déjà enregistré: ${d.mylerz_barcode_already_set ? '❌ OUI → ' + d.mylerz_barcode : '✅ Non (nouvelle expédition)'}
+</div>
+${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.error}\n\n${d.traceback}</pre>` : ''}
+<h3>Payload qui sera envoyé à Mylerz:</h3>
+<pre>${JSON.stringify(d.payload, null, 2)}</pre>
+<h3>WarehouseName: <span class="${d.warehouse ? 'ok' : 'err'}">${d.warehouse || '(vide — non envoyé)'}</span></h3>
+</body></html>`
+      const w = window.open('', '_blank', 'width=900,height=700')
+      w.document.write(html)
+      w.document.close()
+    } catch (e) {
+      alert('Debug error: ' + (e.response?.data?.error || e.message))
     } finally {
       setMylerzLoading(false)
     }

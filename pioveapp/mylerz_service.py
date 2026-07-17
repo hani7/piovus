@@ -10,13 +10,29 @@ from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
+# Module-level vars — kept for backward compat with views.py credential checks.
+# The actual functions below always read settings dynamically at call time.
 MYLERZ_BASE_URL = getattr(settings, 'MYLERZ_BASE_URL', 'https://integration.algeria.mylerz.net')
-MYLERZ_USERNAME = getattr(settings, 'MYLERZ_USERNAME', '')
-MYLERZ_PASSWORD = getattr(settings, 'MYLERZ_PASSWORD', '')
-MYLERZ_WAREHOUSE = getattr(settings, 'MYLERZ_WAREHOUSE_NAME', 'piovestore')
+MYLERZ_USERNAME = getattr(settings, 'MYLERZ_USERNAME', '') or ''
+MYLERZ_PASSWORD = getattr(settings, 'MYLERZ_PASSWORD', '') or ''
+MYLERZ_WAREHOUSE = getattr(settings, 'MYLERZ_WAREHOUSE_NAME', '') or ''
 
 CACHE_KEY = 'mylerz_access_token'
 TOKEN_TTL = 60 * 50  # 50 minutes (tokens typically last 60 min)
+
+# Dynamic config helpers — always fresh from settings
+def _cfg_base_url():
+    return getattr(settings, 'MYLERZ_BASE_URL', 'https://integration.algeria.mylerz.net')
+
+def _cfg_username():
+    return (getattr(settings, 'MYLERZ_USERNAME', '') or '').strip()
+
+def _cfg_password():
+    return (getattr(settings, 'MYLERZ_PASSWORD', '') or '').strip()
+
+def _cfg_warehouse():
+    return (getattr(settings, 'MYLERZ_WAREHOUSE_NAME', '') or '').strip()
+
 
 
 # ─── Authentication ───────────────────────────────────────────────────────────
@@ -26,20 +42,24 @@ def get_mylerz_token():
     Authenticate with Mylerz and return a Bearer token.
     Caches the token for TOKEN_TTL seconds to avoid repeated auth calls.
     """
+    username = _cfg_username()
+    password = _cfg_password()
+    base_url = _cfg_base_url()
+
     token = cache.get(CACHE_KEY)
     if token:
         return token
 
-    if not MYLERZ_USERNAME or not MYLERZ_PASSWORD:
+    if not username or not password:
         raise ValueError("Mylerz credentials are not configured. Set MYLERZ_USERNAME and MYLERZ_PASSWORD in .env")
 
     try:
         resp = requests.post(
-            f"{MYLERZ_BASE_URL}/token",
+            f"{base_url}/token",
             data={
                 'grant_type': 'password',
-                'username': MYLERZ_USERNAME,
-                'password': MYLERZ_PASSWORD,
+                'username': username,
+                'password': password,
             },
             headers={'Content-Type': 'application/x-www-form-urlencoded'},
             timeout=15,
@@ -169,7 +189,7 @@ def create_shipment(order):
             "Address_Category": address_category,
             "Special_Notes": order.notes or '',
             "Reference": str(order.id),
-            "WarehouseName": MYLERZ_WAREHOUSE,
+            "WarehouseName": _cfg_warehouse(),
             "AllowToOpenPackage": True,
             "ValueOfGoods": float(order.total),
             "Country": "DZ",
@@ -178,7 +198,7 @@ def create_shipment(order):
 
     try:
         resp = requests.post(
-            f"{MYLERZ_BASE_URL}/api/Orders/AddOrders",
+            f"{_cfg_base_url()}/api/Orders/AddOrders",
             json=payload,
             headers=_auth_headers(),
             timeout=20,

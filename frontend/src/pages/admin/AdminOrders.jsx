@@ -208,21 +208,25 @@ export default function AdminOrders({ isB2B = false }) {
     try {
       const res = await adminClient.get('/admin/orders/mylerz_test/')
       const d = res.data
-      // username can be 'username_set' (bool) or 'username' (string) depending on version
-      const usernameOk = d.username_set || (d.username && d.username !== '(vide)')
-      const lines = [
-        `Username           : ${d.username || (d.username_set ? '✅ Oui' : '❌ Non')}`,
-        `Password configuré : ${d.password_set ? '✅ Oui' : '❌ Non'}`,
-        `Warehouse          : ${d.warehouse || '(vide)'}`,
-        `Base URL           : ${d.base_url}`,
-        `Authentification   : ${d.auth}`,
-        d.addorders_status ? `\n--- Test AddOrders ---` : '',
-        d.addorders_status ? `HTTP Status        : ${d.addorders_status}` : '',
-        d.addorders_response ? `Réponse Mylerz     : ${JSON.stringify(d.addorders_response, null, 2)}` : '',
-        d.addorders_response_raw ? `Réponse brute      : ${d.addorders_response_raw}` : '',
-        d.addorders_error ? `Erreur réseau      : ${d.addorders_error}` : '',
-      ].filter(Boolean).join('\n')
-      alert('=== DIAGNOSTIC MYLERZ ===\n\n' + lines)
+      const html = `<!DOCTYPE html><html><head><title>Mylerz Diagnostic</title>
+<style>body{font-family:monospace;background:#0f172a;color:#e2e8f0;padding:24px;margin:0}
+h2{color:#38bdf8;margin-bottom:16px}
+.ok{color:#4ade80}.err{color:#f87171}.sec{color:#fbbf24;margin-top:16px;font-weight:bold}
+pre{background:#1e293b;padding:16px;border-radius:8px;overflow:auto;white-space:pre-wrap;word-break:break-all;font-size:13px}
+</style></head><body>
+<h2>🔧 Diagnostic Mylerz</h2>
+<pre>Username    : ${d.username || '(vide)'}
+Password    : ${d.password_set ? '<span class="ok">✅ Configuré</span>' : '<span class="err">❌ Non configuré</span>'}
+Warehouse   : ${d.warehouse || '(vide)'}
+Base URL    : ${d.base_url}
+Auth        : <span class="${d.auth === 'OK' ? 'ok' : 'err'}">${d.auth}</span></pre>
+${d.addorders_status ? `<div class="sec">--- Test AddOrders ---</div>
+<pre>HTTP Status : <span class="${d.addorders_status < 300 ? 'ok' : 'err'}">${d.addorders_status}</span>
+Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw || d.addorders_error, null, 2)}</pre>` : ''}
+</body></html>`
+      const w = window.open('', '_blank', 'width=800,height=600')
+      w.document.write(html)
+      w.document.close()
     } catch (e) {
       alert('Erreur diagnostic: ' + (e.response?.data?.detail || e.message))
     }

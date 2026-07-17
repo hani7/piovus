@@ -1069,7 +1069,14 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         if order.mylerz_barcode:
             return Response({'error': 'Ce colis a déjà un code-barres Mylerz.'}, status=400)
         from . import mylerz_service
-        res = mylerz_service.create_shipment(order)
+        try:
+            res = mylerz_service.create_shipment(order)
+        except Exception as e:
+            import traceback
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"mylerz_ship exception for order #{order.id}: {traceback.format_exc()}")
+            return Response({'success': False, 'message': f'Erreur serveur Mylerz: {e}'}, status=400)
         if res.get('success'):
             order.mylerz_barcode = res.get('barcode', '')
             order.mylerz_pickup_code = res.get('pickup_code', '')

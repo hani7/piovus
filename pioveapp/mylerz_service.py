@@ -189,12 +189,17 @@ def create_shipment(order):
             "Address_Category": address_category,
             "Special_Notes": order.notes or '',
             "Reference": str(order.id),
-            "WarehouseName": _cfg_warehouse(),
             "AllowToOpenPackage": True,
             "ValueOfGoods": float(order.total),
             "Country": "DZ",
         }
     ]
+
+    # Add WarehouseName only if configured — wrong name causes HTTP 500 from Mylerz
+    warehouse = _cfg_warehouse()
+    if warehouse:
+        payload[0]["WarehouseName"] = warehouse
+    logger.info(f"Mylerz create_shipment for order #{order.id}: warehouse={warehouse!r}, customer={customer_name!r}, phone={mobile_no!r}, city={city!r}")
 
     try:
         resp = requests.post(

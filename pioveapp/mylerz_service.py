@@ -199,11 +199,12 @@ def create_shipment(order):
         }
     ]
 
-    # Add WarehouseName only if configured — wrong name causes HTTP 500 from Mylerz
+    # WarehouseName = Lieu de ramassage (pickup location name in Mylerz portal)
+    # Leave empty/omit if not set — the API test succeeded without it
     warehouse = _cfg_warehouse()
     if warehouse:
         payload[0]["WarehouseName"] = warehouse
-    logger.info(f"Mylerz create_shipment for order #{order.id}: warehouse={warehouse!r}, customer={customer_name!r}, phone={mobile_no!r}, city={city!r}")
+    logger.info(f"Mylerz order #{order.id}: warehouse={warehouse!r}, city={city!r}, phone={mobile_no!r}, weight={total_weight}, payment={payment_type}, cod={cod_value}")
 
     try:
         resp = requests.post(

@@ -208,13 +208,19 @@ export default function AdminOrders({ isB2B = false }) {
     try {
       const res = await adminClient.get('/admin/orders/mylerz_test/')
       const d = res.data
+      // username can be 'username_set' (bool) or 'username' (string) depending on version
+      const usernameOk = d.username_set || (d.username && d.username !== '(vide)')
       const lines = [
-        `Username configuré : ${d.username_set ? '✅ Oui' : '❌ Non'}`,
+        `Username           : ${d.username || (d.username_set ? '✅ Oui' : '❌ Non')}`,
         `Password configuré : ${d.password_set ? '✅ Oui' : '❌ Non'}`,
         `Warehouse          : ${d.warehouse || '(vide)'}`,
         `Base URL           : ${d.base_url}`,
         `Authentification   : ${d.auth}`,
-        d.token_preview ? `Token (début)      : ${d.token_preview}` : '',
+        d.addorders_status ? `\n--- Test AddOrders ---` : '',
+        d.addorders_status ? `HTTP Status        : ${d.addorders_status}` : '',
+        d.addorders_response ? `Réponse Mylerz     : ${JSON.stringify(d.addorders_response, null, 2)}` : '',
+        d.addorders_response_raw ? `Réponse brute      : ${d.addorders_response_raw}` : '',
+        d.addorders_error ? `Erreur réseau      : ${d.addorders_error}` : '',
       ].filter(Boolean).join('\n')
       alert('=== DIAGNOSTIC MYLERZ ===\n\n' + lines)
     } catch (e) {

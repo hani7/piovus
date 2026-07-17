@@ -3,6 +3,7 @@ Mylerz Algeria Delivery API Service
 Wraps all Mylerz API calls: authentication, shipment creation, tracking, cancellation.
 """
 
+import os
 import requests
 import logging
 from django.conf import settings
@@ -20,18 +21,18 @@ MYLERZ_WAREHOUSE = getattr(settings, 'MYLERZ_WAREHOUSE_NAME', '') or ''
 CACHE_KEY = 'mylerz_access_token'
 TOKEN_TTL = 60 * 50  # 50 minutes (tokens typically last 60 min)
 
-# Dynamic config helpers — always fresh from settings
+# Dynamic config helpers — read os.environ directly (more reliable than settings on cPanel)
 def _cfg_base_url():
-    return getattr(settings, 'MYLERZ_BASE_URL', 'https://integration.algeria.mylerz.net')
+    return (os.environ.get('MYLERZ_BASE_URL') or getattr(settings, 'MYLERZ_BASE_URL', '') or 'https://integration.algeria.mylerz.net').strip()
 
 def _cfg_username():
-    return (getattr(settings, 'MYLERZ_USERNAME', '') or '').strip()
+    return (os.environ.get('MYLERZ_USERNAME') or getattr(settings, 'MYLERZ_USERNAME', '') or '').strip()
 
 def _cfg_password():
-    return (getattr(settings, 'MYLERZ_PASSWORD', '') or '').strip()
+    return (os.environ.get('MYLERZ_PASSWORD') or getattr(settings, 'MYLERZ_PASSWORD', '') or '').strip()
 
 def _cfg_warehouse():
-    return (getattr(settings, 'MYLERZ_WAREHOUSE_NAME', '') or '').strip()
+    return (os.environ.get('MYLERZ_WAREHOUSE_NAME') or getattr(settings, 'MYLERZ_WAREHOUSE_NAME', '') or '').strip()
 
 
 

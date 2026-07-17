@@ -994,6 +994,90 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                 user_agent=self.request.META.get('HTTP_USER_AGENT')
         )
 
+    @action(detail=True, methods=['get'])
+    def mylerz_ship_debug(self, request, pk=None):
+        """Debug: build the Mylerz payload for a real order WITHOUT sending it."""
+        order = self.get_object()
+        from . import mylerz_service
+        import datetime
+        try:
+            # Reproduce create_shipment payload building logic
+            items_summary = ', '.join(
+                f"{item.product_name} x{item.quantity}" for item in order.items.all()
+            ) or f"Commande #{order.id}"
+
+            customer_name, mobile_no, customer_email = '', '', ''
+            if order.customer:
+                customer_name = order.customer.name or ''
+                mobile_no = order.customer.phone or ''
+                customer_email = order.customer.email or ''
+            if order.user:
+                if not customer_name:
+                    customer_name = order.user.get_full_name() or order.user.username or ''
+                if not customer_email:
+                    customer_email = order.user.email or ''
+                if not mobile_no:
+                    try: mobile_no = order.user.profile.phone or ''
+                    except: mobile_no = ''
+            customer_name = customer_name or getattr(order, 'guest_name', '') or 'Client'
+            mobile_no = mobile_no or getattr(order, 'guest_phone', '') or ''
+            customer_email = customer_email or getattr(order, 'guest_email', '') or ''
+
+            payment_type = 'PP' if order.payment_method == 'cib' else 'COD'
+            cod_value = 0.0 if order.payment_method == 'cib' else float(order.total)
+
+            city = getattr(order, 'wilaya', None) or 'Alger'
+            neighborhood = getattr(order, 'city', None) or city
+            street = getattr(order, 'shipping_address', None) or neighborhood
+
+            total_weight = 0.0
+            for item in order.items.all():
+                try:
+                    w = float(getattr(item.product, 'weight_box', None) or 0)
+                except: w = 0.0
+                if w <= 0: w = 0.1
+                total_weight += w * item.quantity
+            if total_weight < 0.1: total_weight = 0.5
+
+            warehouse = mylerz_service._cfg_warehouse()
+            payload = {
+                "PickupDueDate": (datetime.datetime.now() + datetime.timedelta(days=1)).isoformat(),
+                "Package_Serial": str(order.id),
+                "Description": items_summary[:200],
+                "Total_Weight": round(total_weight, 2),
+                "Service_Type": "DTD",
+                "Service": "ND",
+                "Service_Category": "Delivery",
+                "Payment_Type": payment_type,
+                "COD_Value": cod_value,
+                "Pieces": [{"pieceNo": 1, "Weight": round(total_weight, 2)}],
+                "Customer_Name": customer_name,
+                "Customer_Email": customer_email,
+                "Mobile_No": mobile_no,
+                "Street": street,
+                "City": city,
+                "Neighborhood": neighborhood,
+                "District": neighborhood,
+                "Address_Category": "H",
+                "Special_Notes": getattr(order, 'notes', '') or '',
+                "Reference": str(order.id),
+                "AllowToOpenPackage": True,
+                "ValueOfGoods": float(order.total),
+                "Country": "DZ",
+            }
+            if warehouse:
+                payload["WarehouseName"] = warehouse
+            return Response({
+                'order_id': order.id,
+                'mylerz_barcode_already_set': bool(order.mylerz_barcode),
+                'mylerz_barcode': order.mylerz_barcode,
+                'payload': payload,
+                'warehouse': warehouse,
+            })
+        except Exception as e:
+            import traceback
+            return Response({'error': str(e), 'traceback': traceback.format_exc()}, status=500)
+
     @action(detail=False, methods=['get'])
     def mylerz_test(self, request):
         """Diagnostic: test Mylerz auth + test AddOrders with minimal payload."""

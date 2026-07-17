@@ -14,6 +14,25 @@ try:
     except Exception:
         pass
 
+    # ── Auto git pull on every restart ───────────────────────────────────────
+    try:
+        _repo_dir = os.path.dirname(os.path.abspath(__file__))
+        _pull_result = subprocess.run(
+            ['git', 'pull', 'origin', 'main'],
+            cwd=_repo_dir,
+            capture_output=True, text=True, timeout=30
+        )
+        with open(LOG_PATH, 'a') as _f:
+            _f.write(f"\n[git pull] stdout: {_pull_result.stdout.strip()}\n")
+            _f.write(f"[git pull] stderr: {_pull_result.stderr.strip()}\n")
+    except Exception as _e:
+        try:
+            with open(LOG_PATH, 'a') as _f:
+                _f.write(f"\n[git pull] FAILED: {_e}\n")
+        except Exception:
+            pass
+    # ─────────────────────────────────────────────────────────────────────────
+
     try:
         import django
     except ImportError:

@@ -156,10 +156,13 @@ def create_shipment(order):
     import datetime
     pickup_date = (datetime.datetime.now() + datetime.timedelta(days=1)).isoformat()
 
-    # Calculate real weight
+    # Calculate real weight — protect against deleted products (item.product = None)
     total_weight = 0.0
     for item in order.items.all():
-        w = float(item.product.weight_box or 0)
+        try:
+            w = float(getattr(item.product, 'weight_box', None) or 0)
+        except Exception:
+            w = 0.0
         if w <= 0:
             w = 0.1
         total_weight += w * item.quantity

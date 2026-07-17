@@ -155,7 +155,10 @@ def create_shipment(order):
     address_category = 'H'
 
     import datetime
-    pickup_date = (datetime.datetime.now() + datetime.timedelta(days=1)).isoformat()
+    now = datetime.datetime.now()
+    pickup_date = (now + datetime.timedelta(days=1)).isoformat()
+    # Use timestamp suffix on Reference to avoid duplicate rejection if previously attempted
+    ref_unique = f"{order.id}-{int(now.timestamp())}"
 
     # Calculate real weight — protect against deleted products (item.product = None)
     total_weight = 0.0
@@ -174,7 +177,7 @@ def create_shipment(order):
     payload = [
         {
             "PickupDueDate": pickup_date,
-            "Package_Serial": str(order.id),
+            "Package_Serial": order.id,  # integer per API docs
             "Description": items_summary[:200],
             "Total_Weight": round(total_weight, 2),
             "Service_Type": "DTD",
@@ -191,8 +194,8 @@ def create_shipment(order):
             "Neighborhood": neighborhood,
             "District": district,
             "Address_Category": address_category,
-            "Special_Notes": order.notes or '',
-            "Reference": str(order.id),
+            "Special_Notes": getattr(order, 'notes', '') or '',
+            "Reference": ref_unique,  # unique per attempt to avoid duplicate rejection
             "AllowToOpenPackage": True,
             "ValueOfGoods": float(order.total),
             "Country": "DZ",

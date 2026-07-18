@@ -95,7 +95,7 @@ def register_order(order):
     if not cfg['username'] or not cfg['password']:
         return {'success': False, 'message': 'Les identifiants SATIM ne sont pas configurés.'}
 
-    amount = int(float(order.total - order.delivery_cost) * 100)
+    amount = int(float(order.total) * 100)
     order_number = _generate_order_number(order.id)
 
     api_host   = getattr(settings, 'API_URL', 'https://api.piovecosmetics.dz')

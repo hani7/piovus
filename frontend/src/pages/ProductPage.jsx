@@ -39,12 +39,21 @@ export default function ProductPage() {
     }
   }, [product, isB2B])
 
-  // Meta Pixel ViewContent
+  // Meta & TikTok Pixel ViewContent
   useEffect(() => {
     if (product && window.fbq) {
       window.fbq('track', 'ViewContent', {
         content_name: product.name,
         content_ids: [product.id],
+        content_type: 'product',
+        value: displayPrice,
+        currency: 'DZD'
+      })
+    }
+    if (product && window.ttq) {
+      window.ttq.track('ViewContent', {
+        content_name: product.name,
+        content_id: product.id,
         content_type: 'product',
         value: displayPrice,
         currency: 'DZD'
@@ -83,6 +92,16 @@ export default function ProductPage() {
         content_type: 'product',
         value: displayPrice * quantity,
         currency: 'DZD'
+      })
+    }
+    if (window.ttq) {
+      window.ttq.track('AddToCart', {
+        content_name: product.name,
+        content_id: product.id,
+        content_type: 'product',
+        value: displayPrice * quantity,
+        currency: 'DZD',
+        quantity: quantity
       })
     }
 

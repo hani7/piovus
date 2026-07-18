@@ -2116,6 +2116,7 @@ class SiteSettingsView(APIView):
             'new_account_discount_enabled': getattr(settings, 'new_account_discount_enabled', False),
             'new_account_discount_percent': float(getattr(settings, 'new_account_discount_percent', 0)),
             'meta_pixel_id': getattr(settings, 'meta_pixel_id', '') or '',
+            'tiktok_pixel_id': getattr(settings, 'tiktok_pixel_id', '') or '',
         })
 
 class AdminSiteSettingsView(APIView):
@@ -2131,6 +2132,7 @@ class AdminSiteSettingsView(APIView):
             'new_account_discount_enabled': getattr(settings, 'new_account_discount_enabled', False),
             'new_account_discount_percent': float(getattr(settings, 'new_account_discount_percent', 0)),
             'meta_pixel_id': getattr(settings, 'meta_pixel_id', '') or '',
+            'tiktok_pixel_id': getattr(settings, 'tiktok_pixel_id', '') or '',
         })
 
     def post(self, request):
@@ -2175,6 +2177,11 @@ class AdminSiteSettingsView(APIView):
         pixel_id = request.data.get('meta_pixel_id')
         if pixel_id is not None:
             settings.meta_pixel_id = pixel_id.strip()
+            changed = True
+
+        tiktok_id = request.data.get('tiktok_pixel_id')
+        if tiktok_id is not None:
+            settings.tiktok_pixel_id = tiktok_id.strip()
             changed = True
 
         if changed:

@@ -18,8 +18,30 @@ export default function PaymentResultPage() {
         try {
           const parsed = JSON.parse(savedOrder)
           // Ensure it's the correct order
-          if (!orderId || String(parsed.id) === String(orderId)) {
+            if (!orderId || String(parsed.id) === String(orderId)) {
             setOrder(parsed)
+            // Track Purchase for SATIM success
+            const finalValue = Math.max(0, Number(parsed.total) - Number(parsed.delivery_cost))
+            if (window.fbq) {
+              window.fbq('track', 'Purchase', {
+                value: finalValue,
+                currency: 'DZD',
+                content_ids: parsed.items?.map(i => i.product_id) || [],
+                content_type: 'product'
+              })
+            }
+            if (window.ttq) {
+              window.ttq.track('CompletePayment', {
+                value: finalValue,
+                currency: 'DZD',
+                contents: parsed.items?.map(i => ({
+                  content_id: i.product_id,
+                  content_name: i.product_name || 'Produit',
+                  quantity: i.quantity || 1,
+                  price: i.price_at_purchase || 0
+                })) || []
+              })
+            }
           }
         } catch (e) {
           console.error("Could not parse saved order", e)

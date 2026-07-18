@@ -68,14 +68,28 @@ export default function CheckoutPage() {
     payment_method: 'cash',
   })
 
-  // Meta Pixel InitiateCheckout
+  // Meta & TikTok Pixel InitiateCheckout
   useEffect(() => {
-    if (items.length > 0 && window.fbq) {
-      window.fbq('track', 'InitiateCheckout', {
-        value: total,
-        currency: 'DZD',
-        num_items: items.length
-      })
+    if (items.length > 0) {
+      if (window.fbq) {
+        window.fbq('track', 'InitiateCheckout', {
+          value: total,
+          currency: 'DZD',
+          num_items: items.length
+        })
+      }
+      if (window.ttq) {
+        window.ttq.track('InitiateCheckout', {
+          value: total,
+          currency: 'DZD',
+          contents: items.map(i => ({
+            content_id: i.product.id,
+            content_name: i.product.name,
+            quantity: i.quantity,
+            price: i.price
+          }))
+        })
+      }
     }
   }, [items.length, total])
 
@@ -178,12 +192,25 @@ export default function CheckoutPage() {
         window.location.href = `/payment-result?status=fail&reason=init_failed&msg=${encodeURIComponent(res.data.satim_error)}`
       } else {
         // Cash on delivery or B2B success
+        const finalValue = total + deliveryCost - (coupon ? coupon.discount_amount : 0)
         if (window.fbq) {
           window.fbq('track', 'Purchase', {
-            value: total + deliveryCost - (coupon ? coupon.discount_amount : 0),
+            value: finalValue,
             currency: 'DZD',
             content_ids: items.map(i => i.product.id),
             content_type: 'product'
+          })
+        }
+        if (window.ttq) {
+          window.ttq.track('CompletePayment', {
+            value: finalValue,
+            currency: 'DZD',
+            contents: items.map(i => ({
+              content_id: i.product.id,
+              content_name: i.product.name,
+              quantity: i.quantity,
+              price: i.price
+            }))
           })
         }
         setOrderId(res.data.id)

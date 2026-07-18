@@ -1,5 +1,6 @@
 import logging
 import requests
+from requests.adapters import HTTPAdapter
 import time
 import random
 import string
@@ -7,6 +8,32 @@ import json
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
+
+
+class _SourceAddressAdapter(HTTPAdapter):
+    """Forces outbound requests to use a specific local IP address."""
+    def __init__(self, source_ip, **kwargs):
+        self.source_ip = source_ip
+        super().__init__(**kwargs)
+
+    def init_poolmanager(self, *args, **kwargs):
+        kwargs['source_address'] = (self.source_ip, 0)
+        super().init_poolmanager(*args, **kwargs)
+
+
+def _satim_session():
+    """
+    Returns a requests Session that binds to SATIM_SOURCE_IP if configured.
+    Set SATIM_SOURCE_IP=157.90.66.76 in env to force the whitelisted IP.
+    """
+    source_ip = getattr(settings, 'SATIM_SOURCE_IP', '') or ''
+    session = requests.Session()
+    if source_ip:
+        adapter = _SourceAddressAdapter(source_ip)
+        session.mount('https://', adapter)
+        session.mount('http://', adapter)
+        logger.info(f"SATIM: using source IP {source_ip!r}")
+    return session
 
 
 def _get_cfg():
@@ -64,7 +91,8 @@ def register_order(order):
     }
 
     try:
-        resp = requests.get(url, params=params, timeout=15)
+        session = _satim_session()
+        resp = session.get(url, params=params, timeout=15)
         logger.info(f"SATIM register response: status={resp.status_code}, body={resp.text[:300]}")
         resp.raise_for_status()
         data = resp.json()
@@ -161,7 +189,8 @@ def test_satim_connection():
         'jsonParams': json.dumps({'force_terminal_id': cfg['terminal_id'], 'udf1': 'diag'}, separators=(',', ':'))
     }
     try:
-        resp = requests.get(url, params=params, timeout=15)
+        session = _satim_session()
+        resp = session.get(url, params=params, timeout=15)
         result['http_status'] = resp.status_code
         result['raw_response'] = resp.text[:500]
         try:

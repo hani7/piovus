@@ -124,15 +124,8 @@ export default function PaymentResultPage() {
 
   // Determine error message
   let errorMessage = "Paiement échoué ou annulé."
-  
-  const redirectTimeStr = localStorage.getItem('satimRedirectTime')
-  const timeElapsed = redirectTimeStr ? (Date.now() - parseInt(redirectTimeStr, 10)) : 0
-  
-  // If user requested the specific timeout message ONLY when it takes a lot of time (> 1 min)
-  if (timeElapsed > 60000) {
-    errorMessage = "Votre transaction a été rejetée, Délai de traitement dépassé, veuillez réessayer ultérieurement."
-  } else if (msgParam && msgParam !== 'Paiement annulé ou échoué.' && msgParam !== 'null' && msgParam !== 'undefined') {
-    // If SATIM sent a real error message, and it's not a timeout, we can show it
+
+  if (msgParam && msgParam !== 'Paiement annulé ou échoué.' && msgParam !== 'null' && msgParam !== 'undefined') {
     errorMessage = `Paiement refusé : ${msgParam}`
   } else if (reason === 'missing_params') {
     errorMessage = "Paramètres de retour manquants."

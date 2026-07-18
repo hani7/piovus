@@ -633,24 +633,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             
             threading.Thread(target=send_order_email, args=(order.id, recipient_email)).start()
 
-        # CIB / Edahabia Payment Registration
-        if order.payment_method == 'cib':
-            from .satim_service import register_order
-            satim_res = register_order(order)
-            if satim_res.get('success'):
-                # We return the SATIM formUrl in the response so React can redirect
-                return Response({
-                    **OrderSerializer(order).data,
-                    'satim_payment_url': satim_res.get('formUrl')
-                }, status=status.HTTP_201_CREATED)
-            else:
-                # If SATIM fails, we could either delete the order and return error, 
-                # or keep it as unpaid and return error. Let's keep it and return error msg.
-                return Response({
-                    **OrderSerializer(order).data,
-                    'satim_error': satim_res.get('message')
-                }, status=status.HTTP_201_CREATED)
-
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
 
@@ -2291,72 +2273,6 @@ def mylerz_webhook(request):
 
     return Response({'success': True, 'updated': updated})
 
-from django.http import HttpResponseRedirect
-from .satim_service import confirm_order
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def satim_callback(request):
-    """
-    Called by SATIM when the user returns from the payment page.
-    """
-    order_id_satim = request.GET.get('orderId')
-    order_id_piove = request.GET.get('order_id')
-    
-    # URL to redirect the user to in React
-    frontend_base = getattr(settings, 'FRONTEND_URL', 'https://app.piovecosmetics.dz')
-    
-    def redirect_with_params(base, status, reason=None, msg=None):
-        from urllib.parse import urlencode
-        params = {'status': status}
-        if order_id_piove: params['order_id'] = order_id_piove
-        if reason: params['reason'] = reason
-        if msg: params['msg'] = msg
-        return HttpResponseRedirect(f"{base}/payment-result?{urlencode(params)}")
-
-    if not order_id_satim or not order_id_piove:
-        if order_id_piove:
-            try:
-                order = Order.objects.get(id=order_id_piove)
-                order.status = 'cancelled'
-                order.save(update_fields=['status'])
-            except Order.DoesNotExist:
-                pass
-        return redirect_with_params(frontend_base, 'cancelled', reason='missing_params')
-
-    # Confirm order with SATIM
-    confirm_res = confirm_order(order_id_satim)
-    
-    try:
-        order = Order.objects.get(id=order_id_piove)
-    except Order.DoesNotExist:
-        return redirect_with_params(frontend_base, 'fail', reason='order_not_found')
-
-    if confirm_res.get('success'):
-        # Payment was successful!
-        if order.payment_status != 'paid':
-            order.payment_status = 'paid'
-            order.status = 'confirmed' # Usually paid online orders are auto-confirmed
-            order.save(update_fields=['payment_status', 'status'])
-            
-            OrderStatusHistory.objects.create(
-                order=order,
-                status='confirmed',
-                notes=f"Paiement CIB/Edahabia réussi (ID transaction: {order_id_satim})."
-            )
-        return redirect_with_params(frontend_base, 'success')
-    else:
-        # Payment failed or cancelled
-        order.status = 'cancelled'
-        order.save(update_fields=['status'])
-        fail_msg = confirm_res.get('message', 'Paiement annulé ou échoué.')
-        OrderStatusHistory.objects.create(
-            order=order,
-            status='cancelled',
-            notes=f"Paiement CIB/Edahabia annulé ou échoué : {fail_msg}"
-        )
-        return redirect_with_params(frontend_base, 'cancelled', reason='payment_failed', msg=fail_msg)
-
 
 # ─── Médiathèque — scan du dossier media/ ─────────────────────────────────────
 import os, mimetypes
@@ -2377,9 +2293,7 @@ class AdminMediaView(APIView):
     def get(self, request):
         media_root = settings.MEDIA_ROOT
         media_url  = settings.MEDIA_URL
-        # Use request to build absolute URL for API server
         api_base = request.build_absolute_uri('/')[:-1]
-
         results = []
         if os.path.exists(media_root):
             for dirpath, _, filenames in os.walk(media_root):
@@ -2395,7 +2309,7 @@ class AdminMediaView(APIView):
                     except OSError:
                         size = 0
                     results.append({
-                        'id': rel_path,  # use relative path as unique id
+                        'id': rel_path,
                         'name': fname,
                         'folder': os.path.dirname(rel_path) or '/',
                         'file': file_url,
@@ -2403,8 +2317,6 @@ class AdminMediaView(APIView):
                         'size': size,
                         'rel_path': rel_path,
                     })
-
-        # Sort: newest folders first (banners, products, etc.)
         results.sort(key=lambda x: x['folder'])
         return Response({'count': len(results), 'results': results})
 
@@ -2413,12 +2325,9 @@ class AdminMediaView(APIView):
         uploaded = request.FILES.get('file')
         if not uploaded:
             return Response({'error': 'Aucun fichier fourni.'}, status=400)
-
         ext = os.path.splitext(uploaded.name)[1].lower()
         if ext not in self.IMAGE_EXTS and ext not in self.VIDEO_EXTS:
             return Response({'error': 'Type de fichier non supporté.'}, status=400)
-
-        # Save to media/uploads/
         save_path = f"uploads/{uploaded.name}"
         saved = default_storage.save(save_path, uploaded)
         api_base = request.build_absolute_uri('/')[:-1]
@@ -2434,7 +2343,6 @@ class AdminMediaView(APIView):
         rel_path = request.query_params.get('path', '').strip('/')
         if not rel_path:
             return Response({'error': 'path requis'}, status=400)
-        # Security: prevent path traversal
         if '..' in rel_path:
             return Response({'error': 'Chemin invalide'}, status=400)
         full_path = os.path.join(settings.MEDIA_ROOT, rel_path)
@@ -2444,10 +2352,3 @@ class AdminMediaView(APIView):
         return Response({'error': 'Fichier introuvable'}, status=404)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def satim_test_view(request):
-    """Diagnostic endpoint: test SATIM connectivity and show loaded credentials."""
-    from .satim_service import test_satim_connection
-    result = test_satim_connection()
-    return Response(result)

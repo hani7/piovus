@@ -159,20 +159,10 @@ export default function CheckoutPage() {
       }
       const res = await createOrder(payload)
       clearCart()
-      if (res.data.satim_payment_url) {
-        localStorage.setItem('lastOrder', JSON.stringify(res.data))
-        localStorage.setItem('satimRedirectTime', Date.now().toString())
-        setRedirecting(true)
-        window.location.href = res.data.satim_payment_url
-      } else if (res.data.satim_error) {
-        setRedirecting(true)
-        window.location.href = `/payment-result?status=fail&reason=init_failed&msg=${encodeURIComponent(res.data.satim_error)}`
-      } else {
-        setOrderId(res.data.id)
-        setSuccess(true)
-        playSuccessSound()
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-      }
+      setOrderId(res.data.id)
+      setSuccess(true)
+      playSuccessSound()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
       const serverMsg = err?.response?.data?.error || err?.response?.data?.detail || JSON.stringify(err?.response?.data)
       setErrors({ submit: serverMsg || 'Une erreur est survenue. Veuillez réessayer.' })
@@ -181,15 +171,6 @@ export default function CheckoutPage() {
     }
   }
 
-  if (redirecting) {
-    return (
-      <div className="checkout-empty container page-enter">
-        <div className="spin" style={{ width: 40, height: 40, borderWidth: 3 }}></div>
-        <h2 style={{ fontSize: '1.5rem' }}>Redirection sécurisée...</h2>
-        <p style={{ color: 'var(--color-gray-500)' }}>Veuillez patienter pendant que nous vous redirigeons vers la passerelle de paiement SATIM.</p>
-      </div>
-    )
-  }
 
   if (items.length === 0 && !success) {
     return (

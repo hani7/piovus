@@ -60,7 +60,7 @@ def register_order(order):
         'password': cfg['password'],
         'returnUrl': return_url,
         'failUrl': fail_url,
-        'jsonParams': json.dumps(json_params)
+        'jsonParams': json.dumps(json_params, separators=(',', ':'))  # compact JSON, no spaces — matches PHP json_encode
     }
 
     try:
@@ -148,7 +148,7 @@ def test_satim_connection():
         'password': cfg['password'],
         'returnUrl': 'https://piovecosmetics.dz/payment-result?status=success',
         'failUrl': 'https://piovecosmetics.dz/payment-result?status=fail',
-        'jsonParams': json.dumps({'force_terminal_id': cfg['terminal_id'], 'udf1': 'diag'})
+        'jsonParams': json.dumps({'force_terminal_id': cfg['terminal_id'], 'udf1': 'diag'}, separators=(',', ':'))
     }
     try:
         resp = requests.get(url, params=params, timeout=15)

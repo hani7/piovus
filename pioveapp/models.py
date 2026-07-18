@@ -23,6 +23,11 @@ class SiteSettings(models.Model):
         max_length=50, blank=True, default='',
         help_text="ID du pixel Meta (Facebook) — ex: 2139405799887149"
     )
+    # TikTok Pixel
+    tiktok_pixel_id = models.CharField(
+        max_length=50, blank=True, default='',
+        help_text="ID du pixel TikTok — ex: C1234567890"
+    )
 
     def save(self, *args, **kwargs):
         self.pk = 1

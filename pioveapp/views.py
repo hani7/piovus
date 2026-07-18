@@ -633,6 +633,22 @@ class OrderViewSet(viewsets.ModelViewSet):
             
             threading.Thread(target=send_order_email, args=(order.id, recipient_email)).start()
 
+        # ── CIB / Edahabia via SATIM ──────────────────────────────────────────
+        if order.payment_method == 'cib':
+            from .satim_service import register_order
+            satim_res = register_order(order)
+            if satim_res.get('success'):
+                return Response({
+                    **OrderSerializer(order).data,
+                    'satim_payment_url': satim_res.get('formUrl')
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    **OrderSerializer(order).data,
+                    'satim_error': satim_res.get('message'),
+                    'satim_raw':   satim_res.get('raw'),
+                }, status=status.HTTP_201_CREATED)
+
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
 
@@ -2350,5 +2366,74 @@ class AdminMediaView(APIView):
             os.remove(full_path)
             return Response({'deleted': rel_path})
         return Response({'error': 'Fichier introuvable'}, status=404)
+
+
+# ─── SATIM Payment Callback ───────────────────────────────────────────────────
+from django.http import HttpResponseRedirect
+from .satim_service import confirm_order
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def satim_callback(request):
+    """Called by SATIM when the user returns from the payment page."""
+    order_id_satim = request.GET.get('orderId')
+    order_id_piove = request.GET.get('order_id')
+    frontend_base  = getattr(settings, 'FRONTEND_URL', 'https://piovecosmetics.dz')
+
+    def redirect_to(status, reason=None, msg=None):
+        from urllib.parse import urlencode
+        p = {'status': status}
+        if order_id_piove: p['order_id'] = order_id_piove
+        if reason:         p['reason']   = reason
+        if msg:            p['msg']      = msg
+        return HttpResponseRedirect(f"{frontend_base}/payment-result?{urlencode(p)}")
+
+    if not order_id_satim or not order_id_piove:
+        if order_id_piove:
+            try:
+                o = Order.objects.get(id=order_id_piove)
+                o.status = 'cancelled'
+                o.save(update_fields=['status'])
+            except Order.DoesNotExist:
+                pass
+        return redirect_to('cancelled', reason='missing_params')
+
+    confirm_res = confirm_order(order_id_satim)
+
+    try:
+        order = Order.objects.get(id=order_id_piove)
+    except Order.DoesNotExist:
+        return redirect_to('fail', reason='order_not_found')
+
+    if confirm_res.get('success'):
+        if order.payment_status != 'paid':
+            order.payment_status = 'paid'
+            order.status = 'confirmed'
+            order.save(update_fields=['payment_status', 'status'])
+            OrderStatusHistory.objects.create(
+                order=order,
+                status='confirmed',
+                notes=f"Paiement CIB/Edahabia réussi (ID transaction: {order_id_satim})."
+            )
+        return redirect_to('success')
+    else:
+        order.status = 'cancelled'
+        order.save(update_fields=['status'])
+        fail_msg = confirm_res.get('message', 'Paiement annulé ou échoué.')
+        OrderStatusHistory.objects.create(
+            order=order,
+            status='cancelled',
+            notes=f"Paiement CIB/Edahabia annulé : {fail_msg}"
+        )
+        return redirect_to('cancelled', reason='payment_failed', msg=fail_msg)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def satim_test_view(request):
+    """Diagnostic: test SATIM connectivity and credentials."""
+    from .satim_service import test_satim_connection
+    return Response(test_satim_connection())
+
 
 

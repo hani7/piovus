@@ -202,6 +202,13 @@ MYLERZ_USERNAME = os.environ.get('MYLERZ_USERNAME')
 MYLERZ_PASSWORD = os.environ.get('MYLERZ_PASSWORD')
 MYLERZ_WAREHOUSE_NAME = os.environ.get('MYLERZ_WAREHOUSE_NAME')
 
+# ─── SATIM (CIB/EDAHABIA) PAYMENT API ────────────────────────────────────────
+SATIM_USER_NAME  = os.environ.get('SATIM_USER_NAME', '')
+SATIM_PASSWORD   = os.environ.get('SATIM_PASSWORD', '')
+SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID', '')
+SATIM_BASE_URL   = os.environ.get('SATIM_BASE_URL', 'https://cib.satim.dz/payment/rest')
+SATIM_SOURCE_IP  = os.environ.get('SATIM_SOURCE_IP', '')
+
 
 # ─── UPLOAD SIZE LIMITS (video support) ──────────────────────────────────────
 DATA_UPLOAD_MAX_MEMORY_SIZE = 209715200   # 200MB

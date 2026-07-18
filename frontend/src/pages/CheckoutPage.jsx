@@ -159,10 +159,18 @@ export default function CheckoutPage() {
       }
       const res = await createOrder(payload)
       clearCart()
-      setOrderId(res.data.id)
-      setSuccess(true)
-      playSuccessSound()
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      if (res.data.satim_payment_url) {
+        // CIB/Edahabia — redirect to SATIM payment page
+        localStorage.setItem('lastOrder', JSON.stringify(res.data))
+        window.location.href = res.data.satim_payment_url
+      } else if (res.data.satim_error) {
+        window.location.href = `/payment-result?status=fail&reason=init_failed&msg=${encodeURIComponent(res.data.satim_error)}`
+      } else {
+        setOrderId(res.data.id)
+        setSuccess(true)
+        playSuccessSound()
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
     } catch (err) {
       const serverMsg = err?.response?.data?.error || err?.response?.data?.detail || JSON.stringify(err?.response?.data)
       setErrors({ submit: serverMsg || 'Une erreur est survenue. Veuillez réessayer.' })

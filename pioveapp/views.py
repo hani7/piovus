@@ -1241,36 +1241,41 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def bulk_mylerz_ship(self, request):
-        ids = request.data.get('ids', [])
-        if not ids:
-            return Response({'error': 'Aucun ID fourni.'}, status=400)
-        from . import mylerz_service
-        # Check credentials first
-        if not mylerz_service.MYLERZ_USERNAME or not mylerz_service.MYLERZ_PASSWORD:
-            return Response({'error': 'Credentials Mylerz non configurés sur le serveur (MYLERZ_USERNAME / MYLERZ_PASSWORD manquants dans le .env).'}, status=400)
-        orders = Order.objects.filter(id__in=ids)
-        results = []
-        for order in orders:
-            if order.mylerz_barcode:
-                results.append({'id': order.id, 'success': False, 'error': 'Déjà envoyé', 'message': 'Déjà envoyé'})
-                continue
-            try:
-                res = mylerz_service.create_shipment(order)
-            except Exception as e:
-                results.append({'id': order.id, 'success': False, 'message': str(e)})
-                continue
-            if res.get('success'):
-                order.mylerz_barcode = res.get('barcode', '')
-                order.mylerz_pickup_code = res.get('pickup_code', '')
-                order.mylerz_status = 'Shipment Created'
-                order.save(update_fields=['mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'])
-                OrderStatusHistory.objects.create(
-                    order=order, status=order.status,
-                    notes=f"Colis Mylerz généré en masse. Barcode: {order.mylerz_barcode}"
-                )
-            res['id'] = order.id
-            results.append(res)
-        return Response({'results': results})
+        try:
+            ids = request.data.get('ids', [])
+            if not ids:
+                return Response({'error': 'Aucun ID fourni.'}, status=400)
+            from . import mylerz_service
+            # Check credentials first
+            if not mylerz_service.MYLERZ_USERNAME or not mylerz_service.MYLERZ_PASSWORD:
+                return Response({'error': 'Credentials Mylerz non configurés sur le serveur (MYLERZ_USERNAME / MYLERZ_PASSWORD manquants dans le .env).'}, status=400)
+            orders = Order.objects.filter(id__in=ids)
+            results = []
+            for order in orders:
+                if order.mylerz_barcode:
+                    results.append({'id': order.id, 'success': False, 'error': 'Déjà envoyé', 'message': 'Déjà envoyé'})
+                    continue
+                try:
+                    res = mylerz_service.create_shipment(order)
+                except Exception as e:
+                    results.append({'id': order.id, 'success': False, 'message': str(e)})
+                    continue
+                if res.get('success'):
+                    order.mylerz_barcode = res.get('barcode', '')
+                    order.mylerz_pickup_code = res.get('pickup_code', '')
+                    order.mylerz_status = 'Shipment Created'
+                    order.save(update_fields=['mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'])
+                    OrderStatusHistory.objects.create(
+                        order=order, status=order.status,
+                        notes=f"Colis Mylerz généré en masse. Barcode: {order.mylerz_barcode}"
+                    )
+                res['id'] = order.id
+                results.append(res)
+            return Response({'results': results})
+        except Exception as e:
+            import traceback
+            tb = traceback.format_exc()
+            return Response({'error': f"CRASH: {str(e)}\n\n{tb}"}, status=400)
     @action(detail=False, methods=['post'])
     def bulk_mylerz_track(self, request):
         ids = request.data.get('ids', [])

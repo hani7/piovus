@@ -221,7 +221,8 @@ export default function CheckoutPage() {
 
   return (
     <main className="checkout-page page-enter">
-      <div className="container checkout-page__layout">
+      <div className="container">
+        <div className="checkout-page__layout">
         {/* ── Form ─────────────────────────────────── */}
         <div className="checkout-form-wrap">
           <h1 className="checkout-page__title">Finaliser la commande</h1>
@@ -435,6 +436,7 @@ export default function CheckoutPage() {
           </div>
           <Link to="/cart" className="checkout-summary__edit" id="edit-cart-link">Modifier le panier</Link>
         </aside>
+        </div>
       </div>
     </main>
   )

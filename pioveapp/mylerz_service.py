@@ -132,6 +132,12 @@ def create_shipment(order):
     if not customer_email:
         customer_email = order.guest_email or ''
 
+    # Clean phone number (Mylerz is strict on format, invalid chars can cause 500)
+    import re
+    mobile_no = re.sub(r'[^\d\+]', '', mobile_no)
+    if not mobile_no:
+        mobile_no = '0000000000'
+
     logger.info(f"Mylerz create_shipment order #{order.id}: name={customer_name!r}, phone={mobile_no!r}, email={customer_email!r}")
 
     # Determine payment type
@@ -203,10 +209,12 @@ def create_shipment(order):
     ]
 
     # WarehouseName = Lieu de ramassage (pickup location name in Mylerz portal)
-    # Leave empty/omit if not set — the API test succeeded without it
+    # This is often strictly required and causes an HTTP 500 if omitted or empty
     warehouse = _cfg_warehouse()
-    if warehouse:
-        payload[0]["WarehouseName"] = warehouse
+    if not warehouse:
+        return {'success': False, 'barcode': None, 'pickup_code': None, 'message': "MYLERZ_WAREHOUSE_NAME n'est pas configuré dans le fichier .env.", 'raw': None}
+    
+    payload[0]["WarehouseName"] = warehouse
     logger.info(f"Mylerz order #{order.id}: warehouse={warehouse!r}, city={city!r}, phone={mobile_no!r}, weight={total_weight}, payment={payment_type}, cod={cod_value}")
 
     try:

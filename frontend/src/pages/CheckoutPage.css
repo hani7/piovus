@@ -192,15 +192,19 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 900px) {
   .checkout-page__layout {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
+    width: 100%;
   }
   /* Form FIRST, summary SECOND on mobile */
-  .checkout-form-wrap { order: 1; }
+  .checkout-form-wrap { order: 1; width: 100%; box-sizing: border-box; }
   .checkout-summary {
     order: 2;
     position: static;
     padding: 18px;
+    width: 100%;
+    box-sizing: border-box;
   }
   .checkout-summary__items { max-height: 180px; }
   .checkout-page__title { font-size: 1.5rem; margin-bottom: 18px; }

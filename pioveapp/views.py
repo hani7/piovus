@@ -1272,10 +1272,10 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             res['id'] = order.id
             results.append(res)
         return Response({'results': results})
-        except Exception as e:
-            import traceback
-            tb = traceback.format_exc()
-            return Response({'error': f"CRASH SYSTEME INTERNE: {str(e)}\n\n{tb}"}, status=400)
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        return Response({'error': f"CRASH SYSTEME INTERNE: {str(e)}\n\n{tb}"}, status=400)
     @action(detail=False, methods=['post'])
     def bulk_mylerz_track(self, request):
         ids = request.data.get('ids', [])

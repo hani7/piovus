@@ -210,7 +210,10 @@ SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID')
 # Test/sandbox: https://test2.satim.dz/payment/rest
 SATIM_BASE_URL = os.environ.get('SATIM_BASE_URL', 'https://cib.satim.dz/payment/rest')
 # Optional: force outbound SATIM requests from a specific local IP (useful when server has multiple IPs)
-SATIM_SOURCE_IP = os.environ.get('SATIM_SOURCE_IP', '')
+SATIM_SOURCE_IP   = os.environ.get('SATIM_SOURCE_IP', '')
+# PHP proxy to route SATIM calls through whitelisted IP (app.piovecosmetics.dz)
+SATIM_PROXY_URL    = os.environ.get('SATIM_PROXY_URL', '')
+SATIM_PROXY_SECRET = os.environ.get('SATIM_PROXY_SECRET', '')
 
 # ─── UPLOAD SIZE LIMITS (video support) ──────────────────────────────────────
 DATA_UPLOAD_MAX_MEMORY_SIZE = 209715200   # 200MB

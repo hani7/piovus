@@ -35,11 +35,36 @@ def _session():
 def _cfg():
     """Read SATIM credentials dynamically from settings (never cached)."""
     return {
-        'base_url':    getattr(settings, 'SATIM_BASE_URL', 'https://cib.satim.dz/payment/rest') or 'https://cib.satim.dz/payment/rest',
-        'username':    getattr(settings, 'SATIM_USER_NAME', '') or '',
-        'password':    getattr(settings, 'SATIM_PASSWORD', '') or '',
-        'terminal_id': getattr(settings, 'SATIM_TERMINAL_ID', '') or '',
+        'base_url':      getattr(settings, 'SATIM_BASE_URL', 'https://cib.satim.dz/payment/rest') or 'https://cib.satim.dz/payment/rest',
+        'username':      getattr(settings, 'SATIM_USER_NAME', '') or '',
+        'password':      getattr(settings, 'SATIM_PASSWORD', '') or '',
+        'terminal_id':   getattr(settings, 'SATIM_TERMINAL_ID', '') or '',
+        'proxy_url':     getattr(settings, 'SATIM_PROXY_URL', '') or '',
+        'proxy_secret':  getattr(settings, 'SATIM_PROXY_SECRET', '') or '',
     }
+
+
+def _satim_request(endpoint, params):
+    """
+    Makes a GET request to a SATIM endpoint.
+    Routes through PHP proxy (app.piovecosmetics.dz) if SATIM_PROXY_URL is set,
+    which fixes the IP whitelist issue (proxy runs from whitelisted IP 157.90.66.76).
+    """
+    cfg = _cfg()
+    session = _session()
+
+    if cfg['proxy_url'] and cfg['proxy_secret']:
+        # Route through WordPress PHP proxy (whitelisted IP)
+        proxy_params = dict(params)
+        proxy_params['_endpoint']    = endpoint
+        proxy_params['_proxy_token'] = cfg['proxy_secret']
+        logger.info(f"SATIM via proxy: endpoint={endpoint!r}")
+        return session.get(cfg['proxy_url'], params=proxy_params, timeout=20)
+    else:
+        # Direct call
+        url = f"{cfg['base_url']}/{endpoint}"
+        logger.info(f"SATIM direct: {url!r}")
+        return session.get(url, params=params, timeout=15)
 
 
 def _generate_order_number(order_id):
@@ -80,7 +105,7 @@ def register_order(order):
     }
 
     try:
-        resp = _session().get(f"{cfg['base_url']}/register.do", params=params, timeout=15)
+        resp = _satim_request('register.do', params)
         logger.info(f"SATIM register response: {resp.status_code} {resp.text[:300]}")
         resp.raise_for_status()
         data = resp.json()
@@ -111,7 +136,7 @@ def confirm_order(satim_order_id):
     }
 
     try:
-        resp = _session().get(f"{cfg['base_url']}/getOrderStatusExtended.do", params=params, timeout=15)
+        resp = _satim_request('getOrderStatusExtended.do', params)
         resp.raise_for_status()
         data = resp.json()
 
@@ -169,7 +194,7 @@ def test_satim_connection():
     }
 
     try:
-        resp = _session().get(f"{cfg['base_url']}/register.do", params=params, timeout=15)
+        resp = _satim_request('register.do', params)
         result['http_status']  = resp.status_code
         result['raw_response'] = resp.text[:500]
         try:

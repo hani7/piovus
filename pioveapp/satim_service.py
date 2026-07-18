@@ -128,7 +128,17 @@ def confirm_order(satim_order_id):
 def test_satim_connection():
     """Diagnostic: test SATIM credentials and return detailed info."""
     cfg = _get_cfg()
+
+    # Detect server outbound IP (what SATIM sees as our IP)
+    server_ip = 'unknown'
+    try:
+        ip_resp = requests.get('https://api.ipify.org', timeout=5)
+        server_ip = ip_resp.text.strip()
+    except Exception:
+        pass
+
     result = {
+        'server_outbound_ip': server_ip,
         'base_url': cfg['base_url'],
         'username': cfg['username'] or '(vide)',
         'password_set': bool(cfg['password']),
@@ -141,7 +151,7 @@ def test_satim_connection():
     url = f"{cfg['base_url']}/register.do"
     params = {
         'currency': '012',
-        'amount': 100000,  # 1000 DA test
+        'amount': 100000,
         'language': 'fr',
         'orderNumber': f'DIAG{int(time.time())}',
         'userName': cfg['username'],

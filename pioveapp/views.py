@@ -1241,10 +1241,9 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def bulk_mylerz_ship(self, request):
-        try:
-            ids = request.data.get('ids', [])
-            if not ids:
-                return Response({'error': 'Aucun ID fourni.'}, status=400)
+        ids = request.data.get('ids', [])
+        if not ids:
+            return Response({'error': 'Aucun ID fourni.'}, status=400)
         from . import mylerz_service
         # Check credentials first
         if not mylerz_service.MYLERZ_USERNAME or not mylerz_service.MYLERZ_PASSWORD:
@@ -1272,10 +1271,6 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             res['id'] = order.id
             results.append(res)
         return Response({'results': results})
-    except Exception as e:
-        import traceback
-        tb = traceback.format_exc()
-        return Response({'error': f"CRASH SYSTEME INTERNE: {str(e)}\n\n{tb}"}, status=400)
     @action(detail=False, methods=['post'])
     def bulk_mylerz_track(self, request):
         ids = request.data.get('ids', [])

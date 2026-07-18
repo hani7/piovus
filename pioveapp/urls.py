@@ -15,6 +15,15 @@ from .views import (
     SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet,
     mylerz_webhook, satim_callback, satim_test_view, AdminMediaView
 )
+from django.core.management import call_command
+from django.http import JsonResponse
+
+def run_migrations_view(request):
+    try:
+        call_command('migrate')
+        return JsonResponse({'status': 'success', 'message': 'Migrations executed successfully!'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
 
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet, basename='category')
@@ -42,6 +51,7 @@ urlpatterns = [
     path('mylerz/webhook/', mylerz_webhook, name='mylerz-webhook'),
     path('satim/callback/', satim_callback, name='satim-callback'),
     path('satim/test/', satim_test_view, name='satim-test'),
+    path('run-migrations-secret/', run_migrations_view),
     # Auth
     path('auth/register/', RegisterView.as_view(), name='auth-register'),
     path('auth/register-b2b/', B2BRegisterView.as_view(), name='auth-register-b2b'),

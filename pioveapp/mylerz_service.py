@@ -134,7 +134,12 @@ def create_shipment(order):
 
     # Clean phone number (Mylerz is strict on format, invalid chars can cause 500)
     import re
-    mobile_no = re.sub(r'[^\d\+]', '', mobile_no)
+    mobile_no = re.sub(r'\D', '', mobile_no) # Remove everything that is not a digit
+    if mobile_no.startswith('213'):
+        mobile_no = '0' + mobile_no[3:]
+    elif mobile_no.startswith('00213'):
+        mobile_no = '0' + mobile_no[5:]
+        
     if not mobile_no:
         mobile_no = '0000000000'
 
@@ -162,7 +167,7 @@ def create_shipment(order):
 
     import datetime
     now = datetime.datetime.now()
-    pickup_date = (now + datetime.timedelta(days=1)).isoformat()
+    pickup_date = (now + datetime.timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S')
     # Use timestamp suffix on Reference to avoid duplicate rejection if previously attempted
     ref_unique = f"{order.id}-{int(now.timestamp())}"
 
@@ -183,8 +188,8 @@ def create_shipment(order):
     payload = [
         {
             "PickupDueDate": pickup_date,
-            "Package_Serial": order.id,  # integer per API docs
-            "Description": items_summary[:200],
+            "Package_Serial": str(order.id),
+            "Description": str(items_summary[:200]),
             "Total_Weight": round(total_weight, 2),
             "Service_Type": "DTD",
             "Service": "ND",
@@ -212,9 +217,9 @@ def create_shipment(order):
     # This is often strictly required and causes an HTTP 500 if omitted or empty
     warehouse = _cfg_warehouse()
     if not warehouse:
-        return {'success': False, 'barcode': None, 'pickup_code': None, 'message': "MYLERZ_WAREHOUSE_NAME n'est pas configuré dans le fichier .env.", 'raw': None}
+        return {'success': False, 'barcode': None, 'pickup_code': None, 'message': "MYLERZ_WAREHOUSE_NAME n'est pas configuré dans les Paramètres Admin ou .env", 'raw': None}
     
-    payload[0]["WarehouseName"] = warehouse
+    payload[0]["WarehouseName"] = str(warehouse)
     logger.info(f"Mylerz order #{order.id}: warehouse={warehouse!r}, city={city!r}, phone={mobile_no!r}, weight={total_weight}, payment={payment_type}, cod={cod_value}")
 
     try:

@@ -25,6 +25,20 @@ def run_migrations_view(request):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
 
+def run_reports_weekly_view(request):
+    try:
+        call_command('send_reports', period='weekly')
+        return JsonResponse({'status': 'success', 'message': 'Weekly reports sent!'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+def run_reports_monthly_view(request):
+    try:
+        call_command('send_reports', period='monthly')
+        return JsonResponse({'status': 'success', 'message': 'Monthly reports sent!'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'products', ProductViewSet, basename='product')
@@ -52,6 +66,8 @@ urlpatterns = [
     path('satim/callback/', satim_callback, name='satim-callback'),
     path('satim/test/', satim_test_view, name='satim-test'),
     path('run-migrations-secret/', run_migrations_view),
+    path('run-reports-secret-weekly/', run_reports_weekly_view),
+    path('run-reports-secret-monthly/', run_reports_monthly_view),
     # Auth
     path('auth/register/', RegisterView.as_view(), name='auth-register'),
     path('auth/register-b2b/', B2BRegisterView.as_view(), name='auth-register-b2b'),

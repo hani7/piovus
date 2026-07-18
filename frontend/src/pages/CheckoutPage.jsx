@@ -68,6 +68,17 @@ export default function CheckoutPage() {
     payment_method: 'cash',
   })
 
+  // Meta Pixel InitiateCheckout
+  useEffect(() => {
+    if (items.length > 0 && window.fbq) {
+      window.fbq('track', 'InitiateCheckout', {
+        value: total,
+        currency: 'DZD',
+        num_items: items.length
+      })
+    }
+  }, [items.length, total])
+
   const [companies, setCompanies] = useState([])
   const [deliveryCost, setDeliveryCost] = useState(0)
 
@@ -166,6 +177,15 @@ export default function CheckoutPage() {
       } else if (res.data.satim_error) {
         window.location.href = `/payment-result?status=fail&reason=init_failed&msg=${encodeURIComponent(res.data.satim_error)}`
       } else {
+        // Cash on delivery or B2B success
+        if (window.fbq) {
+          window.fbq('track', 'Purchase', {
+            value: total + deliveryCost - (coupon ? coupon.discount_amount : 0),
+            currency: 'DZD',
+            content_ids: items.map(i => i.product.id),
+            content_type: 'product'
+          })
+        }
         setOrderId(res.data.id)
         setSuccess(true)
         playSuccessSound()

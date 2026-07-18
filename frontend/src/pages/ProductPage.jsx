@@ -39,6 +39,19 @@ export default function ProductPage() {
     }
   }, [product, isB2B])
 
+  // Meta Pixel ViewContent
+  useEffect(() => {
+    if (product && window.fbq) {
+      window.fbq('track', 'ViewContent', {
+        content_name: product.name,
+        content_ids: [product.id],
+        content_type: 'product',
+        value: displayPrice,
+        currency: 'DZD'
+      })
+    }
+  }, [product, displayPrice])
+
   useEffect(() => {
     if (!product) setLoading(true)
     setIsFetching(true)
@@ -62,6 +75,16 @@ export default function ProductPage() {
       const rp = product.related_products?.find(p => p.id === rpId)
       if (rp) addItem(rp, null, 1)
     })
+
+    if (window.fbq) {
+      window.fbq('track', 'AddToCart', {
+        content_name: product.name,
+        content_ids: [product.id],
+        content_type: 'product',
+        value: displayPrice * quantity,
+        currency: 'DZD'
+      })
+    }
 
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)

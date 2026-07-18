@@ -170,6 +170,23 @@ def test_satim_connection():
             pass
     except Exception as e:
         result['exception'] = str(e)
+
+    # Second test: without jsonParams (to isolate if that field causes issues)
+    params_no_json = {k: v for k, v in params.items() if k != 'jsonParams'}
+    params_no_json['orderNumber'] = f'DIAG2{int(time.time())}'
+    try:
+        resp2 = requests.get(url, params=params_no_json, timeout=15)
+        result['test_no_jsonparams'] = {
+            'http_status': resp2.status_code,
+            'raw_response': resp2.text[:300],
+        }
+        try:
+            result['test_no_jsonparams']['json_response'] = resp2.json()
+        except Exception:
+            pass
+    except Exception as e:
+        result['test_no_jsonparams'] = {'exception': str(e)}
+
     return result
 
 

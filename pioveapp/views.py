@@ -995,8 +995,8 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                         o = Order.objects.get(id=order_id)
                         res = mylerz_service.create_shipment(o)
                         if res.get('success'):
-                            o.mylerz_barcode = res.get('barcode', '')
-                            o.mylerz_pickup_code = res.get('pickup_code', '')
+                            o.mylerz_barcode = res.get('barcode') or ''
+                            o.mylerz_pickup_code = res.get('pickup_code') or ''
                             o.mylerz_status = 'Shipment Created'
                             o.save(update_fields=['mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'])
                             OrderStatusHistory.objects.create(
@@ -1192,8 +1192,8 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             logger.error(f"mylerz_ship exception for order #{order.id}: {traceback.format_exc()}")
             return Response({'success': False, 'message': f'Erreur serveur Mylerz: {e}'}, status=400)
         if res.get('success'):
-            order.mylerz_barcode = res.get('barcode', '')
-            order.mylerz_pickup_code = res.get('pickup_code', '')
+            order.mylerz_barcode = res.get('barcode') or ''
+            order.mylerz_pickup_code = res.get('pickup_code') or ''
             order.mylerz_status = 'Shipment Created'
             order.save(update_fields=['mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'])
             OrderStatusHistory.objects.create(
@@ -1261,8 +1261,8 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                     results.append({'id': order.id, 'success': False, 'message': str(e)})
                     continue
                 if res.get('success'):
-                    order.mylerz_barcode = res.get('barcode', '')
-                    order.mylerz_pickup_code = res.get('pickup_code', '')
+                    order.mylerz_barcode = res.get('barcode') or ''
+                    order.mylerz_pickup_code = res.get('pickup_code') or ''
                     order.mylerz_status = 'Shipment Created'
                     order.save(update_fields=['mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'])
                     OrderStatusHistory.objects.create(
@@ -1374,8 +1374,8 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                             o = Order.objects.get(id=order_id)
                             res = mylerz_service.create_shipment(o)
                             if res.get('success'):
-                                o.mylerz_barcode = res.get('barcode', '')
-                                o.mylerz_pickup_code = res.get('pickup_code', '')
+                                o.mylerz_barcode = res.get('barcode') or ''
+                                o.mylerz_pickup_code = res.get('pickup_code') or ''
                                 o.mylerz_status = 'Shipment Created'
                                 o.save(update_fields=['mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'])
                                 OrderStatusHistory.objects.create(

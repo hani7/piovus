@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f9f9f9; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .header { background: #1a1a2e; color: #fff; padding: 30px 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 20px; font-weight: 300; letter-spacing: 1px; text-transform: uppercase; }
+        .content { padding: 30px; }
+        .metric-box { background: #fdfdfd; border: 1px solid #eee; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 20px; }
+        .metric-box h3 { margin: 0 0 10px 0; font-size: 14px; color: #666; text-transform: uppercase; }
+        .metric-box .value { font-size: 28px; font-weight: 700; color: #000; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+        .table th { font-weight: 600; color: #666; text-transform: uppercase; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #888; background: #fdfdfd; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Piové Cosmetics</h1>
+            <p style="margin-top: 10px; font-size: 14px; color: #ccc;">{{ title }}</p>
+        </div>
+        <div class="content">
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <div class="metric-box" style="flex: 1;">
+                    <h3>Commandes Valides</h3>
+                    <div class="value">{{ total_orders }}</div>
+                </div>
+                <div class="metric-box" style="flex: 1;">
+                    <h3>Chiffre d'Affaires</h3>
+                    <div class="value">{{ total_revenue }} DA</div>
+                </div>
+            </div>
+
+            {% if top_products %}
+            <h2 style="font-size: 16px; margin-top: 30px;">🔥 Top 5 Produits les Plus Vendus</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th style="text-align: center;">Vendus</th>
+                        <th style="text-align: right;">CA Généré</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in top_products %}
+                    <tr>
+                        <td>{{ item.product_name }}</td>
+                        <td style="text-align: center;">{{ item.total_sold }}</td>
+                        <td style="text-align: right;">{{ item.revenue }} DA</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #666; font-style: italic;">Aucune donnée de vente pour cette période.</p>
+            {% endif %}
+
+            <p style="margin-top:40px; font-size: 14px; text-align: center;">Ce rapport a été généré automatiquement par le serveur de Piové Cosmetics.</p>
+        </div>
+        <div class="footer">
+            &copy; {% now "Y" %} Piové Cosmetics.
+        </div>
+    </div>
+</body>
+</html>

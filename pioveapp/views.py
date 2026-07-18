@@ -625,7 +625,9 @@ class OrderViewSet(viewsets.ModelViewSet):
                     text_content = render_to_string('emails/order_confirmation.txt', {'order': o})
                     html_content = render_to_string('emails/order_confirmation.html', {'order': o})
                     
-                    msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [recipient])
+                    # Send BCC to admin for every new order
+                    admin_email = 'lbetaimi@piovecosmetics.com'
+                    msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [recipient], bcc=[admin_email])
                     msg.attach_alternative(html_content, "text/html")
                     msg.send(fail_silently=True)
                 except Exception as e:
@@ -953,6 +955,36 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                 notes=f"Statut modifié par un administrateur."
             )
             handle_loyalty_points(updated_instance, old_status, updated_instance.status)
+            
+            # --- EMAIL NOTIFICATION FOR CONFIRMED/CANCELLED ---
+            if updated_instance.status in ['confirmed', 'cancelled']:
+                recipient_email = getattr(updated_instance, 'guest_email', None)
+                if not recipient_email and updated_instance.user:
+                    recipient_email = updated_instance.user.email
+                
+                def send_status_email_task(order_id, recipient, status):
+                    try:
+                        from .models import Order
+                        o = Order.objects.prefetch_related('items').get(id=order_id)
+                        subject = f"Mise à jour de votre commande #{o.id} - Piové Cosmetics"
+                        text_content = render_to_string('emails/order_status_update.txt', {'order': o, 'status': status})
+                        html_content = render_to_string('emails/order_status_update.html', {'order': o, 'status': status})
+                        
+                        admin_email = 'lbetaimi@piovecosmetics.com'
+                        # Send to customer, BCC admin
+                        if recipient:
+                            msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [recipient], bcc=[admin_email])
+                        else:
+                            # If no customer email, send directly to admin
+                            msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [admin_email])
+                        
+                        msg.attach_alternative(html_content, "text/html")
+                        msg.send(fail_silently=True)
+                    except Exception as e:
+                        pass
+                import threading
+                threading.Thread(target=send_status_email_task, args=(updated_instance.id, recipient_email, updated_instance.status)).start()
+
             
             # --- MYLERZ AUTO-SHIP ---
             if updated_instance.status == 'confirmed' and not updated_instance.mylerz_barcode:

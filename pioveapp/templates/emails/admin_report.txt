@@ -1,0 +1,18 @@
+Piové Cosmetics
+
+{{ title }}
+
+=== RÉSUMÉ ===
+Commandes Valides : {{ total_orders }}
+Chiffre d'Affaires : {{ total_revenue }} DA
+
+{% if top_products %}
+=== TOP 5 PRODUITS ===
+{% for item in top_products %}
+- {{ item.product_name }} | Vendus: {{ item.total_sold }} | CA: {{ item.revenue }} DA
+{% endfor %}
+{% else %}
+Aucune donnée de vente pour cette période.
+{% endif %}
+
+Ce rapport a été généré automatiquement.

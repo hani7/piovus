@@ -134,6 +134,7 @@ def create_shipment(order):
 
     # Clean phone number (Mylerz is strict on format, invalid chars can cause 500)
     import re
+    mobile_no = str(mobile_no or '')
     mobile_no = re.sub(r'\D', '', mobile_no) # Remove everything that is not a digit
     if mobile_no.startswith('213'):
         mobile_no = '0' + mobile_no[3:]

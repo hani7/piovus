@@ -1,9 +1,9 @@
 .payment-result-page {
-  padding: 80px 20px;
+  padding: calc(var(--navbar-height) + 24px) 16px 60px;
   min-height: 70vh;
   background-color: var(--color-cream);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 
@@ -152,6 +152,43 @@
   height: 44px;
   width: auto;
   object-fit: contain;
+}
+
+/* ─── Mobile ────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .payment-result__card {
+    padding: 24px 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .payment-result__title {
+    font-size: 1.5rem;
+  }
+
+  .payment-result__actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .payment-result__actions a,
+  .payment-result__actions button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .invoice-details {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .invoice-items th:nth-child(3),
+  .invoice-items td:nth-child(3) {
+    display: none;
+  }
+
+  .invoice-totals .total-row {
+    width: 100%;
+  }
 }
 
 /* Print Styles */

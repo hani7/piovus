@@ -2442,3 +2442,12 @@ class AdminMediaView(APIView):
             os.remove(full_path)
             return Response({'deleted': rel_path})
         return Response({'error': 'Fichier introuvable'}, status=404)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def satim_test_view(request):
+    """Diagnostic endpoint: test SATIM connectivity and show loaded credentials."""
+    from .satim_service import test_satim_connection
+    result = test_satim_connection()
+    return Response(result)

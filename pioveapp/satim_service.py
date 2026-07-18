@@ -8,44 +8,46 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-# Fallbacks for sandbox
-SATIM_BASE_URL = getattr(settings, 'SATIM_BASE_URL', 'https://test.satim.dz/payment/rest')
-SATIM_USER_NAME = getattr(settings, 'SATIM_USER_NAME', '')
-SATIM_PASSWORD = getattr(settings, 'SATIM_PASSWORD', '')
-SATIM_TERMINAL_ID = getattr(settings, 'SATIM_TERMINAL_ID', '')
+
+def _get_cfg():
+    """Read SATIM credentials fresh from settings every call (avoids module-level caching)."""
+    return {
+        'base_url': getattr(settings, 'SATIM_BASE_URL', 'https://cib.satim.dz/payment/rest') or 'https://cib.satim.dz/payment/rest',
+        'username': getattr(settings, 'SATIM_USER_NAME', '') or '',
+        'password': getattr(settings, 'SATIM_PASSWORD', '') or '',
+        'terminal_id': getattr(settings, 'SATIM_TERMINAL_ID', '') or '',
+    }
+
 
 def _generate_order_number(order_id):
-    """
-    Format: 0000X + 2 random characters
-    """
     rand_str = ''.join(random.choices(string.ascii_letters, k=2))
     return f"{order_id:05d}{rand_str}"
+
 
 def register_order(order):
     """
     Registers an order with SATIM to get the payment form URL.
     """
-    if not SATIM_USER_NAME or not SATIM_PASSWORD:
+    cfg = _get_cfg()
+    logger.info(f"SATIM register_order: base_url={cfg['base_url']!r}, user={cfg['username']!r}, terminal={cfg['terminal_id']!r}")
+
+    if not cfg['username'] or not cfg['password']:
         logger.error("SATIM credentials are not configured.")
         return {'success': False, 'message': 'Les identifiants SATIM ne sont pas configurés.'}
 
-    url = f"{SATIM_BASE_URL}/register.do"
-    
-    # Amount is in cents (DA * 100). We exclude delivery cost from the SATIM payment 
+    url = f"{cfg['base_url']}/register.do"
+
+    # Amount is in cents (DA * 100). We exclude delivery cost from the SATIM payment
     # so the customer pays it directly to the delivery driver.
     amount = int(float(order.total - order.delivery_cost) * 100)
     order_number = _generate_order_number(order.id)
-    
-    # Save the order_number temporarily to the order if we want to cross-check later,
-    # but we can just rely on the wooId/order_id we pass in the returnUrl.
-    
-    api_host = getattr(settings, 'API_URL', 'https://api.piovecosmetics.dz')
 
+    api_host = getattr(settings, 'API_URL', 'https://api.piovecosmetics.dz')
     return_url = f"{api_host}/api/satim/callback/?order_id={order.id}"
     fail_url = f"{api_host}/api/satim/callback/?order_id={order.id}"
-    
+
     json_params = {
-        "force_terminal_id": SATIM_TERMINAL_ID,
+        "force_terminal_id": cfg['terminal_id'],
         "udf1": str(int(time.time()))
     }
 
@@ -54,19 +56,19 @@ def register_order(order):
         'amount': amount,
         'language': 'fr',
         'orderNumber': order_number,
-        'userName': SATIM_USER_NAME,
-        'password': SATIM_PASSWORD,
+        'userName': cfg['username'],
+        'password': cfg['password'],
         'returnUrl': return_url,
         'failUrl': fail_url,
         'jsonParams': json.dumps(json_params)
     }
 
     try:
-        # The PHP script did a GET request with all params in the URL.
         resp = requests.get(url, params=params, timeout=15)
+        logger.info(f"SATIM register response: status={resp.status_code}, body={resp.text[:300]}")
         resp.raise_for_status()
         data = resp.json()
-        
+
         if 'orderId' in data and 'formUrl' in data:
             return {
                 'success': True,
@@ -77,52 +79,88 @@ def register_order(order):
             err = data.get('errorMessage', 'Erreur inconnue SATIM')
             logger.error(f"SATIM register failed: {err} - Response: {data}")
             return {'success': False, 'message': err}
-            
+
     except Exception as e:
         logger.error(f"SATIM register request exception: {e}")
         return {'success': False, 'message': str(e)}
 
+
 def confirm_order(satim_order_id):
     """
     Called when the user returns from SATIM.
-    We need to check the exact status of the transaction.
     """
-    if not SATIM_USER_NAME or not SATIM_PASSWORD:
+    cfg = _get_cfg()
+    if not cfg['username'] or not cfg['password']:
         return {'success': False, 'message': 'SATIM not configured.'}
 
-    url = f"{SATIM_BASE_URL}/getOrderStatusExtended.do"
-    
+    url = f"{cfg['base_url']}/getOrderStatusExtended.do"
+
     params = {
         'language': 'fr',
         'orderId': satim_order_id,
-        'userName': SATIM_USER_NAME,
-        'password': SATIM_PASSWORD
+        'userName': cfg['username'],
+        'password': cfg['password']
     }
 
     try:
         resp = requests.get(url, params=params, timeout=15)
         resp.raise_for_status()
         data = resp.json()
-        
-        # In getOrderStatusExtended.do:
-        # orderStatus 2 means Paid/Deposited
-        # error_code usually 0 if request is valid
+
         error_code = data.get('ErrorCode') or data.get('errorCode')
         order_status = data.get('orderStatus') or data.get('OrderStatus')
-        
+
         if error_code and str(error_code) != '0':
             msg = data.get('ErrorMessage') or data.get('errorMessage') or 'Erreur de paiement SATIM.'
             return {'success': False, 'message': msg, 'raw': data}
-            
+
         if str(order_status) == '2':
-            return {
-                'success': True,
-                'data': data
-            }
+            return {'success': True, 'data': data}
         else:
             action_code = data.get('actionCodeDescription') or 'Paiement non complété.'
             return {'success': False, 'message': action_code, 'raw': data}
-            
+
     except Exception as e:
         logger.error(f"SATIM confirm request exception: {e}")
         return {'success': False, 'message': str(e)}
+
+
+def test_satim_connection():
+    """Diagnostic: test SATIM credentials and return detailed info."""
+    cfg = _get_cfg()
+    result = {
+        'base_url': cfg['base_url'],
+        'username': cfg['username'] or '(vide)',
+        'password_set': bool(cfg['password']),
+        'terminal_id': cfg['terminal_id'] or '(vide)',
+    }
+    if not cfg['username'] or not cfg['password']:
+        result['error'] = 'Credentials manquants'
+        return result
+
+    url = f"{cfg['base_url']}/register.do"
+    params = {
+        'currency': '012',
+        'amount': 100000,  # 1000 DA test
+        'language': 'fr',
+        'orderNumber': f'DIAG{int(time.time())}',
+        'userName': cfg['username'],
+        'password': cfg['password'],
+        'returnUrl': 'https://piovecosmetics.dz/payment-result?status=success',
+        'failUrl': 'https://piovecosmetics.dz/payment-result?status=fail',
+        'jsonParams': json.dumps({'force_terminal_id': cfg['terminal_id'], 'udf1': 'diag'})
+    }
+    try:
+        resp = requests.get(url, params=params, timeout=15)
+        result['http_status'] = resp.status_code
+        result['raw_response'] = resp.text[:500]
+        try:
+            result['json_response'] = resp.json()
+        except Exception:
+            pass
+    except Exception as e:
+        result['exception'] = str(e)
+    return result
+
+
+

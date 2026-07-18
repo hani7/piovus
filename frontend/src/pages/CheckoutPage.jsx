@@ -166,7 +166,7 @@ export default function CheckoutPage() {
         window.location.href = res.data.satim_payment_url
       } else if (res.data.satim_error) {
         setRedirecting(true)
-        window.location.href = `/payment-result?status=fail&reason=init_failed`
+        window.location.href = `/payment-result?status=fail&reason=init_failed&msg=${encodeURIComponent(res.data.satim_error)}`
       } else {
         setOrderId(res.data.id)
         setSuccess(true)

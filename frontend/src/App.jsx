@@ -116,6 +116,35 @@ export default function App() {
     document.head.appendChild(script)
   }, [settings?.tiktok_pixel_id])
 
+  // Source detection
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    let source = params.get('utm_source') || params.get('ref') || params.get('source')
+    
+    if (!source && document.referrer) {
+      const ref = document.referrer.toLowerCase()
+      if (ref.includes('facebook.com') || ref.includes('fb.me') || ref.includes('instagram.com/l.php')) source = 'fb'
+      else if (ref.includes('instagram.com')) source = 'ig'
+      else if (ref.includes('tiktok.com')) source = 'tiktok'
+      else if (ref.includes('google.')) source = 'google'
+      else if (!ref.includes(window.location.hostname)) source = 'referral'
+    }
+    
+    // Normalize and save
+    if (source) {
+      source = source.toLowerCase()
+      if (source === 'facebook' || source === 'fb') source = 'fb'
+      else if (source === 'instagram' || source === 'ig') source = 'ig'
+      else if (source === 'tiktok') source = 'tiktok'
+      else if (source === 'google') source = 'google'
+      
+      localStorage.setItem('order_source', source)
+    } else if (!localStorage.getItem('order_source')) {
+      // Default fallback
+      localStorage.setItem('order_source', 'direct')
+    }
+  }, [])
+
   if (loadingSettings) {
     return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Chargement...</div>
   }

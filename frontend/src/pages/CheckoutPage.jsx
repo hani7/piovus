@@ -181,6 +181,7 @@ export default function CheckoutPage() {
         })),
         coupon_id: coupon ? coupon.id : null,
         discount_amount: coupon ? coupon.discount_amount : 0,
+        source: localStorage.getItem('order_source') || 'direct',
       }
       const res = await createOrder(payload)
       clearCart()

@@ -121,6 +121,7 @@ def setup_staff_accounts_view(request):
             ('amira',     'Piove@Amira2026',   'Amira',     False),
             ('oubaida',   'Piove@Oubaida2026', 'Oubaida',   False),
             ('marketing', 'Piove@Mktg2026',    'Marketing', True),
+            ('gerant',    'Piove@Gerant2026',  'Gérant',    False),
         ]
         for username, pwd, fname, is_marketing in accounts:
             u, created = User.objects.get_or_create(username=username)

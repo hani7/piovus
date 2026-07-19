@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import adminClient from '../../api/adminClient'
 import './admin.css'
@@ -163,7 +163,7 @@ export default function AdminLogin() {
           {error && (
             <div style={{
               background: '#fef2f2', border: '1px solid #fecaca',
-              color: '#dc2626', padding: '10px 14px', borderRadius: 8,
+              color: '#dc2626', padding: '10px 14px', borderRadius: '50px',
               fontSize: '0.875rem', marginBottom: 20,
               display: 'flex', alignItems: 'center', gap: 8,
             }}>
@@ -187,7 +187,7 @@ export default function AdminLogin() {
                   required
                   style={{
                     width: '100%', padding: '12px 14px', fontSize: '0.95rem',
-                    border: '1.5px solid #e2e8f0', borderRadius: 10,
+                    border: '1.5px solid #e2e8f0', borderRadius: '50px',
                     outline: 'none', boxSizing: 'border-box',
                     background: '#f8fafc', color: '#0f172a',
                     transition: 'border-color 0.2s',
@@ -212,7 +212,7 @@ export default function AdminLogin() {
                     required
                     style={{
                       width: '100%', padding: '12px 44px 12px 14px', fontSize: '0.95rem',
-                      border: '1.5px solid #e2e8f0', borderRadius: 10,
+                      border: '1.5px solid #e2e8f0', borderRadius: '50px',
                       outline: 'none', boxSizing: 'border-box',
                       background: '#f8fafc', color: '#0f172a',
                       transition: 'border-color 0.2s',
@@ -242,7 +242,7 @@ export default function AdminLogin() {
                 style={{
                   marginTop: 8, padding: '13px', width: '100%',
                   background: loading ? '#e07080' : '#c9485b',
-                  color: '#fff', border: 'none', borderRadius: 10,
+                  color: '#fff', border: 'none', borderRadius: '50px',
                   fontSize: '1rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
                   transition: 'opacity 0.2s', letterSpacing: '0.03em',
                   boxShadow: '0 4px 14px rgba(201,72,91,0.35)',
@@ -271,7 +271,7 @@ export default function AdminLogin() {
                   style={{
                     width: '100%', padding: '14px', fontSize: '1.4rem',
                     letterSpacing: 12, textAlign: 'center', fontWeight: 700,
-                    border: '1.5px solid #e2e8f0', borderRadius: 10,
+                    border: '1.5px solid #e2e8f0', borderRadius: '50px',
                     outline: 'none', boxSizing: 'border-box', background: '#f8fafc',
                   }}
                 />
@@ -282,7 +282,7 @@ export default function AdminLogin() {
                 style={{
                   padding: '13px', width: '100%',
                   background: 'linear-gradient(135deg, #a855f7, #ec4899)',
-                  color: '#fff', border: 'none', borderRadius: 10,
+                  color: '#fff', border: 'none', borderRadius: '50px',
                   fontSize: '1rem', fontWeight: 700, cursor: 'pointer',
                   boxShadow: '0 4px 14px rgba(168,85,247,0.35)',
                 }}
@@ -294,7 +294,7 @@ export default function AdminLogin() {
                 onClick={() => setMfaStep(false)}
                 style={{
                   padding: '11px', width: '100%', background: 'none',
-                  color: '#94a3b8', border: '1.5px solid #e2e8f0', borderRadius: 10,
+                  color: '#94a3b8', border: '1.5px solid #e2e8f0', borderRadius: '50px',
                   fontSize: '0.9rem', cursor: 'pointer',
                 }}
               >
@@ -307,3 +307,4 @@ export default function AdminLogin() {
     </div>
   )
 }
+

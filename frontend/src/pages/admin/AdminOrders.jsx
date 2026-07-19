@@ -315,13 +315,6 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
             <button className="btn-primary" onClick={() => navigate(isB2B ? '/admin-panel/orders-b2b/new' : '/admin-panel/orders/new')}>
               <Plus size={16}/> Créer une Commande
             </button>
-            <button
-              onClick={handleMylerzTest}
-              title="Tester la connexion Mylerz"
-              style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#f1f5f9', color: '#475569', borderRadius: 50, border: '1px solid #e2e8f0', cursor: 'pointer', whiteSpace: 'nowrap' }}
-            >
-              🔧 Test Mylerz
-            </button>
             </>
           )}
         </div>

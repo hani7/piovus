@@ -139,6 +139,19 @@ def setup_staff_accounts_view(request):
                 u.groups.clear()
                 log.append(f"  -> acces complet (comme lotfi)")
 
+        # Create/update Django admin superuser
+        su, su_created = User.objects.get_or_create(username='piove_admin')
+        su.set_password('Piove@DjangoAdmin2026!')
+        su.is_staff = True
+        su.is_superuser = True
+        su.first_name = 'Piove'
+        su.last_name = 'Admin'
+        su.save()
+        if su_created:
+            log.append("Superuser Django cree: piove_admin")
+        else:
+            log.append("Superuser Django mis a jour: piove_admin")
+
         return HttpResponse("<br>".join(log) + "<br><br><b>TERMINE!</b>")
     except Exception:
         import traceback

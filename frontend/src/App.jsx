@@ -120,28 +120,54 @@ export default function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     let source = params.get('utm_source') || params.get('ref') || params.get('source')
+    const utmMedium = params.get('utm_medium') || ''
+    const utmCampaign = params.get('utm_campaign') || ''
+    const fbclid = params.get('fbclid')
     
-    if (!source && document.referrer) {
-      const ref = document.referrer.toLowerCase()
-      if (ref.includes('facebook.com') || ref.includes('fb.me') || ref.includes('instagram.com/l.php')) source = 'fb'
-      else if (ref.includes('instagram.com')) source = 'ig'
-      else if (ref.includes('tiktok.com')) source = 'tiktok'
-      else if (ref.includes('google.')) source = 'google'
-      else if (!ref.includes(window.location.hostname)) source = 'referral'
+    // Auto-detect from ad click IDs or referrer
+    if (!source) {
+      if (fbclid) {
+        source = 'fb'
+      } else if (document.referrer) {
+        const ref = document.referrer.toLowerCase()
+        if (ref.includes('facebook.com') || ref.includes('fb.me') || ref.includes('instagram.com/l.php')) source = 'fb'
+        else if (ref.includes('instagram.com')) source = 'ig'
+        else if (ref.includes('tiktok.com')) source = 'tiktok'
+        else if (ref.includes('google.')) source = 'google'
+        else if (ref.includes('piovecosmetics.com') || ref.includes('piovecosmetics.dz')) source = 'direct'
+        else source = 'referral'
+      }
     }
     
-    // Normalize and save
+    // Normalize base source
     if (source) {
       source = source.toLowerCase()
-      if (source === 'facebook' || source === 'fb') source = 'fb'
-      else if (source === 'instagram' || source === 'ig') source = 'ig'
-      else if (source === 'tiktok') source = 'tiktok'
-      else if (source === 'google') source = 'google'
-      
-      localStorage.setItem('order_source', source)
-    } else if (!localStorage.getItem('order_source')) {
-      // Default fallback
-      localStorage.setItem('order_source', 'direct')
+      if (source.includes('facebook') || source === 'fb') source = 'fb'
+      else if (source.includes('instagram') || source === 'ig') source = 'ig'
+      else if (source.includes('tiktok')) source = 'tiktok'
+      else if (source.includes('google')) source = 'google'
+    }
+
+    let fullOrigin = source || 'direct';
+    
+    // Add extra tracking infos
+    const extras = [];
+    if (utmMedium) extras.push(`md:${utmMedium}`);
+    if (utmCampaign) extras.push(`cp:${utmCampaign}`);
+    if (fbclid) extras.push(`fbclid`);
+
+    if (extras.length > 0) {
+        fullOrigin = `${fullOrigin} | ${extras.join(' | ')}`;
+    }
+
+    // Limit length to match backend max_length (100)
+    fullOrigin = fullOrigin.substring(0, 100);
+
+    const existing = localStorage.getItem('order_source');
+    const hasTrackingParams = params.get('utm_source') || params.get('ref') || params.get('source') || utmMedium || utmCampaign || fbclid;
+    
+    if (hasTrackingParams || !existing) {
+      localStorage.setItem('order_source', fullOrigin)
     }
   }, [])
 

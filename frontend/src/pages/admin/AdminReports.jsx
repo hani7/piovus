@@ -374,8 +374,15 @@ export default function AdminReports() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {sourceStats.map(s => {
                 const pct = total > 0 ? Math.round((s.count / total) * 100) : 0
-                const color = SOURCE_COLORS[s.source] || '#64748b'
-                const label = s.source === 'fb' ? 'Facebook' : s.source === 'ig' ? 'Instagram' : s.source === 'direct' ? 'Direct' : s.source === 'referral' ? 'Référent' : s.source
+                
+                const parts = s.source.split(' | ')
+                const main = parts[0]
+                const extras = parts.slice(1).join(' / ')
+                
+                const color = SOURCE_COLORS[main] || '#64748b'
+                let baseLabel = main === 'fb' ? 'Facebook' : main === 'ig' ? 'Instagram' : main === 'direct' ? 'Direct' : main === 'referral' ? 'Référent' : main
+                const label = extras ? `${baseLabel} (${extras})` : baseLabel
+                
                 return (
                   <div key={s.source}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, alignItems: 'center' }}>

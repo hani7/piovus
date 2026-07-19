@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X, Plus, Trash2, Printer, RefreshCw } from 'lucide-react'
 import adminClient from '../../api/adminClient'
@@ -439,6 +439,10 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                     <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                       {(() => {
                         if (!o.source) return <span style={{ color: 'var(--admin-text-muted)' }}>—</span>
+                        const parts = o.source.split(' | ')
+                        const mainSource = parts[0]
+                        const extras = parts.slice(1).join(' / ')
+
                         const SRC = {
                           fb:      { label: 'Facebook',  bg: '#1877f2' },
                           ig:      { label: 'Instagram', bg: '#e1306c' },
@@ -447,8 +451,13 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                           tiktok:  { label: 'TikTok',    bg: '#010101' },
                           referral:{ label: 'Référent',  bg: '#10b981' },
                         }
-                        const s = SRC[o.source] || { label: o.source, bg: '#64748b' }
-                        return <span style={{ background: s.bg, color: '#fff', padding: '2px 8px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 600 }}>{s.label}</span>
+                        const s = SRC[mainSource] || { label: mainSource, bg: '#64748b' }
+                        return (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ background: s.bg, color: '#fff', padding: '2px 8px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 600, alignSelf: 'flex-start' }}>{s.label}</span>
+                            {extras && <span style={{ fontSize: '0.65rem', color: 'var(--admin-text-muted)', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={extras}>{extras}</span>}
+                          </div>
+                        )
                       })()}
                     </td>
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>

@@ -347,6 +347,7 @@ class AdminOrderSerializer(serializers.ModelSerializer):
     customer_name = serializers.SerializerMethodField()
     is_blacklisted = serializers.SerializerMethodField()
     source = serializers.SerializerMethodField()
+    deleted_by_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -356,9 +357,10 @@ class AdminOrderSerializer(serializers.ModelSerializer):
             'delivery_company_name', 'delivery_type', 'delivery_cost',
             'status', 'status_display', 'payment_status', 'payment_method', 'total', 'notes', 'source',
             'items', 'history', 'created_at', 'updated_at', 'is_blacklisted', 'customer',
-            'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status'
+            'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status',
+            'is_deleted', 'deleted_at', 'deleted_by_name'
         ]
-        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted', 'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status']
+        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted', 'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status', 'is_deleted', 'deleted_at', 'deleted_by_name']
 
     def get_customer_name(self, obj):
         if obj.user:
@@ -369,6 +371,11 @@ class AdminOrderSerializer(serializers.ModelSerializer):
         if obj.customer:
             return obj.customer.is_blacklisted
         return False
+
+    def get_deleted_by_name(self, obj):
+        if obj.deleted_by:
+            return obj.deleted_by.get_full_name() or obj.deleted_by.username
+        return None
 
     def get_source(self, obj):
         # Safe fallback in case column doesn't exist on production DB yet

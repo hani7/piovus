@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useNavigate, Outlet, Navigate, Link } from 'react-router-dom'
-import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings, Film, Sun, Moon, Maximize2, Minimize2 } from 'lucide-react'
+import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings, Film, Sun, Moon, Maximize2, Minimize2, History } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 import './admin.css'
 import CommandMenu from './CommandMenu'
@@ -26,6 +26,7 @@ export const NAV_ITEMS = [
     links: [
       { to: '/piove-secure-2026/orders', label: 'Commandes', icon: <ShoppingCart size={20} /> },
       { to: '/piove-secure-2026/orders-b2b', label: 'Commandes B2B', icon: <Briefcase size={20} /> },
+      { to: '/piove-secure-2026/orders-history', label: 'Historique', icon: <History size={20} /> },
       { to: '/piove-secure-2026/coupons', label: 'Codes Promos', icon: <Ticket size={20} /> },
       { to: '/piove-secure-2026/reports', label: 'Rapports', icon: <BarChart2 size={20} /> },
     ]

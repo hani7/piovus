@@ -9,7 +9,7 @@ from .views import (
     OrderViewSet,
     AdminDashboardView, AdminActivityLogView,
     AdminProductViewSet, AdminProductVariantViewSet, AdminProductImageViewSet, AdminCategoryViewSet,
-    AdminBannerViewSet, AdminOrderViewSet, AdminCouponViewSet,
+    AdminBannerViewSet, AdminOrderViewSet, AdminCouponViewSet, AdminOrderHistoryViewSet,
     DeliveryCompanyViewSet, DeliveryRateViewSet, CustomerViewSet,
     AdminNewsletterSendView, AdminNewsletterUploadImageView, AdminReportView, ApplyCouponView,
     SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet,
@@ -54,6 +54,7 @@ admin_router.register(r'categories', AdminCategoryViewSet, basename='admin-categ
 admin_router.register(r'variants', AdminProductVariantViewSet, basename='admin-variant')
 admin_router.register(r'images', AdminProductImageViewSet, basename='admin-image')
 admin_router.register(r'banners', AdminBannerViewSet, basename='admin-banner')
+admin_router.register(r'orders-history', AdminOrderHistoryViewSet, basename='admin-order-history')
 admin_router.register(r'orders', AdminOrderViewSet, basename='admin-order')
 admin_router.register(r'customers', CustomerViewSet, basename='admin-customer')
 admin_router.register(r'coupons', AdminCouponViewSet, basename='admin-coupon')

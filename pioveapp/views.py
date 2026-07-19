@@ -703,12 +703,12 @@ class AdminDashboardView(APIView):
         # COD: uniquement 'fulfilled' (livré + payé en main propre)
         # CIB/Edahabia: payment_status = 'paid' (callback SATIM confirmé)
         REVENUE_Q = (
-            Q(payment_method='cash', status='fulfilled') |
-            Q(payment_method='cib', payment_status='paid')
+            Q(payment_method='cash', status='fulfilled', is_deleted=False) |
+            Q(payment_method='cib', payment_status='paid', is_deleted=False)
         )
 
-        total_orders   = Order.objects.count()
-        pending_orders = Order.objects.filter(status='pending').count()
+        total_orders   = Order.objects.filter(is_deleted=False).count()
+        pending_orders = Order.objects.filter(status='pending', is_deleted=False).count()
 
         # Revenues — only real confirmed/paid orders
         total_revenue  = Order.objects.filter(REVENUE_Q).aggregate(rev=Sum('total'))['rev'] or 0
@@ -932,7 +932,7 @@ def handle_loyalty_points(order, old_status, new_status):
             logging.getLogger(__name__).error(f"Loyalty points error for order {order.id}: {e}")
 
 class AdminOrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all().select_related('user', 'customer').prefetch_related('items').order_by('-created_at')
+    queryset = Order.objects.filter(is_deleted=False).select_related('user', 'customer').prefetch_related('items').order_by('-created_at')
     permission_classes = [IsAdminUser]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['status', 'payment_status', 'delivery_type', 'customer__is_b2b']
@@ -1341,8 +1341,28 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         ids = request.data.get('ids', [])
         if not ids:
             return Response({'error': 'Aucun ID fourni.'}, status=status.HTTP_400_BAD_REQUEST)
-        deleted_count, _ = Order.objects.filter(id__in=ids).delete()
-        return Response({'message': f'{deleted_count} commande(s) supprimée(s).'})
+        updated_count = Order.objects.filter(id__in=ids).update(
+            is_deleted=True,
+            deleted_at=timezone.now(),
+            deleted_by=request.user
+        )
+        return Response({'message': f'{updated_count} commande(s) supprimée(s).'})
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.is_deleted = True
+        instance.deleted_at = timezone.now()
+        instance.deleted_by = request.user
+        instance.save()
+        
+        from .models import UserActivityLog
+        UserActivityLog.objects.create(
+            user=self.request.user,
+            action=f'Suppression (soft) de la commande #{instance.id}',
+            ip_address=self.request.META.get('REMOTE_ADDR'),
+            user_agent=self.request.META.get('HTTP_USER_AGENT')
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=['post'])
     def bulk_update_status(self, request):
@@ -2529,4 +2549,14 @@ class AdminChangePasswordView(APIView):
         user.set_password(new_pwd)
         user.save()
         return Response({'detail': 'Mot de passe changé avec succès.'})
+
+
+
+class AdminOrderHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Order.objects.all().select_related('user', 'customer', 'deleted_by').prefetch_related('items').order_by('-created_at')
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminOrderSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['status', 'payment_status', 'is_deleted', 'payment_method', 'customer__is_b2b']
+    search_fields = ['guest_name', 'guest_phone', 'user__username', 'user__first_name', 'id']
 

@@ -98,22 +98,17 @@ export default function AdminLogin() {
           <img
             src="/logo.png"
             alt="Piové"
-            style={{ height: 80, objectFit: 'contain', filter: 'brightness(0) invert(1)', marginBottom: 24 }}
-            onError={e => { e.target.style.display = 'none' }}
+            style={{ height: 90, objectFit: 'contain', filter: 'brightness(0) invert(1)', marginBottom: 24 }}
           />
-          <h1 style={{
-            fontSize: '3.5rem', fontWeight: 900, letterSpacing: '0.15em',
-            color: '#fff', margin: 0, textTransform: 'uppercase',
-          }}>PIOVÉ</h1>
           <p style={{
-            marginTop: 12, fontSize: '1rem', color: 'rgba(255,255,255,0.45)',
+            marginTop: 4, fontSize: '0.9rem', color: 'rgba(255,255,255,0.35)',
             letterSpacing: '0.2em', textTransform: 'uppercase',
           }}>Administration</p>
 
           {/* Separator line */}
           <div style={{
-            width: 60, height: 2, margin: '28px auto',
-            background: 'linear-gradient(90deg, #a855f7, #ec4899)',
+            width: 60, height: 2, margin: '20px auto',
+            background: '#c9485b',
             borderRadius: 2,
           }} />
 
@@ -150,7 +145,7 @@ export default function AdminLogin() {
         {/* Top accent */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-          background: 'linear-gradient(90deg, #a855f7, #ec4899)',
+          background: '#c9485b',
         }} />
 
         <div style={{ width: '100%', maxWidth: 360 }}>
@@ -246,11 +241,11 @@ export default function AdminLogin() {
                 disabled={loading}
                 style={{
                   marginTop: 8, padding: '13px', width: '100%',
-                  background: loading ? '#c084fc' : 'linear-gradient(135deg, #a855f7, #ec4899)',
+                  background: loading ? '#e07080' : '#c9485b',
                   color: '#fff', border: 'none', borderRadius: 10,
                   fontSize: '1rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
                   transition: 'opacity 0.2s', letterSpacing: '0.03em',
-                  boxShadow: '0 4px 14px rgba(168,85,247,0.35)',
+                  boxShadow: '0 4px 14px rgba(201,72,91,0.35)',
                 }}
               >
                 {loading ? 'Connexion en cours...' : 'Se connecter →'}

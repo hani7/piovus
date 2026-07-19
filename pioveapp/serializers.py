@@ -110,11 +110,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer()
     coupons = CouponSerializer(many=True, read_only=True)
+    groups = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser', 'profile', 'coupons']
-        read_only_fields = ['is_staff', 'is_superuser', 'coupons']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser', 'profile', 'coupons', 'groups']
+        read_only_fields = ['is_staff', 'is_superuser', 'coupons', 'groups']
+
+    def get_groups(self, obj):
+        return list(obj.groups.values_list('name', flat=True))
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', None)

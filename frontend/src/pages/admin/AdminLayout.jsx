@@ -22,6 +22,7 @@ export const NAV_ITEMS = [
   },
   {
     section: 'Ventes',
+    marketingHidden: true,
     links: [
       { to: '/admin-panel/orders', label: 'Commandes', icon: <ShoppingCart size={20} /> },
       { to: '/admin-panel/orders-b2b', label: 'Commandes B2B', icon: <Briefcase size={20} /> },
@@ -31,6 +32,7 @@ export const NAV_ITEMS = [
   },
   {
     section: 'Clients',
+    marketingHidden: true,
     links: [
       { to: '/admin-panel/customers', label: 'Tous les clients', icon: <Users size={20} /> },
       { to: '/admin-panel/b2b-requests', label: 'Demandes B2B', icon: <Briefcase size={20} /> },
@@ -40,6 +42,7 @@ export const NAV_ITEMS = [
   },
   {
     section: 'Livraison',
+    marketingHidden: true,
     links: [
       { to: '/admin-panel/delivery-companies', label: 'Transporteurs', icon: <Truck size={20} /> },
       { to: '/admin-panel/delivery-rates', label: 'Tarifs (Détail)', icon: <Banknote size={20} /> },
@@ -58,6 +61,7 @@ export const NAV_ITEMS = [
 export default function AdminLayout() {
   const navigate = useNavigate()
   const user = JSON.parse(localStorage.getItem('admin_user') || 'null')
+  const isMarketing = user?.groups?.includes('marketing')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [now, setNow] = useState(new Date())
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
@@ -250,7 +254,7 @@ export default function AdminLayout() {
         </div>
 
         <nav className="admin-nav">
-          {NAV_ITEMS.map(section => (
+          {NAV_ITEMS.filter(s => !isMarketing || !s.marketingHidden).map(section => (
             <div key={section.section} className="admin-nav-section">
               <div className="admin-nav-section-label">{section.section}</div>
               {section.links.map(link => (

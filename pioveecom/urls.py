@@ -109,10 +109,47 @@ def run_migration_view(request):
         return HttpResponse(f"Migration FAILED:<br><pre>{traceback.format_exc()}</pre>")
 
 
+def setup_staff_accounts_view(request):
+    from django.contrib.auth.models import User, Group
+    from django.http import HttpResponse
+    log = []
+    try:
+        group, _ = Group.objects.get_or_create(name='marketing')
+        log.append("Groupe 'marketing' OK")
+
+        accounts = [
+            ('amira',     'Piove@Amira2026',   'Amira',     False),
+            ('oubaida',   'Piove@Oubaida2026', 'Oubaida',   False),
+            ('marketing', 'Piove@Mktg2026',    'Marketing', True),
+        ]
+        for username, pwd, fname, is_marketing in accounts:
+            u, created = User.objects.get_or_create(username=username)
+            if created:
+                u.set_password(pwd)
+                log.append(f"Cree: {username}")
+            else:
+                log.append(f"Existait: {username}")
+            u.first_name = fname
+            u.is_staff = True
+            u.save()
+            if is_marketing:
+                u.groups.set([group])
+                log.append(f"  -> groupe marketing")
+            else:
+                u.groups.clear()
+                log.append(f"  -> acces complet (comme lotfi)")
+
+        return HttpResponse("<br>".join(log) + "<br><br><b>TERMINE!</b>")
+    except Exception:
+        import traceback
+        return HttpResponse(f"ERREUR:<br><pre>{traceback.format_exc()}</pre>")
+
+
 urlpatterns = [
     #path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('piove-secure-gate-2026/', admin.site.urls),
     path('api/run-migrations-secret-key-998877/', run_migration_view),
+    path('api/setup-staff-998877/', setup_staff_accounts_view),
     path('api/', include('pioveapp.urls')),
 ]
 

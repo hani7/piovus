@@ -174,7 +174,7 @@ export default function AdminOrders({ isB2B = false }) {
         const msgs = failed.map(r => `#${r.id}: ${r.message || r.error || 'Erreur inconnue'}`).join('\n')
         alert(`⚠️ ${ok.length} réussi(s), ${failed.length} échec(s):\n\n${msgs}`)
       }
-      fetchOrders()
+      load()
     } catch (e) {
       const msg = e.response?.data?.detail || e.response?.data?.error || e.message || 'Erreur inconnue'
       alert(`Erreur Mylerz:\n${msg}`)
@@ -186,7 +186,7 @@ export default function AdminOrders({ isB2B = false }) {
     try {
       await adminClient.post('/admin/orders/bulk_mylerz_track/', { ids: selectedIds })
       alert('Statuts Mylerz actualisés.')
-      fetchOrders()
+      load()
     } catch (e) {
       alert("Erreur lors de l'actualisation Mylerz.")
     }
@@ -198,7 +198,7 @@ export default function AdminOrders({ isB2B = false }) {
     try {
       await adminClient.post('/admin/orders/bulk_mylerz_cancel/', { ids: selectedIds })
       alert('Envois Mylerz annulés.')
-      fetchOrders()
+      load()
     } catch (e) {
       alert("Erreur lors de l'annulation Mylerz.")
     }

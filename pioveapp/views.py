@@ -2483,4 +2483,50 @@ def satim_test_view(request):
     return Response(test_satim_connection())
 
 
+class AdminProfileView(APIView):
+    """GET / PUT admin user profile (first_name, last_name, email)."""
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get(self, request):
+        u = request.user
+        return Response({
+            'username': u.username,
+            'first_name': u.first_name,
+            'last_name': u.last_name,
+            'email': u.email,
+            'is_superuser': u.is_superuser,
+            'groups': list(u.groups.values_list('name', flat=True)),
+        })
+
+    def put(self, request):
+        u = request.user
+        u.first_name = request.data.get('first_name', u.first_name)
+        u.last_name  = request.data.get('last_name',  u.last_name)
+        u.email      = request.data.get('email',      u.email)
+        u.save()
+        return Response({
+            'username': u.username,
+            'first_name': u.first_name,
+            'last_name': u.last_name,
+            'email': u.email,
+        })
+
+
+class AdminChangePasswordView(APIView):
+    """POST {current_password, new_password} to change password."""
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def post(self, request):
+        user = request.user
+        current = request.data.get('current_password', '')
+        new_pwd  = request.data.get('new_password', '')
+
+        if not user.check_password(current):
+            return Response({'detail': 'Mot de passe actuel incorrect.'}, status=400)
+        if len(new_pwd) < 8:
+            return Response({'detail': 'Le mot de passe doit contenir au moins 8 caractères.'}, status=400)
+
+        user.set_password(new_pwd)
+        user.save()
+        return Response({'detail': 'Mot de passe changé avec succès.'})
 

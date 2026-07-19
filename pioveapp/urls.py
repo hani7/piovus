@@ -13,7 +13,8 @@ from .views import (
     DeliveryCompanyViewSet, DeliveryRateViewSet, CustomerViewSet,
     AdminNewsletterSendView, AdminNewsletterUploadImageView, AdminReportView, ApplyCouponView,
     SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet,
-    mylerz_webhook, satim_callback, satim_test_view, AdminMediaView
+    mylerz_webhook, satim_callback, satim_test_view, AdminMediaView,
+    AdminProfileView, AdminChangePasswordView
 )
 from django.core.management import call_command
 from django.http import JsonResponse
@@ -88,5 +89,7 @@ urlpatterns = [
     path('admin/activity-logs/', AdminActivityLogView.as_view(), name='admin-activity-logs'),
     path('admin/settings/', AdminSiteSettingsView.as_view(), name='admin-settings'),
     path('admin/settings/toggle_maintenance/', AdminSiteSettingsView.as_view(), name='admin-settings-toggle'),
+    path('admin/profile/', AdminProfileView.as_view(), name='admin-profile'),
+    path('admin/profile/change-password/', AdminChangePasswordView.as_view(), name='admin-change-password'),
     path('admin/', include(admin_router.urls)),
 ]

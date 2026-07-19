@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, Suspense, lazy } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import client from './api/client'
 import Navbar from './components/Navbar'
@@ -51,6 +51,7 @@ const AdminReports = lazy(() => import('./pages/admin/AdminReports'))
 const AdminUserHistory = lazy(() => import('./pages/admin/AdminUserHistory'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
 const AdminMediatheque = lazy(() => import('./pages/admin/AdminMediatheque'))
+const AdminProfile = lazy(() => import('./pages/admin/AdminProfile'))
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -174,6 +175,7 @@ export default function App() {
             <Route path="history" element={<AdminUserHistory />} />
             <Route path="mediatheque" element={<AdminMediatheque />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
         </Routes>
       </Suspense>

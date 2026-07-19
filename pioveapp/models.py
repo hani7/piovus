@@ -339,6 +339,10 @@ class Order(models.Model):
     notes = models.TextField(blank=True)
     source = models.CharField(max_length=100, blank=True, default='', help_text="Origine de la commande (ex: fb, ig, direct, referral)")
 
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    deleted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='deleted_orders')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

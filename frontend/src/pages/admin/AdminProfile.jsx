@@ -157,7 +157,7 @@ export default function AdminProfile() {
             <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Mail size={13} /> Adresse e-mail
+                  <Mail size={13} /> Email
                 </span>
               </label>
               <input

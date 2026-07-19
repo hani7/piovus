@@ -308,7 +308,7 @@ export default function AdminLayout() {
                 <span>Recherche globale...</span>
               </div>
               <div style={{ background: 'var(--admin-surface)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, border: '1px solid var(--admin-border)' }}>
-                âŒ˜K
+                Ctrl K
               </div>
             </button>
           </div>

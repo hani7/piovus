@@ -1,8 +1,7 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import adminClient from '../../api/adminClient'
-import { useAuthStore } from '../../store/authStore'
 import { AlertTriangle, TrendingUp, ShoppingBag, DollarSign, Activity, AlertCircle, ShoppingCart, Users, Clock, Package, Grid } from 'lucide-react'
 
 const STATUS_LABELS = {
@@ -57,35 +56,35 @@ export default function AdminDashboard() {
       colorBg: 'rgba(59,130,246,0.12)',
     },
     {
-      label: "Commandes (Total)",
+      label: 'Commandes (Total)',
       value: data.total_orders || 0,
       icon: <ShoppingBag size={20} />,
       color: '#6a9ff0',
       colorBg: 'rgba(106,159,240,0.12)',
     },
     {
-      label: "Panier moyen (AOV)",
+      label: 'Panier moyen (AOV)',
       value: `${(data.average_order_value || 0).toLocaleString('fr-DZ', { maximumFractionDigits: 0 })} DA`,
       icon: <ShoppingCart size={20} />,
       color: '#f59e0b',
       colorBg: 'rgba(245,158,11,0.12)',
     },
     {
-      label: "Taux de conversion",
+      label: 'Taux de conversion',
       value: `${(data.conversion_rate || 0).toFixed(2)} %`,
       icon: <Activity size={20} />,
       color: '#8b5cf6',
       colorBg: 'rgba(139,92,246,0.12)',
     },
     {
-      label: "Clients (Total)",
+      label: 'Clients (Total)',
       value: data.total_customers || 0,
       icon: <Users size={20} />,
       color: '#ec4899',
       colorBg: 'rgba(236,72,153,0.12)',
     },
     {
-      label: "Commandes (En attente)",
+      label: 'Commandes (En attente)',
       value: data.pending_orders || 0,
       icon: <Clock size={20} />,
       color: '#ef4444',
@@ -99,7 +98,7 @@ export default function AdminDashboard() {
       colorBg: 'rgba(16,185,129,0.12)',
     },
     {
-      label: "Produits",
+      label: 'Produits',
       value: data.total_products || 0,
       icon: <Package size={20} />,
       color: '#8b5cf6',
@@ -195,9 +194,9 @@ export default function AdminDashboard() {
                     >
                       <div>
                         <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--admin-text)', marginBottom: 2 }}>{o.customer_name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>Commande #{o.id} â€¢ {Number(o.total).toLocaleString('fr-DZ')} DA</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>Commande #{o.id} • {Number(o.total).toLocaleString('fr-DZ')} DA</div>
                       </div>
-                      <span className="badge badge-warning">Ã€ vÃ©rifier</span>
+                      <span className="badge badge-warning">À vérifier</span>
                     </li>
                   ))}
                 </ul>
@@ -217,7 +216,7 @@ export default function AdminDashboard() {
           </div>
           <div style={{ padding: 0 }}>
             {data.recent_orders.length === 0 ? (
-              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>Aucune commande rÃ©cente.</div>
+              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>Aucune commande récente.</div>
             ) : (
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {data.recent_orders.map(o => (
@@ -235,7 +234,7 @@ export default function AdminDashboard() {
                       <div>
                         <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--admin-text)', marginBottom: 2 }}>{o.customer_name}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>
-                          {new Date(o.created_at).toLocaleTimeString('fr-DZ', { hour: '2-digit', minute: '2-digit' })} â€¢ {o.wilaya || 'â€”'}
+                          {new Date(o.created_at).toLocaleTimeString('fr-DZ', { hour: '2-digit', minute: '2-digit' })} • {o.wilaya || '—'}
                         </div>
                       </div>
                     </div>
@@ -274,7 +273,7 @@ export default function AdminDashboard() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--admin-text-muted)' }} dx={-10} tickFormatter={(tick) => tick.toLocaleString('fr-DZ')} />
                 <Tooltip 
                   contentStyle={{ borderRadius: 8, border: '1px solid var(--admin-border)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', fontSize: '0.85rem' }}
-                  formatter={(value) => [Number(value).toLocaleString('fr-DZ') + ' DA', 'Chiffre d\'affaires']}
+                  formatter={(value) => [Number(value).toLocaleString('fr-DZ') + ' DA', "Chiffre d'affaires"]}
                   labelFormatter={(label) => {
                     const [y, m, d] = label.split('-')
                     return `${d}/${m}/${y}`
@@ -297,5 +296,3 @@ export default function AdminDashboard() {
     </div>
   )
 }
-
-

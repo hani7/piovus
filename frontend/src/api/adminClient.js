@@ -32,7 +32,7 @@ adminClient.interceptors.response.use(
         localStorage.removeItem('admin_access_token')
         localStorage.removeItem('admin_refresh_token')
         localStorage.removeItem('admin_user')
-        window.location.href = '/admin-panel/login'
+        window.location.href = '/piove-secure-2026/login'
       }
     }
     return Promise.reject(error)

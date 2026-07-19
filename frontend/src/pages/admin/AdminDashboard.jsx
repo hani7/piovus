@@ -7,11 +7,11 @@ import { AlertTriangle, TrendingUp, ShoppingBag, DollarSign, Activity, AlertCirc
 
 const STATUS_LABELS = {
   pending: 'En attente',
-  confirmed: 'ConfirmÃ©',
+  confirmed: 'Confirmé',
   shipped: 'En livraison',
   fulfilled: 'Fulfilled',
-  cancelled: 'AnnulÃ©e',
-  returned: 'RetournÃ©e',
+  cancelled: 'Annulée',
+  returned: 'Retournée',
 }
 
 const STATUS_BADGE = {
@@ -24,7 +24,7 @@ const STATUS_BADGE = {
 }
 
 export default function AdminDashboard() {
-  const { user } = useAuthStore()
+  const user = JSON.parse(localStorage.getItem('admin_user') || 'null')
   const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
       colorBg: 'rgba(139,92,246,0.12)',
     },
     {
-      label: "CatÃ©gories",
+      label: 'Catégories',
       value: data.total_categories || 0,
       icon: <Grid size={20} />,
       color: '#f59e0b',
@@ -123,10 +123,10 @@ export default function AdminDashboard() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 16 }}>
         <div>
           <h2 style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: 4, letterSpacing: '-0.02em', color: 'var(--admin-text)' }}>
-            Bonjour, {user?.first_name || user?.username || 'Admin'} ðŸ‘‹
+            Bonjour, {user?.first_name || user?.username || 'Admin'} 👋
           </h2>
           <p style={{ color: 'var(--admin-text-muted)', fontSize: '0.9rem' }}>
-            Voici un aperÃ§u en temps rÃ©el de l'activitÃ© de votre boutique.
+            Voici un aperçu en temps réel de l'activité de votre boutique.
           </p>
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function AdminDashboard() {
           <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span className="admin-card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--admin-success)', animation: 'pulse 2s infinite' }}></div>
-              DerniÃ¨res Commandes
+              Dernières Commandes
             </span>
             <Link to="/piove-secure-2026/orders" style={{ fontSize: '0.8rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 500 }}>Voir tout</Link>
           </div>
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
       {data.trends && data.trends.length > 0 && (
         <div className="admin-card" style={{ marginBottom: 28 }}>
           <div className="admin-card-header">
-            <span className="admin-card-title">Ã‰volution du Chiffre d'Affaires (7 derniers jours)</span>
+            <span className="admin-card-title">Évolution du Chiffre d'Affaires (7 derniers jours)</span>
           </div>
           <div style={{ padding: '24px 20px', height: 320 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -297,4 +297,5 @@ export default function AdminDashboard() {
     </div>
   )
 }
+
 

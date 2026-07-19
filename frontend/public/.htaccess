@@ -1,6 +1,11 @@
 Options -MultiViews
 RewriteEngine On
 
+# Ne PAS réécrire les appels API et admin Django
+RewriteCond %{REQUEST_URI} ^/api/ [OR]
+RewriteCond %{REQUEST_URI} ^/piove-secure-gate-2026/
+RewriteRule ^ - [L]
+
 # React SPA — renvoie tout vers index.html (sauf fichiers existants)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

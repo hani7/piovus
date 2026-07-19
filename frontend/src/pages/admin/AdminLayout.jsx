@@ -102,8 +102,8 @@ export default function AdminLayout() {
         setNotificationPerm(perm)
         if (perm === 'granted') {
           playNotificationSound() // play a test sound
-          new Notification('PiovÃ© Cosmetics Admin', {
-            body: "Notifications activÃ©es avec succÃ¨s !",
+          new Notification('Piové Cosmetics Admin', {
+            body: "Notifications activées avec succès !",
             icon: '/logo.png'
           })
         }
@@ -135,7 +135,7 @@ export default function AdminLayout() {
   const triggerDesktopNotification = (message) => {
     playNotificationSound()
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('PiovÃ© Cosmetics Admin', {
+      new Notification('Piové Cosmetics Admin', {
         body: message,
         icon: '/logo.png'
       })
@@ -150,10 +150,10 @@ export default function AdminLayout() {
       const prev = prevUnviewedRef.current
       if (prev !== null) {
         if (newCounts.normal > prev.normal) {
-          triggerDesktopNotification('Nouvelle commande standard reÃ§ue !')
+          triggerDesktopNotification('Nouvelle commande standard reçue !')
         }
         if (newCounts.b2b > prev.b2b) {
-          triggerDesktopNotification('Nouvelle commande B2B reÃ§ue !')
+          triggerDesktopNotification('Nouvelle commande B2B reçue !')
         }
       }
       
@@ -205,7 +205,7 @@ export default function AdminLayout() {
     const resetTimeout = () => {
       clearTimeout(timeoutId)
       timeoutId = setTimeout(() => {
-        alert("Session expirÃ©e pour inactivitÃ©.")
+        alert("Session expirée pour inactivité.")
         handleLogout()
       }, 15 * 60 * 1000)
     }
@@ -230,7 +230,7 @@ export default function AdminLayout() {
     return () => clearInterval(timer)
   }, [])
 
-  // Guard: not logged in â€” use Navigate component, not navigate()
+  // Guard: not logged in — use Navigate component, not navigate()
   if (!user) {
     return <Navigate to="/piove-secure-2026/login" replace />
   }
@@ -316,7 +316,7 @@ export default function AdminLayout() {
             {/* Fullscreen Toggle (like F11) */}
             <button
               onClick={toggleFullscreen}
-              title={isFullscreen ? 'Quitter le plein Ã©cran' : 'Plein Ã©cran (F11)'}
+              title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran (F11)'}
               style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '6px', borderRadius: '8px', transition: 'all 0.2s' }}
             >
               {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
@@ -334,7 +334,7 @@ export default function AdminLayout() {
                 {isMaintenance ? 'Maintenance' : 'En Ligne'}
               </span>
               <div className="toggle-wrap">
-                <label className="toggle" title="Activer/DÃ©sactiver le mode maintenance">
+                <label className="toggle" title="Activer/Désactiver le mode maintenance">
                   <input type="checkbox" checked={isMaintenance} onChange={toggleMaintenance} />
                   <span className="toggle-slider" />
                 </label>
@@ -351,7 +351,7 @@ export default function AdminLayout() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
               <button 
                 onClick={requestNotificationPermission}
-                title={notificationPerm === 'granted' ? "Notifications activÃ©es (Cliquer pour tester)" : "Activer les notifications"}
+                title={notificationPerm === 'granted' ? "Notifications activées (Cliquer pour tester)" : "Activer les notifications"}
                 style={{ 
                   background: 'none', border: 'none', 
                   color: notificationPerm === 'granted' ? 'var(--admin-success)' : 'var(--admin-text-muted)', 

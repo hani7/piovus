@@ -121,7 +121,7 @@ export default function CommandMenu({ isOpen, setIsOpen }) {
             {loading && <div className="command-menu-loading">Recherche en cours...</div>}
             
             {!loading && allItems.length === 0 && (
-              <div className="command-menu-empty">Aucun rÃ©sultat trouvÃ© pour "{query}"</div>
+              <div className="command-menu-empty">Aucun résultat trouvé pour "{query}"</div>
             )}
 
             {!loading && allItems.length > 0 && (

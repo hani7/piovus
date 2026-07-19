@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import adminClient from '../../api/adminClient'
 import { Search, FileText, Package, ShoppingCart } from 'lucide-react'
@@ -80,7 +80,7 @@ export default function CommandMenu({ isOpen, setIsOpen }) {
       if (allItems[selectedIndex]) {
         handleSelect(allItems[selectedIndex])
       } else if (query.trim()) {
-        navigate(`/admin-panel/orders?search=${encodeURIComponent(query)}`)
+        navigate(`/piove-secure-2026/orders?search=${encodeURIComponent(query)}`)
         setIsOpen(false)
       }
     } else if (e.key === 'Escape') {
@@ -92,9 +92,9 @@ export default function CommandMenu({ isOpen, setIsOpen }) {
     if (item.type === 'page') {
       navigate(item.to)
     } else if (item.type === 'product') {
-      navigate(`/admin-panel/products?search=${encodeURIComponent(item.name)}`)
+      navigate(`/piove-secure-2026/products?search=${encodeURIComponent(item.name)}`)
     } else if (item.type === 'order') {
-      navigate(`/admin-panel/orders/${item.id}`)
+      navigate(`/piove-secure-2026/orders/${item.id}`)
     }
     setIsOpen(false)
   }
@@ -121,7 +121,7 @@ export default function CommandMenu({ isOpen, setIsOpen }) {
             {loading && <div className="command-menu-loading">Recherche en cours...</div>}
             
             {!loading && allItems.length === 0 && (
-              <div className="command-menu-empty">Aucun résultat trouvé pour "{query}"</div>
+              <div className="command-menu-empty">Aucun rÃ©sultat trouvÃ© pour "{query}"</div>
             )}
 
             {!loading && allItems.length > 0 && (
@@ -190,3 +190,4 @@ export default function CommandMenu({ isOpen, setIsOpen }) {
     </div>
   )
 }
+

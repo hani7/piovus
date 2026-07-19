@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import adminClient from '../../api/adminClient'
 import './admin.css'
@@ -28,14 +28,14 @@ export default function AdminLogin() {
 
       const { user, access, refresh } = res.data
       if (!user.is_staff && !user.is_superuser) {
-        setError('Accès refusé. Compte administrateur requis.')
+        setError('AccÃ¨s refusÃ©. Compte administrateur requis.')
         setLoading(false)
         return
       }
       localStorage.setItem('admin_access_token', access)
       localStorage.setItem('admin_refresh_token', refresh)
       localStorage.setItem('admin_user', JSON.stringify(user))
-      navigate('/admin-panel')
+      navigate('/piove-secure-2026')
     } catch {
       setError('Identifiants invalides.')
     } finally {
@@ -54,9 +54,9 @@ export default function AdminLogin() {
       localStorage.setItem('admin_access_token', access)
       localStorage.setItem('admin_refresh_token', refresh)
       localStorage.setItem('admin_user', JSON.stringify(user))
-      navigate('/admin-panel')
+      navigate('/piove-secure-2026')
     } catch {
-      setError('Code OTP invalide ou expiré.')
+      setError('Code OTP invalide ou expirÃ©.')
     } finally {
       setLoading(false)
     }
@@ -66,7 +66,7 @@ export default function AdminLogin() {
     <div className="admin-login-page">
       <div className="admin-login-card">
         <div className="admin-login-logo">
-          <h1>PIOVÉ</h1>
+          <h1>PIOVÃ‰</h1>
           <p>Panneau d'administration</p>
         </div>
 
@@ -92,7 +92,7 @@ export default function AdminLogin() {
                 id="admin-password"
                 className="form-control"
                 type="password"
-                placeholder="••••••••"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                 value={form.password}
                 onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                 required
@@ -111,10 +111,10 @@ export default function AdminLogin() {
         ) : (
           <form onSubmit={handleVerifyOtp}>
             <div style={{ marginBottom: 16, fontSize: '0.9rem', color: 'var(--admin-text-muted)' }}>
-              Un code de sécurité (OTP) a été envoyé à votre adresse e-mail. Veuillez le saisir ci-dessous.
+              Un code de sÃ©curitÃ© (OTP) a Ã©tÃ© envoyÃ© Ã  votre adresse e-mail. Veuillez le saisir ci-dessous.
             </div>
             <div className="form-group">
-              <label>Code de sécurité (OTP)</label>
+              <label>Code de sÃ©curitÃ© (OTP)</label>
               <input
                 id="admin-otp"
                 className="form-control"
@@ -133,7 +133,7 @@ export default function AdminLogin() {
               style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}
               disabled={loading || otp.length < 6}
             >
-              {loading ? 'Vérification...' : 'Valider'}
+              {loading ? 'VÃ©rification...' : 'Valider'}
             </button>
             <button
               type="button"
@@ -149,3 +149,4 @@ export default function AdminLogin() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X, Plus, Trash2, Printer, RefreshCw } from 'lucide-react'
 import adminClient from '../../api/adminClient'
@@ -8,9 +8,9 @@ function Pagination({ page, totalPages, onPage }) {
   const actualTotalPages = Math.max(1, totalPages)
   if (actualTotalPages <= 1) return (
     <div className="admin-pagination">
-      <button className="admin-page-btn" disabled>‹</button>
+      <button className="admin-page-btn" disabled>â€¹</button>
       <button className="admin-page-btn active">1</button>
-      <button className="admin-page-btn" disabled>›</button>
+      <button className="admin-page-btn" disabled>â€º</button>
     </div>
   )
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -22,20 +22,20 @@ function Pagination({ page, totalPages, onPage }) {
     }, [])
   return (
     <div className="admin-pagination">
-      <button className="admin-page-btn" disabled={page === 1} onClick={() => onPage(page - 1)}>‹</button>
+      <button className="admin-page-btn" disabled={page === 1} onClick={() => onPage(page - 1)}>â€¹</button>
       {pages.map((p, i) =>
         p === '...'
-          ? <span key={`e${i}`} style={{ color: 'var(--admin-text-muted)', padding: '0 4px' }}>…</span>
+          ? <span key={`e${i}`} style={{ color: 'var(--admin-text-muted)', padding: '0 4px' }}>â€¦</span>
           : <button key={p} className={`admin-page-btn ${p === page ? 'active' : ''}`} onClick={() => onPage(p)}>{p}</button>
       )}
-      <button className="admin-page-btn" disabled={page === totalPages} onClick={() => onPage(page + 1)}>›</button>
+      <button className="admin-page-btn" disabled={page === totalPages} onClick={() => onPage(page + 1)}>â€º</button>
     </div>
   )
 }
 
 const STATUS_LABELS = {
-  pending: 'En attente', confirmed: 'Confirmé',
-  shipped: 'En livraison', fulfilled: 'Fulfilled', cancelled: 'Annulée', returned: 'Retournée',
+  pending: 'En attente', confirmed: 'ConfirmÃ©',
+  shipped: 'En livraison', fulfilled: 'Fulfilled', cancelled: 'AnnulÃ©e', returned: 'RetournÃ©e',
 }
 
 const STATUS_BADGE = {
@@ -112,24 +112,24 @@ export default function AdminOrders({ isB2B = false }) {
   }
 
   const handleBulkDelete = async () => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer les ${selectedIds.length} commande(s) sélectionnée(s) ?`)) return
+    if (!window.confirm(`ÃŠtes-vous sÃ»r de vouloir supprimer les ${selectedIds.length} commande(s) sÃ©lectionnÃ©e(s) ?`)) return
     try {
       await adminClient.post('/admin/orders/bulk_delete/', { ids: selectedIds })
       setSelectedIds([])
       load()
     } catch (e) {
-      alert('Erreur lors de la suppression groupée')
+      alert('Erreur lors de la suppression groupÃ©e')
     }
   }
 
   const handleBulkStatusUpdate = async (statusId) => {
-    if (!window.confirm(`Mettre à jour le statut des ${selectedIds.length} commandes vers "${STATUS_LABELS[statusId]}" ?`)) return
+    if (!window.confirm(`Mettre Ã  jour le statut des ${selectedIds.length} commandes vers "${STATUS_LABELS[statusId]}" ?`)) return
     try {
       await adminClient.post('/admin/orders/bulk_update_status/', { ids: selectedIds, status: statusId })
       setSelectedIds([])
       load()
     } catch (e) {
-      alert('Erreur lors de la mise à jour')
+      alert('Erreur lors de la mise Ã  jour')
     }
   }
 
@@ -156,23 +156,23 @@ export default function AdminOrders({ isB2B = false }) {
       w.document.write(r.data)
       w.document.close()
     } catch (e) {
-      alert('Erreur lors de la génération des bons')
+      alert('Erreur lors de la gÃ©nÃ©ration des bons')
     }
   }
 
   const handleBulkMylerzShip = async () => {
     if (selectedIds.length === 0) return
-    if (!window.confirm('Voulez-vous générer les colis Mylerz pour les commandes sélectionnées ?')) return
+    if (!window.confirm('Voulez-vous gÃ©nÃ©rer les colis Mylerz pour les commandes sÃ©lectionnÃ©es ?')) return
     try {
       const res = await adminClient.post('/admin/orders/bulk_mylerz_ship/', { ids: selectedIds })
       const results = res.data?.results || []
       const failed = results.filter(r => !r.success)
       const ok = results.filter(r => r.success)
       if (failed.length === 0) {
-        alert(`✅ ${ok.length} colis Mylerz créé(s) avec succès.`)
+        alert(`âœ… ${ok.length} colis Mylerz crÃ©Ã©(s) avec succÃ¨s.`)
       } else {
         const msgs = failed.map(r => `#${r.id}: ${r.message || r.error || 'Erreur inconnue'}`).join('\n')
-        alert(`⚠️ ${ok.length} réussi(s), ${failed.length} échec(s):\n\n${msgs}`)
+        alert(`âš ï¸ ${ok.length} rÃ©ussi(s), ${failed.length} Ã©chec(s):\n\n${msgs}`)
       }
       load()
     } catch (e) {
@@ -185,7 +185,7 @@ export default function AdminOrders({ isB2B = false }) {
     if (selectedIds.length === 0) return
     try {
       await adminClient.post('/admin/orders/bulk_mylerz_track/', { ids: selectedIds })
-      alert('Statuts Mylerz actualisés.')
+      alert('Statuts Mylerz actualisÃ©s.')
       load()
     } catch (e) {
       alert("Erreur lors de l'actualisation Mylerz.")
@@ -194,10 +194,10 @@ export default function AdminOrders({ isB2B = false }) {
 
   const handleBulkMylerzCancel = async () => {
     if (selectedIds.length === 0) return
-    if (!window.confirm('Voulez-vous vraiment annuler les envois Mylerz sélectionnés ?')) return
+    if (!window.confirm('Voulez-vous vraiment annuler les envois Mylerz sÃ©lectionnÃ©s ?')) return
     try {
       await adminClient.post('/admin/orders/bulk_mylerz_cancel/', { ids: selectedIds })
-      alert('Envois Mylerz annulés.')
+      alert('Envois Mylerz annulÃ©s.')
       load()
     } catch (e) {
       alert("Erreur lors de l'annulation Mylerz.")
@@ -214,15 +214,15 @@ h2{color:#38bdf8;margin-bottom:16px}
 .ok{color:#4ade80}.err{color:#f87171}.sec{color:#fbbf24;margin-top:16px;font-weight:bold}
 pre{background:#1e293b;padding:16px;border-radius:8px;overflow:auto;white-space:pre-wrap;word-break:break-all;font-size:13px}
 </style></head><body>
-<h2>🔧 Diagnostic Mylerz</h2>
+<h2>ðŸ”§ Diagnostic Mylerz</h2>
 <pre>Username    : ${d.username || '(vide)'}
-Password    : ${d.password_set ? '<span class="ok">✅ Configuré</span>' : '<span class="err">❌ Non configuré</span>'}
+Password    : ${d.password_set ? '<span class="ok">âœ… ConfigurÃ©</span>' : '<span class="err">âŒ Non configurÃ©</span>'}
 Warehouse   : ${d.warehouse || '(vide)'}
 Base URL    : ${d.base_url}
 Auth        : <span class="${d.auth === 'OK' ? 'ok' : 'err'}">${d.auth}</span></pre>
 ${d.addorders_status ? `<div class="sec">--- Test AddOrders ---</div>
 <pre>HTTP Status : <span class="${d.addorders_status < 300 ? 'ok' : 'err'}">${d.addorders_status}</span>
-Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw || d.addorders_error, null, 2)}</pre>` : ''}
+RÃ©ponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw || d.addorders_error, null, 2)}</pre>` : ''}
 </body></html>`
       const w = window.open('', '_blank', 'width=800,height=600')
       w.document.write(html)
@@ -240,7 +240,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
       w.document.write(r.data)
       w.document.close()
     } catch (e) {
-      alert('Erreur lors de la génération du bordereau')
+      alert('Erreur lors de la gÃ©nÃ©ration du bordereau')
     }
   }
 
@@ -292,7 +292,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
             </select>
 
             <button className="btn" style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#3b82f6', color: 'white', borderRadius: 50, border: 'none', whiteSpace: 'nowrap' }} onClick={handleBulkMylerzShip}>
-              Expédier
+              ExpÃ©dier
             </button>
             <button className="btn" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: '0.8rem', background: '#f59e0b', color: 'white', borderRadius: 50, border: 'none', whiteSpace: 'nowrap' }} onClick={handleBulkMylerzTrack}>
               <RefreshCw size={14}/> Actualiser
@@ -304,7 +304,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
               <Printer size={14}/> Imprimer
             </button>
             <button className="btn" style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#10b981', color: 'white', borderRadius: 50, border: 'none', whiteSpace: 'nowrap' }} onClick={handleBulkExportExcel}>
-              📊 Exporter
+              ðŸ“Š Exporter
             </button>
             <button className="btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px', background: '#1f2937', color: 'white', borderRadius: 50, border: 'none' }} title="Supprimer" onClick={handleBulkDelete}>
               <Trash2 size={16}/>
@@ -312,8 +312,8 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
             </div>
           ) : (
             <>
-            <button className="btn-primary" onClick={() => navigate(isB2B ? '/admin-panel/orders-b2b/new' : '/admin-panel/orders/new')}>
-              <Plus size={16}/> Créer une Commande
+            <button className="btn-primary" onClick={() => navigate(isB2B ? '/piove-secure-2026/orders-b2b/new' : '/piove-secure-2026/orders/new')}>
+              <Plus size={16}/> CrÃ©er une Commande
             </button>
             </>
           )}
@@ -328,7 +328,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
               <input
-                placeholder="Nom, téléphone..."
+                placeholder="Nom, tÃ©lÃ©phone..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 id="orders-search"
@@ -351,9 +351,9 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
               onChange={e => setPaymentFilter(e.target.value)}
             >
               <option value="">Paiement: Tous</option>
-              <option value="unpaid">Non payé</option>
-              <option value="paid">Payé</option>
-              <option value="refunded">Remboursé</option>
+              <option value="unpaid">Non payÃ©</option>
+              <option value="paid">PayÃ©</option>
+              <option value="refunded">RemboursÃ©</option>
             </select>
             <select
               className="admin-filter-select"
@@ -361,7 +361,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
               onChange={e => setDeliveryFilter(e.target.value)}
             >
               <option value="">Livraison: Tout</option>
-              <option value="home">À domicile</option>
+              <option value="home">Ã€ domicile</option>
               <option value="desk">Bureau / Relais</option>
             </select>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
@@ -418,9 +418,9 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                       {o.is_blacklisted && <span className="badge badge-danger" style={{marginLeft: 8, fontSize: '0.65rem', padding: '2px 4px'}}>BLACKLIST</span>}
                     </td>
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem' }}>
-                      {o.guest_phone || (o.user ? '—' : '—')}
+                      {o.guest_phone || (o.user ? 'â€”' : 'â€”')}
                     </td>
-                    <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem' }}>{o.wilaya || '—'}</td>
+                    <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem' }}>{o.wilaya || 'â€”'}</td>
                     <td style={{ fontWeight: 600 }}>{(Number(o.total) - Number(o.delivery_cost)).toLocaleString('fr-DZ')} DA</td>
                     <td style={{ color: 'var(--color-gray-500)' }}>{Number(o.delivery_cost).toLocaleString('fr-DZ')} DA</td>
                     <td style={{ fontWeight: 700, color: 'var(--color-black)' }}>{Number(o.total).toLocaleString('fr-DZ')} DA</td>
@@ -438,14 +438,14 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                     </td>
                     <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                       {(() => {
-                        if (!o.source) return <span style={{ color: 'var(--admin-text-muted)' }}>—</span>
+                        if (!o.source) return <span style={{ color: 'var(--admin-text-muted)' }}>â€”</span>
                         const SRC = {
                           fb:      { label: 'Facebook',  bg: '#1877f2' },
                           ig:      { label: 'Instagram', bg: '#e1306c' },
                           direct:  { label: 'Direct',    bg: '#6366f1' },
                           google:  { label: 'Google',    bg: '#34a853' },
                           tiktok:  { label: 'TikTok',    bg: '#010101' },
-                          referral:{ label: 'Référent',  bg: '#10b981' },
+                          referral:{ label: 'RÃ©fÃ©rent',  bg: '#10b981' },
                         }
                         const s = SRC[o.source] || { label: o.source, bg: '#64748b' }
                         return <span style={{ background: s.bg, color: '#fff', padding: '2px 8px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 600 }}>{s.label}</span>
@@ -460,15 +460,15 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                           className="btn-icon" 
                           style={{ padding: '6px', background: '#f1f5f9', borderRadius: '50%', color: '#475569', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28 }} 
                           onClick={() => setDetail(o)} 
-                          title="Aperçu rapide"
+                          title="AperÃ§u rapide"
                         >
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
                         <button 
                           className="btn-icon" 
                           style={{ padding: '6px', background: '#f1f5f9', borderRadius: '50%', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28 }} 
-                          onClick={() => navigate(`/admin-panel/orders/${o.id}`)} 
-                          title="Détails complets"
+                          onClick={() => navigate(`/piove-secure-2026/orders/${o.id}`)} 
+                          title="DÃ©tails complets"
                         >
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                         </button>
@@ -507,7 +507,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
         <div className="admin-modal-overlay" onClick={e => e.target === e.currentTarget && setDetail(null)}>
           <div className="admin-modal" style={{ maxWidth: 600 }}>
             <div className="admin-modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="admin-modal-title">Aperçu Commande #{detail.id}</span>
+              <span className="admin-modal-title">AperÃ§u Commande #{detail.id}</span>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--admin-text-muted)', marginRight: 16, fontWeight: 500, background: '#f1f5f9', padding: '4px 10px', borderRadius: 20 }}>{detail.items?.length || 0} article{detail.items?.length > 1 ? 's' : ''}</span>
                 <button type="button" className="admin-modal-close" onClick={() => setDetail(null)}><X size={20}/></button>
@@ -517,12 +517,12 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
                 <div>
                   <div style={{ fontWeight: 600 }}>{detail.customer_name}</div>
-                  <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>{detail.guest_phone || '—'}</div>
+                  <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>{detail.guest_phone || 'â€”'}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)', marginBottom: 4 }}>LIVRAISON</div>
                   <div style={{ fontSize: '0.9rem' }}>{detail.shipping_address}</div>
-                  <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>{detail.wilaya} — {detail.city}</div>
+                  <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>{detail.wilaya} â€” {detail.city}</div>
                 </div>
               </div>
               
@@ -539,7 +539,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                           <span style={{ fontStyle: 'italic' }}>{item.variant_name}</span>
                         </div>
                       )}
-                      <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)' }}>Qté: {item.quantity}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)' }}>QtÃ©: {item.quantity}</div>
                     </div>
                     <div style={{ fontWeight: 600 }}>{Number(item.subtotal).toLocaleString('fr-DZ')} DA</div>
                   </div>
@@ -566,9 +566,9 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
               </div>
             </div>
             <div className="admin-modal-footer" style={{ display: 'flex', justifyContent: 'space-between' }}>
-               <button className="btn" style={{ background: '#eab308', color: 'white', borderRadius: 20, border: 'none', fontWeight: 600, padding: '8px 20px' }} onClick={() => navigate(`/admin-panel/orders/${detail.id}`)}>Voir tout</button>
+               <button className="btn" style={{ background: '#eab308', color: 'white', borderRadius: 20, border: 'none', fontWeight: 600, padding: '8px 20px' }} onClick={() => navigate(`/piove-secure-2026/orders/${detail.id}`)}>Voir tout</button>
                <button className="btn" style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#3b82f6', color: 'white', border: 'none', borderRadius: 20, fontWeight: 600, padding: '8px 20px' }} onClick={() => handlePrintSingleBordereau(detail.id)}>
-                 🖨️ Bordereau
+                 ðŸ–¨ï¸ Bordereau
                </button>
                <button className="btn" style={{ background: '#dc3545', color: 'white', borderRadius: 20, border: 'none', fontWeight: 600, padding: '8px 20px' }} onClick={() => setDetail(null)}>Fermer</button>
             </div>
@@ -578,3 +578,4 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
     </div>
   )
 }
+

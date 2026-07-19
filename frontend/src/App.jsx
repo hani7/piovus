@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from 'react'
+﻿import { useState, useEffect, Suspense, lazy } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import client from './api/client'
 import Navbar from './components/Navbar'
@@ -62,7 +62,7 @@ function ScrollToTop() {
 
 export default function App() {
   const { pathname } = useLocation()
-  const isAdmin = pathname.startsWith('/admin-panel')
+  const isAdmin = pathname.startsWith('/piove-secure-2026')
   const user = useAuthStore(s => s.user)
   const isB2B = user?.profile?.is_b2b
   
@@ -151,8 +151,8 @@ export default function App() {
           <Route path="/conditions" element={<TermsPage />} />
 
           {/* Admin */}
-          <Route path="/admin-panel/login" element={<AdminLogin />} />
-          <Route path="/admin-panel" element={<AdminLayout />}>
+          <Route path="/piove-secure-2026/login" element={<AdminLogin />} />
+          <Route path="/piove-secure-2026" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="categories" element={<AdminCategories />} />
@@ -183,3 +183,4 @@ export default function App() {
     </>
   )
 }
+

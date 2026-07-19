@@ -1559,10 +1559,14 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             """
             
             for item in o.items.all():
+                sku = ''
+                if item.variant:
+                    sku = item.variant.sku or item.variant.name or ''
+                ref_display = f'<br><span style="font-size:10px;color:#555;font-style:italic;">{item.variant_name or sku}</span>' if (item.variant_name or sku) else ''
                 html += f"""
                         <tr>
                             <td style="font-weight: bold; text-align: center;">{item.quantity}x</td>
-                            <td>{item.product_name}</td>
+                            <td>{item.product_name}{ref_display}</td>
                         </tr>
                 """
                 

@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import adminClient from '../../api/adminClient'
 import { Printer, RefreshCw } from 'lucide-react'
 
 const STATUS_LABELS = {
-  pending: 'En attente', confirmed: 'Confirmé',
-  shipped: 'En livraison', fulfilled: 'Fulfilled', cancelled: 'Annulée', returned: 'Retournée',
+  pending: 'En attente', confirmed: 'ConfirmÃ©',
+  shipped: 'En livraison', fulfilled: 'Fulfilled', cancelled: 'AnnulÃ©e', returned: 'RetournÃ©e',
 }
 
 const STATUS_BADGE = {
@@ -30,7 +30,7 @@ export default function AdminOrderDetail() {
       .then(r => setDetail(r.data))
       .catch(e => {
         alert('Erreur: Commande introuvable')
-        navigate('/admin-panel/orders')
+        navigate('/piove-secure-2026/orders')
       })
       .finally(() => setLoading(false))
   }
@@ -43,15 +43,15 @@ export default function AdminOrderDetail() {
   }
 
   const handleMylerzShip = async () => {
-    if (!window.confirm('Voulez-vous générer un colis Mylerz pour cette commande ?')) return
+    if (!window.confirm('Voulez-vous gÃ©nÃ©rer un colis Mylerz pour cette commande ?')) return
     setMylerzLoading(true)
     try {
       await adminClient.post(`/admin/orders/${id}/mylerz_ship/`)
-      alert('Colis Mylerz créé avec succès.')
+      alert('Colis Mylerz crÃ©Ã© avec succÃ¨s.')
       load()
     } catch (e) {
-      const msg = e.response?.data?.message || e.response?.data?.error || JSON.stringify(e.response?.data) || 'Erreur lors de la création du colis.'
-      alert('❌ ' + msg)
+      const msg = e.response?.data?.message || e.response?.data?.error || JSON.stringify(e.response?.data) || 'Erreur lors de la crÃ©ation du colis.'
+      alert('âŒ ' + msg)
     } finally {
       setMylerzLoading(false)
     }
@@ -68,14 +68,14 @@ h2{color:#38bdf8}h3{color:#fbbf24;margin-top:20px}
 .ok{color:#4ade80}.err{color:#f87171}
 pre{background:#1e293b;padding:16px;border-radius:8px;overflow:auto;white-space:pre-wrap;word-break:break-all;font-size:12px;max-height:400px}
 </style></head><body>
-<h2>🔍 Debug Payload Mylerz — Commande #${d.order_id}</h2>
+<h2>ðŸ” Debug Payload Mylerz â€” Commande #${d.order_id}</h2>
 <div class="${d.mylerz_barcode_already_set ? 'err' : 'ok'}">
-  Barcode déjà enregistré: ${d.mylerz_barcode_already_set ? '❌ OUI → ' + d.mylerz_barcode : '✅ Non (nouvelle expédition)'}
+  Barcode dÃ©jÃ  enregistrÃ©: ${d.mylerz_barcode_already_set ? 'âŒ OUI â†’ ' + d.mylerz_barcode : 'âœ… Non (nouvelle expÃ©dition)'}
 </div>
-${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.error}\n\n${d.traceback}</pre>` : ''}
-<h3>Payload qui sera envoyé à Mylerz:</h3>
+${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.error}\n\n${d.traceback}</pre>` : ''}
+<h3>Payload qui sera envoyÃ© Ã  Mylerz:</h3>
 <pre>${JSON.stringify(d.payload, null, 2)}</pre>
-<h3>WarehouseName: <span class="${d.warehouse ? 'ok' : 'err'}">${d.warehouse || '(vide — non envoyé)'}</span></h3>
+<h3>WarehouseName: <span class="${d.warehouse ? 'ok' : 'err'}">${d.warehouse || '(vide â€” non envoyÃ©)'}</span></h3>
 </body></html>`
       const w = window.open('', '_blank', 'width=900,height=700')
       w.document.write(html)
@@ -98,7 +98,7 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
         detail.mylerz_status = res.data.tracking[0].Status || res.data.tracking[0].status
         setDetail({...detail})
       }
-      alert('Statut actualisé.')
+      alert('Statut actualisÃ©.')
     } catch (e) {
       alert(e.response?.data?.message || 'Erreur de suivi.')
     } finally {
@@ -111,7 +111,7 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
     setMylerzLoading(true)
     try {
       await adminClient.post(`/admin/orders/${id}/mylerz_cancel/`)
-      alert('Envoi annulé avec succès.')
+      alert('Envoi annulÃ© avec succÃ¨s.')
       load()
     } catch (e) {
       alert(e.response?.data?.message || "Erreur lors de l'annulation.")
@@ -128,7 +128,7 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
       w.document.write(r.data)
       w.document.close()
     } catch (e) {
-      alert('Erreur lors de la génération du bordereau')
+      alert('Erreur lors de la gÃ©nÃ©ration du bordereau')
     }
   }
 
@@ -138,13 +138,13 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-        <button className="btn-icon" onClick={() => navigate('/admin-panel/orders')} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', padding: 8 }}>
+        <button className="btn-icon" onClick={() => navigate('/piove-secure-2026/orders')} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '50%', padding: 8 }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" width="20" height="20"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: '#1e293b' }}>Détails Commande n°{detail.id}</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: '#1e293b' }}>DÃ©tails Commande nÂ°{detail.id}</h2>
           <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 4 }}>
-            Paiement à la livraison — {new Date(detail.created_at).toLocaleString('fr-DZ')}
+            Paiement Ã  la livraison â€” {new Date(detail.created_at).toLocaleString('fr-DZ')}
           </div>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -165,7 +165,7 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
           ) : (
              <>
                <button className="admin-btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, display: 'flex', alignItems: 'center', border: 'none' }} onClick={handleMylerzShip} disabled={mylerzLoading}>
-                 EXPÉDIER
+                 EXPÃ‰DIER
                </button>
              </>
           )}
@@ -190,11 +190,11 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
           {/* 3 Info Cards Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
             <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>Général</h4>
+              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>GÃ©nÃ©ral</h4>
               <div style={{ fontSize: '0.9rem', marginBottom: 6 }}><strong style={{ color: '#475569' }}>Date:</strong> {new Date(detail.created_at).toLocaleDateString('fr-DZ')}</div>
-              <div style={{ fontSize: '0.9rem', marginBottom: 6 }}><strong style={{ color: '#475569' }}>Client:</strong> {detail.user ? 'Inscrit' : 'Invité'}</div>
+              <div style={{ fontSize: '0.9rem', marginBottom: 6 }}><strong style={{ color: '#475569' }}>Client:</strong> {detail.user ? 'Inscrit' : 'InvitÃ©'}</div>
               <div style={{ fontSize: '0.9rem', marginTop: 12 }}>
-                <strong style={{ color: '#475569', display: 'block', marginBottom: 4 }}>Changer l'état:</strong>
+                <strong style={{ color: '#475569', display: 'block', marginBottom: 4 }}>Changer l'Ã©tat:</strong>
                 <select className="status-select" value={detail.status} onChange={e => handleStatus(e.target.value)} style={{ width: '100%', padding: 8 }}>
                   {Object.entries(STATUS_LABELS).map(([v, l]) => (
                     <option key={v} value={v}>{l}</option>
@@ -213,24 +213,24 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
               <div style={{ fontSize: '0.9rem', color: '#475569', marginBottom: 12 }}>{detail.wilaya} - {detail.city}</div>
               <div style={{ fontSize: '0.9rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                 <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                {detail.guest_email || '—'}
+                {detail.guest_email || 'â€”'}
               </div>
               <div style={{ fontSize: '0.9rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                {detail.guest_phone || '—'}
+                {detail.guest_phone || 'â€”'}
               </div>
             </div>
 
             <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>Expédition</h4>
+              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>ExpÃ©dition</h4>
               <div style={{ fontSize: '0.9rem', color: '#475569', marginBottom: 4 }}>{detail.shipping_address}</div>
               <div style={{ fontSize: '0.9rem', color: '#475569', marginBottom: 16 }}>{detail.wilaya} - {detail.city}</div>
               
               <div style={{ background: '#f8fafc', padding: 10, borderRadius: 6 }}>
                 <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 2 }}>Transporteur</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 500, color: '#0f172a', marginBottom: 8 }}>{detail.delivery_company_name || 'Non spécifié'}</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 500, color: '#0f172a', marginBottom: 8 }}>{detail.delivery_company_name || 'Non spÃ©cifiÃ©'}</div>
                 <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 2 }}>Type de livraison</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 500, color: '#0f172a' }}>{detail.delivery_type === 'desk' ? 'Point de retrait (Bureau)' : 'À domicile'}</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 500, color: '#0f172a' }}>{detail.delivery_type === 'desk' ? 'Point de retrait (Bureau)' : 'Ã€ domicile'}</div>
               </div>
             </div>
           </div>
@@ -242,7 +242,7 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
                 <tr>
                   <th colSpan="2" style={{ paddingLeft: 20 }}>Article</th>
                   <th style={{ textAlign: 'right' }}>Prix Unitaire</th>
-                  <th style={{ textAlign: 'center' }}>Qté</th>
+                  <th style={{ textAlign: 'center' }}>QtÃ©</th>
                   <th style={{ textAlign: 'right', paddingRight: 20 }}>Total</th>
                 </tr>
               </thead>
@@ -263,7 +263,7 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
                       {item.variant_name && <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 2 }}>Variante: {item.variant_name}</div>}
                     </td>
                     <td style={{ textAlign: 'right', color: '#475569', fontSize: '0.9rem' }}>{Number(item.price_at_purchase).toLocaleString('fr-DZ')} DA</td>
-                    <td style={{ textAlign: 'center', fontWeight: 500 }}>× {item.quantity}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 500 }}>Ã— {item.quantity}</td>
                     <td style={{ textAlign: 'right', fontWeight: 600, color: '#0f172a', paddingRight: 20 }}>{Number(item.subtotal).toLocaleString('fr-DZ')} DA</td>
                   </tr>
                 ))}
@@ -288,7 +288,7 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, fontSize: '0.95rem', color: '#475569', fontWeight: 600 }}>
                   <span>Mode de paiement:</span>
                   <span style={{ color: detail.payment_method === 'cib' ? 'var(--color-accent)' : 'inherit' }}>
-                    {detail.payment_method === 'cib' ? 'CIB ou Edahabia' : 'À la livraison (Cash)'}
+                    {detail.payment_method === 'cib' ? 'CIB ou Edahabia' : 'Ã€ la livraison (Cash)'}
                   </span>
                 </div>
               </div>
@@ -309,7 +309,7 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
               <button className="btn btn-outline" style={{ width: '100%', color: '#dc3545', borderColor: '#dc3545', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }} onClick={async () => {
                 if(window.confirm('Supprimer cette commande ?')) {
                   await adminClient.delete(`/admin/orders/${detail.id}/`);
-                  navigate('/admin-panel/orders')
+                  navigate('/piove-secure-2026/orders')
                 }
               }}>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -374,10 +374,10 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
              ) : (
                <div>
                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 12 }}>
-                   Aucun colis généré pour cette commande.
+                   Aucun colis gÃ©nÃ©rÃ© pour cette commande.
                  </div>
                  <button className="btn" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, background: '#3b82f6', color: 'white', borderRadius: 50, border: 'none', padding: '10px 0' }} onClick={handleMylerzShip} disabled={mylerzLoading}>
-                   Expédier
+                   ExpÃ©dier
                  </button>
                </div>
              )}
@@ -420,7 +420,7 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
                 {detail.notes}
               </div>
             ) : (
-              <div style={{ color: '#94a3b8', fontSize: '0.9rem', fontStyle: 'italic' }}>Aucune note laissée par le client.</div>
+              <div style={{ color: '#94a3b8', fontSize: '0.9rem', fontStyle: 'italic' }}>Aucune note laissÃ©e par le client.</div>
             )}
           </div>
 
@@ -430,3 +430,4 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
     </div>
   )
 }
+

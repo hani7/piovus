@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import adminClient from '../../api/adminClient'
@@ -7,11 +7,11 @@ import { AlertTriangle, TrendingUp, ShoppingBag, DollarSign, Activity, AlertCirc
 
 const STATUS_LABELS = {
   pending: 'En attente',
-  confirmed: 'Confirmé',
+  confirmed: 'ConfirmÃ©',
   shipped: 'En livraison',
   fulfilled: 'Fulfilled',
-  cancelled: 'Annulée',
-  returned: 'Retournée',
+  cancelled: 'AnnulÃ©e',
+  returned: 'RetournÃ©e',
 }
 
 const STATUS_BADGE = {
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
       colorBg: 'rgba(139,92,246,0.12)',
     },
     {
-      label: "Catégories",
+      label: "CatÃ©gories",
       value: data.total_categories || 0,
       icon: <Grid size={20} />,
       color: '#f59e0b',
@@ -123,10 +123,10 @@ export default function AdminDashboard() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 16 }}>
         <div>
           <h2 style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: 4, letterSpacing: '-0.02em', color: 'var(--admin-text)' }}>
-            Bonjour, {user?.first_name || user?.username || 'Admin'} 👋
+            Bonjour, {user?.first_name || user?.username || 'Admin'} ðŸ‘‹
           </h2>
           <p style={{ color: 'var(--admin-text-muted)', fontSize: '0.9rem' }}>
-            Voici un aperçu en temps réel de l'activité de votre boutique.
+            Voici un aperÃ§u en temps rÃ©el de l'activitÃ© de votre boutique.
           </p>
         </div>
       </div>
@@ -191,13 +191,13 @@ export default function AdminDashboard() {
                     <li 
                       key={`fraud-${o.id}`} 
                       style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
-                      onClick={() => navigate(`/admin-panel/orders/${o.id}`)}
+                      onClick={() => navigate(`/piove-secure-2026/orders/${o.id}`)}
                     >
                       <div>
                         <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--admin-text)', marginBottom: 2 }}>{o.customer_name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>Commande #{o.id} • {Number(o.total).toLocaleString('fr-DZ')} DA</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>Commande #{o.id} â€¢ {Number(o.total).toLocaleString('fr-DZ')} DA</div>
                       </div>
-                      <span className="badge badge-warning">À vérifier</span>
+                      <span className="badge badge-warning">Ã€ vÃ©rifier</span>
                     </li>
                   ))}
                 </ul>
@@ -211,20 +211,20 @@ export default function AdminDashboard() {
           <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span className="admin-card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--admin-success)', animation: 'pulse 2s infinite' }}></div>
-              Dernières Commandes
+              DerniÃ¨res Commandes
             </span>
-            <Link to="/admin-panel/orders" style={{ fontSize: '0.8rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 500 }}>Voir tout</Link>
+            <Link to="/piove-secure-2026/orders" style={{ fontSize: '0.8rem', color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 500 }}>Voir tout</Link>
           </div>
           <div style={{ padding: 0 }}>
             {data.recent_orders.length === 0 ? (
-              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>Aucune commande récente.</div>
+              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>Aucune commande rÃ©cente.</div>
             ) : (
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {data.recent_orders.map(o => (
                   <li 
                     key={o.id} 
                     style={{ padding: '16px 20px', borderBottom: '1px solid var(--admin-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', transition: 'background 0.2s' }}
-                    onClick={() => navigate(`/admin-panel/orders/${o.id}`)}
+                    onClick={() => navigate(`/piove-secure-2026/orders/${o.id}`)}
                     onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
@@ -235,7 +235,7 @@ export default function AdminDashboard() {
                       <div>
                         <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--admin-text)', marginBottom: 2 }}>{o.customer_name}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>
-                          {new Date(o.created_at).toLocaleTimeString('fr-DZ', { hour: '2-digit', minute: '2-digit' })} • {o.wilaya || '—'}
+                          {new Date(o.created_at).toLocaleTimeString('fr-DZ', { hour: '2-digit', minute: '2-digit' })} â€¢ {o.wilaya || 'â€”'}
                         </div>
                       </div>
                     </div>
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
       {data.trends && data.trends.length > 0 && (
         <div className="admin-card" style={{ marginBottom: 28 }}>
           <div className="admin-card-header">
-            <span className="admin-card-title">Évolution du Chiffre d'Affaires (7 derniers jours)</span>
+            <span className="admin-card-title">Ã‰volution du Chiffre d'Affaires (7 derniers jours)</span>
           </div>
           <div style={{ padding: '24px 20px', height: 320 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -297,3 +297,4 @@ export default function AdminDashboard() {
     </div>
   )
 }
+

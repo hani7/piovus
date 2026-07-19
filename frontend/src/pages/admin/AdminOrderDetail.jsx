@@ -167,9 +167,6 @@ ${d.error ? `<h3>❌ ERREUR lors de la construction du payload</h3><pre>${d.erro
                <button className="admin-btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, display: 'flex', alignItems: 'center', border: 'none' }} onClick={handleMylerzShip} disabled={mylerzLoading}>
                  EXPÉDIER
                </button>
-               <button style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, background: '#1e293b', color: '#38bdf8', border: '1px solid #38bdf8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} onClick={handleMylerzDebug} disabled={mylerzLoading}>
-                 🔍 DEBUG
-               </button>
              </>
           )}
 

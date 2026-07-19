@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import adminClient from '../../api/adminClient'
 import './admin.css'
@@ -66,12 +66,12 @@ export default function AdminLogin() {
       height: '100vh',
       width: '100vw',
       overflow: 'hidden',
-      fontFamily: "'Inter', sans-serif",
+      fontFamily: "'Poppins', sans-serif",
     }}>
       {/* ── LEFT PANEL: Brand ── */}
       <div style={{
         flex: 1,
-        background: 'linear-gradient(145deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%)',
+        background: '#050505',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -79,19 +79,6 @@ export default function AdminLogin() {
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* Decorative blobs */}
-        <div style={{
-          position: 'absolute', top: '15%', left: '10%',
-          width: 300, height: 300, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%)',
-          filter: 'blur(40px)',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '20%', right: '5%',
-          width: 250, height: 250, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(236,72,153,0.12) 0%, transparent 70%)',
-          filter: 'blur(40px)',
-        }} />
 
         {/* Logo + tagline */}
         <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
@@ -108,7 +95,7 @@ export default function AdminLogin() {
           {/* Separator line */}
           <div style={{
             width: 60, height: 2, margin: '20px auto',
-            background: '#c9485b',
+            background: '#cc0000',
             borderRadius: 2,
           }} />
 
@@ -145,7 +132,7 @@ export default function AdminLogin() {
         {/* Top accent */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-          background: '#c9485b',
+          background: '#cc0000',
         }} />
 
         <div style={{ width: '100%', maxWidth: 360 }}>
@@ -192,7 +179,7 @@ export default function AdminLogin() {
                     background: '#f8fafc', color: '#0f172a',
                     transition: 'border-color 0.2s',
                   }}
-                  onFocus={e => e.target.style.borderColor = '#a855f7'}
+                  onFocus={e => e.target.style.borderColor = '#cc0000'}
                   onBlur={e => e.target.style.borderColor = '#e2e8f0'}
                 />
               </div>
@@ -217,7 +204,7 @@ export default function AdminLogin() {
                       background: '#f8fafc', color: '#0f172a',
                       transition: 'border-color 0.2s',
                     }}
-                    onFocus={e => e.target.style.borderColor = '#a855f7'}
+                    onFocus={e => e.target.style.borderColor = '#cc0000'}
                     onBlur={e => e.target.style.borderColor = '#e2e8f0'}
                   />
                   <button
@@ -241,11 +228,11 @@ export default function AdminLogin() {
                 disabled={loading}
                 style={{
                   marginTop: 8, padding: '13px', width: '100%',
-                  background: loading ? '#e07080' : '#c9485b',
+                  background: loading ? '#ff4d4d' : '#cc0000',
                   color: '#fff', border: 'none', borderRadius: '50px',
                   fontSize: '1rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
                   transition: 'opacity 0.2s', letterSpacing: '0.03em',
-                  boxShadow: '0 4px 14px rgba(201,72,91,0.35)',
+                  boxShadow: '0 4px 14px rgba(204,0,0,0.35)',
                 }}
               >
                 {loading ? 'Connexion en cours...' : 'Se connecter →'}

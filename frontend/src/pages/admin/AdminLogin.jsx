@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import adminClient from '../../api/adminClient'
+import { Eye, EyeOff } from 'lucide-react'
 import './admin.css'
 
 export default function AdminLogin() {
@@ -216,7 +217,7 @@ export default function AdminLogin() {
                       fontSize: '1rem', padding: 0,
                     }}
                   >
-                    {showPass ? '🙈' : '👁️'}
+                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>

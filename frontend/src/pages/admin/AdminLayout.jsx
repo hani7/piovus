@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { NavLink, useNavigate, Outlet, Navigate, Link } from 'react-router-dom'
 import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings, Film, Sun, Moon, Maximize2, Minimize2 } from 'lucide-react'
 import adminClient from '../../api/adminClient'
@@ -7,7 +7,7 @@ import CommandMenu from './CommandMenu'
 
 export const NAV_ITEMS = [
   {
-    section: 'GÃ©nÃ©ral',
+    section: 'Général',
     links: [
       { to: '/piove-secure-2026', label: 'Tableau de bord', end: true, icon: <LayoutDashboard size={20} /> },
     ]
@@ -16,7 +16,7 @@ export const NAV_ITEMS = [
     section: 'Catalogue',
     links: [
       { to: '/piove-secure-2026/products', label: 'Produits', icon: <Package size={20} /> },
-      { to: '/piove-secure-2026/categories', label: 'CatÃ©gories', icon: <Tags size={20} /> },
+      { to: '/piove-secure-2026/categories', label: 'Catégories', icon: <Tags size={20} /> },
       { to: '/piove-secure-2026/banners', label: 'Banners', icon: <Image size={20} /> },
     ]
   },
@@ -45,15 +45,15 @@ export const NAV_ITEMS = [
     marketingHidden: true,
     links: [
       { to: '/piove-secure-2026/delivery-companies', label: 'Transporteurs', icon: <Truck size={20} /> },
-      { to: '/piove-secure-2026/delivery-rates', label: 'Tarifs (DÃ©tail)', icon: <Banknote size={20} /> },
+      { to: '/piove-secure-2026/delivery-rates', label: 'Tarifs (Détail)', icon: <Banknote size={20} /> },
       { to: '/piove-secure-2026/b2b-delivery-rates', label: 'Tarifs B2B', icon: <Banknote size={20} /> },
     ]
   },
   {
     section: 'Configuration',
     links: [
-      { to: '/piove-secure-2026/mediatheque', label: 'MÃ©diathÃ¨que', icon: <Film size={20} /> },
-      { to: '/piove-secure-2026/settings', label: 'ParamÃ¨tres', icon: <Settings size={20} /> },
+      { to: '/piove-secure-2026/mediatheque', label: 'Médiathèque', icon: <Film size={20} /> },
+      { to: '/piove-secure-2026/settings', label: 'Paramètres', icon: <Settings size={20} /> },
     ]
   },
 ]
@@ -371,13 +371,13 @@ export default function AdminLayout() {
                 {isUserMenuOpen && (
                   <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 8, background: 'var(--admin-surface)', border: '1px solid var(--admin-border)', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', minWidth: 200, zIndex: 50 }}>
                     <Link to="/piove-secure-2026/settings" style={{ display: 'block', padding: '12px 16px', color: 'var(--admin-text)', textDecoration: 'none', borderBottom: '1px solid var(--admin-border)' }} onClick={() => setIsUserMenuOpen(false)}>
-                      âš™ï¸ ParamÃ¨tres
+                      ⚙️ Paramètres
                     </Link>
                     <Link to="/piove-secure-2026/history" style={{ display: 'block', padding: '12px 16px', color: 'var(--admin-text)', textDecoration: 'none', borderBottom: '1px solid var(--admin-border)' }} onClick={() => setIsUserMenuOpen(false)}>
-                      Historique d'activitÃ©
+                      Historique d'activité
                     </Link>
                     <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', color: 'var(--admin-danger)', cursor: 'pointer' }} onClick={() => { setIsUserMenuOpen(false); handleLogout(); }}>
-                      Se dÃ©connecter
+                      Se déconnecter
                     </button>
                   </div>
                 )}

@@ -1,20 +1,22 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { getOrders } from '../api/orders'
 import { useAuthStore } from '../store/authStore'
 import './OrdersPage.css'
 
 export default function OrdersPage() {
   const { user } = useAuthStore()
-  const navigate = useNavigate()
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 8000) // safety timeout
     getOrders()
       .then((res) => setOrders(res.data.results || res.data))
-      .catch(() => {})
-      .finally(() => setLoading(false))
+      .catch(() => setError(true))
+      .finally(() => { clearTimeout(timer); setLoading(false) })
+    return () => clearTimeout(timer)
   }, [])
 
   if (!user) return null
@@ -26,7 +28,15 @@ export default function OrdersPage() {
       </div>
 
       {loading ? (
-        <div className="spinner" />
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <div className="spinner" />
+          <p style={{ marginTop: 16, color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>Chargement de vos commandes...</p>
+        </div>
+      ) : error ? (
+        <div className="orders-empty">
+          <p>Impossible de charger vos commandes. Vérifiez votre connexion.</p>
+          <button onClick={() => window.location.reload()} className="btn btn-accent">Réessayer</button>
+        </div>
       ) : orders.length === 0 ? (
         <div className="orders-empty">
           <p>Vous n'avez passé aucune commande pour le moment.</p>

@@ -22,88 +22,84 @@ export default function AccountPage() {
   })
 
   if (user) {
+    const navItems = [
+      { to: '/compte',            label: 'Tableau de bord', icon: <LayoutDashboard size={18} /> },
+      { to: '/compte/commandes',  label: 'Commandes',       icon: <Package size={18} /> },
+      { to: '/compte/adresses',   label: 'Adresses',        icon: <MapPin size={18} /> },
+      { to: '/compte/fidelite',   label: 'Fidélité',        icon: <Gift size={18} /> },
+      { to: '/compte/parametres', label: 'Paramètres',      icon: <Settings size={18} /> },
+    ]
     return (
-      <main className="account-page page-enter container" style={{ paddingTop: '120px' }}>
-        <div className="account-dashboard-wrapper">
-          {/* Sidebar */}
-          <aside className="account-sidebar">
-            <div className="account-sidebar__profile">
-              <div className="account-avatar-large">
-                {user.first_name?.charAt(0) || user.username?.charAt(0)}
+      <main className="account-page page-enter" style={{ paddingTop: '80px' }}>
+        <div className="container">
+
+          {/* ── Mobile tab bar ─────────────────────────── */}
+          <div className="account-tab-bar">
+            {navItems.map(({ to, label, icon }) => (
+              <Link key={to} to={to} className={`account-tab-item ${to === '/compte' ? 'active' : ''}`}>
+                {icon}<span>{label}</span>
+              </Link>
+            ))}
+            <button className="account-tab-item text-danger" onClick={logout}>
+              <LogOut size={18} /><span>Sortir</span>
+            </button>
+          </div>
+
+          {/* ── Desktop layout ──────────────────────────── */}
+          <div className="account-dashboard-wrapper">
+            {/* Sidebar (desktop only) */}
+            <aside className="account-sidebar account-sidebar--desktop">
+              <div className="account-sidebar__profile">
+                <div className="account-avatar-large">
+                  {user.first_name?.charAt(0) || user.username?.charAt(0)}
+                </div>
+                <h3>{user.first_name || user.username}</h3>
+                <p>{user.email}</p>
               </div>
-              <h3>{user.first_name || user.username}</h3>
-              <p>{user.email}</p>
-            </div>
-            <nav className="account-sidebar__nav">
-              <Link to="/compte" className="account-nav-item active">
-                <LayoutDashboard size={20} /> Tableau de bord
-              </Link>
-              <Link to="/compte/commandes" className="account-nav-item">
-                <Package size={20} /> Mes Commandes
-              </Link>
-              <Link to="/compte/adresses" className="account-nav-item">
-                <MapPin size={20} /> Mes Adresses
-              </Link>
-              <Link to="/compte/fidelite" className="account-nav-item">
-                <Gift size={20} /> Fidélité & Portefeuille
-              </Link>
-              <Link to="/compte/parametres" className="account-nav-item">
-                <Settings size={20} /> Paramètres
-              </Link>
-              <button className="account-nav-item text-danger" onClick={logout}>
-                <LogOut size={20} /> Déconnexion
-              </button>
-            </nav>
-          </aside>
+              <nav className="account-sidebar__nav">
+                <Link to="/compte" className="account-nav-item active"><LayoutDashboard size={20} /> Tableau de bord</Link>
+                <Link to="/compte/commandes" className="account-nav-item"><Package size={20} /> Mes Commandes</Link>
+                <Link to="/compte/adresses" className="account-nav-item"><MapPin size={20} /> Mes Adresses</Link>
+                <Link to="/compte/fidelite" className="account-nav-item"><Gift size={20} /> Fidélité &amp; Portefeuille</Link>
+                <Link to="/compte/parametres" className="account-nav-item"><Settings size={20} /> Paramètres</Link>
+                <button className="account-nav-item text-danger" onClick={logout}><LogOut size={20} /> Déconnexion</button>
+              </nav>
+            </aside>
 
-          {/* Main Content */}
-          <section className="account-content">
-            <div className="account-welcome-banner glassmorphism">
-              <div className="banner-text">
-                <h1>Bienvenue dans votre espace, {user.first_name || user.username}</h1>
-                <p>Gérez vos commandes, vos adresses et vos préférences depuis ce tableau de bord sécurisé.</p>
+            {/* Main Content */}
+            <section className="account-content">
+              <div className="account-welcome-banner glassmorphism">
+                <div className="banner-text">
+                  <h1>Bienvenue dans votre espace, {user.first_name || user.username}</h1>
+                  <p>Gérez vos commandes, vos adresses et vos préférences depuis ce tableau de bord sécurisé.</p>
+                </div>
               </div>
-            </div>
 
-            <h2 className="section-title">Aperçu de votre compte</h2>
-            <div className="account-dashboard__cards">
-              <Link to="/compte/commandes" className="account-card premium-card" id="account-orders">
-                <div className="card-icon-wrapper"><Package size={24} /></div>
-                <div className="card-info">
-                  <h3>Mes Commandes</h3>
-                  <p>Consulter l'historique et suivre la livraison</p>
-                </div>
-                <ChevronRight size={20} className="card-chevron" />
-              </Link>
-              
-              <Link to="/compte/adresses" className="account-card premium-card">
-                <div className="card-icon-wrapper"><MapPin size={24} /></div>
-                <div className="card-info">
-                  <h3>Mes Adresses</h3>
-                  <p>Gérer vos adresses de livraison et facturation</p>
-                </div>
-                <ChevronRight size={20} className="card-chevron" />
-              </Link>
-
-              <Link to="/compte/parametres" className="account-card premium-card">
-                <div className="card-icon-wrapper"><Settings size={24} /></div>
-                <div className="card-info">
-                  <h3>Paramètres</h3>
-                  <p>Modifier vos informations personnelles et mot de passe</p>
-                </div>
-                <ChevronRight size={20} className="card-chevron" />
-              </Link>
-
-              <Link to="/compte/fidelite" className="account-card premium-card">
-                <div className="card-icon-wrapper"><Gift size={24} /></div>
-                <div className="card-info">
-                  <h3>Fidélité & Portefeuille</h3>
-                  <p>Consulter vos points et vos bons d'achat gagnés</p>
-                </div>
-                <ChevronRight size={20} className="card-chevron" />
-              </Link>
-            </div>
-          </section>
+              <h2 className="section-title">Aperçu de votre compte</h2>
+              <div className="account-dashboard__cards">
+                <Link to="/compte/commandes" className="account-card premium-card" id="account-orders">
+                  <div className="card-icon-wrapper"><Package size={24} /></div>
+                  <div className="card-info"><h3>Mes Commandes</h3><p>Consulter l'historique et suivre la livraison</p></div>
+                  <ChevronRight size={20} className="card-chevron" />
+                </Link>
+                <Link to="/compte/adresses" className="account-card premium-card">
+                  <div className="card-icon-wrapper"><MapPin size={24} /></div>
+                  <div className="card-info"><h3>Mes Adresses</h3><p>Gérer vos adresses de livraison et facturation</p></div>
+                  <ChevronRight size={20} className="card-chevron" />
+                </Link>
+                <Link to="/compte/parametres" className="account-card premium-card">
+                  <div className="card-icon-wrapper"><Settings size={24} /></div>
+                  <div className="card-info"><h3>Paramètres</h3><p>Modifier vos informations personnelles et mot de passe</p></div>
+                  <ChevronRight size={20} className="card-chevron" />
+                </Link>
+                <Link to="/compte/fidelite" className="account-card premium-card">
+                  <div className="card-icon-wrapper"><Gift size={24} /></div>
+                  <div className="card-info"><h3>Fidélité &amp; Portefeuille</h3><p>Consulter vos points et vos bons d'achat gagnés</p></div>
+                  <ChevronRight size={20} className="card-chevron" />
+                </Link>
+              </div>
+            </section>
+          </div>
         </div>
       </main>
     )

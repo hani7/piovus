@@ -265,7 +265,16 @@ export default function ShopPage() {
         <div className="shop-products-wrapper">
           <div className="shop-products-area">
             {loading ? (
-              <div className="spinner" />
+              <div className="products-grid">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="skeleton-card">
+                    <div className="skeleton skeleton-img--tall" />
+                    <div className="skeleton skeleton-title" />
+                    <div className="skeleton skeleton-text skeleton-text--short" />
+                    <div className="skeleton skeleton-text" style={{ width: '55%', marginTop: 8 }} />
+                  </div>
+                ))}
+              </div>
             ) : products.length === 0 ? (
               <div className="shop-empty">
                 <p>Aucun produit trouvé.</p>

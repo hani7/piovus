@@ -133,7 +133,26 @@ export default function ProductPage() {
     }
   }, [images.length])
 
-  if (loading) return <div className="product-page-loading"><div className="spinner" /></div>
+  if (loading) return (
+    <div className="product-page" style={{ paddingTop: 'calc(var(--navbar-height) + 24px)' }}>
+      <div className="container">
+        <div className="product-page__layout">
+          {/* Image skeleton */}
+          <div className="skeleton skeleton-img--tall" style={{ borderRadius: 'var(--radius-lg)' }} />
+          {/* Info skeleton */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="skeleton skeleton-badge" />
+            <div className="skeleton" style={{ height: 36, width: '75%' }} />
+            <div className="skeleton" style={{ height: 28, width: '40%' }} />
+            <div className="skeleton skeleton-text" />
+            <div className="skeleton skeleton-text" />
+            <div className="skeleton skeleton-text skeleton-text--short" />
+            <div className="skeleton" style={{ height: 48, marginTop: 16, borderRadius: 'var(--radius-full)' }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
   if (error || !product) return (
     <div className="product-page-error container">
       <p>{error || 'Produit non trouvé.'}</p>

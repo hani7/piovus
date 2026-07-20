@@ -74,7 +74,18 @@ export default function CategoryPage() {
 
       <div className="container" style={{padding: categoryBanners.length > 0 ? '40px var(--gutter) 80px' : '40px var(--gutter) 80px', position: 'relative'}}>
 
-        {loading ? <div className="spinner" /> : (
+        {loading ? (
+          <div className="products-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="skeleton-card">
+                <div className="skeleton skeleton-img--tall" />
+                <div className="skeleton skeleton-title" />
+                <div className="skeleton skeleton-text skeleton-text--short" />
+                <div className="skeleton skeleton-text" style={{ width: '55%', marginTop: 8 }} />
+              </div>
+            ))}
+          </div>
+        ) : (
           <div style={{ opacity: isFetching ? 0.5 : 1, transition: 'opacity 0.2s', pointerEvents: isFetching ? 'none' : 'auto' }}>
             <div className="products-grid">
               {products.map((p) => <ProductCard key={p.id} product={p} />)}

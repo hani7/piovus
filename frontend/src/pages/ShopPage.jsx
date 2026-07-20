@@ -63,8 +63,8 @@ export default function ShopPage() {
     setSearchParams(p)
   }
 
-  // Group products by their first category
-  const groups = (() => {
+  // Flat list with category dividers (no separate grids per category)
+  const groupEntries = (() => {
     if (hasActiveFilters) return null
     const g = {}
     products.forEach(p => {
@@ -72,7 +72,7 @@ export default function ShopPage() {
       if (!g[catName]) g[catName] = []
       g[catName].push(p)
     })
-    return g
+    return Object.entries(g)
   })()
 
   return (
@@ -273,14 +273,18 @@ export default function ShopPage() {
                   Voir tous les produits
                 </button>
               </div>
-            ) : groups ? (
-              Object.entries(groups).map(([catName, catProducts]) => (
-                <section key={catName} className="shop-category-section">
-                  <div className="products-grid">
-                    {catProducts.map(p => <ProductCard key={p.id} product={p} />)}
-                  </div>
-                </section>
-              ))
+            ) : groupEntries ? (
+              // Show all products in ONE flat grid with inline category labels
+              <>
+                {groupEntries.map(([catName, catProducts]) => (
+                  <section key={catName} className="shop-category-section">
+                    <h3 className="shop-category-label">{catName}</h3>
+                    <div className="products-grid">
+                      {catProducts.map(p => <ProductCard key={p.id} product={p} />)}
+                    </div>
+                  </section>
+                ))}
+              </>
             ) : (
               <div className="products-grid">
                 {products.map(p => <ProductCard key={p.id} product={p} />)}

@@ -23,6 +23,10 @@
   .shop-sidebar-desktop .filter-drawer__section { padding: 14px 0; }
   .shop-sidebar-desktop .filter-drawer__header { display: none; }
   .shop-products-wrapper { flex: 1; min-width: 0; }
+  /* Override grid to 3 columns when sidebar is present */
+  .shop-products-wrapper .products-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
   /* Hide mobile filter button on desktop */
   .shop-filter-btn { display: none !important; }
   /* Hide mobile overlay/drawer on desktop */

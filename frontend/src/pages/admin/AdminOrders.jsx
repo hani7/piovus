@@ -584,7 +584,8 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
             <div className="admin-modal-footer" style={{ display: 'flex', justifyContent: 'space-between' }}>
                <button className="btn" style={{ background: '#eab308', color: 'white', borderRadius: 20, border: 'none', fontWeight: 600, padding: '8px 20px' }} onClick={() => navigate(`/piove-secure-2026/orders/${detail.id}`)}>Voir tout</button>
                <button className="btn" style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#3b82f6', color: 'white', border: 'none', borderRadius: 20, fontWeight: 600, padding: '8px 20px' }} onClick={() => handlePrintSingleBordereau(detail.id)}>
-                 ðŸ–¨ï¸ Bordereau
+                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                 Bordereau
                </button>
                <button className="btn" style={{ background: '#dc3545', color: 'white', borderRadius: 20, border: 'none', fontWeight: 600, padding: '8px 20px' }} onClick={() => setDetail(null)}>Fermer</button>
             </div>

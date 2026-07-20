@@ -278,7 +278,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
         <StatCard label="En Attente"       value={stats.pending}                                                  color="#f59e0b" />
         <StatCard label="Confirmées"       value={stats.confirmed}                                                color="#8b5cf6" />
         <StatCard label="En Livraison"     value={stats.shipped}                                                  color="#3b82f6" />
-        <StatCard label="Livrées"          value={stats.fulfilled}                                                color="#10b981" />
+        <StatCard label="Fulfilled"          value={stats.fulfilled}                                                color="#10b981" />
         <StatCard label="Annulées / Ret."  value={stats.cancelled}                                                color="#ef4444" sub={stats.total > 0 ? `${Math.round(stats.cancelled/stats.total*100)}% taux annulation` : ''} />
       </div>
 

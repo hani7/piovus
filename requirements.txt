@@ -18,4 +18,3 @@ idna>=3.6
 urllib3>=2.2.0
 openpyxl==3.1.5
 python-dotenv>=1.0.1
-django-jazzmin>=3.0.0

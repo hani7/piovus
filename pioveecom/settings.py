@@ -23,16 +23,8 @@ ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://piovecosmetics.dz')
 API_URL = os.environ.get('API_URL', 'https://api.piovecosmetics.dz')
 
-# Jazzmin admin theme (optionnel — installé si disponible)
-try:
-    import jazzmin
-    _JAZZMIN = ['jazzmin']
-except ImportError:
-    _JAZZMIN = []
-
 # Application definition
 INSTALLED_APPS = [
-    *_JAZZMIN,               # jazzmin doit être AVANT django.contrib.admin
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -147,86 +139,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ─── JAZZMIN ADMIN THEME (actif si installé) ─────────────────────────
-try:
-    import jazzmin  # noqa
-    JAZZMIN_SETTINGS = {
-        'site_title': 'Piové Admin',
-        'site_header': 'Piové Cosmetics',
-        'site_brand': 'Piové',
-        'site_logo': None,
-        'welcome_sign': "Bienvenue dans le panneau d'administration Piové",
-        'copyright': 'Piové Cosmetics © 2026',
-        'search_model': ['auth.User', 'pioveapp.Order', 'pioveapp.Product'],
-        'topmenu_links': [
-            {'name': 'Accueil', 'url': 'admin:index', 'permissions': ['auth.view_user']},
-            {'name': 'Site', 'url': 'https://piovecosmetics.dz', 'new_window': True},
-            {'model': 'pioveapp.Order'},
-        ],
-        'usermenu_links': [
-            {'name': 'Voir le site', 'url': 'https://piovecosmetics.dz', 'new_window': True, 'icon': 'fas fa-globe'},
-        ],
-        'show_sidebar': True,
-        'navigation_expanded': True,
-        'hide_apps': [],
-        'hide_models': [],
-        'icons': {
-            'auth': 'fas fa-users-cog',
-            'auth.user': 'fas fa-user',
-            'auth.Group': 'fas fa-users',
-            'pioveapp.Order': 'fas fa-shopping-cart',
-            'pioveapp.Product': 'fas fa-box',
-            'pioveapp.Category': 'fas fa-tags',
-            'pioveapp.Banner': 'fas fa-image',
-            'pioveapp.Review': 'fas fa-star',
-        },
-        'default_icon_parents': 'fas fa-chevron-circle-right',
-        'default_icon_children': 'fas fa-circle',
-        'related_modal_active': True,
-        'custom_css': None,
-        'custom_js': None,
-        'use_google_fonts_cdn': True,
-        'show_ui_builder': False,
-        'changeform_format': 'horizontal_tabs',
-        'changeform_format_overrides': {
-            'auth.user': 'collapsible',
-            'auth.group': 'vertical_tabs',
-        },
-        'language_chooser': False,
-    }
-    JAZZMIN_UI_TWEAKS = {
-        'navbar_small_text': False,
-        'footer_small_text': False,
-        'body_small_text': False,
-        'brand_small_text': False,
-        'brand_colour': 'navbar-danger',
-        'accent': 'accent-danger',
-        'navbar': 'navbar-dark',
-        'no_navbar_border': True,
-        'navbar_fixed': True,
-        'layout_boxed': False,
-        'footer_fixed': False,
-        'sidebar_fixed': True,
-        'sidebar': 'sidebar-dark-danger',
-        'sidebar_nav_small_text': False,
-        'sidebar_disable_expand': False,
-        'sidebar_nav_child_indent': True,
-        'sidebar_nav_compact_style': False,
-        'sidebar_nav_legacy_style': False,
-        'sidebar_nav_flat_style': False,
-        'theme': 'default',
-        'dark_mode_theme': None,
-        'button_classes': {
-            'primary': 'btn-primary',
-            'secondary': 'btn-secondary',
-            'info': 'btn-info',
-            'warning': 'btn-warning',
-            'danger': 'btn-danger',
-            'success': 'btn-success',
-        },
-    }
-except ImportError:
-    pass  # jazzmin non installé sur ce serveur
+
 
 # ─── CORS & CSRF ────────────────────────────────────────────────────────────
 # We restrict to allowed domains for max security. 

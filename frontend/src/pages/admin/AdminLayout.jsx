@@ -71,6 +71,7 @@ export default function AdminLayout() {
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('admin_dark_mode') === 'true')
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [newOrderToast, setNewOrderToast] = useState(null) // { message, count }
 
   useEffect(() => {
     localStorage.setItem('admin_dark_mode', darkMode)
@@ -112,31 +113,63 @@ export default function AdminLayout() {
     }
   }
 
-  // Generic notification sound (short ding)
+  // === SONNERIE FORTE — alarme multi-bips ===
   const playNotificationSound = () => {
-    const audio = new Audio('data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExEAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
-    // Fallback to simple oscillator if base64 fails or is empty, but let's just use a beep via Web Audio API for guaranteed sound without files:
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)()
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(880, ctx.currentTime) // A5
-      gain.gain.setValueAtTime(0.1, ctx.currentTime)
-      osc.start(ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5)
-      osc.stop(ctx.currentTime + 0.5)
+      const masterGain = ctx.createGain()
+      masterGain.connect(ctx.destination)
+      masterGain.gain.setValueAtTime(0.85, ctx.currentTime) // volume fort
+
+      // Séquence: 4 bips courts + 1 bip long final
+      const pattern = [
+        { freq: 1046, start: 0.0,  dur: 0.18 },  // bip 1
+        { freq: 1046, start: 0.28, dur: 0.18 },  // bip 2
+        { freq: 1046, start: 0.56, dur: 0.18 },  // bip 3
+        { freq: 1318, start: 0.84, dur: 0.45 },  // bip grave final (plus long)
+      ]
+
+      pattern.forEach(({ freq, start, dur }) => {
+        const osc = ctx.createOscillator()
+        const g = ctx.createGain()
+        osc.connect(g)
+        g.connect(masterGain)
+        osc.type = 'square'           // onde carrée = son perçant
+        osc.frequency.value = freq
+        g.gain.setValueAtTime(1, ctx.currentTime + start)
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur)
+        osc.start(ctx.currentTime + start)
+        osc.stop(ctx.currentTime + start + dur + 0.01)
+      })
+
+      // Rejoue 3 fois (total: 3 cycles)
+      const totalDur = 1.4
+      ;[totalDur, totalDur * 2].forEach(offset => {
+        pattern.forEach(({ freq, start, dur }) => {
+          const osc = ctx.createOscillator()
+          const g = ctx.createGain()
+          osc.connect(g)
+          g.connect(masterGain)
+          osc.type = 'square'
+          osc.frequency.value = freq
+          g.gain.setValueAtTime(1, ctx.currentTime + offset + start)
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + start + dur)
+          osc.start(ctx.currentTime + offset + start)
+          osc.stop(ctx.currentTime + offset + start + dur + 0.01)
+        })
+      })
     } catch (e) {
-      console.warn("Audio not supported or blocked", e)
+      console.warn('Audio non supporté:', e)
     }
   }
 
-  const triggerDesktopNotification = (message) => {
+  const triggerDesktopNotification = (message, orderCount) => {
     playNotificationSound()
+    // Afficher le toast visuel
+    setNewOrderToast({ message, count: orderCount })
+    setTimeout(() => setNewOrderToast(null), 8000) // disparaît après 8s
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Piové Cosmetics Admin', {
+      new Notification('🛍️ Piové — Nouvelle Commande !', {
         body: message,
         icon: '/logo.png'
       })
@@ -150,11 +183,13 @@ export default function AdminLayout() {
       
       const prev = prevUnviewedRef.current
       if (prev !== null) {
-        if (newCounts.normal > prev.normal) {
-          triggerDesktopNotification('Nouvelle commande standard reçue !')
+        const newNormal = newCounts.normal - prev.normal
+        const newB2b = newCounts.b2b - prev.b2b
+        if (newNormal > 0) {
+          triggerDesktopNotification(`${newNormal} nouvelle${newNormal > 1 ? 's' : ''} commande${newNormal > 1 ? 's' : ''} reçue${newNormal > 1 ? 's' : ''} !`, newNormal)
         }
-        if (newCounts.b2b > prev.b2b) {
-          triggerDesktopNotification('Nouvelle commande B2B reçue !')
+        if (newB2b > 0) {
+          triggerDesktopNotification(`${newB2b} nouvelle${newB2b > 1 ? 's' : ''} commande${newB2b > 1 ? 's' : ''} B2B reçue${newB2b > 1 ? 's' : ''} !`, newB2b)
         }
       }
       
@@ -247,6 +282,31 @@ export default function AdminLayout() {
 
   return (
     <div className={`admin-app${darkMode ? ' dark-mode' : ''}`}>
+
+      {/* === TOAST NOUVELLE COMMANDE === */}
+      {newOrderToast && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          background: 'linear-gradient(90deg, #dc2626, #b91c1c)',
+          color: 'white', padding: '14px 24px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          boxShadow: '0 4px 24px rgba(220,38,38,0.5)',
+          animation: 'toastSlideIn 0.4s ease',
+          fontWeight: 700, fontSize: '1rem', letterSpacing: '0.3px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <span style={{ fontSize: '1.6rem', animation: 'bellRing 0.5s ease infinite alternate' }}>🛍️</span>
+            <div>
+              <div style={{ fontSize: '1.05rem' }}>NOUVELLE COMMANDE !</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 400, opacity: 0.9 }}>{newOrderToast.message}</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <a href="/piove-secure-2026/orders" style={{ background: 'white', color: '#dc2626', padding: '6px 16px', borderRadius: 50, fontSize: '0.82rem', fontWeight: 700, textDecoration: 'none' }}>Voir les commandes</a>
+            <button onClick={() => setNewOrderToast(null)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1.2rem', lineHeight: 1 }}>✕</button>
+          </div>
+        </div>
+      )}
       {/* Sidebar */}
       <aside className={`admin-sidebar ${!isSidebarOpen ? 'collapsed' : ''}`}>
         <div className="admin-sidebar-logo">

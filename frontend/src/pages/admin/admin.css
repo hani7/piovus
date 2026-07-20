@@ -1249,3 +1249,14 @@ select.form-control { cursor: pointer; }
   color: var(--admin-text-muted);
   font-size: 0.9rem;
 }
+
+/* ─── New Order Toast Animations ─────────────────────────────────────────── */
+@keyframes toastSlideIn {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+@keyframes bellRing {
+  0%   { transform: rotate(-15deg) scale(1.1); }
+  100% { transform: rotate(15deg)  scale(1.2); }
+}

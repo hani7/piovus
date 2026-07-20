@@ -30,17 +30,14 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState('')
 
   useEffect(() => {
-    if (!user) {
-      navigate('/compte')
-      return
+    if (user) {
+      setProfileForm({
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        email: user.email || ''
+      })
     }
-    
-    setProfileForm({
-      first_name: user.first_name || '',
-      last_name: user.last_name || '',
-      email: user.email || ''
-    })
-  }, [user, navigate])
+  }, [user])
 
   if (!user) return null
 
@@ -87,7 +84,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <main className="orders-page page-enter container" style={{ padding: '120px 20px 40px', minHeight: '60vh' }}>
+    <div className="orders-page page-enter">
       <div className="orders-header">
         <h1 className="orders-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Settings size={28} /> Paramètres
@@ -212,6 +209,6 @@ export default function SettingsPage() {
         </div>
 
       </div>
-    </main>
+    </div>
   )
 }

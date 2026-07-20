@@ -11,12 +11,8 @@ export default function LoyaltyPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    if (!user) {
-      navigate('/compte')
-      return
-    }
     refreshUser()
-  }, []) // run once on mount only
+  }, [])
 
   if (!user) return null
 
@@ -33,7 +29,7 @@ export default function LoyaltyPage() {
   }
 
   return (
-    <main className="page-enter container" style={{ paddingTop: '120px', minHeight: '80vh' }}>
+    <div className="page-enter">
       <div className="orders-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
         <h1 className="section-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
           <Gift size={28} color="var(--color-accent)" /> 
@@ -127,6 +123,6 @@ export default function LoyaltyPage() {
           )}
         </div>
       </div>
-    </main>
+    </div>
   )
 }

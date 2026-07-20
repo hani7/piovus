@@ -10,25 +10,20 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
-
   useEffect(() => {
-    if (!user) {
-      navigate('/compte')
-      return
-    }
     getOrders()
       .then((res) => setOrders(res.data.results || res.data))
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [user, navigate])
+  }, [])
 
   if (!user) return null
 
   return (
-    <main className="orders-page page-enter container" style={{ paddingTop: '120px' }}>
-      <div className="orders-header">
+    <div className="orders-page page-enter">
+      <div className="orders-header" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
         <h1 className="orders-title">Mes Commandes</h1>
-        <Link to="/compte" className="btn btn-outline" id="orders-back-btn">Retour au compte</Link>
+        <Link to="/compte" className="btn btn-outline" id="orders-back-btn" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>← Retour au compte</Link>
       </div>
 
       {loading ? (
@@ -105,6 +100,6 @@ export default function OrdersPage() {
           ))}
         </div>
       )}
-    </main>
+    </div>
   )
 }

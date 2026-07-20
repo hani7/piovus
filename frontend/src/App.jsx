@@ -13,6 +13,7 @@ const CategoryPage = lazy(() => import('./pages/CategoryPage'))
 const CartPage = lazy(() => import('./pages/CartPage'))
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'))
 const AccountPage = lazy(() => import('./pages/AccountPage'))
+const AccountLayout = lazy(() => import('./pages/AccountLayout'))
 const OrdersPage = lazy(() => import('./pages/OrdersPage'))
 const AddressesPage = lazy(() => import('./pages/AddressesPage'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage'))
@@ -195,10 +196,12 @@ export default function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/compte" element={<AccountPage />} />
-          <Route path="/compte/commandes" element={<OrdersPage />} />
-          <Route path="/compte/adresses" element={<AddressesPage />} />
-          <Route path="/compte/fidelite" element={<LoyaltyPage />} />
-          <Route path="/compte/parametres" element={<SettingsPage />} />
+          <Route element={<AccountLayout />}>
+            <Route path="/compte/commandes" element={<OrdersPage />} />
+            <Route path="/compte/adresses" element={<AddressesPage />} />
+            <Route path="/compte/fidelite" element={<LoyaltyPage />} />
+            <Route path="/compte/parametres" element={<SettingsPage />} />
+          </Route>
           <Route path="/payment-result" element={<PaymentResultPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />

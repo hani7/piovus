@@ -19,20 +19,14 @@ export default function AddressesPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (!user) {
-      navigate('/compte')
-      return
-    }
-    
-    // Initialize form with user data
-    if (user.profile) {
+    if (user?.profile) {
       setForm({
         address: user.profile.address || '',
         wilaya: user.profile.wilaya || '',
         phone: user.profile.phone || ''
       })
     }
-  }, [user, navigate])
+  }, [user])
 
   if (!user) return null
 
@@ -76,7 +70,7 @@ export default function AddressesPage() {
   ]
 
   return (
-    <main className="orders-page page-enter container" style={{ padding: '120px 20px 40px', minHeight: '60vh' }}>
+    <div className="orders-page page-enter">
       <div className="orders-header">
         <h1 className="orders-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <MapPin size={28} /> Mes Adresses
@@ -149,6 +143,6 @@ export default function AddressesPage() {
           </button>
         </form>
       </div>
-    </main>
+    </div>
   )
 }

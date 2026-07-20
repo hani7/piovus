@@ -418,7 +418,7 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            <button type="submit" className="btn btn-accent checkout-submit-btn" disabled={loading || total < 1500} id="submit-order-btn">
+            <button type="submit" className="btn btn-accent checkout-submit-btn" disabled={loading || total < 1500} id="submit-order-btn" style={{ fontSize: 'clamp(0.75rem, 3vw, 1rem)', letterSpacing: '0.03em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {loading ? 'Traitement...' : `Confirmer la commande — ${form.payment_method === 'cib' ? (coupon ? coupon.new_total : total).toLocaleString('fr-DZ') : ((coupon ? coupon.new_total : total) + deliveryCost).toLocaleString('fr-DZ')} DA`}
             </button>
           </form>

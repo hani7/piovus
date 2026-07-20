@@ -28,9 +28,17 @@ export default function OrdersPage() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px 0' }}>
-          <div className="spinner" />
-          <p style={{ marginTop: 16, color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>Chargement de vos commandes...</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {[1,2,3].map(i => (
+            <div key={i} className="skeleton-row">
+              <div className="skeleton skeleton-avatar" />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div className="skeleton skeleton-title" />
+                <div className="skeleton skeleton-text skeleton-text--short" />
+              </div>
+              <div className="skeleton skeleton-badge" />
+            </div>
+          ))}
         </div>
       ) : error ? (
         <div className="orders-empty">

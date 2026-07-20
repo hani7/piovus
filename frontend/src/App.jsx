@@ -18,6 +18,7 @@ const OrdersPage = lazy(() => import('./pages/OrdersPage'))
 const AddressesPage = lazy(() => import('./pages/AddressesPage'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage'))
 const LoyaltyPage = lazy(() => import('./pages/LoyaltyPage'))
+const WishlistPage = lazy(() => import('./pages/WishlistPage'))
 import PromoBanner from './components/PromoBanner'
 import PromoPopup from './components/PromoPopup'
 import SideBanners from './components/SideBanners'
@@ -200,6 +201,7 @@ export default function App() {
             <Route path="/compte/commandes" element={<OrdersPage />} />
             <Route path="/compte/adresses" element={<AddressesPage />} />
             <Route path="/compte/fidelite" element={<LoyaltyPage />} />
+            <Route path="/compte/favoris" element={<WishlistPage />} />
             <Route path="/compte/parametres" element={<SettingsPage />} />
           </Route>
           <Route path="/payment-result" element={<PaymentResultPage />} />

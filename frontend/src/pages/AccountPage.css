@@ -690,3 +690,47 @@
   transition: background 0.2s;
 }
 .loyalty-coupon-card__copy--copied { background: var(--color-accent); }
+
+/* ══════════════════════════════════════════════════════════════
+   KPI BAR (Dashboard)
+   ══════════════════════════════════════════════════════════════ */
+.account-kpi-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 28px;
+  border: 1px solid var(--color-gray-200);
+}
+.account-kpi-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px 8px;
+  background: #fff;
+  text-align: center;
+}
+.account-kpi-value {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-black);
+}
+.account-kpi-label {
+  font-size: 0.72rem;
+  color: var(--color-gray-500);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+@media (max-width: 480px) {
+  .account-kpi-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .account-kpi-value { font-size: 1.3rem; }
+}

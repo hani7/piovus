@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useWishlistStore } from '../store/wishlistStore'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
-import { LayoutDashboard, Package, MapPin, Settings, LogOut, ChevronRight, Gift } from 'lucide-react'
+import { LayoutDashboard, Package, MapPin, Settings, LogOut, ChevronRight, Gift, Heart } from 'lucide-react'
+import client from '../api/client'
 import './AccountPage.css'
 
 const GOOGLE_CLIENT_ID = "746718168962-ff9ui2vodk8emeioidd6ka5ai1p9qjos.apps.googleusercontent.com"
@@ -11,7 +13,8 @@ const FACEBOOK_APP_ID = "FACEBOOK_APP_ID_PLACEHOLDER"
 export default function AccountPage() {
   const { user, login, register, registerB2B, socialLoginAction, isLoading, error, logout } = useAuthStore()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('login') // 'login', 'register', 'b2b'
+  const [activeTab, setActiveTab] = useState('login')
+  const { items: wishlistItems } = useWishlistStore()
 
   const [loginForm, setLoginForm] = useState({ username: '', password: '' })
   const [registerForm, setRegisterForm] = useState({
@@ -21,12 +24,28 @@ export default function AccountPage() {
     company_name: '', nrc: '', nif: '', first_name: '', last_name: '', username: '', email: '', phone: '', password: '', password2: '', nrc_file: null
   })
 
+  // KPI stats
+  const [kpi, setKpi] = useState({ ordersCount: null, lastOrder: null })
+  useEffect(() => {
+    if (user) {
+      client.get('/orders/').then(res => {
+        const orders = Array.isArray(res.data) ? res.data : (res.data.results || [])
+        const last = orders[0]
+        setKpi({
+          ordersCount: orders.length,
+          lastOrder: last ? { date: last.created_at, status: last.status } : null
+        })
+      }).catch(() => {})
+    }
+  }, [user])
+
   if (user) {
     const navItems = [
       { to: '/compte',            label: 'Tableau de bord', icon: <LayoutDashboard size={18} /> },
       { to: '/compte/commandes',  label: 'Commandes',       icon: <Package size={18} /> },
       { to: '/compte/adresses',   label: 'Adresses',        icon: <MapPin size={18} /> },
       { to: '/compte/fidelite',   label: 'Fidélité',        icon: <Gift size={18} /> },
+      { to: '/compte/favoris',    label: 'Favoris',         icon: <Heart size={18} /> },
       { to: '/compte/parametres', label: 'Paramètres',      icon: <Settings size={18} /> },
     ]
     return (
@@ -70,8 +89,34 @@ export default function AccountPage() {
             <section className="account-content">
               <div className="account-welcome-banner glassmorphism">
                 <div className="banner-text">
-                  <h1>Bienvenue dans votre espace, {user.first_name || user.username}</h1>
-                  <p>Gérez vos commandes, vos adresses et vos préférences depuis ce tableau de bord sécurisé.</p>
+                  <h1>Bienvenue, {user.first_name || user.username} 👋</h1>
+                  <p>Gérez vos commandes, adresses et préférences depuis votre espace personnel.</p>
+                </div>
+              </div>
+
+              {/* KPI Bar */}
+              <div className="account-kpi-bar">
+                <div className="account-kpi-item">
+                  <span className="account-kpi-value">
+                    {kpi.ordersCount === null ? '…' : kpi.ordersCount}
+                  </span>
+                  <span className="account-kpi-label">Commandes</span>
+                </div>
+                <div className="account-kpi-item">
+                  <span className="account-kpi-value" style={{ color: 'var(--color-accent)' }}>
+                    {user.profile?.loyalty_points ?? '—'}
+                  </span>
+                  <span className="account-kpi-label">Points fidélité</span>
+                </div>
+                <div className="account-kpi-item">
+                  <span className="account-kpi-value">{wishlistItems.length}</span>
+                  <span className="account-kpi-label">Favoris</span>
+                </div>
+                <div className="account-kpi-item">
+                  <span className="account-kpi-value" style={{ fontSize: '0.85rem' }}>
+                    {kpi.lastOrder ? new Date(kpi.lastOrder.date).toLocaleDateString('fr-DZ', { day:'2-digit', month:'short' }) : '—'}
+                  </span>
+                  <span className="account-kpi-label">Dernière cmd</span>
                 </div>
               </div>
 
@@ -79,22 +124,36 @@ export default function AccountPage() {
               <div className="account-dashboard__cards">
                 <Link to="/compte/commandes" className="account-card premium-card" id="account-orders">
                   <div className="card-icon-wrapper"><Package size={24} /></div>
-                  <div className="card-info"><h3>Mes Commandes</h3><p>Consulter l'historique et suivre la livraison</p></div>
+                  <div className="card-info">
+                    <h3>Mes Commandes</h3>
+                    <p>{kpi.ordersCount !== null ? `${kpi.ordersCount} commande${kpi.ordersCount !== 1 ? 's' : ''} passée${kpi.ordersCount !== 1 ? 's' : ''}` : 'Consulter l\'historique'}</p>
+                  </div>
                   <ChevronRight size={20} className="card-chevron" />
                 </Link>
                 <Link to="/compte/adresses" className="account-card premium-card">
                   <div className="card-icon-wrapper"><MapPin size={24} /></div>
-                  <div className="card-info"><h3>Mes Adresses</h3><p>Gérer vos adresses de livraison et facturation</p></div>
+                  <div className="card-info"><h3>Mes Adresses</h3><p>Gérer vos adresses de livraison</p></div>
                   <ChevronRight size={20} className="card-chevron" />
                 </Link>
-                <Link to="/compte/parametres" className="account-card premium-card">
-                  <div className="card-icon-wrapper"><Settings size={24} /></div>
-                  <div className="card-info"><h3>Paramètres</h3><p>Modifier vos informations personnelles et mot de passe</p></div>
+                <Link to="/compte/favoris" className="account-card premium-card">
+                  <div className="card-icon-wrapper"><Heart size={24} /></div>
+                  <div className="card-info">
+                    <h3>Mes Favoris</h3>
+                    <p>{wishlistItems.length > 0 ? `${wishlistItems.length} produit${wishlistItems.length > 1 ? 's' : ''} sauvegardé${wishlistItems.length > 1 ? 's' : ''}` : 'Aucun favori pour l\'instant'}</p>
+                  </div>
                   <ChevronRight size={20} className="card-chevron" />
                 </Link>
                 <Link to="/compte/fidelite" className="account-card premium-card">
                   <div className="card-icon-wrapper"><Gift size={24} /></div>
-                  <div className="card-info"><h3>Fidélité &amp; Portefeuille</h3><p>Consulter vos points et vos bons d'achat gagnés</p></div>
+                  <div className="card-info">
+                    <h3>Fidélité &amp; Portefeuille</h3>
+                    <p>{user.profile?.loyalty_points ? `${user.profile.loyalty_points} points cumulés` : 'Consulter vos points et bons d\'achat'}</p>
+                  </div>
+                  <ChevronRight size={20} className="card-chevron" />
+                </Link>
+                <Link to="/compte/parametres" className="account-card premium-card">
+                  <div className="card-icon-wrapper"><Settings size={24} /></div>
+                  <div className="card-info"><h3>Paramètres</h3><p>Modifier vos informations personnelles</p></div>
                   <ChevronRight size={20} className="card-chevron" />
                 </Link>
               </div>

@@ -187,3 +187,48 @@
     font-size: 0.95rem;
   }
 }
+
+/* ── Wishlist Heart Button ───────────────────────────────────── */
+.product-card__wishlist {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-gray-500);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  z-index: 5;
+}
+.product-card__wishlist:hover {
+  transform: scale(1.15);
+  color: var(--color-accent);
+}
+.product-card__wishlist--active {
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+}
+
+/* ── Stock Urgency Badge ─────────────────────────────────────── */
+.badge-stock-low {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+@keyframes pulse-badge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}

@@ -1,13 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
-import { ShoppingBag, Eye, Zap } from 'lucide-react'
+import { useWishlistStore } from '../store/wishlistStore'
+import { ShoppingBag, Eye, Zap, Heart } from 'lucide-react'
 import './ProductCard.css'
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate()
   const addItem = useCartStore((s) => s.addItem)
   const user = useAuthStore((s) => s.user)
+  const { toggle: toggleWishlist, isWishlisted } = useWishlistStore()
 
   const hasVariants = product.variants?.length > 0
   const isPromo = product.is_promo || product.is_promotion
@@ -15,6 +17,8 @@ export default function ProductCard({ product }) {
   const isBestSeller = product.is_bestseller
   const isB2B = user?.profile?.is_b2b
   const b2bPrice = parseFloat(product.b2b_price || product.effective_price * (product.units_per_carton || 1))
+  const wishlisted = isWishlisted(product.id)
+  const isLowStock = product.stock > 0 && product.stock <= 5
 
   const handleAddToCart = (e) => {
     e.preventDefault()
@@ -57,7 +61,17 @@ export default function ProductCard({ product }) {
           {isPromo && <span className="badge badge-promo">Promo</span>}
           {isNew && <span className="badge badge-new">Nouveau</span>}
           {isBestSeller && <span className="badge badge-bestseller">Best Seller</span>}
+          {isLowStock && <span className="badge badge-stock-low">⚡ Plus que {product.stock} en stock</span>}
         </div>
+        {/* Wishlist heart button */}
+        <button
+          className={`product-card__wishlist${wishlisted ? ' product-card__wishlist--active' : ''}`}
+          onClick={(e) => { e.preventDefault(); toggleWishlist(product) }}
+          title={wishlisted ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          aria-label={wishlisted ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+        >
+          <Heart size={16} fill={wishlisted ? 'currentColor' : 'none'} />
+        </button>
       </div>
       <div className="product-card__body">
         <p className="product-card__category">{product.categories?.[0]?.name}</p>

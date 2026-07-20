@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { LayoutDashboard, Package, MapPin, Settings, LogOut, Gift } from 'lucide-react'
+import { LayoutDashboard, Package, MapPin, Settings, LogOut, Gift, Heart } from 'lucide-react'
 import './AccountPage.css'
 
 export default function AccountLayout() {
@@ -20,6 +20,7 @@ export default function AccountLayout() {
     { to: '/compte/commandes',  label: 'Commandes',           icon: <Package size={18} /> },
     { to: '/compte/adresses',   label: 'Adresses',            icon: <MapPin size={18} /> },
     { to: '/compte/fidelite',   label: 'Fidélité',            icon: <Gift size={18} /> },
+    { to: '/compte/favoris',    label: 'Favoris',             icon: <Heart size={18} /> },
     { to: '/compte/parametres', label: 'Paramètres',          icon: <Settings size={18} /> },
   ]
 

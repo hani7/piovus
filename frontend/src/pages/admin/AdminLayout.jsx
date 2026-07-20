@@ -113,50 +113,30 @@ export default function AdminLayout() {
     }
   }
 
-  // === SONNERIE FORTE — alarme multi-bips ===
+  // === SONNERIE DOUCE — carillon mélodique ===
   const playNotificationSound = () => {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)()
-      const masterGain = ctx.createGain()
-      masterGain.connect(ctx.destination)
-      masterGain.gain.setValueAtTime(0.85, ctx.currentTime) // volume fort
 
-      // Séquence: 4 bips courts + 1 bip long final
-      const pattern = [
-        { freq: 1046, start: 0.0,  dur: 0.18 },  // bip 1
-        { freq: 1046, start: 0.28, dur: 0.18 },  // bip 2
-        { freq: 1046, start: 0.56, dur: 0.18 },  // bip 3
-        { freq: 1318, start: 0.84, dur: 0.45 },  // bip grave final (plus long)
+      // 3 notes douces : Do – Mi – Sol (accord majeur)
+      const notes = [
+        { freq: 523.25, start: 0.0  },  // Do5
+        { freq: 659.25, start: 0.22 },  // Mi5
+        { freq: 783.99, start: 0.44 },  // Sol5
       ]
 
-      pattern.forEach(({ freq, start, dur }) => {
+      notes.forEach(({ freq, start }) => {
         const osc = ctx.createOscillator()
-        const g = ctx.createGain()
-        osc.connect(g)
-        g.connect(masterGain)
-        osc.type = 'square'           // onde carrée = son perçant
+        const gain = ctx.createGain()
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.type = 'sine'              // onde sinusoïdale = son doux
         osc.frequency.value = freq
-        g.gain.setValueAtTime(1, ctx.currentTime + start)
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur)
+        gain.gain.setValueAtTime(0, ctx.currentTime + start)
+        gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + start + 0.05)  // montée douce
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + 1.2) // fondu long
         osc.start(ctx.currentTime + start)
-        osc.stop(ctx.currentTime + start + dur + 0.01)
-      })
-
-      // Rejoue 3 fois (total: 3 cycles)
-      const totalDur = 1.4
-      ;[totalDur, totalDur * 2].forEach(offset => {
-        pattern.forEach(({ freq, start, dur }) => {
-          const osc = ctx.createOscillator()
-          const g = ctx.createGain()
-          osc.connect(g)
-          g.connect(masterGain)
-          osc.type = 'square'
-          osc.frequency.value = freq
-          g.gain.setValueAtTime(1, ctx.currentTime + offset + start)
-          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + start + dur)
-          osc.start(ctx.currentTime + offset + start)
-          osc.stop(ctx.currentTime + offset + start + dur + 0.01)
-        })
+        osc.stop(ctx.currentTime + start + 1.3)
       })
     } catch (e) {
       console.warn('Audio non supporté:', e)

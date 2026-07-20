@@ -8,9 +8,9 @@ function Pagination({ page, totalPages, onPage }) {
   const actualTotalPages = Math.max(1, totalPages)
   if (actualTotalPages <= 1) return (
     <div className="admin-pagination">
-      <button className="admin-page-btn" disabled>â€¹</button>
+      <button className="admin-page-btn" disabled>&#8249;</button>
       <button className="admin-page-btn active">1</button>
-      <button className="admin-page-btn" disabled>â€º</button>
+      <button className="admin-page-btn" disabled>&#8250;</button>
     </div>
   )
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -22,13 +22,13 @@ function Pagination({ page, totalPages, onPage }) {
     }, [])
   return (
     <div className="admin-pagination">
-      <button className="admin-page-btn" disabled={page === 1} onClick={() => onPage(page - 1)}>â€¹</button>
+      <button className="admin-page-btn" disabled={page === 1} onClick={() => onPage(page - 1)}>&#8249;</button>
       {pages.map((p, i) =>
         p === '...'
-          ? <span key={`e${i}`} style={{ color: 'var(--admin-text-muted)', padding: '0 4px' }}>â€¦</span>
+          ? <span key={`e${i}`} style={{ color: 'var(--admin-text-muted)', padding: '0 4px' }}>&#8230;</span>
           : <button key={p} className={`admin-page-btn ${p === page ? 'active' : ''}`} onClick={() => onPage(p)}>{p}</button>
       )}
-      <button className="admin-page-btn" disabled={page === totalPages} onClick={() => onPage(page + 1)}>â€º</button>
+      <button className="admin-page-btn" disabled={page === totalPages} onClick={() => onPage(page + 1)}>&#8250;</button>
     </div>
   )
 }
@@ -112,7 +112,7 @@ export default function AdminOrders({ isB2B = false }) {
   }
 
   const handleBulkDelete = async () => {
-    if (!window.confirm(`ÃŠtes-vous sûr de vouloir supprimer les ${selectedIds.length} commande(s) sélectionnée(s) ?`)) return
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer les ${selectedIds.length} commande(s) sélectionnée(s) ?`)) return
     try {
       await adminClient.post('/admin/orders/bulk_delete/', { ids: selectedIds })
       setSelectedIds([])
@@ -247,32 +247,39 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
   const visibleOrders = orders.slice((page - 1) * perPage, page * perPage)
   const allVisibleSelected = visibleOrders.length > 0 && visibleOrders.every(o => selectedIds.includes(o.id))
 
+  const activeOrders = orders.filter(o => o.status !== 'cancelled' && o.status !== 'returned')
   const stats = {
-    total: orders.length,
-    revenue: orders.filter(o => o.status !== 'cancelled' && o.status !== 'returned').reduce((acc, o) => acc + Number(o.total) + Number(o.delivery_cost), 0),
-    pending: orders.filter(o => o.status === 'pending').length,
-    shipped: orders.filter(o => o.status === 'shipped' || o.status === 'fulfilled').length
+    total:     orders.length,
+    revenue:   activeOrders.reduce((acc, o) => acc + Number(o.total) - Number(o.delivery_cost || 0), 0),
+    pending:   orders.filter(o => o.status === 'pending').length,
+    confirmed: orders.filter(o => o.status === 'confirmed').length,
+    shipped:   orders.filter(o => o.status === 'shipped').length,
+    fulfilled: orders.filter(o => o.status === 'fulfilled').length,
+    cancelled: orders.filter(o => o.status === 'cancelled' || o.status === 'returned').length,
+    avgBasket: activeOrders.length > 0
+      ? Math.round(activeOrders.reduce((acc, o) => acc + Number(o.total) - Number(o.delivery_cost || 0), 0) / activeOrders.length)
+      : 0,
   }
+
+  const StatCard = ({ label, value, color, sub }) => (
+    <div style={{ background: 'white', padding: '16px 20px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px' }}>{label}</span>
+      <span style={{ fontSize: '1.45rem', fontWeight: 700, color, marginTop: 2, lineHeight: 1.2 }}>{value}</span>
+      {sub && <span style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: 2 }}>{sub}</span>}
+    </div>
+  )
 
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 20 }}>
-        <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Total Commandes</span>
-          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', marginTop: 4 }}>{stats.total}</span>
-        </div>
-        <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Revenus (Est.)</span>
-          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981', marginTop: 4 }}>{stats.revenue.toLocaleString('fr-DZ')} DA</span>
-        </div>
-        <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>En Attente</span>
-          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b', marginTop: 4 }}>{stats.pending}</span>
-        </div>
-        <div style={{ background: 'white', padding: 20, borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Fulfilled</span>
-          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#3b82f6', marginTop: 4 }}>{stats.shipped}</span>
-        </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
+        <StatCard label="Total Commandes"  value={stats.total}                                                    color="#0f172a" />
+        <StatCard label="Revenus (réels)"  value={`${stats.revenue.toLocaleString('fr-DZ')} DA`}                  color="#10b981" sub="hors annulées / retours" />
+        <StatCard label="Panier Moyen"     value={`${stats.avgBasket.toLocaleString('fr-DZ')} DA`}                color="#6366f1" sub="commandes actives" />
+        <StatCard label="En Attente"       value={stats.pending}                                                  color="#f59e0b" />
+        <StatCard label="Confirmées"       value={stats.confirmed}                                                color="#8b5cf6" />
+        <StatCard label="En Livraison"     value={stats.shipped}                                                  color="#3b82f6" />
+        <StatCard label="Livrées"          value={stats.fulfilled}                                                color="#10b981" />
+        <StatCard label="Annulées / Ret."  value={stats.cancelled}                                                color="#ef4444" sub={stats.total > 0 ? `${Math.round(stats.cancelled/stats.total*100)}% taux annulation` : ''} />
       </div>
 
       <div className="admin-page-header">

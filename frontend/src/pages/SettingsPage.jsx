@@ -59,8 +59,8 @@ export default function SettingsPage() {
 
   return (
     <div className="page-enter" style={{ paddingBottom: 32 }}>
-      <h1 style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '1.6rem', fontWeight: 600, marginBottom: 24 }}>
-        <Settings size={24} /> Paramètres
+      <h1 style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 'clamp(1.1rem, 5vw, 1.4rem)', fontWeight: 600, marginBottom: 24 }}>
+        <Settings size={22} /> Paramètres
       </h1>
 
       {/* Stacked layout — works on all screens */}

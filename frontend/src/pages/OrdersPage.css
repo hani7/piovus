@@ -1,6 +1,6 @@
 .orders-page { width: 100%; padding-bottom: 40px; min-height: 40vh; }
-.orders-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--color-gray-200); }
-.orders-title { font-family: var(--font-serif); font-size: 2rem; font-weight: 500; }
+.orders-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--color-gray-200); }
+.orders-title { font-family: var(--font-serif); font-size: clamp(1.1rem, 5vw, 1.4rem); font-weight: 600; }
 
 .orders-empty { text-align: center; padding: 60px 0; background: var(--color-gray-100); border-radius: var(--radius-lg); }
 .orders-empty p { margin-bottom: 24px; color: var(--color-gray-500); }

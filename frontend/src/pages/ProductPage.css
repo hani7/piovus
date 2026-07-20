@@ -410,3 +410,34 @@
   padding-left: 10px;
 }
 
+/* ── Wishlist button on ProductPage ─────────────────────────── */
+.product-info__wishlist-btn {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  background: #fff;
+  color: var(--color-gray-500);
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+.product-info__wishlist-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: scale(1.06);
+}
+.product-info__wishlist-btn--active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+.product-info__wishlist-btn svg {
+  transition: transform 0.2s ease;
+}
+.product-info__wishlist-btn:active svg {
+  transform: scale(1.3);
+}

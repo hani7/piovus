@@ -3,6 +3,7 @@ import { useParams, Link, useLocation } from 'react-router-dom'
 import { getProduct, getRelatedProducts } from '../api/products'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
+import { useWishlistStore } from '../store/wishlistStore'
 import ProductCard from '../components/ProductCard'
 import './ProductPage.css'
 
@@ -25,6 +26,7 @@ export default function ProductPage() {
   const addItem = useCartStore((s) => s.addItem)
   const user = useAuthStore((s) => s.user)
   const isB2B = user?.profile?.is_b2b
+  const { toggle: toggleWishlist, isWishlisted } = useWishlistStore()
 
   // Prix effectif : prix de la variante si disponible, sinon prix promo ou prix produit
   const displayPrice = selectedVariant?.price
@@ -424,6 +426,18 @@ export default function ProductPage() {
                 id="add-to-cart-btn"
               >
                 {added ? '✓ Ajouté au panier' : 'Ajouter au panier'}
+              </button>
+              {/* Wishlist toggle button */}
+              <button
+                className={`product-info__wishlist-btn${isWishlisted(product.id) ? ' product-info__wishlist-btn--active' : ''}`}
+                onClick={() => toggleWishlist(product)}
+                title={isWishlisted(product.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                aria-label={isWishlisted(product.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                id="wishlist-product-btn"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={isWishlisted(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.8">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
               </button>
             </div>
 

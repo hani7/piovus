@@ -75,9 +75,6 @@ export default function AddressesPage() {
         <h1 className="orders-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <MapPin size={28} /> Mes Adresses
         </h1>
-        <Link to="/compte" className="btn btn-outline" id="orders-back-btn">
-          <ArrowLeft size={16} style={{ marginRight: 8 }} /> Retour au compte
-        </Link>
       </div>
 
       <div style={{ maxWidth: '600px', margin: '40px auto 0', background: '#fff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid var(--color-gray-200)' }}>

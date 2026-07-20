@@ -16,47 +16,69 @@ export default function AccountLayout() {
   if (!user) return null
 
   const navItems = [
-    { to: '/compte',            label: 'Tableau de bord',     icon: <LayoutDashboard size={20} /> },
-    { to: '/compte/commandes',  label: 'Mes Commandes',       icon: <Package size={20} /> },
-    { to: '/compte/adresses',   label: 'Mes Adresses',        icon: <MapPin size={20} /> },
-    { to: '/compte/fidelite',   label: 'Fidélité & Portefeuille', icon: <Gift size={20} /> },
-    { to: '/compte/parametres', label: 'Paramètres',          icon: <Settings size={20} /> },
+    { to: '/compte',            label: 'Tableau de bord',     icon: <LayoutDashboard size={18} /> },
+    { to: '/compte/commandes',  label: 'Commandes',           icon: <Package size={18} /> },
+    { to: '/compte/adresses',   label: 'Adresses',            icon: <MapPin size={18} /> },
+    { to: '/compte/fidelite',   label: 'Fidélité',            icon: <Gift size={18} /> },
+    { to: '/compte/parametres', label: 'Paramètres',          icon: <Settings size={18} /> },
   ]
 
   return (
-    <main className="account-page page-enter container" style={{ paddingTop: '120px' }}>
-      <div className="account-dashboard-wrapper">
+    <main className="account-page page-enter" style={{ paddingTop: '80px' }}>
+      <div className="container">
 
-        {/* Sidebar */}
-        <aside className="account-sidebar">
-          <div className="account-sidebar__profile">
-            <div className="account-avatar-large">
-              {user.first_name?.charAt(0) || user.username?.charAt(0)}
+        {/* ── Mobile tab bar ────────────────────────── */}
+        <div className="account-tab-bar">
+          {navItems.map(({ to, label, icon }) => (
+            <Link
+              key={to}
+              to={to}
+              className={`account-tab-item ${pathname === to ? 'active' : ''}`}
+            >
+              {icon}
+              <span>{label}</span>
+            </Link>
+          ))}
+          <button className="account-tab-item text-danger" onClick={logout}>
+            <LogOut size={18} />
+            <span>Sortir</span>
+          </button>
+        </div>
+
+        {/* ── Desktop layout ────────────────────────── */}
+        <div className="account-dashboard-wrapper">
+
+          {/* Sidebar (desktop only) */}
+          <aside className="account-sidebar account-sidebar--desktop">
+            <div className="account-sidebar__profile">
+              <div className="account-avatar-large">
+                {user.first_name?.charAt(0) || user.username?.charAt(0)}
+              </div>
+              <h3>{user.first_name || user.username}</h3>
+              <p>{user.email}</p>
             </div>
-            <h3>{user.first_name || user.username}</h3>
-            <p>{user.email}</p>
-          </div>
-          <nav className="account-sidebar__nav">
-            {navItems.map(({ to, label, icon }) => (
-              <Link
-                key={to}
-                to={to}
-                className={`account-nav-item ${pathname === to ? 'active' : ''}`}
-              >
-                {icon} {label}
-              </Link>
-            ))}
-            <button className="account-nav-item text-danger" onClick={logout}>
-              <LogOut size={20} /> Déconnexion
-            </button>
-          </nav>
-        </aside>
+            <nav className="account-sidebar__nav">
+              {navItems.map(({ to, label, icon }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`account-nav-item ${pathname === to ? 'active' : ''}`}
+                >
+                  {icon} {label}
+                </Link>
+              ))}
+              <button className="account-nav-item text-danger" onClick={logout}>
+                <LogOut size={20} /> Déconnexion
+              </button>
+            </nav>
+          </aside>
 
-        {/* Page content */}
-        <section className="account-content">
-          <Outlet />
-        </section>
+          {/* Page content */}
+          <section className="account-content">
+            <Outlet />
+          </section>
 
+        </div>
       </div>
     </main>
   )

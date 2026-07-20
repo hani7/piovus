@@ -21,9 +21,8 @@ export default function OrdersPage() {
 
   return (
     <div className="orders-page page-enter">
-      <div className="orders-header" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
+      <div className="orders-header" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
         <h1 className="orders-title">Mes Commandes</h1>
-        <Link to="/compte" className="btn btn-outline" id="orders-back-btn" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>← Retour au compte</Link>
       </div>
 
       {loading ? (

@@ -361,13 +361,60 @@
   transform: translateX(4px);
 }
 
+/* ── Mobile Tab Bar ──────────────────────────────────────── */
+.account-tab-bar {
+  display: none; /* hidden on desktop */
+}
+
 @media (max-width: 900px) {
+  /* Show tab bar on mobile */
+  .account-tab-bar {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 10px 0 12px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--color-gray-200);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .account-tab-bar::-webkit-scrollbar { display: none; }
+
+  .account-tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    border-radius: var(--radius-full);
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--color-gray-600);
+    background: var(--color-gray-100);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+  .account-tab-item.active {
+    background: var(--color-black);
+    color: white;
+  }
+  .account-tab-item.text-danger {
+    color: #ef4444;
+    background: #fef2f2;
+  }
+
+  /* Hide desktop sidebar on mobile */
+  .account-sidebar--desktop {
+    display: none;
+  }
+
+  /* Full width content on mobile */
   .account-dashboard-wrapper {
     flex-direction: column;
-  }
-  .account-sidebar {
-    width: 100%;
-    position: static;
   }
   .account-welcome-banner {
     padding: 30px 20px;

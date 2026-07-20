@@ -34,7 +34,7 @@ function Pagination({ page, totalPages, onPage }) {
 
 const STATUS_LABELS = {
   pending: 'En attente', confirmed: 'Confirmé',
-  shipped: 'En livraison', fulfilled: 'Fulfilled', cancelled: 'Annulée', returned: 'Retournée',
+  shipped: 'En livraison', fulfilled: 'Livrée', cancelled: 'Annulée', returned: 'Retournée',
 }
 
 const STATUS_BADGE = {
@@ -85,7 +85,14 @@ export default function AdminOrderHistory({ isB2B = false }) {
   return (
     <div>
       <div className="admin-page-header">
-        <h2 style={{ fontSize: '1.3rem', fontWeight: 700 }}>Historique Complet des Commandes {isB2B ? 'B2B' : ''}</h2>
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 700 }}>
+          Historique Complet des Commandes {isB2B ? 'B2B' : ''}
+          {!loading && (
+            <span style={{ fontSize: '0.82rem', fontWeight: 400, color: 'var(--admin-text-muted)', marginLeft: 10 }}>
+              {orders.length} commande{orders.length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </h2>
         <div style={{ display: 'flex', gap: '12px' }}>
             <button className="btn" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: '0.8rem', background: '#3b82f6', color: 'white', borderRadius: 50, border: 'none', whiteSpace: 'nowrap', cursor: 'pointer' }} onClick={load}>
               <RefreshCw size={14}/> Rafraîchir

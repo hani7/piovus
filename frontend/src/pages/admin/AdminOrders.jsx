@@ -35,7 +35,7 @@ function Pagination({ page, totalPages, onPage }) {
 
 const STATUS_LABELS = {
   pending: 'En attente', confirmed: 'Confirmé',
-  shipped: 'En livraison', fulfilled: 'Fulfilled', cancelled: 'Annulée', returned: 'Retournée',
+  shipped: 'En livraison', fulfilled: 'Livrée', cancelled: 'Annulée', returned: 'Retournée',
 }
 
 const STATUS_BADGE = {

@@ -210,7 +210,7 @@ export default function AdminReports() {
             <option value="pending">En attente</option>
             <option value="confirmed">Confirmé</option>
             <option value="shipped">En livraison</option>
-            <option value="fulfilled">Fulfilled</option>
+            <option value="fulfilled">Livrée</option>
             <option value="cancelled">Annulée</option>
             <option value="returned">Retournée</option>
           </select>
@@ -335,7 +335,7 @@ export default function AdminReports() {
                   <th style={{ textAlign: 'center' }}>En attente</th>
                   <th style={{ textAlign: 'center' }}>Confirmé</th>
                   <th style={{ textAlign: 'center' }}>En livraison</th>
-                  <th style={{ textAlign: 'center' }}>Livrée et Payée</th>
+                  <th style={{ textAlign: 'center' }}>Fulfilled</th>
                   <th style={{ textAlign: 'center' }}>Annulée</th>
                   <th style={{ textAlign: 'center' }}>Retournée</th>
                   <th style={{ textAlign: 'center', background: '#f1f5f9' }}>Total Cmds</th>
@@ -366,23 +366,25 @@ export default function AdminReports() {
       )}
       {/* Source Stats */}
       {!loading && sourceStats.length > 0 && (() => {
-        const total = sourceStats.reduce((acc, s) => acc + s.count, 0)
+        // Group by main source to avoid duplicates (e.g. Direct×2, Facebook×N)
+        const grouped = sourceStats.reduce((acc, s) => {
+          const main = s.source.split(' | ')[0]
+          if (!acc[main]) acc[main] = { source: main, count: 0, revenue: 0 }
+          acc[main].count += s.count
+          acc[main].revenue += s.revenue
+          return acc
+        }, {})
+        const mergedStats = Object.values(grouped).sort((a, b) => b.count - a.count)
+        const total = mergedStats.reduce((acc, s) => acc + s.count, 0)
         const SOURCE_COLORS = { fb: '#1877f2', ig: '#e1306c', direct: '#6366f1', referral: '#10b981', google: '#34a853', tiktok: '#010101' }
         return (
           <div className="admin-card" style={{ padding: '24px', marginBottom: '24px' }}>
             <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', fontWeight: 600, color: '#0f172a' }}>Origine des commandes</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {sourceStats.map(s => {
+              {mergedStats.map(s => {
                 const pct = total > 0 ? Math.round((s.count / total) * 100) : 0
-                
-                const parts = s.source.split(' | ')
-                const main = parts[0]
-                const extras = parts.slice(1).join(' / ')
-                
-                const color = SOURCE_COLORS[main] || '#64748b'
-                let baseLabel = main === 'fb' ? 'Facebook' : main === 'ig' ? 'Instagram' : main === 'direct' ? 'Direct' : main === 'referral' ? 'Référent' : main
-                const label = extras ? `${baseLabel} (${extras})` : baseLabel
-                
+                const color = SOURCE_COLORS[s.source] || '#64748b'
+                const label = s.source === 'fb' ? 'Facebook' : s.source === 'ig' ? 'Instagram' : s.source === 'direct' ? 'Direct' : s.source === 'referral' ? 'Référent' : s.source === 'google' ? 'Google' : s.source === 'tiktok' ? 'TikTok' : s.source
                 return (
                   <div key={s.source}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, alignItems: 'center' }}>
@@ -469,7 +471,7 @@ export default function AdminReports() {
                   <th style={{ textAlign: 'center' }}>En attente</th>
                   <th style={{ textAlign: 'center' }}>Confirmé</th>
                   <th style={{ textAlign: 'center' }}>En livraison</th>
-                  <th style={{ textAlign: 'center' }}>Livrée et Payée</th>
+                  <th style={{ textAlign: 'center' }}>Fulfilled</th>
                   <th style={{ textAlign: 'center' }}>Annulée</th>
                   <th style={{ textAlign: 'center' }}>Retournée</th>
                   <th style={{ textAlign: 'center', background: '#f1f5f9' }}>Total Cmds</th>

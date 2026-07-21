@@ -2539,18 +2539,23 @@ def satim_callback(request):
         if order_id_piove:
             try:
                 o = Order.objects.get(id=order_id_piove)
-                o.status = 'cancelled'
-                o.save(update_fields=['status'])
+                if o.payment_status != 'paid':
+                    o.status = 'cancelled'
+                    o.save(update_fields=['status'])
             except Order.DoesNotExist:
                 pass
         return redirect_to('cancelled', reason='missing_params')
-
-    confirm_res = confirm_order(order_id_satim)
 
     try:
         order = Order.objects.get(id=order_id_piove)
     except Order.DoesNotExist:
         return redirect_to('fail', reason='order_not_found')
+
+    # If the order is already marked as paid (e.g. user refreshed the callback page), just return success
+    if order.payment_status == 'paid':
+        return redirect_to('success')
+
+    confirm_res = confirm_order(order_id_satim)
 
     if confirm_res.get('success'):
         if order.payment_status != 'paid':

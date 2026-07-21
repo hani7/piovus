@@ -161,6 +161,8 @@ def confirm_order(satim_order_id):
 
         if str(error_code) != '0':
             msg = data.get('ErrorMessage') or data.get('errorMessage') or 'Erreur de paiement SATIM.'
+            if 'already confirmed' in str(msg).lower() or 'already paid' in str(msg).lower():
+                return {'success': True, 'data': data, 'already_confirmed': True}
             return {'success': False, 'message': msg, 'raw': data}
 
         if str(order_status) == '2':

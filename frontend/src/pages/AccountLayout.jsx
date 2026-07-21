@@ -28,23 +28,24 @@ export default function AccountLayout() {
     <main className="account-page page-enter" style={{ paddingTop: '80px' }}>
       <div className="container">
 
-        {/* ── Mobile tab bar ────────────────────────── */}
-        <div className="account-tab-bar">
+        {/* ── Mobile tab bar ──────────────── */}
+        <nav className="account-tab-bar" aria-label="Navigation du compte">
           {navItems.map(({ to, label, icon }) => (
             <Link
               key={to}
               to={to}
               className={`account-tab-item ${pathname === to ? 'active' : ''}`}
+              aria-current={pathname === to ? 'page' : undefined}
             >
               {icon}
               <span>{label}</span>
             </Link>
           ))}
-          <button className="account-tab-item text-danger" onClick={logout}>
-            <LogOut size={18} />
+          <button className="account-tab-item text-danger" onClick={logout} aria-label="Se déconnecter">
+            <LogOut size={18} aria-hidden="true" />
             <span>Sortir</span>
           </button>
-        </div>
+        </nav>
 
         {/* ── Desktop layout ────────────────────────── */}
         <div className="account-dashboard-wrapper">
@@ -58,18 +59,19 @@ export default function AccountLayout() {
               <h3>{user.first_name || user.username}</h3>
               <p>{user.email}</p>
             </div>
-            <nav className="account-sidebar__nav">
+            <nav className="account-sidebar__nav" aria-label="Navigation du compte">
               {navItems.map(({ to, label, icon }) => (
                 <Link
                   key={to}
                   to={to}
                   className={`account-nav-item ${pathname === to ? 'active' : ''}`}
+                  aria-current={pathname === to ? 'page' : undefined}
                 >
                   {icon} {label}
                 </Link>
               ))}
-              <button className="account-nav-item text-danger" onClick={logout}>
-                <LogOut size={20} /> Déconnexion
+              <button className="account-nav-item text-danger" onClick={logout} aria-label="Se déconnecter">
+                <LogOut size={20} aria-hidden="true" /> Déconnexion
               </button>
             </nav>
           </aside>

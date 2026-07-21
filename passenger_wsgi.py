@@ -1,4 +1,4 @@
-# restart: 2026-07-21T11:35
+﻿# restart: 2026-07-21T11:39
 import os
 import sys
 import io
@@ -15,37 +15,25 @@ try:
     except Exception:
         pass
 
-    # Auto git pull on every restart
+    # Force sync with remote â€” avoids conflicts from untracked/modified files
     try:
         _repo_dir = os.path.dirname(os.path.abspath(__file__))
-        _pull_result = subprocess.run(
-            ['git', 'pull', 'origin', 'main'],
-            cwd=_repo_dir,
-            capture_output=True, text=True, timeout=30
-        )
+        # Fetch latest code
+        subprocess.run(['git', 'fetch', 'origin', 'main'], cwd=_repo_dir, capture_output=True, timeout=30)
+        # Hard reset to remote HEAD (removes any local changes/conflicts)
+        _reset = subprocess.run(['git', 'reset', '--hard', 'origin/main'], cwd=_repo_dir, capture_output=True, text=True, timeout=30)
+        # Remove untracked files and dirs (e.g. stale views/ package dirs)
+        subprocess.run(['git', 'clean', '-fd'], cwd=_repo_dir, capture_output=True, timeout=30)
         with open(LOG_PATH, 'a') as _f:
-            _f.write(f"\n[git pull] stdout: {_pull_result.stdout.strip()}\n")
-            _f.write(f"[git pull] stderr: {_pull_result.stderr.strip()}\n")
+            _f.write(f"\n[git reset] {_reset.stdout.strip()}\n")
+            if _reset.returncode != 0:
+                _f.write(f"[git reset] ERROR: {_reset.stderr.strip()}\n")
     except Exception as _e:
         try:
             with open(LOG_PATH, 'a') as _f:
-                _f.write(f"\n[git pull] FAILED: {_e}\n")
+                _f.write(f"\n[git sync] FAILED: {_e}\n")
         except Exception:
             pass
-
-    # Clear stale __pycache__ for pioveapp.views to prevent conflicts
-    # between old views.pyc and the new views/ package after git pull
-    try:
-        import glob
-        _app_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pioveapp')
-        _stale = glob.glob(os.path.join(_app_dir, '__pycache__', 'views.cpython-*.pyc'))
-        for _f_path in _stale:
-            os.remove(_f_path)
-        if _stale:
-            with open(LOG_PATH, 'a') as _f:
-                _f.write(f"[pycache] Removed {len(_stale)} stale views.pyc file(s)\n")
-    except Exception:
-        pass
 
 
     try:
@@ -126,3 +114,4 @@ except Exception:
     def application(environ, start_response):
         start_response('500 Internal Server Error', [('Content-Type', 'text/plain')])
         return [b"CRITICAL WSGI GLOBAL ERROR:\n\n" + traceback.format_exc().encode('utf-8')]
+

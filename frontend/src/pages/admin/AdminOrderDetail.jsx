@@ -1,7 +1,7 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import adminClient from '../../api/adminClient'
-import { Printer, RefreshCw } from 'lucide-react'
+import { Printer, RefreshCw, Edit2 } from 'lucide-react'
 
 const STATUS_LABELS = {
   pending: 'En attente', confirmed: 'Confirmé',
@@ -182,7 +182,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
         </button>
         <div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 700, margin: 0, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            DÃ©tails Commande
+            Détails Commande
             <span style={{
               background: '#cc0000', color: '#fff', borderRadius: 50,
               padding: '3px 16px', fontSize: '1.1rem', fontWeight: 800,
@@ -190,7 +190,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
             }}>#{detail.id}</span>
           </h2>
           <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 4 }}>
-            {detail.payment_method === 'cib' ? 'Paiement en ligne (CIB/Edahabia)' : 'Paiement Ã  la livraison'} â€” {new Date(detail.created_at).toLocaleString('fr-DZ')}
+            {detail.payment_method === 'cib' ? 'Paiement en ligne (CIB/Edahabia)' : 'Paiement à la livraison'} — {new Date(detail.created_at).toLocaleString('fr-DZ')}
           </div>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -211,7 +211,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
           ) : (
              <>
                <button className="admin-btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, display: 'flex', alignItems: 'center', border: 'none' }} onClick={handleMylerzShip} disabled={mylerzLoading}>
-                 EXPÃ‰DIER
+                 EXPÉDIER
                </button>
              </>
           )}
@@ -220,7 +220,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', fontSize: '0.85rem', background: '#10b981', color: '#fff', border: 'none', borderRadius: 20, cursor: 'pointer', fontWeight: 600 }}
             onClick={openEdit}
           >
-            âœï¸ Modifier
+            ✏️ Modifier
           </button>
           <button 
             className="btn" 
@@ -242,9 +242,9 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
           {/* 4 Info Cards Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
 
-            {/* GÃ©nÃ©ral */}
+            {/* Général */}
             <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>GÃ©nÃ©ral</h4>
+              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>Général</h4>
               <div style={{ fontSize: '0.88rem', marginBottom: 7, display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#64748b' }}>Date</span>
                 <span style={{ fontWeight: 600 }}>{new Date(detail.created_at).toLocaleDateString('fr-DZ', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
@@ -259,7 +259,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                   background: detail.user ? '#e0f2fe' : '#f1f5f9',
                   color: detail.user ? '#0369a1' : '#475569',
                   borderRadius: 20, padding: '2px 10px', fontSize: '0.78rem', fontWeight: 700
-                }}>{detail.user ? 'Inscrit' : 'InvitÃ©'}</span>
+                }}>{detail.user ? 'Inscrit' : 'Invité'}</span>
               </div>
               <div style={{ fontSize: '0.88rem', marginBottom: 7, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: '#64748b' }}>Paiement</span>
@@ -277,12 +277,12 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               )}
               {detail.discount_amount > 0 && (
                 <div style={{ fontSize: '0.88rem', marginBottom: 7, display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#64748b' }}>RÃ©duction</span>
+                  <span style={{ color: '#64748b' }}>Réduction</span>
                   <span style={{ fontWeight: 700, color: '#10b981' }}>- {Number(detail.discount_amount).toLocaleString('fr-DZ')} DA</span>
                 </div>
               )}
               <div style={{ fontSize: '0.88rem', marginTop: 14 }}>
-                <strong style={{ color: '#475569', display: 'block', marginBottom: 4 }}>Changer l'Ã©tat:</strong>
+                <strong style={{ color: '#475569', display: 'block', marginBottom: 4 }}>Changer l'état:</strong>
                 <select className="status-select" value={detail.status} onChange={e => handleStatus(e.target.value)} style={{ width: '100%', padding: 8 }}>
                   {Object.entries(STATUS_LABELS).map(([v, l]) => (
                     <option key={v} value={v}>{l}</option>
@@ -293,39 +293,50 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
 
             {/* Facturation */}
             <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>Client</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>
+                <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', margin: 0 }}>Client</h4>
+                <button onClick={openEdit} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', display: 'flex', alignItems: 'center' }} title="Modifier">
+                  <Edit2 size={14} />
+                </button>
+              </div>
               <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1e293b', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
                 {detail.customer_name}
                 {detail.is_blacklisted && <span className="badge badge-danger" style={{ fontSize: '0.6rem', padding: '2px 5px', borderRadius: 4 }}>BLACKLIST</span>}
               </div>
               <div style={{ fontSize: '0.88rem', color: '#475569', marginBottom: 10 }}>{detail.shipping_address}</div>
-              <div style={{ fontSize: '0.88rem', color: '#475569', marginBottom: 12, fontWeight: 600 }}>{detail.wilaya} â€” {detail.city}</div>
+              <div style={{ fontSize: '0.88rem', color: '#475569', marginBottom: 12, fontWeight: 600 }}>{detail.wilaya} — {detail.city}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.88rem', color: '#0f172a' }}>
                   <svg viewBox="0 0 24 24" width="13" height="13" stroke="#64748b" strokeWidth="2" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                  {detail.guest_email || <span style={{ color: '#94a3b8' }}>â€”</span>}
+                  {detail.guest_email || <span style={{ color: '#94a3b8' }}>—</span>}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.88rem', color: '#0f172a', fontWeight: 600 }}>
                   <svg viewBox="0 0 24 24" width="13" height="13" stroke="#64748b" strokeWidth="2" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                  {detail.guest_phone || <span style={{ color: '#94a3b8', fontWeight: 400 }}>â€”</span>}
+                  {detail.guest_phone || <span style={{ color: '#94a3b8', fontWeight: 400 }}>—</span>}
                 </div>
+                {detail.guest_phone2 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.88rem', color: '#0f172a', fontWeight: 600 }}>
+                    <svg viewBox="0 0 24 24" width="13" height="13" stroke="#10b981" strokeWidth="2" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    {detail.guest_phone2}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* ExpÃ©dition */}
+            {/* Expédition */}
             <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>ExpÃ©dition</h4>
+              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>Expédition</h4>
               <div style={{ fontSize: '0.88rem', color: '#475569', marginBottom: 4 }}>{detail.shipping_address}</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', marginBottom: 16 }}>{detail.wilaya} â€” {detail.city}</div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', marginBottom: 16 }}>{detail.wilaya} — {detail.city}</div>
               <div style={{ background: '#f8fafc', padding: 10, borderRadius: 6, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div>
                   <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Transporteur</div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', marginTop: 2 }}>{detail.delivery_company_name || 'Non spÃ©cifiÃ©'}</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', marginTop: 2 }}>{detail.delivery_company_name || 'Non spécifié'}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Type</div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', marginTop: 2 }}>
-                    {detail.delivery_type === 'desk' ? 'ðŸ¢ Point de retrait' : 'ðŸ  Ã€ domicile'}
+                    {detail.delivery_type === 'desk' ? '🏢 Point de retrait' : '🏠 À domicile'}
                   </div>
                 </div>
                 {detail.mylerz_barcode && (
@@ -337,9 +348,9 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               </div>
             </div>
 
-            {/* RÃ©sumÃ© Financier */}
+            {/* Résumé Financier */}
             <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>RÃ©sumÃ© Financier</h4>
+              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>Résumé Financier</h4>
               {(()=>{
                 const subtotal = Number(detail.total)
                 const delivery = Number(detail.delivery_cost || 0)
@@ -356,12 +367,12 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                   <>
                     <Row label="Produits" value={`${productsOnly.toLocaleString('fr-DZ')} DA`} />
                     <Row label="Livraison" value={`${delivery.toLocaleString('fr-DZ')} DA`} />
-                    {discount > 0 && <Row label="RÃ©duction" value={`- ${discount.toLocaleString('fr-DZ')} DA`} color="#10b981" />}
+                    {discount > 0 && <Row label="Réduction" value={`- ${discount.toLocaleString('fr-DZ')} DA`} color="#10b981" />}
                     <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 8, marginTop: 4 }}>
                       <Row label="Total" value={`${subtotal.toLocaleString('fr-DZ')} DA`} bold />
                     </div>
                     <div style={{ marginTop: 10, background: '#0f172a', color: '#fff', borderRadius: 10, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>BÃ©nÃ©fice net</span>
+                      <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>Bénéfice net</span>
                       <span style={{ fontWeight: 800, fontSize: '1rem', color: '#4ade80' }}>{productsOnly.toLocaleString('fr-DZ')} DA</span>
                     </div>
                   </>
@@ -378,7 +389,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                 <tr>
                   <th colSpan="2" style={{ paddingLeft: 20 }}>Article</th>
                   <th style={{ textAlign: 'right' }}>Prix Unitaire</th>
-                  <th style={{ textAlign: 'center' }}>QtÃ©</th>
+                  <th style={{ textAlign: 'center' }}>Qté</th>
                   <th style={{ textAlign: 'right', paddingRight: 20 }}>Total</th>
                 </tr>
               </thead>
@@ -399,7 +410,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                       {item.variant_name && <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 2 }}>Variante: {item.variant_name}</div>}
                     </td>
                     <td style={{ textAlign: 'right', color: '#475569', fontSize: '0.9rem' }}>{Number(item.price_at_purchase).toLocaleString('fr-DZ')} DA</td>
-                    <td style={{ textAlign: 'center', fontWeight: 500 }}>Ã— {item.quantity}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 500 }}>× {item.quantity}</td>
                     <td style={{ textAlign: 'right', fontWeight: 600, color: '#0f172a', paddingRight: 20 }}>{Number(item.subtotal).toLocaleString('fr-DZ')} DA</td>
                   </tr>
                 ))}
@@ -424,7 +435,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, fontSize: '0.95rem', color: '#475569', fontWeight: 600 }}>
                   <span>Mode de paiement:</span>
                   <span style={{ color: detail.payment_method === 'cib' ? 'var(--color-accent)' : 'inherit' }}>
-                    {detail.payment_method === 'cib' ? 'CIB ou Edahabia' : 'Ã€ la livraison (Cash)'}
+                    {detail.payment_method === 'cib' ? 'CIB ou Edahabia' : 'À la livraison (Cash)'}
                   </span>
                 </div>
               </div>
@@ -510,10 +521,10 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
              ) : (
                <div>
                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 12 }}>
-                   Aucun colis gÃ©nÃ©rÃ© pour cette commande.
+                   Aucun colis généré pour cette commande.
                  </div>
                  <button className="btn" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, background: '#3b82f6', color: 'white', borderRadius: 50, border: 'none', padding: '10px 0' }} onClick={handleMylerzShip} disabled={mylerzLoading}>
-                   ExpÃ©dier
+                   Expédier
                  </button>
                </div>
              )}
@@ -556,7 +567,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                 {detail.notes}
               </div>
             ) : (
-              <div style={{ color: '#94a3b8', fontSize: '0.9rem', fontStyle: 'italic' }}>Aucune note laissÃ©e par le client.</div>
+              <div style={{ color: '#94a3b8', fontSize: '0.9rem', fontStyle: 'italic' }}>Aucune note laissée par le client.</div>
             )}
           </div>
 
@@ -568,7 +579,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               direct:   { label: 'Direct',     color: '#6366f1', bg: '#eef2ff' },
               google:   { label: 'Google',     color: '#34a853', bg: '#e6f4ea' },
               tiktok:   { label: 'TikTok',     color: '#010101', bg: '#f1f5f9' },
-              referral: { label: 'RÃ©fÃ©rent',   color: '#10b981', bg: '#ecfdf5' },
+              referral: { label: 'Référent',   color: '#10b981', bg: '#ecfdf5' },
             }
             const raw = detail.source || ''
             const parts = raw.split(' | ')
@@ -609,9 +620,9 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                   </span>
                 </div>
 
-                {medium && <Row label="MÃ©dium" value={medium === 'paid' ? 'ðŸ’° Payant (paid)' : medium} />}
+                {medium && <Row label="Médium" value={medium === 'paid' ? '💰 Payant (paid)' : medium} />}
                 {campaign && <Row label="Campaign ID" value={campaign} mono />}
-                <Row label="Facebook Click" value={hasFbclid ? 'âœ… Oui (fbclid dÃ©tectÃ©)' : 'â€” Non'} />
+                <Row label="Facebook Click" value={hasFbclid ? '✅ Oui (fbclid détecté)' : '— Non'} />
                 {referrer && <Row label="Referrer" value={referrer} mono />}
 
                 {!raw && (
@@ -634,7 +645,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
 
     </div>
 
-    {/* â”€â”€ EDIT PANEL MODAL â”€â”€ */}
+    {/* ── EDIT PANEL MODAL ── */}
     {showEdit && (
       <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex' }}>
         {/* Backdrop */}
@@ -651,10 +662,10 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
           {/* Header */}
           <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc' }}>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#1e293b' }}>âœï¸ Modifier la commande #{id}</h3>
-              <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', marginTop: 2 }}>Les modifications sont sauvegardÃ©es immÃ©diatement</p>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#1e293b' }}>✏️ Modifier la commande #{id}</h3>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', marginTop: 2 }}>Les modifications sont sauvegardées immédiatement</p>
             </div>
-            <button onClick={() => setShowEdit(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#64748b', fontSize: '1.3rem' }}>âœ•</button>
+            <button onClick={() => setShowEdit(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#64748b', fontSize: '1.3rem' }}>✕</button>
           </div>
 
           {/* Body */}
@@ -680,7 +691,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                 ))}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>ðŸ“ž TÃ©lÃ©phone 1</label>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>📞 Téléphone 1</label>
                     <input
                       type="tel"
                       value={editForm.guest_phone || ''}
@@ -689,12 +700,12 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#10b981', display: 'block', marginBottom: 4 }}>ðŸ“ž TÃ©lÃ©phone 2 (optionnel)</label>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#10b981', display: 'block', marginBottom: 4 }}>📞 Téléphone 2 (optionnel)</label>
                     <input
                       type="tel"
                       value={editForm.guest_phone2 || ''}
                       onChange={e => setEditForm({ ...editForm, guest_phone2: e.target.value })}
-                      placeholder="2Ã¨me numÃ©ro"
+                      placeholder="2ème numéro"
                       style={{ width: '100%', padding: '8px 12px', border: '1px solid #a7f3d0', borderRadius: 8, fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: '#f0fdf4' }}
                     />
                   </div>
@@ -707,7 +718,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', marginBottom: 12 }}>Adresse de livraison</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Adresse complÃ¨te</label>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Adresse complète</label>
                   <textarea
                     rows={2}
                     value={editForm.shipping_address || ''}
@@ -740,7 +751,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
 
             {/* ITEMS */}
             <section>
-              <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', marginBottom: 12 }}>Articles (quantitÃ© = 0 pour supprimer)</h4>
+              <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', marginBottom: 12 }}>Articles (quantité = 0 pour supprimer)</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {editItems.map((item, i) => (
                   <div key={item.id} style={{
@@ -757,7 +768,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                       <button
                         onClick={() => setEditItems(editItems.map((it, j) => j === i ? { ...it, _qty: Math.max(0, Number(it._qty) - 1) } : it))}
                         style={{ width: 28, height: 28, border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}
-                      >âˆ’</button>
+                      >−</button>
                       <input
                         type="number"
                         min="0"
@@ -795,7 +806,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               disabled={editSaving}
               style={{ flex: 1, padding: '12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: '0.95rem', cursor: editSaving ? 'not-allowed' : 'pointer', opacity: editSaving ? 0.7 : 1 }}
             >
-              {editSaving ? 'â³ Enregistrement...' : 'âœ… Enregistrer les modifications'}
+              {editSaving ? '⏳ Enregistrement...' : '✅ Enregistrer les modifications'}
             </button>
             <button
               onClick={() => setShowEdit(false)}
@@ -810,4 +821,3 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
     </>
   )
 }
-

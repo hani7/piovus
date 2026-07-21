@@ -217,8 +217,10 @@ class OrderItemSerializer(serializers.ModelSerializer):
         url = None
         if obj.variant and obj.variant.image:
             url = obj.variant.image.url
-        elif obj.product and obj.product.thumbnail:
-            url = obj.product.thumbnail.url
+        elif obj.product:
+            first_image = obj.product.images.first()
+            if first_image and first_image.image:
+                url = first_image.image.url
 
         if not url:
             return None

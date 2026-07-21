@@ -291,17 +291,17 @@ export default function ShopPage() {
                 </button>
               </div>
             ) : groupEntries ? (
-              // Show all products in ONE flat grid with inline category labels
-              <>
+              // ONE flat grid — category labels span all columns as dividers
+              <div className="products-grid">
                 {groupEntries.map(([catName, catProducts]) => (
-                  <section key={catName} className="shop-category-section">
-                    <h3 className="shop-category-label">{catName}</h3>
-                    <div className="products-grid">
-                      {catProducts.map(p => <ProductCard key={p.id} product={p} />)}
+                  <>
+                    <div key={`label-${catName}`} className="shop-category-divider">
+                      {catName}
                     </div>
-                  </section>
+                    {catProducts.map(p => <ProductCard key={p.id} product={p} />)}
+                  </>
                 ))}
-              </>
+              </div>
             ) : (
               <div className="products-grid">
                 {products.map(p => <ProductCard key={p.id} product={p} />)}

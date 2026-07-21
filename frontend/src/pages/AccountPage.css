@@ -1,10 +1,10 @@
-.account-page {
+﻿.account-page {
   padding-top: calc(var(--navbar-height) + 40px);
   padding-bottom: 80px;
   min-height: 80vh;
 }
 
-/* ── Tab Row (Connexion / Inscription Client / B2B) ──────── */
+/* Tab Row (Connexion / Inscription Client / B2B) */
 .auth-tabs-row {
   display: flex;
   justify-content: center;
@@ -37,14 +37,14 @@
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
-/* ── Single form centered wrapper ────────────────────────── */
+/* Single form centered wrapper */
 .auth-single-wrap {
   display: flex;
   justify-content: center;
 }
 
 
-/* ── Dual registration columns ──────────────────────────── */
+/* Dual registration columns */
 .auth-dual-wrap {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -385,7 +385,7 @@
   transform: translateX(4px);
 }
 
-/* ── Mobile Tab Bar ──────────────────────────────────────── */
+/* Mobile Tab Bar */
 .account-tab-bar {
   display: none; /* hidden on desktop */
 }
@@ -469,9 +469,7 @@
   }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   SETTINGS PAGE
-   ══════════════════════════════════════════════════════════════ */
+/* SETTINGS PAGE */
 .settings-page { padding-bottom: 40px; }
 
 .settings-title {
@@ -561,9 +559,7 @@
   border: 1px solid var(--color-gray-300);
 }
 
-/* ══════════════════════════════════════════════════════════════
-   LOYALTY PAGE
-   ══════════════════════════════════════════════════════════════ */
+/* LOYALTY PAGE */
 .loyalty-page { padding-bottom: 32px; }
 
 .loyalty-title {
@@ -715,9 +711,7 @@
 }
 .loyalty-coupon-card__copy--copied { background: var(--color-accent); }
 
-/* ══════════════════════════════════════════════════════════════
-   KPI BAR (Dashboard)
-   ══════════════════════════════════════════════════════════════ */
+/* KPI BAR (Dashboard) */
 .account-kpi-bar {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

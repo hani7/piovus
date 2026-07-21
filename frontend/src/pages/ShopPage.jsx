@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+﻿import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import PageSEO from '../components/PageSEO'
@@ -59,7 +59,6 @@ export default function ShopPage() {
     getCategories().then((r) => setCategories(r.data.results || r.data))
   }, [])
 
-  // Reset to page 1 when filters change
   useEffect(() => { setPage(1) }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, minPrice, maxPrice, filterBestseller, filterPromo])
 
   useEffect(() => {
@@ -73,7 +72,6 @@ export default function ShopPage() {
     setSearchParams(p)
   }
 
-  // Memoized grouped entries (only when no active filters)
   const groupEntries = useMemo(() => {
     if (hasActiveFilters) return null
     const g = {}
@@ -97,12 +95,12 @@ export default function ShopPage() {
         url="/shop"
       />
 
-      {/* ── Filter Drawer Overlay */}
+      {/* Filter Drawer Overlay */}
       {drawerOpen && (
         <div className="filter-overlay" onClick={() => setDrawerOpen(false)} />
       )}
 
-      {/* ── Filter Drawer (left side) */}
+      {/* Filter Drawer (left side) */}
       <aside className={`filter-drawer ${drawerOpen ? 'open' : ''}`}>
         <div className="filter-drawer__header">
           <h3>Filtres</h3>
@@ -194,7 +192,7 @@ export default function ShopPage() {
         )}
       </aside>
 
-      {/* ── Breadcrumb */}
+      {/* Breadcrumb */}
       <div className="shop-page__breadcrumb container">
         <Link to="/">Accueil</Link> / <span>Boutique</span>
         {selectedCategory && (
@@ -202,7 +200,7 @@ export default function ShopPage() {
         )}
       </div>
 
-      {/* ── Toolbar: title + filter button (mobile only) */}
+      {/* Toolbar: title + filter button (mobile only) */}
       <div className="container shop-toolbar">
         <h2 className="shop-toolbar__title">NOS PRODUITS</h2>
         <button
@@ -218,7 +216,7 @@ export default function ShopPage() {
         </button>
       </div>
 
-      {/* ── Desktop layout: sidebar sticky + products */}
+      {/* Desktop layout: sidebar sticky + products */}
       <div className="container shop-page__body">
 
         {/* Sidebar Desktop (visible on ≥992px only via CSS) */}
@@ -302,7 +300,6 @@ export default function ShopPage() {
                 </button>
               </div>
             ) : groupEntries ? (
-              // ONE flat grid — category labels span all columns as dividers
               <div className="products-grid">
                 {groupEntries.map(([catName, catProducts]) => (
                   <>
@@ -319,7 +316,7 @@ export default function ShopPage() {
               </div>
             )}
 
-            {/* ── Pagination ── */}
+            {/* Pagination */}
             {totalPages > 1 && (
               <nav className="shop-pagination" aria-label="Pagination">
                 <button

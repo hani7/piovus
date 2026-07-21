@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+﻿import { useEffect } from 'react'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { LayoutDashboard, Package, MapPin, Settings, LogOut, Gift, Heart } from 'lucide-react'
@@ -28,7 +28,7 @@ export default function AccountLayout() {
     <main className="account-page page-enter" style={{ paddingTop: '80px' }}>
       <div className="container">
 
-        {/* ── Mobile tab bar ──────────────── */}
+        {/* Mobile tab bar */}
         <nav className="account-tab-bar" aria-label="Navigation du compte">
           {navItems.map(({ to, label, icon }) => (
             <Link
@@ -47,7 +47,7 @@ export default function AccountLayout() {
           </button>
         </nav>
 
-        {/* ── Desktop layout ────────────────────────── */}
+        {/* Desktop layout */}
         <div className="account-dashboard-wrapper">
 
           {/* Sidebar (desktop only) */}

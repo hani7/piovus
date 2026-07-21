@@ -1,4 +1,4 @@
-/* ─── Hero ──────────────────────────────────────────────────── */
+﻿/* Hero */
 .homepage {
   padding-top: 0;
 }
@@ -217,7 +217,7 @@
   }
 }
 
-/* ─── Best Sellers Section ──────────────────────────────────── */
+/* Best Sellers Section */
 .best-sellers-section {
   background: var(--color-cream);
   padding-top: 10px;
@@ -252,7 +252,7 @@
 }
 
 
-/* ─── Categories Grid ───────────────────────────────────────── */
+/* Categories Grid */
 .categories-grid {
   display: flex;
   flex-wrap: nowrap;
@@ -307,10 +307,10 @@
 }
 .cat-card__count { font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-top: 2px; }
 
-/* ─── Section Cream ─────────────────────────────────────────── */
+/* Section Cream */
 .section--cream { background: var(--color-cream); }
 
-/* ─── Promo Banner ──────────────────────────────────────────── */
+/* Promo Banner */
 .promo-banner {
   background: var(--color-accent);
   padding: 80px 0;

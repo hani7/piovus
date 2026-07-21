@@ -1,4 +1,4 @@
-.navbar {
+﻿.navbar {
   position: fixed;
   top: 0;
   left: 0;
@@ -341,7 +341,7 @@
   line-height: 1.8;
 }
 
-/* ── Search Suggestions Dropdown ─────────────────────────────────────────── */
+/* Search Suggestions Dropdown */
 .search-suggestions {
   position: absolute;
   top: calc(100% + 4px);

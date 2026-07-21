@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+﻿import { useState, useEffect, useRef, useMemo } from 'react'
 import adminClient from '../../api/adminClient'
 import {
   Image, Video, Upload, Trash2, Copy, CheckCircle,
@@ -26,7 +26,7 @@ export default function AdminMediatheque() {
   const [viewMode, setViewMode] = useState('grid') // 'grid' | 'list'
   const fileRef = useRef()
 
-  // ── Load all files ─────────────────────────────────────────────────────────
+  
   const load = () => {
     setLoading(true)
     adminClient.get('/admin/media/')
@@ -41,7 +41,7 @@ export default function AdminMediatheque() {
   useEffect(() => { load() }, [])
   useEffect(() => { setPage(1) }, [filter, search])
 
-  // ── Upload ─────────────────────────────────────────────────────────────────
+  
   const handleUpload = async (e) => {
     const selectedFiles = Array.from(e.target.files)
     if (!selectedFiles.length) return
@@ -69,7 +69,7 @@ export default function AdminMediatheque() {
     if (fileRef.current) fileRef.current.value = ''
   }
 
-  // ── Delete ─────────────────────────────────────────────────────────────────
+  
   const handleDelete = async (f) => {
     if (!window.confirm(
       `Supprimer "${f.name}" ?\n\n⚠️ Attention : si cette image est utilisée par un produit ou une bannière, elle disparaîtra du site.`
@@ -84,14 +84,14 @@ export default function AdminMediatheque() {
     }
   }
 
-  // ── Copy URL ───────────────────────────────────────────────────────────────
+  
   const handleCopy = (url) => {
     navigator.clipboard.writeText(url)
     setCopied(url)
     setTimeout(() => setCopied(null), 2000)
   }
 
-  // ── Filter + Search ────────────────────────────────────────────────────────
+  
   const filtered = useMemo(() => files.filter(f => {
     const matchFilter = filter === 'all' || f.file_type === filter
     const matchSearch = !search || f.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -110,7 +110,7 @@ export default function AdminMediatheque() {
 
   const getUrl = (f) => f.file?.startsWith('http') ? f.file : `https://api.piovecosmetics.dz${f.file}`
 
-  // ── Pagination component ───────────────────────────────────────────────────
+  
   const Pagination = () => totalPages <= 1 ? null : (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--admin-border)' }}>
       <button onClick={() => goTo(currentPage - 1)} disabled={currentPage === 1}
@@ -131,7 +131,7 @@ export default function AdminMediatheque() {
     </div>
   )
 
-  // ── Card (grid item) ───────────────────────────────────────────────────────
+  
   const MediaCard = ({ f }) => {
     const isVideo = f.file_type === 'video'
     const url = getUrl(f)
@@ -169,7 +169,7 @@ export default function AdminMediatheque() {
     )
   }
 
-  // ── Row (list item) ────────────────────────────────────────────────────────
+  
   const MediaRow = ({ f }) => {
     const isVideo = f.file_type === 'video'
     const url = getUrl(f)
@@ -212,7 +212,7 @@ export default function AdminMediatheque() {
     )
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  
   return (
     <div className="admin-page">
       {/* Header */}

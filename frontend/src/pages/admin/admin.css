@@ -1,4 +1,4 @@
-/* ─── Admin Theme ─────────────────────────────────────────────────────────── */
+﻿/* Admin Theme */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
@@ -29,7 +29,7 @@
   --sidebar-collapsed-w: 72px;
 }
 
-/* ─── Dark Mode ────────────────────────────────────────────────────────────── */
+/* Dark Mode */
 .admin-app.dark-mode {
   --admin-bg: #0d1117;
   --admin-surface: #161b22;
@@ -115,7 +115,7 @@
   background: rgba(0,0,0,0.25);
 }
 
-/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
+/* Sidebar */
 .admin-sidebar {
   width: var(--sidebar-w);
   background: var(--sidebar-bg);
@@ -301,7 +301,7 @@
   background: rgba(240,106,106,0.1);
 }
 
-/* ─── Main Content ────────────────────────────────────────────────────────── */
+/* Main Content */
 .admin-main {
   margin-left: var(--sidebar-w);
   flex: 1;
@@ -362,7 +362,7 @@
   width: 100%;
 }
 
-/* ─── Stats Cards ─────────────────────────────────────────────────────────── */
+/* Stats Cards */
 .admin-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -423,7 +423,7 @@
   letter-spacing: 0.5px;
 }
 
-/* ─── Page Layout Elements ────────────────────────────────────────────────── */
+/* Page Layout Elements */
 .admin-page-header {
   display: flex;
   justify-content: space-between;
@@ -433,7 +433,7 @@
   gap: 16px;
 }
 
-/* ─── Table ───────────────────────────────────────────────────────────────── */
+/* Table */
 .admin-card {
   background: var(--admin-surface);
   border: 1px solid rgba(0,0,0,0.06);
@@ -501,7 +501,7 @@
   border: 1px solid var(--admin-border);
 }
 
-/* ─── Badges ──────────────────────────────────────────────────────────────── */
+/* Badges */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -523,7 +523,7 @@
 .badge-active    { background: rgba(94,201,142,0.15);  color: var(--admin-success); }
 .badge-inactive  { background: rgba(240,106,106,0.15); color: var(--admin-danger); }
 
-/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+/* Buttons */
 .btn-primary {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 9px 24px;
@@ -615,7 +615,7 @@
 
 .btn-action-icon:hover { opacity: 0.9; transform: translateY(-1px); }
 
-/* ─── Search & Filters ────────────────────────────────────────────────────── */
+/* Search & Filters */
 .admin-search {
   display: flex;
   align-items: center;
@@ -658,7 +658,7 @@
   cursor: pointer;
 }
 
-/* ─── Modal ───────────────────────────────────────────────────────────────── */
+/* Modal */
 .admin-modal-overlay {
   position: fixed;
   inset: 0;
@@ -727,7 +727,7 @@
   gap: 10px;
 }
 
-/* ─── Form ────────────────────────────────────────────────────────────────── */
+/* Form */
 .admin-form {
   padding: 24px;
 }
@@ -812,7 +812,7 @@ select.form-control { cursor: pointer; }
 
 .form-file-label svg { width: 24px; height: 24px; }
 
-/* ─── Status Select ───────────────────────────────────────────────────────── */
+/* Status Select */
 .status-select {
   background: var(--admin-surface2);
   border: 1px solid var(--admin-border);
@@ -824,7 +824,7 @@ select.form-control { cursor: pointer; }
   cursor: pointer;
 }
 
-/* ─── Empty State ─────────────────────────────────────────────────────────── */
+/* Empty State */
 .admin-empty {
   text-align: center;
   padding: 60px 20px;
@@ -834,7 +834,7 @@ select.form-control { cursor: pointer; }
 .admin-empty svg { width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.4; }
 .admin-empty p { font-size: 0.9rem; }
 
-/* ─── Loading ─────────────────────────────────────────────────────────────── */
+/* Loading */
 .admin-loading {
   display: flex;
   align-items: center;
@@ -855,7 +855,7 @@ select.form-control { cursor: pointer; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ─── Login Page ──────────────────────────────────────────────────────────── */
+/* Login Page */
 .admin-login-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #f6f8fb 0%, #e9edf3 100%);
@@ -984,7 +984,7 @@ select.form-control { cursor: pointer; }
   margin-bottom: 16px;
 }
 
-/* ─── Thumbnail Preview ───────────────────────────────────────────────────── */
+/* Thumbnail Preview */
 .thumb-preview {
   width: 80px; height: 80px;
   object-fit: cover;
@@ -994,7 +994,7 @@ select.form-control { cursor: pointer; }
   margin-bottom: 8px;
 }
 
-/* ─── Pagination ──────────────────────────────────────────────────────────── */
+/* Pagination */
 .admin-pagination {
   display: flex;
   align-items: center;
@@ -1019,7 +1019,7 @@ select.form-control { cursor: pointer; }
 .admin-page-btn.active { background: var(--admin-gold); border-color: var(--admin-gold); color: #fff; }
 .admin-page-btn:hover:not(.active) { color: var(--admin-text); border-color: rgba(255,255,255,0.2); }
 
-/* ─── Toggle Switch ───────────────────────────────────────────────────────── */
+/* Toggle Switch */
 .toggle-wrap {
   display: flex; align-items: center; gap: 8px;
 }
@@ -1054,7 +1054,7 @@ select.form-control { cursor: pointer; }
 .toggle input:checked + .toggle-slider { background: rgba(94,201,142,0.2); border-color: var(--admin-success); }
 .toggle input:checked + .toggle-slider::before { background: var(--admin-success); transform: translateX(16px); }
 
-/* ─── Responsive ──────────────────────────────────────────────────────────── */
+/* Responsive */
 @media (max-width: 768px) {
   .admin-sidebar { transform: translateX(-100%); }
   .admin-sidebar.open { transform: translateX(0); }
@@ -1063,7 +1063,7 @@ select.form-control { cursor: pointer; }
   .admin-stats-grid { grid-template-columns: 1fr 1fr; }
 }
 
-/* ─── Inline Spreadsheet Mode ─────────────────────────────────────────────── */
+/* Inline Spreadsheet Mode */
 .spreadsheet-input {
   width: 100%;
   max-width: 120px;
@@ -1088,7 +1088,7 @@ select.form-control { cursor: pointer; }
   border-color: var(--admin-warning);
 }
 
-/* ─── Drag-and-Drop Gallery ───────────────────────────────────────────────── */
+/* Drag-and-Drop Gallery */
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -1145,7 +1145,7 @@ select.form-control { cursor: pointer; }
   pointer-events: none;
 }
 
-/* ─── Command Menu ────────────────────────────────────────────────────────── */
+/* Command Menu */
 .command-menu-overlay {
   position: fixed;
   inset: 0;
@@ -1250,7 +1250,7 @@ select.form-control { cursor: pointer; }
   font-size: 0.9rem;
 }
 
-/* ─── New Order Toast Animations ─────────────────────────────────────────── */
+/* New Order Toast Animations */
 @keyframes toastSlideIn {
   from { transform: translateY(-100%); opacity: 0; }
   to   { transform: translateY(0);     opacity: 1; }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import client from '../api/client'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
@@ -260,7 +260,7 @@ export default function CheckoutPage() {
     <main className="checkout-page page-enter">
       <div className="container">
         <div className="checkout-page__layout">
-        {/* ── Form ─────────────────────────────────── */}
+        {/* Form */}
         <div className="checkout-form-wrap">
           <h1 className="checkout-page__title">Finaliser la commande</h1>
           <form onSubmit={handleSubmit} className="checkout-form" id="checkout-form">
@@ -424,7 +424,7 @@ export default function CheckoutPage() {
           </form>
         </div>
 
-        {/* ── Order Summary ──────────────────────── */}
+        {/* Order Summary */}
         <aside className="checkout-summary">
           <h3 className="checkout-summary__title">Récapitulatif</h3>
           <div className="checkout-summary__items">

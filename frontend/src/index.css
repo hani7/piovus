@@ -1,10 +1,8 @@
-/* ═══════════════════════════════════════════════════════════════
-   PIOVÉ COSMETICS — Design System
-   ═══════════════════════════════════════════════════════════════ */
+﻿/* PIOVÉ COSMETICS — Design System */
 
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* ─── CSS Variables ─────────────────────────────────────────── */
+/* CSS Variables */
 :root {
   --color-black: #0a0a0a;
   --color-white: #ffffff;
@@ -13,12 +11,12 @@
   --color-accent-dark: #a83347;
   --color-accent-light: #f5e8ea;
   --color-gold: #d4af37;
-  --color-gray-600: #595959;   /* 7.0:1 on white — WCAG AA ✅ */
+  --color-gray-600: #595959;
   --color-gray-100: #f5f5f5;
   --color-gray-200: #e8e8e8;
   --color-gray-300: #d0d0d0;
-  --color-gray-500: #767676;   /* 4.54:1 on white — WCAG AA ✅ (was #888 = 3.54:1 ❌) */
-  --color-gray-700: #444444;   /* 9.7:1 on white — WCAG AAA ✅ */
+  --color-gray-500: #767676;
+  --color-gray-700: #444444;
   --color-gray-900: #111111;
 
   --font-serif: 'Raleway', 'Poppins', system-ui, sans-serif;
@@ -40,7 +38,7 @@
   --gutter: 24px;
 }
 
-/* ─── Reset ─────────────────────────────────────────────────── */
+/* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
 body {
@@ -64,7 +62,7 @@ input, textarea, select {
   background: transparent;
 }
 
-/* ─── Accessibility — Focus Visible ─────────────────────────── */
+/* Accessibility — Focus Visible */
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
@@ -81,7 +79,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   border-color: var(--color-accent) !important;
 }
 
-/* ─── Utilities ─────────────────────────────────────────────── */
+/* Utilities */
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
@@ -136,7 +134,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 .badge-featured { background: #cc0000; color: var(--color-white); }
 .badge-bestseller { background: #cc0000; color: var(--color-white); }
 
-/* ─── Buttons ───────────────────────────────────────────────── */
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -199,7 +197,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   justify-content: center;
 }
 
-/* ─── Form Elements ─────────────────────────────────────────── */
+/* Form Elements */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -226,7 +224,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   box-shadow: 0 0 0 3px rgba(201,72,91,0.12);
 }
 
-/* ─── Grid ──────────────────────────────────────────────────── */
+/* Grid */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -287,7 +285,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   padding-top: 0;
 }
 
-/* ─── Loading Spinner ───────────────────────────────────────── */
+/* Loading Spinner */
 .spinner {
   width: 40px;
   height: 40px;
@@ -299,7 +297,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ─── Skeleton Loaders ──────────────────────────────────────── */
+/* Skeleton Loaders */
 @keyframes shimmer {
   0%   { background-position: -400px 0; }
   100% { background-position:  400px 0; }
@@ -336,7 +334,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 .skeleton-line-sm { height: 14px; flex: 1; }
 
 
-/* ─── Toast notifications ───────────────────────────────────── */
+/* Toast notifications */
 .toast-container {
   position: fixed;
   bottom: 24px;
@@ -372,7 +370,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   }
 }
 
-/* ─── Page transitions ──────────────────────────────────────── */
+/* Page transitions */
 .page-enter {
   animation: fadeInUp 0.4s ease;
 }
@@ -381,7 +379,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── Scrollbar ─────────────────────────────────────────────── */
+/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-gray-100); }
 ::-webkit-scrollbar-thumb { background: var(--color-gray-300); border-radius: 3px; }

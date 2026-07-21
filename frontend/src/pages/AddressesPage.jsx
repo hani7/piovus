@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useAuthStore } from '../store/authStore'
 import client from '../api/client'
 import { MapPin, Save, Search, ChevronDown, X } from 'lucide-react'
@@ -19,7 +19,7 @@ const WILAYAS = [
   "56 - Djanet","57 - El M'Ghair","58 - El Meniaa"
 ]
 
-// ── Searchable Wilaya Dropdown ───────────────────────────────
+
 function WilayaSelect({ value, onChange }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -125,7 +125,7 @@ function WilayaSelect({ value, onChange }) {
   )
 }
 
-// ── Main Page ────────────────────────────────────────────────
+
 const inputStyle = { width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1.5px solid var(--color-gray-300)', fontSize: '0.95rem', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s' }
 const labelStyle = { display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-gray-700)' }
 

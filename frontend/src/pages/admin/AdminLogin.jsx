@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import adminClient from '../../api/adminClient'
 import { Eye, EyeOff } from 'lucide-react'
@@ -69,7 +69,7 @@ export default function AdminLogin() {
       overflow: 'hidden',
       fontFamily: "'Poppins', sans-serif",
     }}>
-      {/* ── LEFT PANEL: Brand ── */}
+      {/* LEFT PANEL: Brand */}
       <div style={{
         flex: 1,
         background: '#050505',
@@ -118,7 +118,7 @@ export default function AdminLogin() {
         </div>
       </div>
 
-      {/* ── RIGHT PANEL: Form ── */}
+      {/* RIGHT PANEL: Form */}
       <div style={{
         width: '42%',
         minWidth: 380,

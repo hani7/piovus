@@ -1,4 +1,4 @@
-.product-carousel-section {
+﻿.product-carousel-section {
   margin-bottom: 3rem;
 }
 
@@ -18,21 +18,21 @@
   text-transform: uppercase;
 }
 
-/* ─── Outer wrapper: arrows + track side by side ──────────────────────────── */
+/* Outer wrapper: arrows + track side by side */
 .carousel-outer {
   display: flex;
   align-items: center;
   width: 100%;
 }
 
-/* ─── Track wrapper: fills space between the 2 arrows ────────────────────── */
+/* Track wrapper: fills space between the 2 arrows */
 .carousel-track-wrapper {
   flex: 1;
   min-width: 0; /* allows flex child to shrink below content size */
   overflow: hidden;
 }
 
-/* ─── Scrollable track ────────────────────────────────────────────────────── */
+/* Scrollable track */
 .carousel-track {
   display: flex;
   overflow-x: auto;
@@ -43,7 +43,7 @@
 }
 .carousel-track::-webkit-scrollbar { display: none; }
 
-/* ─── Arrow buttons — OUTSIDE the card area ──────────────────────────────── */
+/* Arrow buttons — OUTSIDE the card area */
 .product-carousel-btn {
   flex-shrink: 0;
   width: 80px;
@@ -71,7 +71,7 @@
   .product-carousel-btn { display: none; }
 }
 
-/* ─── Carousel items ──────────────────────────────────────────────────────── */
+/* Carousel items */
 .carousel-item {
   flex: 0 0 calc(20% - 1.2rem); /* 5 items */
   scroll-snap-align: start;
@@ -84,7 +84,7 @@
   .carousel-track { gap: 0.75rem; }
 }
 
-/* ─── Dots ────────────────────────────────────────────────────────────────── */
+/* Dots */
 .carousel-dots {
   display: flex;
   justify-content: center;
@@ -107,7 +107,7 @@
   border-radius: 4px;
 }
 
-/* ─── Promo Theme ─────────────────────────────────────────────────────────── */
+/* Promo Theme */
 .product-carousel-section.promo-carousel-theme {
   background-color: #cc0000;
   padding: 40px 0;

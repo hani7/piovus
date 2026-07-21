@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useWishlistStore } from '../store/wishlistStore'
@@ -52,7 +52,7 @@ export default function AccountPage() {
       <main className="account-page page-enter" style={{ paddingTop: '80px' }}>
         <div className="container">
 
-          {/* ── Mobile tab bar ─────────────────────────── */}
+          {/* Mobile tab bar */}
           <div className="account-tab-bar">
             {navItems.map(({ to, label, icon }) => (
               <Link key={to} to={to} className={`account-tab-item ${to === '/compte' ? 'active' : ''}`}>
@@ -64,7 +64,7 @@ export default function AccountPage() {
             </button>
           </div>
 
-          {/* ── Desktop layout ──────────────────────────── */}
+          {/* Desktop layout */}
           <div className="account-dashboard-wrapper">
             {/* Sidebar (desktop only) */}
             <aside className="account-sidebar account-sidebar--desktop">
@@ -236,7 +236,7 @@ export default function AccountPage() {
   return (
     <main className="account-page page-enter" style={{ paddingTop: '120px' }}>
 
-      {/* ── Tabs ────────────────────────────────────────────── */}
+      {/* Tabs */}
       <div className="auth-tabs-row">
         <button
           className={`auth-tab-pill ${activeTab === 'login' ? 'active' : ''}`}
@@ -259,7 +259,7 @@ export default function AccountPage() {
 
       {error && <div className="auth-error container" style={{ maxWidth: 520, margin: '0 auto 16px' }}>{error}</div>}
 
-      {/* ── LOGIN ─────────────────────────────────────────────── */}
+      {/* LOGIN */}
       {activeTab === 'login' && (
         <div className="container auth-single-wrap">
           <form className="auth-form-card" onSubmit={handleLogin} id="form-login">
@@ -279,7 +279,7 @@ export default function AccountPage() {
         </div>
       )}
 
-      {/* ── INSCRIPTION CLIENT (B2C) ─────────────────────────── */}
+      {/* INSCRIPTION CLIENT (B2C) */}
       {activeTab === 'register' && (
         <div className="container auth-single-wrap">
           <form className="auth-form-card" onSubmit={handleRegister} id="form-register">
@@ -325,7 +325,7 @@ export default function AccountPage() {
         </div>
       )}
 
-      {/* ── INSCRIPTION B2B ──────────────────────────────────── */}
+      {/* INSCRIPTION B2B */}
       {activeTab === 'b2b' && (
         <div className="container auth-single-wrap">
           <form className="auth-form-card" onSubmit={handleRegisterB2B} id="form-b2b">

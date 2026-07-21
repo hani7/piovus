@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import adminClient from '../../api/adminClient'
 
 export default function AdminSettings() {
@@ -50,7 +50,7 @@ export default function AdminSettings() {
         <h1 className="admin-page-title">⚙️ Paramètres du Site</h1>
       </div>
 
-      {/* ── Free Shipping ──────────────────────── */}
+      {/* Free Shipping */}
       <div className="admin-card" style={{ marginBottom: 24 }}>
         <div className="admin-card-header">
           <h2 style={{ fontSize: '1rem', fontWeight: 700 }}>🚚 Livraison Gratuite</h2>
@@ -82,7 +82,7 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      {/* ── New Account Discount ───────────────── */}
+      {/* New Account Discount */}
       <div className="admin-card" style={{ marginBottom: 24 }}>
         <div className="admin-card-header">
           <h2 style={{ fontSize: '1rem', fontWeight: 700 }}>🎁 Remise Nouvelle Inscription</h2>
@@ -134,7 +134,7 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      {/* ── Meta Pixel ─────────────────────────── */}
+      {/* Meta Pixel */}
       <div className="admin-card" style={{ marginBottom: 24 }}>
         <div className="admin-card-header">
           <h2 style={{ fontSize: '1rem', fontWeight: 700 }}>📊 Meta Pixel (Facebook)</h2>
@@ -167,7 +167,7 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      {/* ── TikTok Pixel ─────────────────────────── */}
+      {/* TikTok Pixel */}
       <div className="admin-card" style={{ marginBottom: 24 }}>
         <div className="admin-card-header">
           <h2 style={{ fontSize: '1rem', fontWeight: 700 }}>🎵 TikTok Pixel</h2>

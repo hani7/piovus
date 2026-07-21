@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async'
+﻿import { Helmet } from 'react-helmet-async'
 
 const SITE_NAME = 'Piové Cosmetics'
 const DEFAULT_IMAGE = 'https://piovecosmetics.com/og-image.jpg'
@@ -8,8 +8,7 @@ const BASE_URL = 'https://piovecosmetics.com'
  * PageSEO — Drop-in component for per-page meta tags
  *
  * Usage:
- * <PageSEO title="Makeup Fixer Spray" description="..." image={product.thumbnail} />
- */
+ * <PageSEO title="Makeup Fixer Spray" description="..." image={product.thumbnail} /> */
 export default function PageSEO({
   title,
   description = 'Piové Cosmetics — Boutique beauté en ligne. Maquillage et soins de qualité, livraison dans toute l\'Algérie.',

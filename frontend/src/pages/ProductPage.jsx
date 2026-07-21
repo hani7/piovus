@@ -38,21 +38,18 @@ export default function ProductPage() {
       ? (product.is_promo ? parseFloat(product.promo_price) : parseFloat(product.price))
       : 0
 
-  // B2B min qty enforcement
   useEffect(() => {
     if (product && isB2B && product.b2b_min_stock > 1) {
       setQuantity((q) => Math.max(q, product.b2b_min_stock))
     }
   }, [product, isB2B])
 
-  // Pixel tracking
   useEffect(() => {
     if (!product) return
     if (window.fbq) window.fbq('track', 'ViewContent', { content_name: product.name, content_ids: [product.id], content_type: 'product', value: displayPrice, currency: 'DZD' })
     if (window.ttq) window.ttq.track('ViewContent', { content_name: product.name, content_id: product.id, content_type: 'product', value: displayPrice, currency: 'DZD' })
   }, [product, displayPrice])
 
-  // Fetch product
   useEffect(() => {
     if (!product) setLoading(true)
     getProduct(slug)
@@ -68,7 +65,6 @@ export default function ProductPage() {
       .catch(() => {})
   }, [slug])
 
-  // Auto-slideshow
   const images = product?.images?.length > 0
     ? product.images
     : product?.thumbnail ? [{ image: product.thumbnail, alt: product.name }] : []

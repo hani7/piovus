@@ -1,6 +1,6 @@
-.category-page { padding-top: var(--navbar-height); }
+﻿.category-page { padding-top: var(--navbar-height); }
 
-/* ── Hero Banner ───────────────────────────────────────── */
+/* Hero Banner */
 .category-page__hero {
   position: relative;
   width: 100%;

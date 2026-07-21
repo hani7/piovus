@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { X, Edit, Trash2 } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 
@@ -710,7 +710,7 @@ export default function AdminProducts() {
                       </div>
                     )}
 
-                    {/* ── Galerie (Images & Vidéos) ── */}
+                    {/* Galerie (Images & Vidéos) */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', marginTop: '30px' }}>
                       <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Galerie (Images & Vidéos)</h3>
                       <button type="button" className="btn-secondary" onClick={() => setShowGallery(!showGallery)}>
@@ -810,7 +810,7 @@ export default function AdminProducts() {
                         </div>
                       </div>
                     )}
-                    {/* ── Produits Similaires ── */}
+                    {/* Produits Similaires */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', marginTop: '30px' }}>
                       <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Produits Similaires</h3>
                       <button type="button" className="btn-secondary" onClick={() => setShowRelated(!showRelated)}>

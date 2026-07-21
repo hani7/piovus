@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { getFeaturedProducts, getNewArrivals, getCategories, getBanners, getPromotions } from '../api/products'
 import ProductCarousel from '../components/ProductCarousel'
@@ -58,7 +58,7 @@ export default function HomePage() {
 
   return (
     <main className="homepage page-enter">
-      {/* ── Hero Slider ─────────────────────────────────── */}
+      {/* Hero Slider */}
       {heroBanners.length > 0 && (
         <section 
           className="hero" 
@@ -120,13 +120,13 @@ export default function HomePage() {
       )}
 
 
-      {/* ── Best Sellers Block ───────────────────────────── */}
+      {/* Best Sellers Block */}
       <ProductCarousel title="Nos Best Sellers" products={featured} isLoading={loading} />
 
-      {/* ── Nouveautés ────────────────────────────────── */}
+      {/* Nouveautés */}
       <ProductCarousel title="Nouveautés" products={newArrivals} isLoading={loading} className="promo-carousel-theme" />
 
-      {/* ── Categories ───────────────────────────────────── */}
+      {/* Categories */}
       <section className="section" id="categories-section" style={{ paddingTop: '20px' }}>
         <div className="container">
           <p className="section-subtitle">Nos Collections</p>
@@ -152,11 +152,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Offres Spéciales ───────────────────────────────────── */}
+      {/* Offres Spéciales */}
       <ProductCarousel title="Offres Spéciales" products={promotions} isLoading={loading} className="promo-carousel-theme" />
 
 
-      {/* ── Category Carousels ───────────────────────────── */}
+      {/* Category Carousels */}
       {(categories || [])
         .filter(cat => cat.slug !== 'offres-speciales')
         .map(cat => (

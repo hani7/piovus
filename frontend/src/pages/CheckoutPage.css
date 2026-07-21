@@ -1,4 +1,4 @@
-/* ─── Checkout Page ──────────────────────────────────────────────────────── */
+﻿/* Checkout Page */
 .checkout-page {
   padding-top: calc(var(--navbar-height) + 24px);
   padding-bottom: 80px;
@@ -6,7 +6,7 @@
   min-height: 100vh;
 }
 
-/* ─── Layout ──────────────────────────────────────────────────────────────── */
+/* Layout */
 .checkout-page__layout {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -21,7 +21,7 @@
   margin-bottom: 24px;
 }
 
-/* ─── Form wrapper ────────────────────────────────────────────────────────── */
+/* Form wrapper */
 .checkout-form-wrap {
   background: white;
   padding: 28px;
@@ -52,7 +52,7 @@
 .form-input.error { border-color: var(--color-accent); }
 .field-error { font-size: 0.75rem; color: var(--color-accent); margin-top: 4px; display: block; }
 
-/* ─── Submit button ───────────────────────────────────────────────────────── */
+/* Submit button */
 .checkout-submit-btn {
   width: 100%;
   padding: 16px;
@@ -60,7 +60,7 @@
   margin-top: 8px;
 }
 
-/* ─── Summary sidebar ─────────────────────────────────────────────────────── */
+/* Summary sidebar */
 .checkout-summary {
   background: white;
   padding: 24px;
@@ -143,7 +143,7 @@
 }
 .checkout-summary__edit:hover { color: var(--color-accent); }
 
-/* ─── Success state ───────────────────────────────────────────────────────── */
+/* Success state */
 .checkout-success {
   min-height: calc(100vh - var(--navbar-height) - 200px);
   display: flex;
@@ -176,7 +176,7 @@
   margin-top: 28px;
 }
 
-/* ─── Empty state ─────────────────────────────────────────────────────────── */
+/* Empty state */
 .checkout-empty {
   min-height: calc(100vh - var(--navbar-height) - 200px);
   display: flex;
@@ -187,9 +187,7 @@
   text-align: center;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   RESPONSIVE — MOBILE
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* RESPONSIVE — MOBILE */
 @media (max-width: 900px) {
   .checkout-page__layout {
     display: flex;

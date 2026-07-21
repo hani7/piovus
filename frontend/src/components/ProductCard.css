@@ -1,4 +1,4 @@
-.product-card {
+﻿.product-card {
   position: relative;
   background: var(--color-white);
   border-radius: var(--radius-lg);
@@ -191,7 +191,7 @@
   }
 }
 
-/* ── Wishlist Heart Button ───────────────────────────────────── */
+/* Wishlist Heart Button */
 .product-card__wishlist {
   position: absolute;
   top: 10px;
@@ -220,7 +220,7 @@
   background: var(--color-accent-light);
 }
 
-/* ── Stock Urgency Badge ─────────────────────────────────────── */
+/* Stock Urgency Badge */
 .badge-stock-low {
   background: linear-gradient(135deg, #f59e0b, #ef4444);
   color: #fff;

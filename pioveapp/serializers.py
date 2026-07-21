@@ -213,15 +213,24 @@ class OrderItemSerializer(serializers.ModelSerializer):
         ]
         
     def get_product_image(self, obj):
-        request = self.context.get('request')
+        from django.conf import settings
         url = None
         if obj.variant and obj.variant.image:
             url = obj.variant.image.url
         elif obj.product and obj.product.thumbnail:
             url = obj.product.thumbnail.url
-            
-        if url and request:
+
+        if not url:
+            return None
+
+        request = self.context.get('request')
+        if request:
             return request.build_absolute_uri(url)
+
+        # Fallback: build absolute URL using API_URL setting
+        api_base = getattr(settings, 'API_URL', '').rstrip('/')
+        if api_base and url.startswith('/'):
+            return f"{api_base}{url}"
         return url
 
     def get_variant_color(self, obj):

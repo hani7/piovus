@@ -41,24 +41,3 @@ from .admin_settings import (
     mylerz_webhook,
     satim_callback, satim_test_view,
 )
-
-__all__ = [
-    'CategoryViewSet', 'ProductViewSet', 'BannerViewSet',
-    'RegisterView', 'B2BRegisterView', 'LoginView', 'VerifyOTPView',
-    'LogoutView', 'GoogleLoginView', 'FacebookLoginView',
-    'ProfileView', 'PasswordChangeView', 'handle_social_login',
-    'ApplyCouponView', 'OrderViewSet',
-    'ActivityLogMixin', 'AdminDashboardView',
-    'AdminProductViewSet', 'AdminProductVariantViewSet', 'AdminProductImageViewSet',
-    'AdminCategoryViewSet', 'AdminBannerViewSet',
-    'AdminOrderViewSet', 'handle_loyalty_points',
-    'AdminCouponViewSet', 'AdminActivityLogView',
-    'DeliveryCompanyViewSet', 'DeliveryRateViewSet', 'CustomerViewSet',
-    'AdminNewsletterSendView', 'AdminNewsletterUploadImageView',
-    'AdminReportView',
-    'SiteSettingsView', 'AdminSiteSettingsView',
-    'AdminB2BRequestViewSet', 'AdminMediaView',
-    'AdminProfileView', 'AdminChangePasswordView', 'AdminOrderHistoryViewSet',
-    'mylerz_webhook', 'satim_callback', 'satim_test_view',
-    'run_migrations_view', 'run_reports_weekly_view', 'run_reports_monthly_view',
-]

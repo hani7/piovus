@@ -85,7 +85,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                         msg.attach_alternative(html_content, "text/html")
                         msg.send(fail_silently=True)
                     except Exception as e:
-                        pass
+                        logger.warning('%s: %s', __name__, e)
                 import threading
                 threading.Thread(target=send_status_email_task, args=(updated_instance.id, recipient_email, updated_instance.status)).start()
 
@@ -116,7 +116,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                                 notes=f"Échec de création du colis Mylerz : {msg}"
                             )
                     except Exception as e:
-                        pass
+                        logger.warning('%s: %s', __name__, e)
                 import threading
                 threading.Thread(target=async_mylerz_ship, args=(updated_instance.id,)).start()
 
@@ -515,7 +515,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                                     notes=f"Échec de création du colis Mylerz : {msg}"
                                 )
                         except Exception as e:
-                            pass
+                            logger.warning('%s: %s', __name__, e)
                     import threading
                     threading.Thread(target=async_mylerz_ship, args=(order.id,)).start()
                 

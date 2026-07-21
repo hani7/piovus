@@ -1,4 +1,7 @@
-﻿from ._base import *
+﻿import logging
+logger = logging.getLogger(__name__)
+
+from ._base import *
 
 # ─── Orders ───────────────────────────────────────────────────────────────────
 class ApplyCouponView(APIView):
@@ -224,7 +227,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     msg.attach_alternative(html_content, "text/html")
                     msg.send(fail_silently=True)
                 except Exception as e:
-                    pass
+                    logger.warning('%s: %s', __name__, e)
             
             threading.Thread(target=send_order_email, args=(order.id, recipient_email)).start()
 

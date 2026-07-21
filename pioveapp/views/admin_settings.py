@@ -1,4 +1,7 @@
-﻿from ._base import *
+﻿import logging
+logger = logging.getLogger(__name__)
+
+from ._base import *
 
 
 class SiteSettingsView(APIView):
@@ -189,7 +192,7 @@ def mylerz_webhook(request):
                     send_status_email(order, new_piove_status, order.mylerz_barcode)
                     updated += 1
         except Exception as e:
-            pass
+            logger.warning('%s: %s', __name__, e)
 
     return Response({'success': True, 'updated': updated})
 

@@ -1,4 +1,7 @@
-﻿from ._base import *
+﻿import logging
+logger = logging.getLogger(__name__)
+
+from ._base import *
 from .admin_products import ActivityLogMixin
 
 
@@ -196,7 +199,7 @@ class AdminNewsletterSendView(APIView):
                     
                 msg.send(fail_silently=True)
             except Exception as e:
-                pass
+                logger.warning('%s: %s', __name__, e)
                 
         threading.Thread(target=send_newsletter, args=(subject, message_html, emails, attachment_name, attachment_content, attachment_mimetype)).start()
         

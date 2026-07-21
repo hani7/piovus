@@ -73,6 +73,7 @@
 @media (max-width: 900px) {
   .navbar__links { display: none; }
   .navbar__wishlist-btn { display: none; }
+  .navbar__account-btn { display: none; }
 }
 
 /* Logo */

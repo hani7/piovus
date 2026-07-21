@@ -14,7 +14,7 @@ try:
     except Exception:
         pass
 
-    # ── Auto git pull on every restart ───────────────────────────────────────
+    # Auto git pull on every restart
     try:
         _repo_dir = os.path.dirname(os.path.abspath(__file__))
         _pull_result = subprocess.run(
@@ -31,7 +31,21 @@ try:
                 _f.write(f"\n[git pull] FAILED: {_e}\n")
         except Exception:
             pass
-    # ─────────────────────────────────────────────────────────────────────────
+
+    # Clear stale __pycache__ for pioveapp.views to prevent conflicts
+    # between old views.pyc and the new views/ package after git pull
+    try:
+        import glob
+        _app_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pioveapp')
+        _stale = glob.glob(os.path.join(_app_dir, '__pycache__', 'views.cpython-*.pyc'))
+        for _f_path in _stale:
+            os.remove(_f_path)
+        if _stale:
+            with open(LOG_PATH, 'a') as _f:
+                _f.write(f"[pycache] Removed {len(_stale)} stale views.pyc file(s)\n")
+    except Exception:
+        pass
+
 
     try:
         import django

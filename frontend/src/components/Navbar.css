@@ -1,4 +1,4 @@
-﻿.navbar {
+.navbar {
   position: fixed;
   top: 0;
   left: 0;
@@ -72,6 +72,7 @@
 
 @media (max-width: 900px) {
   .navbar__links { display: none; }
+  .navbar__wishlist-btn { display: none; }
 }
 
 /* Logo */

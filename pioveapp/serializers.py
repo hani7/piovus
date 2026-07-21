@@ -215,24 +215,35 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def get_product_image(self, obj):
         from django.conf import settings
         url = None
-        if obj.variant and obj.variant.image:
-            url = obj.variant.image.url
-        elif obj.product:
-            first_image = obj.product.images.first()
-            if first_image and first_image.image:
-                url = first_image.image.url
+        try:
+            if obj.variant and obj.variant.image:
+                url = obj.variant.image.url
+            elif obj.product:
+                first_image = obj.product.images.first()
+                if first_image and first_image.image:
+                    url = first_image.image.url
+        except Exception:
+            return None
 
         if not url:
             return None
 
+        # Always prefer API_URL to avoid reverse-proxy hostname issues
+        api_base = getattr(settings, 'API_URL', '').rstrip('/')
+        if api_base:
+            # url could be relative (/media/...) or already absolute
+            if url.startswith('http://') or url.startswith('https://'):
+                return url
+            # Make sure it starts with /
+            if not url.startswith('/'):
+                url = '/' + url
+            return f"{api_base}{url}"
+
+        # Fallback: use request context if available
         request = self.context.get('request')
         if request:
             return request.build_absolute_uri(url)
 
-        # Fallback: build absolute URL using API_URL setting
-        api_base = getattr(settings, 'API_URL', '').rstrip('/')
-        if api_base and url.startswith('/'):
-            return f"{api_base}{url}"
         return url
 
     def get_variant_color(self, obj):

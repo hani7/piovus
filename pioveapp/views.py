@@ -952,7 +952,7 @@ def handle_loyalty_points(order, old_status, new_status):
             logging.getLogger(__name__).error(f"Loyalty points error for order {order.id}: {e}")
 
 class AdminOrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.filter(is_deleted=False).select_related('user', 'customer').prefetch_related('items').order_by('-created_at')
+    queryset = Order.objects.filter(is_deleted=False).select_related('user', 'customer').prefetch_related('items__product__images', 'items__variant').order_by('-created_at')
     permission_classes = [IsAdminUser]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['status', 'payment_status', 'delivery_type', 'customer__is_b2b']

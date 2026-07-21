@@ -5,6 +5,7 @@ import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
 import { useWishlistStore } from '../store/wishlistStore'
 import ProductCard from '../components/ProductCard'
+import PageSEO from '../components/PageSEO'
 import './ProductPage.css'
 
 export default function ProductPage() {
@@ -162,6 +163,13 @@ export default function ProductPage() {
 
   return (
     <main className="product-page page-enter">
+      <PageSEO
+        title={product.name}
+        description={product.short_description || product.description?.slice(0, 155) || `Achetez ${product.name} chez Piové Cosmetics — livraison dans toute l'Algérie.`}
+        image={product.thumbnail}
+        url={`/produit/${product.slug}`}
+        type="product"
+      />
       <div className="container">
         {/* Breadcrumb */}
         <nav className="product-page__breadcrumb">

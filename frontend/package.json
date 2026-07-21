@@ -18,6 +18,7 @@
     "react-dom": "^19.2.6",
     "react-facebook-login": "^4.1.1",
     "react-google-recaptcha-v3": "^1.11.0",
+    "react-helmet-async": "^3.0.0",
     "react-is": "^19.2.6",
     "react-router-dom": "^7.15.1",
     "recharts": "^3.8.1",

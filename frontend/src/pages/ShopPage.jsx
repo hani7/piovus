@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
+import PageSEO from '../components/PageSEO'
 import { getProducts, getCategories } from '../api/products'
 import './ShopPage.css'
 
@@ -77,6 +78,13 @@ export default function ShopPage() {
 
   return (
     <main className="shop-page page-enter">
+      <PageSEO
+        title={selectedCategory
+          ? `${categories.find(c => c.slug === selectedCategory)?.name || selectedCategory} — Boutique`
+          : 'Tous nos produits'}
+        description={`Explorez notre gamme de produits de beauté Piové Cosmetics. Maquillage, soins et accessoires — livraison dans toute l'Algérie.`}
+        url="/shop"
+      />
 
       {/* ── Filter Drawer Overlay */}
       {drawerOpen && (

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
@@ -5,7 +6,7 @@ import { useWishlistStore } from '../store/wishlistStore'
 import { ShoppingBag, Eye, Zap, Heart } from 'lucide-react'
 import './ProductCard.css'
 
-export default function ProductCard({ product }) {
+const ProductCard = memo(function ProductCard({ product }) {
   const navigate = useNavigate()
   const addItem = useCartStore((s) => s.addItem)
   const user = useAuthStore((s) => s.user)
@@ -149,4 +150,6 @@ export default function ProductCard({ product }) {
       </div>
     </article>
   )
-}
+})
+
+export default ProductCard

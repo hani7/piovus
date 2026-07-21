@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import PageSEO from '../components/PageSEO'
@@ -19,6 +19,9 @@ export default function ShopPage() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const PAGE_SIZE = 24
 
   const selectedCategory = searchParams.get('category') || ''
   const searchQuery = searchParams.get('search') || ''
@@ -34,7 +37,7 @@ export default function ShopPage() {
 
   const fetchProducts = useCallback(() => {
     setLoading(true)
-    const params = { ordering: sortBy, page_size: 200 }
+    const params = { ordering: sortBy, page_size: PAGE_SIZE, page }
     if (selectedCategory) params['categories__slug'] = selectedCategory
     if (searchQuery) params.search = searchQuery
     if (showNew) params.is_new = true
@@ -45,13 +48,19 @@ export default function ShopPage() {
     if (filterPromo) params.is_promotion = true
 
     getProducts(params)
-      .then((r) => setProducts(r.data.results || r.data))
+      .then((r) => {
+        setProducts(r.data.results || r.data)
+        setTotalCount(r.data.count || (r.data.results || r.data).length)
+      })
       .finally(() => setLoading(false))
-  }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, minPrice, maxPrice, filterBestseller, filterPromo])
+  }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, minPrice, maxPrice, filterBestseller, filterPromo, page])
 
   useEffect(() => {
     getCategories().then((r) => setCategories(r.data.results || r.data))
   }, [])
+
+  // Reset to page 1 when filters change
+  useEffect(() => { setPage(1) }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, minPrice, maxPrice, filterBestseller, filterPromo])
 
   useEffect(() => {
     fetchProducts()
@@ -64,17 +73,19 @@ export default function ShopPage() {
     setSearchParams(p)
   }
 
-  // Flat list with category dividers (no separate grids per category)
-  const groupEntries = (() => {
+  // Memoized grouped entries (only when no active filters)
+  const groupEntries = useMemo(() => {
     if (hasActiveFilters) return null
     const g = {}
-    products.forEach(p => {
+    products.forEach((p) => {
       const catName = p.categories?.[0]?.name || 'Autres'
       if (!g[catName]) g[catName] = []
       g[catName].push(p)
     })
     return Object.entries(g)
-  })()
+  }, [products, hasActiveFilters])
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
   return (
     <main className="shop-page page-enter">
@@ -306,6 +317,46 @@ export default function ShopPage() {
               <div className="products-grid">
                 {products.map(p => <ProductCard key={p.id} product={p} />)}
               </div>
+            )}
+
+            {/* ── Pagination ── */}
+            {totalPages > 1 && (
+              <nav className="shop-pagination" aria-label="Pagination">
+                <button
+                  className="btn btn-outline"
+                  disabled={page === 1}
+                  onClick={() => { setPage(page - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                  aria-label="Page précédente"
+                >← Précédent</button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+                  .reduce((acc, p, idx, arr) => {
+                    if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...')
+                    acc.push(p)
+                    return acc
+                  }, [])
+                  .map((p, i) =>
+                    p === '...' ? (
+                      <span key={`e-${i}`} className="shop-pagination__ellipsis">…</span>
+                    ) : (
+                      <button
+                        key={p}
+                        className={`btn ${p === page ? 'btn-accent' : 'btn-outline'}`}
+                        onClick={() => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                        aria-label={`Page ${p}`}
+                        aria-current={p === page ? 'page' : undefined}
+                      >{p}</button>
+                    )
+                  )}
+
+                <button
+                  className="btn btn-outline"
+                  disabled={page >= totalPages}
+                  onClick={() => { setPage(page + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                  aria-label="Page suivante"
+                >Suivant →</button>
+              </nav>
             )}
           </div>
         </div>

@@ -1,4 +1,4 @@
-﻿from rest_framework import viewsets, generics, status, filters
+from rest_framework import viewsets, generics, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
@@ -35,7 +35,7 @@ from .serializers import (
     OrderSerializer, OrderCreateSerializer,
     ReviewSerializer,
     AdminProductSerializer, AdminProductVariantSerializer, AdminProductImageSerializer, AdminCategorySerializer,
-    AdminBannerSerializer, AdminOrderSerializer, AdminOrderStatusSerializer,
+    AdminBannerSerializer, AdminOrderSerializer, AdminOrderStatusSerializer, AdminOrderEditSerializer,
     DeliveryCompanySerializer, DeliveryRateSerializer, CustomerSerializer, CouponSerializer
 )
 
@@ -491,9 +491,27 @@ class OrderViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'head', 'options']
 
     def get_queryset(self):
-        if self.request.user.is_authenticated:
-            return Order.objects.filter(user=self.request.user).prefetch_related('items')
-        return Order.objects.none()
+        user = self.request.user
+        if not user.is_authenticated:
+            return Order.objects.none()
+
+        from django.db.models import Q
+        # Match by user account OR by guest phone/email matching the user's profile
+        q = Q(user=user)
+
+        # Also match guest orders by phone
+        try:
+            phone = user.profile.phone
+            if phone:
+                q |= Q(guest_phone=phone) | Q(customer__phone=phone)
+        except Exception:
+            pass
+
+        # Also match guest orders by email
+        if user.email:
+            q |= Q(guest_email__iexact=user.email)
+
+        return Order.objects.filter(q, is_deleted=False).prefetch_related('items').distinct().order_by('-created_at')
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -1025,6 +1043,66 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             ip_address=self.request.META.get('REMOTE_ADDR'),
                 user_agent=self.request.META.get('HTTP_USER_AGENT')
         )
+
+    @action(detail=True, methods=['post'], url_path='edit_order')
+    def edit_order(self, request, pk=None):
+        """
+        Admin endpoint to edit order details:
+        - Customer: guest_name, guest_phone, guest_phone2, guest_email
+        - Address: shipping_address, wilaya, city
+        - Notes: notes
+        - Items: [{id, quantity}] — set quantity=0 to remove
+        """
+        order = self.get_object()
+        data = request.data
+
+        # Update editable fields
+        editable_fields = [
+            'guest_name', 'guest_phone', 'guest_phone2', 'guest_email',
+            'shipping_address', 'wilaya', 'city', 'notes',
+        ]
+        changed = []
+        for field in editable_fields:
+            if field in data:
+                new_val = data[field]
+                if getattr(order, field) != new_val:
+                    setattr(order, field, new_val)
+                    changed.append(field)
+
+        # Update items quantities
+        items_data = data.get('items', [])
+        for item_d in items_data:
+            item_id = item_d.get('id')
+            qty = int(item_d.get('quantity', 1))
+            if not item_id:
+                continue
+            try:
+                from .models import OrderItem
+                item = order.items.get(id=item_id)
+                if qty <= 0:
+                    item.delete()
+                else:
+                    item.quantity = qty
+                    item.save(update_fields=['quantity'])
+            except Exception:
+                pass
+
+        if changed:
+            order.save(update_fields=changed)
+
+        # Recalculate total after item changes
+        if items_data:
+            order.recalculate_total()
+
+        UserActivityLog.objects.create(
+            user=request.user,
+            action=f'Modification manuelle commande #{order.id}: {", ".join(changed) if changed else "items"}',
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT'),
+        )
+
+        from .serializers import AdminOrderSerializer as Ser
+        return Response(Ser(order, context={'request': request}).data)
 
     @action(detail=True, methods=['get'])
     def mylerz_ship_debug(self, request, pk=None):
@@ -2561,4 +2639,128 @@ class AdminOrderHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['status', 'payment_status', 'is_deleted', 'payment_method', 'customer__is_b2b']
     search_fields = ['guest_name', 'guest_phone', 'user__username', 'user__first_name', 'id']
+
+
+# ─── Public Order Tracking ────────────────────────────────────────────────────
+
+class TrackOrderView(APIView):
+    """
+    Public endpoint — no authentication required.
+    GET /api/track/?q=<order_id|phone|email>
+
+    Returns order status + Mylerz live tracking events.
+    Reveals only safe public fields (status, items, wilaya, delivery, barcode).
+    """
+    permission_classes = []
+    authentication_classes = []
+
+    # Simple throttle: max 20 requests per minute per IP
+    throttle_scope = 'track'
+
+    STATUS_LABELS = {
+        'pending':   'En attente de confirmation',
+        'confirmed': 'Commande confirmée',
+        'shipped':   'En cours de livraison',
+        'fulfilled': 'Livrée',
+        'cancelled': 'Annulée',
+        'returned':  'Retournée',
+    }
+
+    def get(self, request):
+        import re
+        q = request.query_params.get('q', '').strip()
+        if not q:
+            return Response({'detail': 'Veuillez entrer un numéro de commande, téléphone ou email.'}, status=400)
+
+        # Build query: order id (digits only), phone or email
+        from django.db.models import Q
+        orders = Order.objects.filter(is_deleted=False).select_related('user', 'customer').prefetch_related('items')
+
+        if re.match(r'^\d+$', q):
+            # Could be order ID or phone number
+            qs = orders.filter(
+                Q(id=int(q)) |
+                Q(guest_phone__icontains=q) |
+                Q(customer__phone__icontains=q) |
+                Q(user__profile__phone__icontains=q)
+            )
+        elif '@' in q:
+            qs = orders.filter(
+                Q(guest_email__iexact=q) |
+                Q(user__email__iexact=q) |
+                Q(customer__email__iexact=q)
+            )
+        else:
+            # Phone number with formatting or prefix
+            clean = re.sub(r'\D', '', q)
+            qs = orders.filter(
+                Q(guest_phone__icontains=clean) |
+                Q(customer__phone__icontains=clean) |
+                Q(user__profile__phone__icontains=clean)
+            )
+
+        qs = qs.order_by('-created_at')[:5]  # Return max 5 most recent
+
+        if not qs.exists():
+            return Response({'detail': 'Aucune commande trouvée avec ces informations.'}, status=404)
+
+        results = []
+        for order in qs:
+            # Fetch live Mylerz tracking if barcode exists
+            tracking_events = []
+            mylerz_current_status = order.mylerz_status or ''
+
+            if order.mylerz_barcode:
+                try:
+                    from .mylerz_service import track_shipment
+                    track_result = track_shipment(order.mylerz_barcode)
+                    if track_result.get('success'):
+                        raw_events = track_result.get('tracking', [])
+                        # Normalize events
+                        for ev in raw_events:
+                            tracking_events.append({
+                                'date': ev.get('Date') or ev.get('date') or ev.get('EventDate', ''),
+                                'status': ev.get('Status') or ev.get('status') or ev.get('EventStatus', ''),
+                                'description': ev.get('Description') or ev.get('description') or ev.get('EventDescription', ''),
+                                'location': ev.get('Location') or ev.get('location') or '',
+                            })
+                        # Update mylerz_status in DB with latest event
+                        if tracking_events:
+                            latest = tracking_events[0].get('status', '')
+                            if latest and latest != order.mylerz_status:
+                                order.mylerz_status = latest
+                                order.save(update_fields=['mylerz_status'])
+                            mylerz_current_status = latest
+                except Exception as e:
+                    logger.warning(f"TrackOrderView: Mylerz tracking failed for barcode {order.mylerz_barcode}: {e}")
+
+            # Safe public fields only
+            items_data = [
+                {
+                    'name': item.product_name,
+                    'variant': item.variant_name,
+                    'quantity': item.quantity,
+                    'price': float(item.price_at_purchase),
+                }
+                for item in order.items.all()
+            ]
+
+            results.append({
+                'id': order.id,
+                'created_at': order.created_at.strftime('%d/%m/%Y à %H:%M'),
+                'status': order.status,
+                'status_label': self.STATUS_LABELS.get(order.status, order.status),
+                'payment_method': order.get_payment_method_display(),
+                'payment_status': order.payment_status,
+                'wilaya': order.wilaya,
+                'delivery_type': order.get_delivery_type_display(),
+                'delivery_company': order.delivery_company_name,
+                'total': float(order.total),
+                'items': items_data,
+                'mylerz_barcode': order.mylerz_barcode or None,
+                'mylerz_status': mylerz_current_status or None,
+                'tracking_events': tracking_events,
+            })
+
+        return Response({'orders': results})
 

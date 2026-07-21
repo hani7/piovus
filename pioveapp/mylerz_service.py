@@ -18,6 +18,102 @@ MYLERZ_USERNAME = getattr(settings, 'MYLERZ_USERNAME', '') or ''
 MYLERZ_PASSWORD = getattr(settings, 'MYLERZ_PASSWORD', '') or ''
 MYLERZ_WAREHOUSE = getattr(settings, 'MYLERZ_WAREHOUSE_NAME', '') or ''
 
+# ─── Wilaya Normalization ──────────────────────────────────────────────────────
+# Maps any format (name only, "N - Name", partial) → exact Mylerz Algeria city name
+# Index 0 = wilaya number (1-based), value = exact Mylerz name
+WILAYA_LIST = [
+    "Adrar", "Chlef", "Laghouat", "Oum El Bouaghi", "Batna",
+    "Bejaia", "Biskra", "Bechar", "Blida", "Bouira",
+    "Tamanrasset", "Tebessa", "Tlemcen", "Tiaret", "Tizi Ouzou",
+    "Alger", "Djelfa", "Jijel", "Setif", "Saida",
+    "Skikda", "Sidi Bel Abbes", "Annaba", "Guelma", "Constantine",
+    "Medea", "Mostaganem", "M'Sila", "Mascara", "Ouargla",
+    "Oran", "El Bayadh", "Illizi", "Bordj Bou Arreridj", "Boumerdes",
+    "El Tarf", "Tindouf", "Tissemsilt", "El Oued", "Khenchela",
+    "Souk Ahras", "Tipaza", "Mila", "Ain Defla", "Naama",
+    "Ain Temouchent", "Ghardaia", "Relizane",
+    "Timimoun", "Bordj Badji Mokhtar", "Ouled Djellal", "Beni Abbes",
+    "In Salah", "In Guezzam", "Touggourt", "Djanet", "El M'Ghair", "El Meniaa",
+]
+
+# Also map common French/Arabic variants → correct Mylerz name
+_WILAYA_ALIASES = {
+    # accents → no accent (Mylerz uses no accents)
+    "béjaïa": "Bejaia", "bejaia": "Bejaia", "bgayet": "Bejaia",
+    "béchar": "Bechar", "bechar": "Bechar",
+    "blida": "Blida",
+    "tébessa": "Tebessa", "tebessa": "Tebessa",
+    "tizi ouzou": "Tizi Ouzou",
+    "alger": "Alger", "algiers": "Alger",
+    "sétif": "Setif", "setif": "Setif",
+    "saïda": "Saida", "saida": "Saida",
+    "sidi bel abbès": "Sidi Bel Abbes", "sidi bel abbes": "Sidi Bel Abbes",
+    "médéa": "Medea", "medea": "Medea",
+    "m'sila": "M'Sila", "msila": "M'Sila",
+    "bordj bou arréridj": "Bordj Bou Arreridj", "bordj bou arreridj": "Bordj Bou Arreridj",
+    "boumerdès": "Boumerdes", "boumerdes": "Boumerdes",
+    "naâma": "Naama", "naama": "Naama",
+    "aïn defla": "Ain Defla", "ain defla": "Ain Defla",
+    "aïn témouchent": "Ain Temouchent", "ain temouchent": "Ain Temouchent",
+    "ghardaïa": "Ghardaia", "ghardaia": "Ghardaia",
+    "béni abbès": "Beni Abbes", "beni abbes": "Beni Abbes",
+    "el m'ghair": "El M'Ghair", "el mghair": "El M'Ghair",
+    "el meniaa": "El Meniaa",
+    "ouled djellal": "Ouled Djellal",
+}
+
+def normalize_wilaya(raw):
+    """
+    Normalize a wilaya string to the exact city name expected by Mylerz Algeria.
+    Accepts formats:
+      - "Alger"
+      - "16 - Alger"
+      - "16"
+      - "Béjaïa" (accented)
+    Returns the Mylerz-compatible city name or the cleaned input if not found.
+    """
+    if not raw:
+        return 'Alger'
+
+    raw = str(raw).strip()
+
+    # Format "N - Name" or "N-Name"
+    import re
+    m = re.match(r'^(\d+)\s*[-–]\s*(.+)$', raw)
+    if m:
+        num = int(m.group(1))
+        name_part = m.group(2).strip()
+        # Try by number first (most reliable)
+        if 1 <= num <= len(WILAYA_LIST):
+            return WILAYA_LIST[num - 1]
+        raw = name_part  # fall through to name lookup
+
+    # Format pure number "16"
+    if re.match(r'^\d+$', raw):
+        num = int(raw)
+        if 1 <= num <= len(WILAYA_LIST):
+            return WILAYA_LIST[num - 1]
+
+    # Alias lookup (lowercase key)
+    key = raw.lower().strip()
+    if key in _WILAYA_ALIASES:
+        return _WILAYA_ALIASES[key]
+
+    # Exact match (case-insensitive) against WILAYA_LIST
+    for w in WILAYA_LIST:
+        if w.lower() == key:
+            return w
+
+    # Partial match (startswith)
+    for w in WILAYA_LIST:
+        if w.lower().startswith(key[:4]):
+            return w
+
+    # Give back cleaned string as fallback
+    logger.warning(f"normalize_wilaya: could not map '{raw}' — using as-is")
+    return raw
+
+
 CACHE_KEY = 'mylerz_access_token'
 TOKEN_TTL = 60 * 50  # 50 minutes (tokens typically last 60 min)
 
@@ -157,8 +253,8 @@ def create_shipment(order):
         cod_value = float(order.total)
 
     # Address fields — map Piové fields to Mylerz fields
-    # Mylerz Algeria requires City (Wilaya) and Neighborhood (Commune/City)
-    city = order.wilaya or 'Alger'
+    # normalize_wilaya converts any format ("Béjaïa", "6 - Béjaïa", "6") → exact Mylerz name
+    city = normalize_wilaya(order.wilaya or '')
     neighborhood = order.city or city
     street = order.shipping_address or neighborhood
     district = neighborhood

@@ -30,6 +30,7 @@ const ShippingPage = lazy(() => import('./pages/ShippingPage'))
 const FaqPage = lazy(() => import('./pages/FaqPage'))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 const TermsPage = lazy(() => import('./pages/TermsPage'))
+const TrackPage = lazy(() => import('./pages/TrackPage'))
 
 // Admin
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
@@ -211,6 +212,7 @@ export default function App() {
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/confidentialite" element={<PrivacyPage />} />
           <Route path="/conditions" element={<TermsPage />} />
+<Route path="/suivi" element={<TrackPage />} />
 
           {/* Admin */}
           <Route path="/piove-secure-2026/login" element={<AdminLogin />} />

@@ -10,8 +10,6 @@ db.sqlite3
 
 # Apache config - managed directly on server
 .htaccess
-
-
 # Database - NEVER commit this!
 db.sqlite3
 *.sqlite3

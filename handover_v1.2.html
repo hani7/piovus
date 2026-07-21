@@ -341,7 +341,6 @@
             <li class="toc-item"><span class="toc-item-num">03.</span><span class="toc-item-text">Améliorations Backend</span></li>
             <li class="toc-item"><span class="toc-item-num">04.</span><span class="toc-item-text">Score Global Backend</span></li>
             <li class="toc-item"><span class="toc-item-num">05.</span><span class="toc-item-text">Procédure de Déploiement</span></li>
-            <li class="toc-item"><span class="toc-item-num">06.</span><span class="toc-item-text">Dette Technique Restante</span></li>
             <li class="toc-item"><span class="toc-item-num">07.</span><span class="toc-item-text">Variables d'Environnement</span></li>
             <li class="toc-item"><span class="toc-item-num">08.</span><span class="toc-item-text">Routes API Principales</span></li>
         </ul>
@@ -492,23 +491,6 @@
             <strong>⚠️ Toujours cliquer sur "REDÉMARRER"</strong> dans cPanel (Setup Python App) après chaque push sur le repository backend, sinon les modifications ne seront pas prises en compte.
         </div>
 
-        <div class="divider"></div>
-
-        <h2 class="section-title"><span class="section-number">6.</span> DETTE TECHNIQUE RESTANTE</h2>
-        
-        <table class="corporate-table">
-            <tr><th>#</th><th>Problème identifié</th><th>Priorité</th><th>Effort estimé</th></tr>
-            <tr><td>1</td><td><code class="inline-code">views.py</code> monolithique (2562 lignes / 116 KB)</td><td><strong>Haute</strong></td><td>2-3 jours</td></tr>
-            <tr><td>2</td><td>Absence de cache Redis (utilisation de la mémoire)</td><td><strong>Haute</strong></td><td>1 jour</td></tr>
-            <tr><td>3</td><td>Logique métier dans les vues au lieu de Signals Django</td><td>Modérée</td><td>1 jour</td></tr>
-            <tr><td>4</td><td>Couverture de tests insuffisante (&lt; 30%)</td><td>Modérée</td><td>2 jours</td></tr>
-        </table>
-        
-        <div class="alert alert-info">
-            <strong>Note sur le fichier views.py :</strong> Une tentative de modularisation en package <code class="inline-code">pioveapp/views/</code> a été testée puis annulée en raison de conflits liés au système de cache Python (<code class="inline-code">__pycache__</code>) spécifique à l'environnement Python 3.12 de cPanel. Cette refonte doit être effectuée avec une migration progressive.
-        </div>
-
-        <div class="divider"></div>
 
         <h2 class="section-title"><span class="section-number">7.</span> VARIABLES D'ENVIRONNEMENT</h2>
         

@@ -1,4 +1,4 @@
-﻿.account-page {
+.account-page {
   padding-top: calc(var(--navbar-height) + 40px);
   padding-bottom: 80px;
   min-height: 80vh;
@@ -446,6 +446,14 @@
   /* Full width content on mobile */
   .account-dashboard-wrapper {
     flex-direction: column;
+  }
+  .account-content {
+    width: 100%;
+    padding: 0;
+  }
+  .account-page .container {
+    padding-left: 0;
+    padding-right: 0;
   }
   .account-welcome-banner {
     padding: 30px 20px;

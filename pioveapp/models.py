@@ -309,6 +309,7 @@ class Order(models.Model):
     # Guest fields (for guest checkout)
     guest_name = models.CharField(max_length=200, blank=True)
     guest_phone = models.CharField(max_length=20, blank=True)
+    guest_phone2 = models.CharField(max_length=20, blank=True, verbose_name='2ème numéro de téléphone')
     guest_email = models.EmailField(blank=True)
 
     # Shipping

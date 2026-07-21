@@ -362,7 +362,7 @@ class AdminOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            'id', 'customer_name', 'user', 'guest_name', 'guest_phone', 'guest_email',
+            'id', 'customer_name', 'user', 'guest_name', 'guest_phone', 'guest_phone2', 'guest_email',
             'shipping_address', 'wilaya', 'city',
             'delivery_company_name', 'delivery_type', 'delivery_cost',
             'status', 'status_display', 'payment_status', 'payment_method', 'total', 'notes', 'source',
@@ -396,6 +396,22 @@ class AdminOrderStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['status']
+
+
+class AdminOrderEditSerializer(serializers.ModelSerializer):
+    """Full editable fields for admin order edit panel."""
+    class Meta:
+        model = Order
+        fields = [
+            'status',
+            'guest_name', 'guest_phone', 'guest_phone2', 'guest_email',
+            'shipping_address', 'wilaya', 'city',
+            'notes',
+        ]
+        extra_kwargs = {f: {'required': False} for f in [
+            'status', 'guest_name', 'guest_phone', 'guest_phone2', 'guest_email',
+            'shipping_address', 'wilaya', 'city', 'notes',
+        ]}
 
 
 # ─── Delivery Serializers ────────────────────────────────────────────────────

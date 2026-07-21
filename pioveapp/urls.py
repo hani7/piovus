@@ -14,7 +14,7 @@ from .views import (
     AdminNewsletterSendView, AdminNewsletterUploadImageView, AdminReportView, ApplyCouponView,
     SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet,
     mylerz_webhook, satim_callback, satim_test_view, AdminMediaView,
-    AdminProfileView, AdminChangePasswordView
+    AdminProfileView, AdminChangePasswordView, TrackOrderView
 )
 from django.core.management import call_command
 from django.http import JsonResponse
@@ -65,6 +65,7 @@ urlpatterns = [
     path('settings/', SiteSettingsView.as_view(), name='site-settings'),
     path('apply-coupon/', ApplyCouponView.as_view(), name='apply-coupon'),
     path('mylerz/webhook/', mylerz_webhook, name='mylerz-webhook'),
+    path('track/', TrackOrderView.as_view(), name='track-order'),
     path('satim/callback/', satim_callback, name='satim-callback'),
     path('satim/test/', satim_test_view, name='satim-test'),
     path('run-migrations-secret/', run_migrations_view),

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuthStore } from '../store/authStore'
 import client from '../api/client'
 import { MapPin, Save, Search, ChevronDown, X } from 'lucide-react'
@@ -165,7 +165,7 @@ export default function AddressesPage() {
         </h1>
       </div>
 
-      <div style={{ background: '#fff', padding: '28px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid var(--color-gray-200)' }}>
+      <div style={{ background: '#fff', padding: 'clamp(16px, 4vw, 28px)', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid var(--color-gray-200)' }}>
         <h2 style={{ fontSize: '1rem', marginBottom: '20px', fontWeight: 600 }}>Adresse par défaut</h2>
 
         {error && <div style={{ background: '#FEE2E2', color: '#B91C1C', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.9rem' }}>{error}</div>}

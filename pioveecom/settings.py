@@ -194,6 +194,7 @@ REST_FRAMEWORK = {
         'anon': '200/minute',
         'user': '1000/minute',
         'auth': '10/minute',
+        'track': '20/minute',
     }
 }
 

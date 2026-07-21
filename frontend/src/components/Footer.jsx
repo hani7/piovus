@@ -85,6 +85,7 @@ export default function Footer() {
         <div className="footer__col">
           <h4>Service Client</h4>
           <Link to="/compte">Mon Compte</Link>
+          <Link to="/suivi">🚚 Suivre ma Commande</Link>
           <Link to="/compte/commandes">Mes Commandes</Link>
           <Link to="/cart">Mon Panier</Link>
           <a href="tel:+213770263494">0770 26 34 94</a>

@@ -1053,56 +1053,74 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         - Notes: notes
         - Items: [{id, quantity}] — set quantity=0 to remove
         """
-        order = self.get_object()
-        data = request.data
+        import logging
+        logger = logging.getLogger(__name__)
+        try:
+            order = self.get_object()
+            data = request.data
 
-        # Update editable fields
-        editable_fields = [
-            'guest_name', 'guest_phone', 'guest_phone2', 'guest_email',
-            'shipping_address', 'wilaya', 'city', 'notes',
-        ]
-        changed = []
-        for field in editable_fields:
-            if field in data:
-                new_val = data[field]
-                if getattr(order, field) != new_val:
-                    setattr(order, field, new_val)
-                    changed.append(field)
+            # Update editable fields — only those that exist on the model
+            model_field_names = {f.name for f in order._meta.get_fields() if hasattr(f, 'name')}
+            editable_fields = [
+                f for f in ['guest_name', 'guest_phone', 'guest_phone2', 'guest_email',
+                             'shipping_address', 'wilaya', 'city', 'notes']
+                if f in model_field_names
+            ]
+            changed = []
+            for field in editable_fields:
+                if field in data:
+                    new_val = data[field]
+                    if str(getattr(order, field) or '') != str(new_val or ''):
+                        setattr(order, field, new_val or '')
+                        changed.append(field)
 
-        # Update items quantities
-        items_data = data.get('items', [])
-        for item_d in items_data:
-            item_id = item_d.get('id')
-            qty = int(item_d.get('quantity', 1))
-            if not item_id:
-                continue
+            # Update items quantities
+            items_data = data.get('items', [])
+            for item_d in items_data:
+                item_id = item_d.get('id')
+                try:
+                    qty = int(item_d.get('quantity', 1))
+                except (TypeError, ValueError):
+                    qty = 1
+                if not item_id:
+                    continue
+                try:
+                    from .models import OrderItem
+                    item = order.items.get(id=item_id)
+                    if qty <= 0:
+                        item.delete()
+                    else:
+                        item.quantity = qty
+                        item.save(update_fields=['quantity'])
+                except Exception as e:
+                    logger.warning(f'edit_order item {item_id} error: {e}')
+
+            if changed:
+                order.save(update_fields=changed)
+
+            # Recalculate total after item changes
+            if items_data:
+                order.recalculate_total()
+
             try:
-                from .models import OrderItem
-                item = order.items.get(id=item_id)
-                if qty <= 0:
-                    item.delete()
-                else:
-                    item.quantity = qty
-                    item.save(update_fields=['quantity'])
-            except Exception:
-                pass
+                UserActivityLog.objects.create(
+                    user=request.user,
+                    action=f'Modification manuelle commande #{order.id}: {", ".join(changed) if changed else "items"}',
+                    ip_address=request.META.get('REMOTE_ADDR'),
+                    user_agent=request.META.get('HTTP_USER_AGENT'),
+                )
+            except Exception as e:
+                logger.warning(f'UAL create error: {e}')
 
-        if changed:
-            order.save(update_fields=changed)
+            # Refresh to clear stale prefetch cache before serializing
+            order.refresh_from_db()
+            from .serializers import AdminOrderSerializer as Ser
+            return Response(Ser(order, context={'request': request}).data)
 
-        # Recalculate total after item changes
-        if items_data:
-            order.recalculate_total()
-
-        UserActivityLog.objects.create(
-            user=request.user,
-            action=f'Modification manuelle commande #{order.id}: {", ".join(changed) if changed else "items"}',
-            ip_address=request.META.get('REMOTE_ADDR'),
-            user_agent=request.META.get('HTTP_USER_AGENT'),
-        )
-
-        from .serializers import AdminOrderSerializer as Ser
-        return Response(Ser(order, context={'request': request}).data)
+        except Exception as e:
+            import traceback
+            logger.error(f'edit_order error: {traceback.format_exc()}')
+            return Response({'detail': str(e)}, status=500)
 
     @action(detail=True, methods=['get'])
     def mylerz_ship_debug(self, request, pk=None):

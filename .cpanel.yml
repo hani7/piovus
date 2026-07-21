@@ -2,4 +2,5 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/piovec9/piovus
+    - /bin/bash -c "cd $DEPLOYPATH && python manage.py migrate --noinput 2>&1 | tail -5 || true"
     - /bin/bash -c "cd $DEPLOYPATH && python passenger_wsgi.py 2>/dev/null || true"

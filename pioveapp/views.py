@@ -1154,8 +1154,16 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             payment_type = 'PP' if order.payment_method == 'cib' else 'COD'
             cod_value = 0.0 if order.payment_method == 'cib' else float(order.total)
 
-            city = getattr(order, 'wilaya', None) or 'Alger'
-            neighborhood = getattr(order, 'city', None) or city
+            wilaya_normalized = mylerz_service.normalize_wilaya(getattr(order, 'wilaya', None) or '')
+            commune = (getattr(order, 'city', None) or '').strip()
+            if commune:
+                city = commune
+                neighborhood = commune
+                district_val = wilaya_normalized
+            else:
+                city = wilaya_normalized
+                neighborhood = wilaya_normalized
+                district_val = wilaya_normalized
             street = getattr(order, 'shipping_address', None) or neighborhood
 
             total_weight = 0.0
@@ -1185,7 +1193,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                 "Street": street,
                 "City": city,
                 "Neighborhood": neighborhood,
-                "District": neighborhood,
+                "District": district_val,
                 "Address_Category": "H",
                 "Special_Notes": getattr(order, 'notes', '') or '',
                 "Reference": str(order.id),

@@ -254,10 +254,20 @@ def create_shipment(order):
 
     # Address fields — map Piové fields to Mylerz fields
     # normalize_wilaya converts any format ("Béjaïa", "6 - Béjaïa", "6") → exact Mylerz name
-    city = normalize_wilaya(order.wilaya or '')
-    neighborhood = order.city or city
-    street = order.shipping_address or neighborhood
-    district = neighborhood
+    # Si commune saisie → City = commune (imprimé sur le bordereau Mylerz)
+    # Si pas de commune → City = wilaya normalisée
+    wilaya_normalized = normalize_wilaya(order.wilaya or '')
+    commune = (order.city or '').strip()
+
+    if commune:
+        city = commune
+        neighborhood = commune
+        district_val = wilaya_normalized
+    else:
+        city = wilaya_normalized
+        neighborhood = wilaya_normalized
+        district_val = wilaya_normalized
+    street = getattr(order, 'shipping_address', None) or neighborhood
 
     # Mylerz Algeria Address_Category is H or C or B
     address_category = 'H'
@@ -300,7 +310,7 @@ def create_shipment(order):
             "Street": street,
             "City": city,
             "Neighborhood": neighborhood,
-            "District": district,
+            "District": district_val,
             "Address_Category": address_category,
             "Special_Notes": getattr(order, 'notes', '') or '',
             "Reference": ref_unique,  # unique per attempt to avoid duplicate rejection

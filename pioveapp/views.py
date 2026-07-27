@@ -638,30 +638,52 @@ class OrderViewSet(viewsets.ModelViewSet):
         )
 
 
-        # Send confirmation email
+        # ─── Email notifications nouvelle commande ─────────────────────────
         recipient_email = getattr(order, 'guest_email', None)
         if not recipient_email and order.user:
             recipient_email = order.user.email
 
-        if recipient_email:
-            def send_order_email(order_id, recipient):
-                try:
-                    # Need to re-fetch to get all relations in the thread
-                    from .models import Order
-                    o = Order.objects.prefetch_related('items').get(id=order_id)
-                    subject = f"Confirmation de commande #{o.id} - Piov├® Cosmetics"
+        def send_new_order_emails(order_id, rcpt):
+            try:
+                from .models import Order
+                o = Order.objects.prefetch_related('items').get(id=order_id)
+                admin_email = 'lbetaimi@piovecosmetics.com'
+
+                # 1. Email confirmation au client (si email disponible)
+                if rcpt:
                     text_content = render_to_string('emails/order_confirmation.txt', {'order': o})
                     html_content = render_to_string('emails/order_confirmation.html', {'order': o})
-                    
-                    # Send BCC to admin for every new order
-                    admin_email = 'lbetaimi@piovecosmetics.com'
-                    msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [recipient], bcc=[admin_email])
+                    msg = EmailMultiAlternatives(
+                        f"Confirmation commande #{o.id} - Piove Cosmetics",
+                        text_content, settings.DEFAULT_FROM_EMAIL, [rcpt]
+                    )
                     msg.attach_alternative(html_content, "text/html")
                     msg.send(fail_silently=True)
-                except Exception as e:
-                    pass
-            
-            threading.Thread(target=send_order_email, args=(order.id, recipient_email)).start()
+
+                # 2. Email direct admin — TOUJOURS
+                client_name = o.guest_name or (o.customer.name if o.customer else '') or 'Sans nom'
+                items_text = ', '.join(f"{i.quantity}x {i.product_name}" for i in o.items.all()) or '—'
+                admin_subject = f"[NOUVELLE COMMANDE #{o.id}] {client_name} | {o.wilaya or '—'} | {o.total} DA"
+                admin_body = (
+                    f"<h2>Nouvelle commande #{o.id}</h2>"
+                    f"<p><b>Client :</b> {client_name}<br>"
+                    f"<b>Tel :</b> {o.guest_phone or '—'}<br>"
+                    f"<b>Wilaya :</b> {o.wilaya or '—'} / {o.commune or '—'}<br>"
+                    f"<b>Adresse :</b> {o.shipping_address or '—'}<br>"
+                    f"<b>Paiement :</b> {'CIB/Edahabia' if o.payment_method == 'cib' else 'Cash livraison'}<br>"
+                    f"<b>Articles :</b> {items_text}<br>"
+                    f"<b>Total :</b> <strong>{o.total} DA</strong></p>"
+                )
+                msg_admin = EmailMultiAlternatives(
+                    admin_subject, f"Nouvelle commande #{o.id}",
+                    settings.DEFAULT_FROM_EMAIL, [admin_email]
+                )
+                msg_admin.attach_alternative(admin_body, "text/html")
+                msg_admin.send(fail_silently=True)
+            except Exception:
+                pass
+
+        threading.Thread(target=send_new_order_emails, args=(order.id, recipient_email)).start()
 
         # ÔöÇÔöÇ CIB / Edahabia via SATIM ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
         if order.payment_method == 'cib':

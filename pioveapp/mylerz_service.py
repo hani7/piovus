@@ -21,97 +21,267 @@ MYLERZ_WAREHOUSE = getattr(settings, 'MYLERZ_WAREHOUSE_NAME', '') or ''
 # ─── Wilaya Normalization ──────────────────────────────────────────────────────
 # Maps any format (name only, "N - Name", partial) → exact Mylerz Algeria city name
 # Index 0 = wilaya number (1-based), value = exact Mylerz name
+
+# ─── Wilaya → Mylerz City Name Mapping ──────────────────────────────────────
+# Mylerz Algeria uses specific city names (no accents, specific spelling).
+# This maps EVERY possible form the frontend might send → exact Mylerz city name.
+# Based on Mylerz Algeria v1.3.1 documentation + GetCityZoneList.
+
+# Exact Mylerz city names (index 0 = wilaya 1, index 57 = wilaya 58)
 WILAYA_LIST = [
-    "Adrar", "Chlef", "Laghouat", "Oum El Bouaghi", "Batna",
-    "Bejaia", "Biskra", "Bechar", "Blida", "Bouira",
-    "Tamanrasset", "Tebessa", "Tlemcen", "Tiaret", "Tizi Ouzou",
-    "Alger", "Djelfa", "Jijel", "Setif", "Saida",
-    "Skikda", "Sidi Bel Abbes", "Annaba", "Guelma", "Constantine",
-    "Medea", "Mostaganem", "M'Sila", "Mascara", "Ouargla",
-    "Oran", "El Bayadh", "Illizi", "Bordj Bou Arreridj", "Boumerdes",
-    "El Tarf", "Tindouf", "Tissemsilt", "El Oued", "Khenchela",
-    "Souk Ahras", "Tipaza", "Mila", "Ain Defla", "Naama",
-    "Ain Temouchent", "Ghardaia", "Relizane",
-    "Timimoun", "Bordj Badji Mokhtar", "Ouled Djellal", "Beni Abbes",
-    "In Salah", "In Guezzam", "Touggourt", "Djanet", "El M'Ghair", "El Meniaa",
+    "Adrar",           # 01
+    "Chlef",           # 02
+    "Laghouat",        # 03
+    "Oum El Bouaghi",  # 04
+    "Batna",           # 05
+    "Bejaia",          # 06
+    "Biskra",          # 07
+    "Bechar",          # 08
+    "Blida",           # 09
+    "Bouira",          # 10
+    "Tamanrasset",     # 11
+    "Tebessa",         # 12
+    "Tlemcen",         # 13
+    "Tiaret",          # 14
+    "Tizi Ouzou",      # 15
+    "Alger",           # 16
+    "Djelfa",          # 17
+    "Jijel",           # 18
+    "Setif",           # 19
+    "Saida",           # 20
+    "Skikda",          # 21
+    "Sidi Bel Abbes",  # 22
+    "Annaba",          # 23
+    "Guelma",          # 24
+    "Constantine",     # 25
+    "Medea",           # 26
+    "Mostaganem",      # 27
+    "M'Sila",          # 28
+    "Mascara",         # 29
+    "Ouargla",         # 30
+    "Oran",            # 31
+    "El Bayadh",       # 32
+    "Illizi",          # 33
+    "Bordj Bou Arreridj",  # 34
+    "Boumerdes",       # 35
+    "El Tarf",         # 36
+    "Tindouf",         # 37
+    "Tissemsilt",      # 38
+    "El Oued",         # 39
+    "Khenchela",       # 40
+    "Souk Ahras",      # 41
+    "Tipaza",          # 42
+    "Mila",            # 43
+    "Ain Defla",       # 44
+    "Naama",           # 45
+    "Ain Temouchent",  # 46
+    "Ghardaia",        # 47
+    "Relizane",        # 48
+    "Timimoun",        # 49
+    "Bordj Badji Mokhtar",  # 50
+    "Ouled Djellal",   # 51
+    "Beni Abbes",      # 52
+    "In Salah",        # 53
+    "In Guezzam",      # 54
+    "Touggourt",       # 55
+    "Djanet",          # 56
+    "El M'Ghair",      # 57
+    "El Meniaa",       # 58
 ]
 
-# Also map common French/Arabic variants → correct Mylerz name
+# Exhaustive alias map: any form the frontend/user might send → exact Mylerz name
+# Keys are lowercase. Covers accented French, unaccented, partial, Arabic transliterations.
 _WILAYA_ALIASES = {
-    # accents → no accent (Mylerz uses no accents)
-    "béjaïa": "Bejaia", "bejaia": "Bejaia", "bgayet": "Bejaia",
-    "béchar": "Bechar", "bechar": "Bechar",
-    "blida": "Blida",
-    "tébessa": "Tebessa", "tebessa": "Tebessa",
-    "tizi ouzou": "Tizi Ouzou",
-    "alger": "Alger", "algiers": "Alger",
-    "sétif": "Setif", "setif": "Setif",
-    "saïda": "Saida", "saida": "Saida",
-    "sidi bel abbès": "Sidi Bel Abbes", "sidi bel abbes": "Sidi Bel Abbes",
-    "médéa": "Medea", "medea": "Medea",
-    "m'sila": "M'Sila", "msila": "M'Sila",
-    "bordj bou arréridj": "Bordj Bou Arreridj", "bordj bou arreridj": "Bordj Bou Arreridj",
-    "boumerdès": "Boumerdes", "boumerdes": "Boumerdes",
-    "naâma": "Naama", "naama": "Naama",
-    "aïn defla": "Ain Defla", "ain defla": "Ain Defla",
-    "aïn témouchent": "Ain Temouchent", "ain temouchent": "Ain Temouchent",
-    "ghardaïa": "Ghardaia", "ghardaia": "Ghardaia",
-    "béni abbès": "Beni Abbes", "beni abbes": "Beni Abbes",
-    "el m'ghair": "El M'Ghair", "el mghair": "El M'Ghair",
-    "el meniaa": "El Meniaa",
+    # 01 Adrar
+    "adrar": "Adrar",
+    # 02 Chlef
+    "chlef": "Chlef", "ech cheliff": "Chlef", "el asnam": "Chlef",
+    # 03 Laghouat
+    "laghouat": "Laghouat", "el aghouat": "Laghouat",
+    # 04 Oum El Bouaghi
+    "oum el bouaghi": "Oum El Bouaghi", "oum el-bouaghi": "Oum El Bouaghi", "oum bouaghi": "Oum El Bouaghi",
+    # 05 Batna
+    "batna": "Batna",
+    # 06 Bejaia
+    "bejaia": "Bejaia", "béjaïa": "Bejaia", "bejaia": "Bejaia", "bgayet": "Bejaia", "bejaïa": "Bejaia", "béjaia": "Bejaia",
+    # 07 Biskra
+    "biskra": "Biskra",
+    # 08 Bechar
+    "bechar": "Bechar", "béchar": "Bechar",
+    # 09 Blida
+    "blida": "Blida", "el boulaida": "Blida",
+    # 10 Bouira
+    "bouira": "Bouira",
+    # 11 Tamanrasset
+    "tamanrasset": "Tamanrasset", "tamanghasset": "Tamanrasset",
+    # 12 Tebessa
+    "tebessa": "Tebessa", "tébessa": "Tebessa", "tbessa": "Tebessa",
+    # 13 Tlemcen
+    "tlemcen": "Tlemcen", "tilimsen": "Tlemcen",
+    # 14 Tiaret
+    "tiaret": "Tiaret",
+    # 15 Tizi Ouzou
+    "tizi ouzou": "Tizi Ouzou", "tizi-ouzou": "Tizi Ouzou", "tizi ouzzou": "Tizi Ouzou",
+    # 16 Alger
+    "alger": "Alger", "algiers": "Alger", "alger centre": "Alger",
+    # 17 Djelfa
+    "djelfa": "Djelfa",
+    # 18 Jijel
+    "jijel": "Jijel",
+    # 19 Setif
+    "setif": "Setif", "sétif": "Setif", "setif": "Setif",
+    # 20 Saida
+    "saida": "Saida", "saïda": "Saida",
+    # 21 Skikda
+    "skikda": "Skikda",
+    # 22 Sidi Bel Abbes
+    "sidi bel abbes": "Sidi Bel Abbes", "sidi bel abbès": "Sidi Bel Abbes",
+    "sidi-bel-abbes": "Sidi Bel Abbes", "sidi bel-abbes": "Sidi Bel Abbes",
+    # 23 Annaba
+    "annaba": "Annaba", "bone": "Annaba",
+    # 24 Guelma
+    "guelma": "Guelma",
+    # 25 Constantine
+    "constantine": "Constantine", "qacentina": "Constantine",
+    # 26 Medea
+    "medea": "Medea", "médéa": "Medea", "medéa": "Medea", "médea": "Medea",
+    # 27 Mostaganem
+    "mostaganem": "Mostaganem",
+    # 28 M'Sila
+    "m'sila": "M'Sila", "msila": "M'Sila", "m sila": "M'Sila",
+    # 29 Mascara
+    "mascara": "Mascara",
+    # 30 Ouargla
+    "ouargla": "Ouargla", "wargla": "Ouargla",
+    # 31 Oran
+    "oran": "Oran", "wahran": "Oran",
+    # 32 El Bayadh
+    "el bayadh": "El Bayadh", "el-bayadh": "El Bayadh",
+    # 33 Illizi
+    "illizi": "Illizi",
+    # 34 Bordj Bou Arreridj
+    "bordj bou arreridj": "Bordj Bou Arreridj", "bordj bou arréridj": "Bordj Bou Arreridj",
+    "bordj bou arreridj": "Bordj Bou Arreridj", "bba": "Bordj Bou Arreridj",
+    # 35 Boumerdes
+    "boumerdes": "Boumerdes", "boumerdès": "Boumerdes", "boumerdas": "Boumerdes",
+    # 36 El Tarf
+    "el tarf": "El Tarf", "el-tarf": "El Tarf",
+    # 37 Tindouf
+    "tindouf": "Tindouf",
+    # 38 Tissemsilt
+    "tissemsilt": "Tissemsilt",
+    # 39 El Oued
+    "el oued": "El Oued", "el-oued": "El Oued", "souf": "El Oued",
+    # 40 Khenchela
+    "khenchela": "Khenchela",
+    # 41 Souk Ahras
+    "souk ahras": "Souk Ahras", "souk-ahras": "Souk Ahras",
+    # 42 Tipaza
+    "tipaza": "Tipaza",
+    # 43 Mila
+    "mila": "Mila",
+    # 44 Ain Defla
+    "ain defla": "Ain Defla", "aïn defla": "Ain Defla", "ain-defla": "Ain Defla",
+    # 45 Naama
+    "naama": "Naama", "naâma": "Naama",
+    # 46 Ain Temouchent
+    "ain temouchent": "Ain Temouchent", "aïn témouchent": "Ain Temouchent",
+    "ain-temouchent": "Ain Temouchent", "aïn temouchent": "Ain Temouchent",
+    # 47 Ghardaia
+    "ghardaia": "Ghardaia", "ghardaïa": "Ghardaia", "ghardaya": "Ghardaia",
+    # 48 Relizane
+    "relizane": "Relizane",
+    # 49 Timimoun
+    "timimoun": "Timimoun",
+    # 50 Bordj Badji Mokhtar
+    "bordj badji mokhtar": "Bordj Badji Mokhtar",
+    # 51 Ouled Djellal
     "ouled djellal": "Ouled Djellal",
+    # 52 Beni Abbes
+    "beni abbes": "Beni Abbes", "béni abbès": "Beni Abbes", "beni-abbes": "Beni Abbes",
+    # 53 In Salah
+    "in salah": "In Salah", "in-salah": "In Salah",
+    # 54 In Guezzam
+    "in guezzam": "In Guezzam", "in-guezzam": "In Guezzam",
+    # 55 Touggourt
+    "touggourt": "Touggourt", "tugurt": "Touggourt",
+    # 56 Djanet
+    "djanet": "Djanet",
+    # 57 El M'Ghair
+    "el m'ghair": "El M'Ghair", "el mghair": "El M'Ghair", "el-mghair": "El M'Ghair",
+    # 58 El Meniaa
+    "el meniaa": "El Meniaa", "el-meniaa": "El Meniaa",
 }
+
+
+def _strip_accents(s):
+    """Remove diacritical marks (accents) from a string for fuzzy matching."""
+    import unicodedata
+    return ''.join(
+        c for c in unicodedata.normalize('NFD', s)
+        if unicodedata.category(c) != 'Mn'
+    )
+
 
 def normalize_wilaya(raw):
     """
     Normalize a wilaya string to the exact city name expected by Mylerz Algeria.
     Accepts formats:
-      - "Alger"
-      - "16 - Alger"
-      - "16"
-      - "Béjaïa" (accented)
-    Returns the Mylerz-compatible city name or the cleaned input if not found.
+      - "Blida", "Béjaïa", "Tizi Ouzou" (name with or without accents)
+      - "09 - Blida" or "9" (number or number-name format)
+    Returns the Mylerz-compatible city name. Falls back to 'Alger' only if truly unmappable.
     """
     if not raw:
         return 'Alger'
 
+    import re
     raw = str(raw).strip()
 
     # Format "N - Name" or "N-Name"
-    import re
     m = re.match(r'^(\d+)\s*[-–]\s*(.+)$', raw)
     if m:
         num = int(m.group(1))
-        name_part = m.group(2).strip()
-        # Try by number first (most reliable)
         if 1 <= num <= len(WILAYA_LIST):
             return WILAYA_LIST[num - 1]
-        raw = name_part  # fall through to name lookup
+        raw = m.group(2).strip()
 
-    # Format pure number "16"
+    # Pure number "9" or "09"
     if re.match(r'^\d+$', raw):
         num = int(raw)
         if 1 <= num <= len(WILAYA_LIST):
             return WILAYA_LIST[num - 1]
 
-    # Alias lookup (lowercase key)
     key = raw.lower().strip()
+
+    # 1. Alias lookup (exact lowercase match — handles all accented forms)
     if key in _WILAYA_ALIASES:
         return _WILAYA_ALIASES[key]
 
-    # Exact match (case-insensitive) against WILAYA_LIST
+    # 2. Accent-stripped alias lookup (handles unexpected accent variants)
+    key_stripped = _strip_accents(key)
+    for alias_key, city in _WILAYA_ALIASES.items():
+        if _strip_accents(alias_key) == key_stripped:
+            return city
+
+    # 3. Exact match against WILAYA_LIST (case-insensitive)
     for w in WILAYA_LIST:
         if w.lower() == key:
             return w
 
-    # Partial match (startswith)
+    # 4. Accent-stripped match against WILAYA_LIST
     for w in WILAYA_LIST:
-        if w.lower().startswith(key[:4]):
+        if _strip_accents(w.lower()) == key_stripped:
             return w
 
-    # Give back cleaned string as fallback
+    # 5. Startswith match (first 4 chars) as last resort
+    if len(key_stripped) >= 3:
+        for w in WILAYA_LIST:
+            if _strip_accents(w.lower()).startswith(key_stripped[:4]):
+                return w
+
     logger.warning(f"normalize_wilaya: could not map '{raw}' — using as-is")
     return raw
+
 
 
 CACHE_KEY = 'mylerz_access_token'

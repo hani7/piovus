@@ -460,7 +460,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               <div style={{ width: 300 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, fontSize: '0.9rem', color: '#475569' }}>
                   <span>Sous-total des articles:</span>
-                  <span>{Number(detail.total).toLocaleString('fr-DZ')} DA</span>
+                  <span>{(Number(detail.total) - Number(detail.delivery_cost || 0)).toLocaleString('fr-DZ')} DA</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, fontSize: '0.9rem', color: '#475569' }}>
                   <span>Frais de livraison:</span>
@@ -468,7 +468,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid #e2e8f0', fontSize: '1.2rem', fontWeight: 700, color: '#0f172a' }}>
                   <span>Total de la commande:</span>
-                  <span>{(Number(detail.total) + Number(detail.delivery_cost || 0)).toLocaleString('fr-DZ')} DA</span>
+                  <span>{Number(detail.total).toLocaleString('fr-DZ')} DA</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, fontSize: '0.95rem', color: '#475569', fontWeight: 600 }}>
                   <span>Mode de paiement:</span>

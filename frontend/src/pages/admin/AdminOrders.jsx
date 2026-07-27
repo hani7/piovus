@@ -55,6 +55,24 @@ export default function AdminOrders({ isB2B = false }) {
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(25)
   const [selectedIds, setSelectedIds] = useState([])
+  const [mylerzShipping, setMylerzShipping] = useState(false)
+
+  const handleModalShip = async (orderId) => {
+    if (!window.confirm('Expédier cette commande via Mylerz ?')) return
+    setMylerzShipping(true)
+    try {
+      await adminClient.post(`/admin/orders/${orderId}/mylerz_ship/`)
+      // Refresh the detail object from order list
+      const fresh = await adminClient.get(`/admin/orders/${orderId}/`)
+      setDetail(fresh.data)
+      load()
+    } catch (e) {
+      const msg = e.response?.data?.message || e.response?.data?.error || JSON.stringify(e.response?.data) || 'Erreur Mylerz'
+      alert('\u274C ' + msg)
+    } finally {
+      setMylerzShipping(false)
+    }
+  }
 
   const load = () => {
     setLoading(true)
@@ -621,12 +639,34 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                 </div>
               </div>
             </div>
-            <div className="admin-modal-footer" style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className="admin-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
                <button className="btn" style={{ background: '#eab308', color: 'white', borderRadius: 20, border: 'none', fontWeight: 600, padding: '8px 20px' }} onClick={() => navigate(`/piove-secure-2026/orders/${detail.id}`)}>Voir tout</button>
                <button className="btn" style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#3b82f6', color: 'white', border: 'none', borderRadius: 20, fontWeight: 600, padding: '8px 20px' }} onClick={() => handlePrintSingleBordereau(detail.id)}>
                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                  Bordereau
                </button>
+               {/* Bouton Expédier — bleu, affiché uniquement si pas encore expédié */}
+               {detail.mylerz_barcode ? (
+                 <span style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#dcfce7', color: '#15803d', borderRadius: 20, padding: '8px 16px', fontWeight: 600, fontSize: '0.82rem', border: '1px solid #86efac' }}>
+                   ✅ {detail.mylerz_barcode}
+                 </span>
+               ) : (
+                 <button
+                   className="btn"
+                   style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#2563eb', color: 'white', border: 'none', borderRadius: 20, fontWeight: 600, padding: '8px 20px', opacity: mylerzShipping ? 0.7 : 1, cursor: mylerzShipping ? 'not-allowed' : 'pointer' }}
+                   onClick={() => handleModalShip(detail.id)}
+                   disabled={mylerzShipping}
+                 >
+                   {mylerzShipping ? (
+                     <><div className="spin" style={{ width: 13, height: 13, borderWidth: 2 }} /> Envoi...</>
+                   ) : (
+                     <>
+                       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                       Expédier
+                     </>
+                   )}
+                 </button>
+               )}
                <button className="btn" style={{ background: '#dc3545', color: 'white', borderRadius: 20, border: 'none', fontWeight: 600, padding: '8px 20px' }} onClick={() => setDetail(null)}>Fermer</button>
             </div>
           </div>

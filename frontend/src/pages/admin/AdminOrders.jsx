@@ -535,10 +535,29 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                   <div style={{ fontWeight: 600 }}>{detail.customer_name}</div>
                   <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>{detail.guest_phone || '—'}</div>
                 </div>
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)', marginBottom: 4 }}>LIVRAISON</div>
-                  <div style={{ fontSize: '0.9rem' }}>{detail.shipping_address}</div>
-                  <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>{detail.wilaya} — {detail.city}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)', marginBottom: 4 }}>LIVRAISON</div>
+                    <div style={{ fontSize: '0.9rem' }}>{detail.shipping_address}</div>
+                    <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>{detail.wilaya} — {detail.city}</div>
+                  </div>
+                  {/* Badge type de paiement */}
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    padding: '6px 12px', borderRadius: 8, alignSelf: 'flex-start',
+                    background: detail.payment_method === 'cib' ? '#e0e7ff' : '#f0fdf4',
+                    border: `1px solid ${detail.payment_method === 'cib' ? '#c7d2fe' : '#bbf7d0'}`,
+                  }}>
+                    <span style={{ fontSize: '1rem' }}>{detail.payment_method === 'cib' ? '💳' : '💵'}</span>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: detail.payment_method === 'cib' ? '#3730a3' : '#166534' }}>
+                        {detail.payment_method === 'cib' ? 'En ligne' : 'Cash'}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: detail.payment_method === 'cib' ? '#4338ca' : '#15803d' }}>
+                        {detail.payment_method === 'cib' ? 'CIB / Edahabia' : 'Paiement à la livraison'}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -570,6 +589,27 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                   <span style={{ color: 'var(--admin-text-muted)' }}>Livraison</span>
                   <span style={{ fontWeight: 500 }}>{Number(detail.delivery_cost || 0).toLocaleString('fr-DZ')} DA</span>
                 </div>
+
+                {/* Note du client */}
+                {detail.notes && (
+                  <div style={{
+                    margin: '6px 0 2px',
+                    padding: '8px 12px',
+                    background: '#fffbeb',
+                    border: '1px solid #fde68a',
+                    borderRadius: 8,
+                    display: 'flex',
+                    gap: 8,
+                    alignItems: 'flex-start',
+                  }}>
+                    <span style={{ fontSize: '0.95rem', flexShrink: 0 }}>💬</span>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Note du client</div>
+                      <div style={{ fontSize: '0.85rem', color: '#78350f', lineHeight: 1.5 }}>{detail.notes}</div>
+                    </div>
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--admin-border)', paddingTop: 8, marginTop: 2 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{ fontWeight: 700, fontSize: '1rem' }}>Total commande</span>

@@ -641,53 +641,58 @@ class OrderViewSet(viewsets.ModelViewSet):
         )
 
 
-        # ─── Email notifications nouvelle commande ─────────────────────────
+        # ─── Email notifications nouvelle commande (synchrone - pas de thread) ─
         recipient_email = getattr(order, 'guest_email', None)
         if not recipient_email and order.user:
             recipient_email = order.user.email
 
-        def send_new_order_emails(order_id, rcpt):
-            try:
-                from .models import Order
-                o = Order.objects.prefetch_related('items').get(id=order_id)
-                admin_emails = ['lbetaimi@piovecosmetics.com', 'baitul.technology@gmail.com']
+        try:
+            admin_emails = ['lbetaimi@piovecosmetics.com', 'baitul.technology@gmail.com']
 
-                # 1. Email confirmation au client (si email disponible)
-                if rcpt:
-                    text_content = render_to_string('emails/order_confirmation.txt', {'order': o})
-                    html_content = render_to_string('emails/order_confirmation.html', {'order': o})
+            # 1. Email confirmation au client (si email disponible)
+            if recipient_email:
+                try:
+                    text_content = render_to_string('emails/order_confirmation.txt', {'order': order})
+                    html_content = render_to_string('emails/order_confirmation.html', {'order': order})
                     msg = EmailMultiAlternatives(
-                        f"Confirmation commande #{o.id} - Piove Cosmetics",
-                        text_content, settings.DEFAULT_FROM_EMAIL, [rcpt]
+                        f"Confirmation commande #{order.id} - Piove Cosmetics",
+                        text_content, settings.DEFAULT_FROM_EMAIL, [recipient_email]
                     )
                     msg.attach_alternative(html_content, "text/html")
                     msg.send(fail_silently=True)
+                except Exception:
+                    pass
 
-                # 2. Email direct admin — TOUJOURS
-                client_name = o.guest_name or (o.customer.name if o.customer else '') or 'Sans nom'
-                items_text = ', '.join(f"{i.quantity}x {i.product_name}" for i in o.items.all()) or '—'
-                admin_subject = f"[NOUVELLE COMMANDE #{o.id}] {client_name} | {o.wilaya or '—'} | {o.total} DA"
-                admin_body = (
-                    f"<h2>Nouvelle commande #{o.id}</h2>"
-                    f"<p><b>Client :</b> {client_name}<br>"
-                    f"<b>Tel :</b> {o.guest_phone or '—'}<br>"
-                    f"<b>Wilaya :</b> {o.wilaya or '-'} / {o.city or '-'}<br>"
-                    f"<b>Adresse :</b> {o.shipping_address or '—'}<br>"
-                    f"<b>Paiement :</b> {'CIB/Edahabia' if o.payment_method == 'cib' else 'Cash livraison'}<br>"
-                    f"<b>Articles :</b> {items_text}<br>"
-                    f"<b>Total :</b> <strong>{o.total} DA</strong></p>"
-                )
-                msg_admin = EmailMultiAlternatives(
-                    admin_subject, f"Nouvelle commande #{o.id}",
-                    settings.DEFAULT_FROM_EMAIL, admin_emails
-                )
-                msg_admin.attach_alternative(admin_body, "text/html")
-                msg_admin.send(fail_silently=True)
-            except Exception as _err:
-                import logging
-                logging.getLogger('pioveapp').error(f"send_new_order_emails error: {_err}", exc_info=True)
-
-        threading.Thread(target=send_new_order_emails, args=(order.id, recipient_email)).start()
+            # 2. Email direct admin — TOUJOURS
+            client_name = order.guest_name or (order.customer.name if order.customer else '') or 'Sans nom'
+            items_text = ', '.join(
+                f"{i.quantity}x {i.product_name}" for i in order.items.all()
+            ) or '-'
+            admin_subject = (
+                f"[NOUVELLE COMMANDE #{order.id}] {client_name} "
+                f"| {order.wilaya or '-'} | {order.total} DA"
+            )
+            admin_body = (
+                f"<h2>Nouvelle commande #{order.id}</h2>"
+                f"<p><b>Client :</b> {client_name}<br>"
+                f"<b>Tel :</b> {order.guest_phone or '-'}<br>"
+                f"<b>Wilaya :</b> {order.wilaya or '-'} / {order.city or '-'}<br>"
+                f"<b>Adresse :</b> {order.shipping_address or '-'}<br>"
+                f"<b>Paiement :</b> {'CIB/Edahabia' if order.payment_method == 'cib' else 'Cash livraison'}<br>"
+                f"<b>Articles :</b> {items_text}<br>"
+                f"<b>Total :</b> <strong>{order.total} DA</strong></p>"
+            )
+            msg_admin = EmailMultiAlternatives(
+                admin_subject, f"Nouvelle commande #{order.id}",
+                settings.DEFAULT_FROM_EMAIL, admin_emails
+            )
+            msg_admin.attach_alternative(admin_body, "text/html")
+            msg_admin.send(fail_silently=False)
+        except Exception as _email_err:
+            import logging
+            logging.getLogger('pioveapp').error(
+                f"Erreur email nouvelle commande #{order.id}: {_email_err}", exc_info=True
+            )
 
         # ÔöÇÔöÇ CIB / Edahabia via SATIM ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
         if order.payment_method == 'cib':

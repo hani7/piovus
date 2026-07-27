@@ -620,19 +620,23 @@ class OrderViewSet(viewsets.ModelViewSet):
             )
             total += price * qty
 
-        # Statut initial : 'confirmed' pour Cash, 'pending' pour CIB (paiement en ligne)
-        initial_status = 'pending' if payment_method == 'cib' else 'confirmed'
+        # Statut initial : toutes les commandes démarrent en 'confirmed'
+        # Cash = "En cours de traitement", CIB/Satim/Dahabia = "Confirmé" (paiement reçu)
         order.total = total + delivery_cost
-        order.status = initial_status
+        order.status = 'confirmed'
         order.save(update_fields=['total', 'status'])
 
-
         # Create initial history status
+        if payment_method == 'cib':
+            history_note = 'Paiement en ligne confirmé — commande enregistrée.'
+        else:
+            history_note = 'Commande reçue et en cours de traitement.'
         OrderStatusHistory.objects.create(
             order=order,
-            status=initial_status,
-            notes='Commande recue et confirmee.' if initial_status == 'confirmed' else 'Commande recue - en attente de confirmation du paiement en ligne.'
+            status='confirmed',
+            notes=history_note,
         )
+
 
         # Send confirmation email
         recipient_email = getattr(order, 'guest_email', None)

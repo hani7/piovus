@@ -650,7 +650,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             try:
                 from .models import Order
                 o = Order.objects.prefetch_related('items').get(id=order_id)
-                admin_email = 'lbetaimi@piovecosmetics.com'
+                admin_emails = ['lbetaimi@piovecosmetics.com', 'baitul.technology@gmail.com']
 
                 # 1. Email confirmation au client (si email disponible)
                 if rcpt:
@@ -679,7 +679,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 )
                 msg_admin = EmailMultiAlternatives(
                     admin_subject, f"Nouvelle commande #{o.id}",
-                    settings.DEFAULT_FROM_EMAIL, [admin_email]
+                    settings.DEFAULT_FROM_EMAIL, admin_emails
                 )
                 msg_admin.attach_alternative(admin_body, "text/html")
                 msg_admin.send(fail_silently=True)
@@ -1022,7 +1022,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                     text_content = render_to_string('emails/order_status_update.txt', {'order': o, 'status': status})
                     html_content = render_to_string('emails/order_status_update.html', {'order': o, 'status': status})
 
-                    admin_email = 'lbetaimi@piovecosmetics.com'
+                    admin_emails = ['lbetaimi@piovecosmetics.com', 'baitul.technology@gmail.com']
 
                     # 1. Email au client (si disponible)
                     if recipient:
@@ -1043,7 +1043,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                         f"Nouveau statut : {status.upper()}\n"
                     )
                     msg_admin = EmailMultiAlternatives(
-                        admin_subject, admin_text, settings.DEFAULT_FROM_EMAIL, [admin_email]
+                        admin_subject, admin_text, settings.DEFAULT_FROM_EMAIL, admin_emails
                     )
                     msg_admin.attach_alternative(html_content, "text/html")
                     msg_admin.send(fail_silently=True)

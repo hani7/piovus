@@ -55,6 +55,7 @@ export default function AdminOrders({ isB2B = false }) {
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(25)
   const [selectedIds, setSelectedIds] = useState([])
+  const [mylerzFilter, setMylerzFilter] = useState('')   // 'with' | 'without' | or mylerz_status value
   const [mylerzShipping, setMylerzShipping] = useState(false)
 
   const handleModalShip = async (orderId) => {
@@ -262,7 +263,15 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
     }
   }
 
-  const visibleOrders = orders.slice((page - 1) * perPage, page * perPage)
+  // Mylerz filter logic
+  const mylerzStatuses = [...new Set(orders.map(o => o.mylerz_status).filter(Boolean))]
+  const filteredOrders = (() => {
+    if (mylerzFilter === 'with')    return orders.filter(o => o.mylerz_barcode)
+    if (mylerzFilter === 'without') return orders.filter(o => !o.mylerz_barcode)
+    if (mylerzFilter)               return orders.filter(o => (o.mylerz_status || '') === mylerzFilter)
+    return orders
+  })()
+  const visibleOrders = filteredOrders.slice((page - 1) * perPage, page * perPage)
   const allVisibleSelected = visibleOrders.length > 0 && visibleOrders.every(o => selectedIds.includes(o.id))
 
   const activeOrders = orders.filter(o => o.status !== 'cancelled' && o.status !== 'returned')
@@ -380,14 +389,19 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
               <option value="paid">Payé</option>
               <option value="refunded">Remboursé</option>
             </select>
+            {/* Mylerz filter */}
             <select
               className="admin-filter-select"
-              value={deliveryFilter}
-              onChange={e => setDeliveryFilter(e.target.value)}
+              value={mylerzFilter}
+              onChange={e => { setMylerzFilter(e.target.value); setPage(1) }}
+              style={{ borderColor: mylerzFilter ? '#f59e0b' : undefined }}
             >
-              <option value="">Livraison: Tout</option>
-              <option value="home">À domicile</option>
-              <option value="desk">Bureau / Relais</option>
+              <option value="">Mylerz: Tous</option>
+              <option value="with">📦 Avec colis Mylerz</option>
+              <option value="without">⏳ Sans expédition</option>
+              {mylerzStatuses.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
             </select>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
               Afficher
@@ -406,7 +420,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
             </div>
           </div>
           <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
-            {orders.length} commande{orders.length !== 1 ? 's' : ''}
+            {mylerzFilter ? `${filteredOrders.length} / ${orders.length}` : orders.length} commande{orders.length !== 1 ? 's' : ''}
           </span>
         </div>
 
@@ -457,9 +471,26 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                       )}
                     </td>
                     <td>
-                      <span className={`badge ${STATUS_BADGE[o.status]}`} style={{ fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>
-                        {STATUS_LABELS[o.status]}
-                      </span>
+                      {o.mylerz_barcode ? (
+                        /* Commande expédiée — affiche le statut Mylerz */
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 4,
+                            background: '#fff7ed', color: '#c2410c',
+                            border: '1px solid #fed7aa',
+                            fontSize: '0.65rem', padding: '2px 7px', borderRadius: 20,
+                            fontWeight: 700, whiteSpace: 'nowrap',
+                          }}>
+                            📦 {o.mylerz_status || 'Mylerz — En attente'}
+                          </span>
+                          <span style={{ fontSize: '0.6rem', color: '#94a3b8', fontFamily: 'monospace' }}>{o.mylerz_barcode}</span>
+                        </div>
+                      ) : (
+                        /* Pas encore expédiée — affiche le statut interne */
+                        <span className={`badge ${STATUS_BADGE[o.status]}`} style={{ fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>
+                          {STATUS_LABELS[o.status]}
+                        </span>
+                      )}
                     </td>
                     <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                       {(() => {

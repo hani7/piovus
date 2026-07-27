@@ -671,7 +671,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     f"<h2>Nouvelle commande #{o.id}</h2>"
                     f"<p><b>Client :</b> {client_name}<br>"
                     f"<b>Tel :</b> {o.guest_phone or '—'}<br>"
-                    f"<b>Wilaya :</b> {o.wilaya or '—'} / {o.commune or '—'}<br>"
+                    f"<b>Wilaya :</b> {o.wilaya or '-'} / {o.city or '-'}<br>"
                     f"<b>Adresse :</b> {o.shipping_address or '—'}<br>"
                     f"<b>Paiement :</b> {'CIB/Edahabia' if o.payment_method == 'cib' else 'Cash livraison'}<br>"
                     f"<b>Articles :</b> {items_text}<br>"
@@ -683,8 +683,9 @@ class OrderViewSet(viewsets.ModelViewSet):
                 )
                 msg_admin.attach_alternative(admin_body, "text/html")
                 msg_admin.send(fail_silently=True)
-            except Exception:
-                pass
+            except Exception as _err:
+                import logging
+                logging.getLogger('pioveapp').error(f"send_new_order_emails error: {_err}", exc_info=True)
 
         threading.Thread(target=send_new_order_emails, args=(order.id, recipient_email)).start()
 

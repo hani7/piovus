@@ -206,20 +206,21 @@ SIMPLE_JWT = {
 }
 
 # ─── EMAIL CONFIGURATION ─────────────────────────────────────────────────────
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Piové Cosmetics <contact@piovecosmetics.dz>')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Piove Cosmetics <contact@piovecosmetics.dz>')
 SERVER_EMAIL       = DEFAULT_FROM_EMAIL
 
-if os.environ.get('EMAIL_HOST'):
-    # Production : SMTP réel (configurer dans .env ou variables cPanel)
-    EMAIL_BACKEND  = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST     = os.environ.get('EMAIL_HOST', 'mail.piovecosmetics.dz')
-    EMAIL_PORT     = int(os.environ.get('EMAIL_PORT', 465))
-    EMAIL_USE_SSL  = os.environ.get('EMAIL_USE_SSL', 'True') == 'True'
-    EMAIL_USE_TLS  = os.environ.get('EMAIL_USE_TLS', 'False') == 'True'
-    EMAIL_HOST_USER     = os.environ.get('EMAIL_HOST_USER', 'contact@piovecosmetics.dz')
+_email_host = os.environ.get('EMAIL_HOST', '')
+if _email_host:
+    # Production : SMTP reel
+    EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST          = _email_host
+    EMAIL_PORT          = int(os.environ.get('EMAIL_PORT') or 465)
+    EMAIL_USE_SSL       = os.environ.get('EMAIL_USE_SSL', 'True').strip().lower() in ('true', '1', 'yes')
+    EMAIL_USE_TLS       = os.environ.get('EMAIL_USE_TLS', 'False').strip().lower() in ('true', '1', 'yes')
+    EMAIL_HOST_USER     = os.environ.get('EMAIL_HOST_USER', '')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 else:
-    # Dev local : affichage dans la console
+    # Dev local : console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # ─── MYLERZ DELIVERY API ──────────────────────────────────────────────────────

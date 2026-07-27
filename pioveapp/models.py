@@ -297,11 +297,12 @@ class Coupon(models.Model):
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'En attente'),
-        ('confirmed', 'Confirmé'),
+        ('en_cours', 'En cours'),
+        ('confirmed', 'Confirme'),
         ('shipped', 'En livraison'),
         ('fulfilled', 'Fulfilled'),
-        ('cancelled', 'Annulée'),
-        ('returned', 'Retournée'),
+        ('cancelled', 'Annulee'),
+        ('returned', 'Retournee'),
     ]
 
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')

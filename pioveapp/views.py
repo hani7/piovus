@@ -1074,7 +1074,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                         setattr(order, field, new_val or '')
                         changed.append(field)
 
-            # Update items quantities
+            # Update items quantities / delete (qty=0)
             items_data = data.get('items', [])
             for item_d in items_data:
                 item_id = item_d.get('id')
@@ -1095,11 +1095,44 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                 except Exception as e:
                     logger.warning(f'edit_order item {item_id} error: {e}')
 
-            if changed:
-                order.save(update_fields=changed)
+            # Add NEW items to the order: [{product_id, variant_id, quantity}]
+            new_items_data = data.get('new_items', [])
+            for ni in new_items_data:
+                product_id = ni.get('product_id')
+                variant_id = ni.get('variant_id') or None
+                try:
+                    qty = max(1, int(ni.get('quantity', 1)))
+                except (TypeError, ValueError):
+                    qty = 1
+                if not product_id:
+                    continue
+                try:
+                    from .models import OrderItem, Product, ProductVariant
+                    product = Product.objects.get(id=product_id)
+                    variant = ProductVariant.objects.get(id=variant_id) if variant_id else None
+                    # Use promo price if available, else regular price
+                    price = float(product.promo_price or product.price)
+                    OrderItem.objects.create(
+                        order=order,
+                        product=product,
+                        variant=variant,
+                        product_name=product.name,
+                        variant_name=variant.name if variant else '',
+                        price_at_purchase=price,
+                        quantity=qty,
+                    )
+                    changed.append(f'add:{product.name}')
+                except Exception as e:
+                    logger.warning(f'edit_order new_item product_id={product_id} error: {e}')
 
-            # Recalculate total after item changes
-            if items_data:
+            if changed:
+                real_fields = [f for f in changed if f in model_field_names]
+                if real_fields:
+                    order.save(update_fields=real_fields)
+
+
+            # Recalculate total after any item changes
+            if items_data or new_items_data:
                 order.recalculate_total()
 
             try:

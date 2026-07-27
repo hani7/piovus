@@ -29,6 +29,11 @@ export default function AdminOrderDetail() {
   const [editForm, setEditForm] = useState({})
   const [editItems, setEditItems] = useState([])
   const [editSaving, setEditSaving] = useState(false)
+  // Ajout de nouveaux produits à la commande
+  const [newItems, setNewItems] = useState([])          // [{product, variant, quantity}]
+  const [addSearch, setAddSearch] = useState('')
+  const [addResults, setAddResults] = useState([])
+  const [addSearching, setAddSearching] = useState(false)
 
   const openEdit = () => {
     setEditForm({
@@ -42,6 +47,9 @@ export default function AdminOrderDetail() {
       notes: detail.notes || '',
     })
     setEditItems((detail.items || []).map(it => ({ ...it, _qty: it.quantity })))
+    setNewItems([])
+    setAddSearch('')
+    setAddResults([])
     setShowEdit(true)
   }
 
@@ -51,6 +59,11 @@ export default function AdminOrderDetail() {
       const payload = {
         ...editForm,
         items: editItems.map(it => ({ id: it.id, quantity: Number(it._qty) })),
+        new_items: newItems.map(ni => ({
+          product_id: ni.product.id,
+          variant_id: ni.variant ? ni.variant.id : null,
+          quantity: ni.quantity,
+        })),
       }
       const res = await adminClient.post(`/admin/orders/${id}/edit_order/`, payload)
       setDetail(res.data)
@@ -60,6 +73,31 @@ export default function AdminOrderDetail() {
     } finally {
       setEditSaving(false)
     }
+  }
+
+  // Recherche produit pour ajout à la commande
+  useEffect(() => {
+    if (!addSearch || addSearch.length < 2) { setAddResults([]); return }
+    const t = setTimeout(async () => {
+      setAddSearching(true)
+      try {
+        const r = await adminClient.get(`/admin/products/?search=${encodeURIComponent(addSearch)}`)
+        setAddResults(r.data.results || r.data)
+      } catch {}
+      finally { setAddSearching(false) }
+    }, 350)
+    return () => clearTimeout(t)
+  }, [addSearch])
+
+  const addProductToNew = (product) => {
+    const existing = newItems.find(n => n.product.id === product.id && !n.variant)
+    if (existing) {
+      setNewItems(newItems.map(n => n === existing ? { ...n, quantity: n.quantity + 1 } : n))
+    } else {
+      setNewItems([...newItems, { product, variant: null, quantity: 1 }])
+    }
+    setAddSearch('')
+    setAddResults([])
   }
 
   const load = () => {
@@ -751,20 +789,24 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
 
             {/* ITEMS */}
             <section>
-              <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', marginBottom: 12 }}>Articles (quantité = 0 pour supprimer)</h4>
+              <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', marginBottom: 12 }}>Articles existants</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {editItems.map((item, i) => (
                   <div key={item.id} style={{
                     display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '10px 12px', background: item._qty == 0 ? '#fef2f2' : '#f8fafc',
-                    borderRadius: 8, border: `1px solid ${item._qty == 0 ? '#fecaca' : '#e2e8f0'}`
+                    padding: '10px 12px',
+                    background: item._qty == 0 ? '#fef2f2' : '#f8fafc',
+                    borderRadius: 8,
+                    border: `1px solid ${item._qty == 0 ? '#fecaca' : '#e2e8f0'}`,
+                    opacity: item._qty == 0 ? 0.6 : 1,
+                    transition: 'all 0.2s',
                   }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: '0.88rem', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.product_name}</div>
+                      <div style={{ fontWeight: 600, fontSize: '0.88rem', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textDecoration: item._qty == 0 ? 'line-through' : 'none' }}>{item.product_name}</div>
                       {item.variant_name && <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{item.variant_name}</div>}
                       <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{Number(item.price_at_purchase).toLocaleString('fr-DZ')} DA/u</div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                       <button
                         onClick={() => setEditItems(editItems.map((it, j) => j === i ? { ...it, _qty: Math.max(0, Number(it._qty) - 1) } : it))}
                         style={{ width: 28, height: 28, border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}
@@ -780,9 +822,93 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                         onClick={() => setEditItems(editItems.map((it, j) => j === i ? { ...it, _qty: Number(it._qty) + 1 } : it))}
                         style={{ width: 28, height: 28, border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}
                       >+</button>
+                      {/* Supprimer direct */}
+                      <button
+                        title="Supprimer cet article"
+                        onClick={() => setEditItems(editItems.map((it, j) => j === i ? { ...it, _qty: 0 } : it))}
+                        style={{ width: 28, height: 28, border: '1px solid #fecaca', borderRadius: 6, background: '#fef2f2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem' }}
+                      >🗑️</button>
                     </div>
                   </div>
                 ))}
+                {editItems.some(i => i._qty == 0) && (
+                  <div style={{ fontSize: '0.73rem', color: '#ef4444', textAlign: 'center', padding: '4px 0' }}>
+                    ⚠️ Les articles rayés (quantité = 0) seront supprimés définitivement à l'enregistrement
+                  </div>
+                )}
+              </div>
+
+              {/* Ajouter un nouveau produit */}
+              <div style={{ marginTop: 16, padding: 14, background: '#f0fdf4', borderRadius: 10, border: '1px solid #bbf7d0' }}>
+                <h4 style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#16a34a', marginBottom: 10, margin: '0 0 10px 0' }}>+ Ajouter un produit</h4>
+
+                {/* Input de recherche */}
+                <div style={{ position: 'relative', marginBottom: 10 }}>
+                  <input
+                    type="text"
+                    placeholder="Rechercher un produit..."
+                    value={addSearch}
+                    onChange={e => setAddSearch(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #86efac', borderRadius: 8, fontSize: '0.88rem', outline: 'none', boxSizing: 'border-box', background: '#fff' }}
+                  />
+                  {addSearching && <span style={{ position: 'absolute', right: 10, top: 9, fontSize: '0.72rem', color: '#64748b' }}>...</span>}
+                  {addResults.length > 0 && (
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, zIndex: 200, maxHeight: 220, overflowY: 'auto', boxShadow: '0 4px 20px rgba(0,0,0,0.12)' }}>
+                      {addResults.slice(0, 8).map(p => (
+                        <div key={p.id}
+                          style={{ padding: '9px 12px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', display: 'flex', gap: 10, alignItems: 'center' }}
+                          onClick={() => addProductToNew(p)}
+                        >
+                          {p.images?.[0]?.image && <img src={p.images[0].image} style={{ width: 34, height: 34, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} alt="" />}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 600, fontSize: '0.83rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1e293b' }}>{p.name}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600 }}>{p.effective_price} DA</div>
+                          </div>
+                          <span style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 700, flexShrink: 0 }}>+ Ajouter</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Produits à ajouter */}
+                {newItems.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {newItems.map((ni, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fff', borderRadius: 8, border: '1px solid #86efac' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.83rem', color: '#15803d', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>+ {ni.product.name}</div>
+                          {ni.product.variants?.length > 0 && (
+                            <select
+                              value={ni.variant?.id || ''}
+                              onChange={e => {
+                                const v = ni.product.variants.find(v => v.id === parseInt(e.target.value)) || null
+                                setNewItems(newItems.map((n, j) => j === i ? { ...n, variant: v } : n))
+                              }}
+                              style={{ marginTop: 3, fontSize: '0.77rem', padding: '2px 6px', border: '1px solid #86efac', borderRadius: 4, background: '#f0fdf4', outline: 'none' }}
+                            >
+                              <option value="">— Teinte —</option>
+                              {ni.product.variants.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                            </select>
+                          )}
+                          <div style={{ fontSize: '0.73rem', color: '#16a34a' }}>{ni.product.effective_price} DA/u</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                          <button onClick={() => setNewItems(newItems.map((n, j) => j === i ? { ...n, quantity: Math.max(1, n.quantity - 1) } : n))}
+                            style={{ width: 24, height: 24, border: '1px solid #86efac', borderRadius: 4, background: '#fff', cursor: 'pointer', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem' }}
+                          >−</button>
+                          <span style={{ width: 26, textAlign: 'center', fontWeight: 700, fontSize: '0.88rem' }}>{ni.quantity}</span>
+                          <button onClick={() => setNewItems(newItems.map((n, j) => j === i ? { ...n, quantity: n.quantity + 1 } : n))}
+                            style={{ width: 24, height: 24, border: '1px solid #86efac', borderRadius: 4, background: '#fff', cursor: 'pointer', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem' }}
+                          >+</button>
+                          <button onClick={() => setNewItems(newItems.filter((_, j) => j !== i))}
+                            style={{ width: 24, height: 24, border: '1px solid #fecaca', borderRadius: 4, background: '#fef2f2', cursor: 'pointer', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', marginLeft: 2 }}
+                          >×</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
 

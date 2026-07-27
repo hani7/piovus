@@ -1,9 +1,11 @@
-﻿# restart: 2026-07-21T11:39
+# restart: 2026-07-27T12:08
 import os
 import sys
 import io
 import traceback
 import subprocess
+
+_STARTUP_ERROR = None  # Capture l'erreur de démarrage
 
 try:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -15,14 +17,11 @@ try:
     except Exception:
         pass
 
-    # Force sync with remote â€” avoids conflicts from untracked/modified files
+    # Force sync with remote
     try:
         _repo_dir = os.path.dirname(os.path.abspath(__file__))
-        # Fetch latest code
         subprocess.run(['git', 'fetch', 'origin', 'main'], cwd=_repo_dir, capture_output=True, timeout=30)
-        # Hard reset to remote HEAD (removes any local changes/conflicts)
         _reset = subprocess.run(['git', 'reset', '--hard', 'origin/main'], cwd=_repo_dir, capture_output=True, text=True, timeout=30)
-        # Remove untracked files and dirs (e.g. stale views/ package dirs)
         subprocess.run(['git', 'clean', '-fd'], cwd=_repo_dir, capture_output=True, timeout=30)
         with open(LOG_PATH, 'a') as _f:
             _f.write(f"\n[git reset] {_reset.stdout.strip()}\n")
@@ -34,7 +33,6 @@ try:
                 _f.write(f"\n[git sync] FAILED: {_e}\n")
         except Exception:
             pass
-
 
     try:
         import django
@@ -56,7 +54,6 @@ try:
 
         from django.db import connection
         with connection.cursor() as cursor:
-            # Step 1: Create M2M table if it doesn't exist
             cursor.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' "
                 "AND name='pioveapp_product_categories'"
@@ -70,9 +67,6 @@ try:
                         UNIQUE ("product_id", "category_id")
                     )
                 """)
-
-            # Step 2: If the table exists but migration 0037 isn't recorded,
-            # fake-apply it so Django doesn't try to recreate the table
             try:
                 cursor.execute(
                     "SELECT id FROM django_migrations "
@@ -86,7 +80,7 @@ try:
                         [timezone.now().isoformat()]
                     )
             except Exception:
-                pass  # django_migrations may not exist yet on first run
+                pass
 
         from django.core.management import call_command
         out = io.StringIO()
@@ -99,10 +93,11 @@ try:
             pass
 
     except Exception:
+        _STARTUP_ERROR = traceback.format_exc()  # Capture ici, dans le except
         try:
             with open(LOG_PATH, 'a') as f:
                 f.write("=== STARTUP FAILED ===\n")
-                f.write(traceback.format_exc())
+                f.write(_STARTUP_ERROR)
         except Exception:
             pass
 
@@ -110,8 +105,20 @@ try:
     application = get_wsgi_application()
 
 except Exception:
-    import traceback
-    def application(environ, start_response):
-        start_response('500 Internal Server Error', [('Content-Type', 'text/plain')])
-        return [b"CRITICAL WSGI GLOBAL ERROR:\n\n" + traceback.format_exc().encode('utf-8')]
+    _STARTUP_ERROR = traceback.format_exc()  # Capture ici, dans le except
+    try:
+        LOG_PATH2 = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp', 'migrate.log')
+        os.makedirs(os.path.dirname(LOG_PATH2), exist_ok=True)
+        with open(LOG_PATH2, 'a') as _f:
+            _f.write("=== CRITICAL WSGI ERROR ===\n")
+            _f.write(_STARTUP_ERROR)
+    except Exception:
+        pass
 
+    def application(environ, start_response):
+        path = environ.get('PATH_INFO', '')
+        if path == '/debug-error/':
+            start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
+            return [("STARTUP ERROR:\n\n" + (_STARTUP_ERROR or 'Aucune erreur capturee')).encode('utf-8')]
+        start_response('500 Internal Server Error', [('Content-Type', 'text/plain; charset=utf-8')])
+        return [b"Django ne demarre pas. Voir /debug-error/ pour les details."]

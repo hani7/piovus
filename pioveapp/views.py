@@ -647,7 +647,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             recipient_email = order.user.email
 
         try:
-            admin_emails = ['lbetaimi@piovecosmetics.com', 'baitul.technology@gmail.com']
+            admin_emails = ['lbetaimi@piovecosmetics.com']
 
             # 1. Email confirmation au client (si email disponible)
             if recipient_email:
@@ -1024,7 +1024,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                     text_content = render_to_string('emails/order_status_update.txt', {'order': o, 'status': status})
                     html_content = render_to_string('emails/order_status_update.html', {'order': o, 'status': status})
 
-                    admin_emails = ['lbetaimi@piovecosmetics.com', 'baitul.technology@gmail.com']
+                    admin_emails = ['lbetaimi@piovecosmetics.com']
 
                     # 1. Email au client (si disponible)
                     if recipient:

@@ -9,7 +9,7 @@ from pioveapp.mylerz_service import track_shipment
 
 logger = logging.getLogger(__name__)
 
-ADMIN_EMAILS = ['lbetaimi@piovecosmetics.com', 'baitul.technology@gmail.com']
+ADMIN_EMAILS = ['lbetaimi@piovecosmetics.com']
 
 def send_status_email(order, new_status, barcode):
     customer_email = order.guest_email or (order.user.email if order.user else None)

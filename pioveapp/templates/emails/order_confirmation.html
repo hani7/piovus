@@ -1,75 +1,416 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     <meta charset="utf-8">
-    <title>Confirmation de votre commande</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation de votre commande #{{ order.id }} — Piové Cosmetics</title>
     <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f9f9f9; color: #333; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .header { background: #000; color: #fff; padding: 30px 20px; text-align: center; }
-        .header h1 { margin: 0; font-size: 24px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
-        .content { padding: 30px; }
-        .content h2 { font-size: 18px; font-weight: 600; margin-top: 0; }
-        .order-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .order-table th, .order-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        .order-table th { font-weight: 600; font-size: 14px; color: #666; text-transform: uppercase; }
-        .order-table td { font-size: 15px; }
-        .total-row { font-weight: 700; font-size: 16px; }
-        .total-row td { border-bottom: none; border-top: 2px solid #333; }
-        .details-box { background: #fdfdfd; border: 1px solid #eee; padding: 15px; border-radius: 6px; margin-top: 30px; }
-        .details-box p { margin: 5px 0; font-size: 14px; }
-        .footer { text-align: center; padding: 20px; font-size: 13px; color: #888; background: #fdfdfd; border-top: 1px solid #eee; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f2f2f2;
+            color: #2d2d2d;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrapper { max-width: 620px; margin: 30px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+
+        /* HEADER */
+        .header {
+            background: #1a1a1a;
+            padding: 36px 40px 28px;
+            text-align: center;
+        }
+        .header .brand {
+            font-size: 30px;
+            font-weight: 300;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+        .header .brand span { color: #d4af7a; }
+        .header .tagline {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: #999;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        /* HERO BAND */
+        .hero {
+            background: linear-gradient(135deg, #d4af7a 0%, #c49a5a 100%);
+            padding: 28px 40px;
+            text-align: center;
+        }
+        .hero .icon { font-size: 36px; margin-bottom: 10px; }
+        .hero h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+        .hero p {
+            font-size: 13px;
+            color: #5a4020;
+        }
+
+        /* CONTENT */
+        .content { padding: 36px 40px; }
+
+        .greeting {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+        .intro-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        /* ORDER BADGE */
+        .order-badge {
+            display: inline-block;
+            background: #1a1a1a;
+            color: #d4af7a;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 8px 18px;
+            border-radius: 20px;
+            margin-bottom: 28px;
+        }
+
+        /* SECTION TITLE */
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #999;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+        /* ITEMS TABLE */
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+        .items-table thead tr th {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #aaa;
+            padding: 10px 0;
+            border-bottom: 2px solid #eee;
+            text-align: left;
+        }
+        .items-table thead tr th:last-child { text-align: right; }
+        .items-table tbody tr td {
+            padding: 14px 0;
+            border-bottom: 1px solid #f5f5f5;
+            vertical-align: top;
+        }
+        .items-table tbody tr:last-child td { border-bottom: none; }
+        .item-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .item-variant {
+            font-size: 12px;
+            color: #888;
+            margin-top: 3px;
+        }
+        .item-qty {
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+        }
+        .item-price {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* TOTALS */
+        .totals-box { background: #fafafa; border-radius: 8px; padding: 16px 20px; margin-bottom: 28px; }
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #555;
+            padding: 5px 0;
+        }
+        .totals-row.total-final {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            border-top: 2px solid #ddd;
+            margin-top: 8px;
+            padding-top: 12px;
+        }
+        .totals-row.total-final span:last-child { color: #c49a5a; }
+
+        /* INFO GRID */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+        .info-card {
+            background: #fafafa;
+            border: 1px solid #ebebeb;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .info-card-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #bbb;
+            margin-bottom: 8px;
+        }
+        .info-card-value {
+            font-size: 13px;
+            color: #2d2d2d;
+            line-height: 1.6;
+        }
+        .info-card-value strong { font-weight: 600; }
+
+        /* PAYMENT BADGE */
+        .payment-badge {
+            display: inline-block;
+            background: #fff8ee;
+            color: #b07d2e;
+            border: 1px solid #f0d9a8;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        /* NOTE BOX */
+        .note-box {
+            background: #fffdf7;
+            border-left: 3px solid #d4af7a;
+            padding: 14px 18px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 28px;
+            font-size: 13px;
+            color: #7a6030;
+            line-height: 1.6;
+        }
+
+        /* CTA BUTTON */
+        .cta-wrap { text-align: center; margin-bottom: 30px; }
+        .cta-btn {
+            display: inline-block;
+            background: #1a1a1a;
+            color: #d4af7a;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 14px 36px;
+            border-radius: 4px;
+        }
+
+        /* FOOTER */
+        .footer {
+            background: #1a1a1a;
+            padding: 28px 40px;
+            text-align: center;
+        }
+        .footer .social-links { margin-bottom: 14px; }
+        .footer .social-links a {
+            display: inline-block;
+            color: #d4af7a;
+            font-size: 12px;
+            text-decoration: none;
+            margin: 0 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .footer .copyright {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.8;
+        }
+        .footer .copyright a { color: #d4af7a; text-decoration: none; }
+        .divider { height: 1px; background: #333; margin: 14px 0; }
+
+        @media (max-width: 480px) {
+            .content { padding: 24px 20px; }
+            .header { padding: 28px 20px 22px; }
+            .hero { padding: 22px 20px; }
+            .info-grid { grid-template-columns: 1fr; }
+            .footer { padding: 22px 20px; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Piové Cosmetics</h1>
-        </div>
-        <div class="content">
-            <h2>Bonjour {{ order.guest_name|default:order.user.first_name }},</h2>
-            <p>Merci pour votre commande ! Celle-ci a bien été enregistrée sous le numéro <strong>#{{ order.id }}</strong>.</p>
-            <p>Voici le récapitulatif de vos articles :</p>
-            
-            <table class="order-table">
-                <thead>
-                    <tr>
-                        <th>Produit</th>
-                        <th>Qté</th>
-                        <th style="text-align: right;">Prix</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in order.items.all %}
-                    <tr>
-                        <td>
-                            {{ item.product_name }}
-                            {% if item.variant_name %}<br><span style="font-size:12px; color:#666;">Teinte: {{ item.variant_name }}</span>{% endif %}
-                        </td>
-                        <td>{{ item.quantity }}</td>
-                        <td style="text-align: right;">{{ item.price_at_purchase }} DA</td>
-                    </tr>
-                    {% endfor %}
-                    <tr class="total-row">
-                        <td colspan="2">TOTAL (Paiement à la livraison)</td>
-                        <td style="text-align: right;">{{ order.total }} DA</td>
-                    </tr>
-                </tbody>
-            </table>
+<div class="wrapper">
 
-            <div class="details-box">
-                <h3 style="margin-top:0; font-size:15px;">Informations de livraison :</h3>
-                <p><strong>Nom :</strong> {{ order.guest_name|default:order.user.first_name }}</p>
-                <p><strong>Téléphone :</strong> {{ order.guest_phone }}</p>
-                <p><strong>Adresse :</strong> {{ order.guest_address }}</p>
-                <p><strong>Wilaya :</strong> {{ order.guest_wilaya }}</p>
-            </div>
-            
-            <p style="margin-top:30px;">Notre équipe vous contactera très prochainement pour confirmer l'expédition de votre colis.</p>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="brand">Piové<span> ✦</span> Cosmetics</div>
+        <div class="tagline">Beauté • Élégance • Algérie</div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="icon">🎉</div>
+        <h1>Commande confirmée !</h1>
+        <p>Merci pour votre confiance — nous préparons votre colis avec soin.</p>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <p class="greeting">Bonjour {{ order.guest_name|default:order.user.first_name|default:"chère cliente" }},</p>
+        <p class="intro-text">
+            Votre commande a bien été reçue et est actuellement <strong>en attente de traitement</strong>.<br>
+            Notre équipe vous contactera très prochainement pour confirmer l'expédition.
+        </p>
+
+        <div style="margin-bottom: 28px;">
+            <span class="order-badge">COMMANDE N° #{{ order.id }}</span>
         </div>
-        <div class="footer">
-            &copy; {% now "Y" %} Piové Cosmetics. Tous droits réservés.
+
+        <!-- ARTICLES -->
+        <div class="section-title">Récapitulatif de votre commande</div>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 55%;">Produit</th>
+                    <th style="width: 15%; text-align: center;">Qté</th>
+                    <th style="width: 30%;">Prix unitaire</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>
+                        <div class="item-name">{{ item.product_name }}</div>
+                        {% if item.variant_name %}
+                        <div class="item-variant">Teinte : {{ item.variant_name }}</div>
+                        {% endif %}
+                    </td>
+                    <td class="item-qty">× {{ item.quantity }}</td>
+                    <td class="item-price">{{ item.price_at_purchase }} DA</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- TOTAUX -->
+        <div class="totals-box">
+            <div class="totals-row">
+                <span>Sous-total produits</span>
+                <span>{{ order.subtotal }} DA</span>
+            </div>
+            {% if order.discount_amount %}
+            <div class="totals-row" style="color: #388e3c;">
+                <span>Réduction appliquée</span>
+                <span>− {{ order.discount_amount }} DA</span>
+            </div>
+            {% endif %}
+            <div class="totals-row total-final">
+                <span>Total à payer</span>
+                <span>{{ order.total }} DA</span>
+            </div>
+        </div>
+
+        <!-- INFOS CLIENT & LIVRAISON -->
+        <div class="section-title">Informations de livraison</div>
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-card-label">👤 Client</div>
+                <div class="info-card-value">
+                    <strong>{{ order.guest_name|default:order.user.get_full_name|default:"—" }}</strong><br>
+                    {% if order.guest_phone %}📞 {{ order.guest_phone }}{% endif %}
+                    {% if order.guest_phone2 %}<br>📞 {{ order.guest_phone2 }}{% endif %}
+                    {% if order.guest_email %}<br>✉️ {{ order.guest_email }}{% endif %}
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">📍 Adresse</div>
+                <div class="info-card-value">
+                    {% if order.wilaya %}<strong>{{ order.wilaya }}</strong>{% endif %}
+                    {% if order.city %}, {{ order.city }}{% endif %}
+                    {% if order.shipping_address %}<br>{{ order.shipping_address }}{% endif %}
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">🚚 Mode de livraison</div>
+                <div class="info-card-value">
+                    {% if order.delivery_type == 'home' %}
+                        À domicile
+                    {% elif order.delivery_type == 'desk' %}
+                        Point relais / Bureau
+                    {% else %}
+                        {{ order.get_delivery_type_display|default:"Standard" }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">💳 Paiement</div>
+                <div class="info-card-value">
+                    {% if order.payment_method == 'cash' %}
+                        <span class="payment-badge">💵 Paiement à la livraison</span>
+                    {% elif order.payment_method == 'cib' %}
+                        <span class="payment-badge">💳 Carte CIB / Edahabia</span>
+                    {% else %}
+                        <span class="payment-badge">{{ order.get_payment_method_display|default:order.payment_method }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if order.notes %}
+        <div class="section-title">Notes de commande</div>
+        <div class="note-box">
+            💬 {{ order.notes }}
+        </div>
+        {% endif %}
+
+        <!-- NOTE IMPORTANTE -->
+        <div class="note-box">
+            📦 <strong>Que se passe-t-il maintenant ?</strong><br>
+            Notre équipe va traiter votre commande et vous appeler pour confirmer la livraison.
+            Le délai de livraison est généralement de <strong>2 à 5 jours ouvrables</strong> selon votre wilaya.
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-wrap">
+            <a href="https://piovecosmetics.com" class="cta-btn">Continuer mes achats</a>
+        </div>
+
+        <p style="font-size: 13px; color: #888; line-height: 1.7; text-align: center;">
+            Des questions ? Contactez-nous sur Instagram <strong>@piove.cosmetics</strong><br>
+            ou par téléphone. Nous sommes là pour vous aider !
+        </p>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="social-links">
+            <a href="https://instagram.com/piove.cosmetics">Instagram</a>
+            <a href="https://facebook.com/piovecosmetics">Facebook</a>
+            <a href="https://piovecosmetics.com">Site Web</a>
+        </div>
+        <div class="divider"></div>
+        <div class="copyright">
+            © {% now "Y" %} Piové Cosmetics — Tous droits réservés.<br>
+            <a href="https://piovecosmetics.com">piovecosmetics.com</a>
         </div>
     </div>
+
+</div>
 </body>
 </html>

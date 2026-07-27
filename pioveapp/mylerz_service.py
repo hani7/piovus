@@ -253,21 +253,16 @@ def create_shipment(order):
         cod_value = float(order.total)
 
     # Address fields — map Piové fields to Mylerz fields
-    # normalize_wilaya converts any format ("Béjaïa", "6 - Béjaïa", "6") → exact Mylerz name
-    # Si commune saisie → City = commune (imprimé sur le bordereau Mylerz)
-    # Si pas de commune → City = wilaya normalisée
+    # City   = wilaya normalisée TOUJOURS (Mylerz reconnaît uniquement les noms de wilaya)
+    # Neighborhood = commune saisie par le client si elle existe, sinon vide
+    # NE PAS utiliser la commune comme City — Mylerz ne la reconnaît pas et affiche "Alger city"
     wilaya_normalized = normalize_wilaya(order.wilaya or '')
     commune = (order.city or '').strip()
 
-    if commune:
-        city = commune
-        neighborhood = commune
-        district_val = wilaya_normalized
-    else:
-        city = wilaya_normalized
-        neighborhood = wilaya_normalized
-        district_val = wilaya_normalized
-    street = getattr(order, 'shipping_address', None) or neighborhood
+    city = wilaya_normalized                  # ex: "Tlemcen" — toujours la wilaya
+    neighborhood = commune if commune else ''  # ex: "el mansourah" ou vide
+    district_val = wilaya_normalized
+    street = order.shipping_address or commune or wilaya_normalized
 
     # Mylerz Algeria Address_Category is H or C or B
     address_category = 'H'

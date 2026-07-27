@@ -1156,15 +1156,10 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
 
             wilaya_normalized = mylerz_service.normalize_wilaya(getattr(order, 'wilaya', None) or '')
             commune = (getattr(order, 'city', None) or '').strip()
-            if commune:
-                city = commune
-                neighborhood = commune
-                district_val = wilaya_normalized
-            else:
-                city = wilaya_normalized
-                neighborhood = wilaya_normalized
-                district_val = wilaya_normalized
-            street = getattr(order, 'shipping_address', None) or neighborhood
+            city = wilaya_normalized                  # toujours la wilaya — Mylerz la reconnaît
+            neighborhood = commune if commune else ''  # commune saisie ou vide (pas de fallback)
+            district_val = wilaya_normalized
+            street = getattr(order, 'shipping_address', None) or commune or wilaya_normalized
 
             total_weight = 0.0
             for item in order.items.all():

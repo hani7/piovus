@@ -120,33 +120,7 @@ const ProductCard = memo(function ProductCard({ product }) {
             <span className="product-card__rating-num">({product.avg_rating})</span>
           </div>
         )}
-        <div className="product-card__actions" role="group" aria-label={`Actions pour ${product.name}`}>
-          <button
-            className="product-card__action-btn"
-            title="Acheter maintenant"
-            aria-label={`Acheter ${product.name} maintenant`}
-            onClick={(e) => { e.preventDefault(); handleBuyNow(e); }}
-          >
-            <Zap size={18} aria-hidden="true" />
-          </button>
-          <button
-            className="product-card__action-btn"
-            title="Ajouter au panier"
-            aria-label={`Ajouter ${product.name} au panier`}
-            onClick={(e) => { e.preventDefault(); handleAddToCart(e); }}
-          >
-            <ShoppingBag size={18} aria-hidden="true" />
-          </button>
-          <Link
-            to={`/produit/${product.slug}`}
-            state={{ initialProduct: product }}
-            className="product-card__action-btn"
-            title="Voir le produit"
-            aria-label={`Voir la fiche de ${product.name}`}
-          >
-            <Eye size={18} aria-hidden="true" />
-          </Link>
-        </div>
+
       </div>
     </article>
   )

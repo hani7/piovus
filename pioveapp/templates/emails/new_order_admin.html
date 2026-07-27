@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nouvelle commande #{{ order.id }}</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f0f0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f0f0;padding:30px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+  <!-- HEADER -->
+  <tr>
+    <td style="background:#111;padding:28px 36px;border-radius:12px 12px 0 0;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td>
+            <div style="font-size:22px;font-weight:700;color:#fff;letter-spacing:3px;text-transform:uppercase;">PIOVÉ</div>
+            <div style="font-size:10px;color:#999;letter-spacing:4px;text-transform:uppercase;margin-top:2px;">Cosmetics</div>
+          </td>
+          <td align="right">
+            <div style="background:#c9485b;color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:1px;">
+              NOUVELLE COMMANDE
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- ORDER NUMBER BANNER -->
+  <tr>
+    <td style="background:#c9485b;padding:18px 36px;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td>
+            <div style="color:rgba(255,255,255,0.8);font-size:11px;letter-spacing:2px;text-transform:uppercase;">Commande</div>
+            <div style="color:#fff;font-size:28px;font-weight:700;margin-top:2px;">#{{ order.id }}</div>
+          </td>
+          <td align="right">
+            <div style="color:rgba(255,255,255,0.8);font-size:11px;letter-spacing:1px;text-transform:uppercase;">Total</div>
+            <div style="color:#fff;font-size:28px;font-weight:700;margin-top:2px;">{{ order.total }} DA</div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- BODY -->
+  <tr>
+    <td style="background:#fff;padding:32px 36px;">
+
+      <!-- 2 columns: Client info + Livraison -->
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+        <tr valign="top">
+          <!-- Client -->
+          <td width="48%" style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:20px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#c9485b;margin-bottom:12px;">
+              👤 Informations Client
+            </div>
+            <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:6px;">{{ order.guest_name|default:"—" }}</div>
+            <div style="font-size:13px;color:#555;margin-bottom:4px;">📞 {{ order.guest_phone|default:"—" }}</div>
+            {% if order.guest_phone2 %}
+            <div style="font-size:13px;color:#555;margin-bottom:4px;">📞 {{ order.guest_phone2 }}</div>
+            {% endif %}
+            {% if order.guest_email %}
+            <div style="font-size:13px;color:#555;">✉️ {{ order.guest_email }}</div>
+            {% endif %}
+          </td>
+
+          <td width="4%"></td>
+
+          <!-- Livraison -->
+          <td width="48%" style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:20px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#c9485b;margin-bottom:12px;">
+              📦 Livraison
+            </div>
+            <div style="font-size:13px;color:#555;margin-bottom:4px;">
+              <strong style="color:#111;">Wilaya :</strong> {{ order.wilaya|default:"—" }}
+            </div>
+            <div style="font-size:13px;color:#555;margin-bottom:4px;">
+              <strong style="color:#111;">Ville :</strong> {{ order.city|default:"—" }}
+            </div>
+            {% if order.shipping_address %}
+            <div style="font-size:13px;color:#555;margin-bottom:4px;">
+              <strong style="color:#111;">Adresse :</strong> {{ order.shipping_address }}
+            </div>
+            {% endif %}
+            <div style="font-size:13px;color:#555;">
+              <strong style="color:#111;">Type :</strong>
+              {% if order.delivery_type == "desk" %}Bureau / Point relais{% else %}À domicile{% endif %}
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Paiement -->
+      {% if order.payment_method == "cib" %}
+      <div style="background:linear-gradient(135deg,#1e3a5f,#2d6a9f);border-radius:10px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td>
+              <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:4px;">Mode de paiement</div>
+              <div style="font-size:16px;font-weight:700;color:#fff;">💳 CIB / Edahabia — Paiement en ligne</div>
+            </td>
+            <td align="right">
+              <div style="background:rgba(255,255,255,0.15);border-radius:20px;padding:6px 14px;color:#fff;font-size:12px;font-weight:600;">PAYÉ EN LIGNE</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      {% else %}
+      <div style="background:linear-gradient(135deg,#1a5c2a,#27883e);border-radius:10px;padding:16px 20px;margin-bottom:24px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td>
+              <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:4px;">Mode de paiement</div>
+              <div style="font-size:16px;font-weight:700;color:#fff;">💵 Cash à la livraison</div>
+            </td>
+            <td align="right">
+              <div style="background:rgba(255,255,255,0.15);border-radius:20px;padding:6px 14px;color:#fff;font-size:12px;font-weight:600;">À ENCAISSER</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      {% endif %}
+
+      <!-- Articles -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#c9485b;margin-bottom:12px;">
+          🛍️ Articles commandés
+        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+          <tr style="background:#111;">
+            <th style="padding:10px 14px;text-align:left;font-size:11px;color:#fff;font-weight:600;letter-spacing:1px;border-radius:6px 0 0 0;">PRODUIT</th>
+            <th style="padding:10px 14px;text-align:center;font-size:11px;color:#fff;font-weight:600;letter-spacing:1px;">QTÉ</th>
+            <th style="padding:10px 14px;text-align:right;font-size:11px;color:#fff;font-weight:600;letter-spacing:1px;border-radius:0 6px 0 0;">PRIX</th>
+          </tr>
+          {% for item in order.items.all %}
+          <tr style="border-bottom:1px solid #eee;">
+            <td style="padding:12px 14px;font-size:13px;color:#222;">
+              {{ item.product_name }}
+              {% if item.variant_name %}<br><span style="font-size:11px;color:#888;">{{ item.variant_name }}</span>{% endif %}
+            </td>
+            <td style="padding:12px 14px;text-align:center;font-size:13px;color:#555;font-weight:600;">{{ item.quantity }}</td>
+            <td style="padding:12px 14px;text-align:right;font-size:13px;color:#111;font-weight:600;">{{ item.subtotal }} DA</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <!-- Totaux -->
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #eee;padding-top:16px;">
+        {% if order.discount_amount %}
+        <tr>
+          <td style="padding:4px 0;font-size:13px;color:#555;">Remise</td>
+          <td style="padding:4px 0;text-align:right;font-size:13px;color:#c9485b;font-weight:600;">- {{ order.discount_amount }} DA</td>
+        </tr>
+        {% endif %}
+        <tr>
+          <td style="padding:4px 0;font-size:13px;color:#555;">Livraison</td>
+          <td style="padding:4px 0;text-align:right;font-size:13px;color:#555;">{{ order.delivery_cost }} DA</td>
+        </tr>
+        <tr>
+          <td style="padding:12px 0 0 0;font-size:16px;font-weight:700;color:#111;">TOTAL</td>
+          <td style="padding:12px 0 0 0;text-align:right;font-size:22px;font-weight:700;color:#c9485b;">{{ order.total }} DA</td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+
+  <!-- FOOTER -->
+  <tr>
+    <td style="background:#111;padding:20px 36px;border-radius:0 0 12px 12px;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="font-size:11px;color:#666;">
+            Notification automatique — Piové Cosmetics
+          </td>
+          <td align="right" style="font-size:11px;color:#666;">
+            Commande #{{ order.id }}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+</table>
+</td></tr>
+</table>
+
+</body>
+</html>

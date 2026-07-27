@@ -663,30 +663,26 @@ class OrderViewSet(viewsets.ModelViewSet):
                 except Exception:
                     pass
 
-            # 2. Email direct admin — TOUJOURS
+            # 2. Email direct admin — TOUJOURS (template premium)
             client_name = order.guest_name or (order.customer.name if order.customer else '') or 'Sans nom'
-            items_text = ', '.join(
-                f"{i.quantity}x {i.product_name}" for i in order.items.all()
-            ) or '-'
             admin_subject = (
                 f"[NOUVELLE COMMANDE #{order.id}] {client_name} "
                 f"| {order.wilaya or '-'} | {order.total} DA"
             )
-            admin_body = (
-                f"<h2>Nouvelle commande #{order.id}</h2>"
-                f"<p><b>Client :</b> {client_name}<br>"
-                f"<b>Tel :</b> {order.guest_phone or '-'}<br>"
-                f"<b>Wilaya :</b> {order.wilaya or '-'} / {order.city or '-'}<br>"
-                f"<b>Adresse :</b> {order.shipping_address or '-'}<br>"
-                f"<b>Paiement :</b> {'CIB/Edahabia' if order.payment_method == 'cib' else 'Cash livraison'}<br>"
-                f"<b>Articles :</b> {items_text}<br>"
-                f"<b>Total :</b> <strong>{order.total} DA</strong></p>"
+            admin_html = render_to_string('emails/new_order_admin.html', {'order': order})
+            admin_text = (
+                f"Nouvelle commande #{order.id}\n"
+                f"Client : {client_name}\n"
+                f"Tel : {order.guest_phone or '-'}\n"
+                f"Wilaya : {order.wilaya or '-'} / {order.city or '-'}\n"
+                f"Paiement : {'CIB/Edahabia' if order.payment_method == 'cib' else 'Cash livraison'}\n"
+                f"Total : {order.total} DA"
             )
             msg_admin = EmailMultiAlternatives(
-                admin_subject, f"Nouvelle commande #{order.id}",
+                admin_subject, admin_text,
                 settings.DEFAULT_FROM_EMAIL, admin_emails
             )
-            msg_admin.attach_alternative(admin_body, "text/html")
+            msg_admin.attach_alternative(admin_html, "text/html")
             msg_admin.send(fail_silently=False)
         except Exception as _email_err:
             import logging

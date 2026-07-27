@@ -9,9 +9,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 import os
 try:
-    from dotenv import load_dotenv
-    # Load environment variables from .env file (if it exists)
-    load_dotenv(BASE_DIR / '.env')
+    from dotenv import dotenv_values
+    # Charge le .env variable par variable — ignore les valeurs non-ASCII (ex: caractères accentués)
+    _env_path = BASE_DIR / '.env'
+    if _env_path.exists():
+        for _k, _v in dotenv_values(_env_path).items():
+            if _v is None:
+                continue
+            try:
+                os.environ.setdefault(_k, _v)
+            except (UnicodeEncodeError, ValueError):
+                # Valeur contient des caractères non-ASCII (ex: é, à...) — ignorée
+                pass
 except ImportError:
     pass
 

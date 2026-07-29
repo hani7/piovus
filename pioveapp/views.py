@@ -1241,7 +1241,17 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             payment_type = 'PP' if order.payment_method == 'cib' else 'COD'
             cod_value = 0.0 if order.payment_method == 'cib' else float(order.total)
 
-            wilaya_normalized = mylerz_service.normalize_wilaya(getattr(order, 'wilaya', None) or '')
+            raw_wilaya = (getattr(order, 'wilaya', None) or '').strip()
+            wilaya_normalized = mylerz_service.normalize_wilaya(raw_wilaya)
+            # Safety: ensure wilaya_normalized is a known Mylerz city (mirrors create_shipment logic)
+            if wilaya_normalized not in mylerz_service.WILAYA_LIST:
+                import unicodedata
+                key_s = ''.join(c for c in unicodedata.normalize('NFD', wilaya_normalized.lower()) if unicodedata.category(c) != 'Mn')
+                for w in mylerz_service.WILAYA_LIST:
+                    w_s = ''.join(c for c in unicodedata.normalize('NFD', w.lower()) if unicodedata.category(c) != 'Mn')
+                    if key_s in w_s or w_s in key_s:
+                        wilaya_normalized = w
+                        break
             commune = (getattr(order, 'city', None) or '').strip()
             city = wilaya_normalized                  # toujours la wilaya — Mylerz la reconnaît
             neighborhood = commune if commune else ''  # commune saisie ou vide (pas de fallback)

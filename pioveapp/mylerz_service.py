@@ -273,14 +273,18 @@ def normalize_wilaya(raw):
         if _strip_accents(w.lower()) == key_stripped:
             return w
 
-    # 5. Startswith match (first 4 chars) as last resort
-    if len(key_stripped) >= 3:
+    # 5. Startswith match — use at least 5 chars to avoid false positives
+    # (e.g. "Ain Defla" and "Ain Temouchent" both start with "ain " over 4 chars)
+    prefix_len = max(5, min(len(key_stripped), 7))
+    if len(key_stripped) >= prefix_len:
         for w in WILAYA_LIST:
-            if _strip_accents(w.lower()).startswith(key_stripped[:4]):
+            if _strip_accents(w.lower()).startswith(key_stripped[:prefix_len]):
                 return w
 
-    logger.warning(f"normalize_wilaya: could not map '{raw}' — using as-is")
-    return raw
+    logger.warning(f"normalize_wilaya: could not map '{raw}' — using as-is (len={len(raw)})")
+    # Do NOT fall back to 'Alger' for non-empty strings — return as-is so Mylerz
+    # can attempt to match it, rather than silently mapping everything to Alger.
+    return raw if raw else 'Alger'
 
 
 
@@ -423,16 +427,36 @@ def create_shipment(order):
         cod_value = float(order.total)
 
     # Address fields — map Piové fields to Mylerz fields
-    # City   = wilaya normalisée TOUJOURS (Mylerz reconnaît uniquement les noms de wilaya)
+    # City        = wilaya normalisée TOUJOURS (Mylerz reconnaît uniquement les noms de wilaya)
     # Neighborhood = commune saisie par le client si elle existe, sinon vide
     # NE PAS utiliser la commune comme City — Mylerz ne la reconnaît pas et affiche "Alger city"
-    wilaya_normalized = normalize_wilaya(order.wilaya or '')
+    raw_wilaya = (order.wilaya or '').strip()
+    wilaya_normalized = normalize_wilaya(raw_wilaya)
     commune = (order.city or '').strip()
+
+    # SAFETY CHECK: if the normalized wilaya is the commune (shouldn't happen but guard anyway)
+    # Always ensure City = a real wilaya name from WILAYA_LIST
+    if wilaya_normalized not in WILAYA_LIST:
+        logger.warning(
+            f"Mylerz order #{order.id}: wilaya '{raw_wilaya}' normalized to '{wilaya_normalized}' "
+            f"which is NOT in WILAYA_LIST — forcing lookup"
+        )
+        # Try to find any WILAYA_LIST entry that contains the key
+        key_s = _strip_accents(wilaya_normalized.lower())
+        for w in WILAYA_LIST:
+            if key_s in _strip_accents(w.lower()) or _strip_accents(w.lower()) in key_s:
+                wilaya_normalized = w
+                break
 
     city = wilaya_normalized                  # ex: "Tlemcen" — toujours la wilaya
     neighborhood = commune if commune else ''  # ex: "el mansourah" ou vide
     district_val = wilaya_normalized
     street = order.shipping_address or commune or wilaya_normalized
+
+    logger.info(
+        f"Mylerz order #{order.id}: raw_wilaya={raw_wilaya!r} → city={city!r}, "
+        f"commune={commune!r} → neighborhood={neighborhood!r}"
+    )
 
     # Mylerz Algeria Address_Category is H or C or B
     address_category = 'H'

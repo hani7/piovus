@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X, Edit, Trash2 } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 
@@ -46,7 +46,7 @@ export default function AdminProducts() {
   const [perPage, setPerPage] = useState(10)
   const [showVariants, setShowVariants] = useState(false)
   const [variants, setVariants] = useState([])
-  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true })
+  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '' })
   const [variantFile, setVariantFile] = useState(null)
   const [editVariantId, setEditVariantId] = useState(null)
 
@@ -201,7 +201,7 @@ export default function AdminProducts() {
 
   const openEditVariant = (v) => {
     setEditVariantId(v.id)
-    setNewVariant({ name: v.name, color_hex: v.color_hex || '#000000', stock: v.stock, price: v.price || '', is_available: v.is_available !== false })
+    setNewVariant({ name: v.name, color_hex: v.color_hex || '#000000', stock: v.stock, price: v.price || '', is_available: v.is_available !== false, choice_group: v.choice_group || '' })
     setVariantFile(null)
     setTimeout(() => {
       if (variantFormRef.current) {
@@ -215,7 +215,7 @@ export default function AdminProducts() {
 
   const cancelEditVariant = () => {
     setEditVariantId(null)
-    setNewVariant({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true })
+    setNewVariant({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '' })
     setVariantFile(null)
     if (variantFileRef.current) variantFileRef.current.value = ''
   }
@@ -231,6 +231,7 @@ export default function AdminProducts() {
       fd.append('color_hex', newVariant.color_hex)
       fd.append('stock', newVariant.stock)
       fd.append('is_available', newVariant.is_available)
+      fd.append('choice_group', newVariant.choice_group || '')
       if (newVariant.price !== '' && newVariant.price !== null) fd.append('price', newVariant.price)
       if (variantFile) fd.append('image', variantFile)
       
@@ -609,37 +610,80 @@ export default function AdminProducts() {
                     {showVariants && (
                       <div className="variants-section" style={{ background: 'var(--admin-surface2)', padding: '15px', borderRadius: '8px' }}>
                         
-                        {/* List existing variants */}
-                        {variants.length > 0 ? (
-                          <div style={{ display: 'grid', gap: '10px', marginBottom: '20px' }}>
-                            {variants.map(v => (
-                              <div key={v.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--admin-surface)', padding: '10px', borderRadius: '6px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                  {v.image ? (
-                                    <img src={v.image} alt={v.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
-                                  ) : (
-                                    <div style={{ width: '40px', height: '40px', background: 'var(--admin-border)', borderRadius: '4px' }} />
-                                  )}
-                                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: v.color_hex || '#000', border: '1px solid var(--admin-border)' }} title={v.color_hex}></div>
-                                  <div style={{ fontWeight: 500 }}>{v.name}</div>
-                                  <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>Stock: {v.stock}</div>
-                                  {v.price && <div style={{ color: 'var(--admin-gold)', fontSize: '0.85rem', fontWeight: 600 }}>{parseFloat(v.price).toLocaleString('fr-DZ')} DA</div>}
-                                  <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '20px', background: v.is_available ? '#1a472a' : '#5c1a1a', color: v.is_available ? '#4ade80' : '#f87171', fontWeight: 600 }}>
-                                    {v.is_available ? 'Disponible' : 'Indisponible'}
-                                  </span>
-                                </div>
-                                <div style={{ display: 'flex', gap: '6px' }}>
-                                  <button type="button" className="btn-action-icon" style={{ width: 28, height: 28 }} onClick={() => openEditVariant(v)} title="Modifier">
-                                    <Edit size={14} />
-                                  </button>
-                                  <button type="button" className="btn-action-icon" style={{ width: 28, height: 28 }} onClick={() => handleDeleteVariant(v.id)} title="Supprimer">
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
+                        {/* List existing variants — grouped by choice_group */}
+                        {variants.length > 0 ? (() => {
+                          // Build groups
+                          const grouped = {}
+                          const ungrouped = []
+                          variants.forEach(v => {
+                            if (v.choice_group) {
+                              if (!grouped[v.choice_group]) grouped[v.choice_group] = []
+                              grouped[v.choice_group].push(v)
+                            } else {
+                              ungrouped.push(v)
+                            }
+                          })
+                          const hasGroups = Object.keys(grouped).length > 0
+
+                          const renderVariantRow = (v) => (
+                            <div key={v.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--admin-surface)', padding: '10px', borderRadius: '6px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                {v.image ? (
+                                  <img src={v.image} alt={v.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                                ) : (
+                                  <div style={{ width: '40px', height: '40px', background: 'var(--admin-border)', borderRadius: '4px' }} />
+                                )}
+                                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: v.color_hex || '#000', border: '1px solid var(--admin-border)' }} title={v.color_hex}></div>
+                                <div style={{ fontWeight: 500 }}>{v.name}</div>
+                                <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>Stock: {v.stock}</div>
+                                {v.price && <div style={{ color: 'var(--admin-gold)', fontSize: '0.85rem', fontWeight: 600 }}>{parseFloat(v.price).toLocaleString('fr-DZ')} DA</div>}
+                                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '20px', background: v.is_available ? '#1a472a' : '#5c1a1a', color: v.is_available ? '#4ade80' : '#f87171', fontWeight: 600 }}>
+                                  {v.is_available ? 'Disponible' : 'Indisponible'}
+                                </span>
                               </div>
-                            ))}
-                          </div>
-                        ) : (
+                              <div style={{ display: 'flex', gap: '6px' }}>
+                                <button type="button" className="btn-action-icon" style={{ width: 28, height: 28 }} onClick={() => openEditVariant(v)} title="Modifier"><Edit size={14} /></button>
+                                <button type="button" className="btn-action-icon" style={{ width: 28, height: 28 }} onClick={() => handleDeleteVariant(v.id)} title="Supprimer"><Trash2 size={14} /></button>
+                              </div>
+                            </div>
+                          )
+
+                          return (
+                            <div style={{ display: 'grid', gap: '10px', marginBottom: '20px' }}>
+                              {hasGroups && Object.entries(grouped).sort().map(([group, gvars]) => (
+                                <div key={group} style={{ border: '1px solid var(--admin-border)', borderRadius: '8px', overflow: 'hidden' }}>
+                                  <div style={{ background: 'var(--admin-primary)', color: '#fff', padding: '6px 12px', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <span>🎨</span> {group}
+                                    <span style={{ marginLeft: 'auto', opacity: 0.8, fontWeight: 400, fontSize: '0.78rem' }}>{gvars.length} teinte{gvars.length > 1 ? 's' : ''}</span>
+                                  </div>
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px', background: 'var(--admin-surface)' }}>
+                                    {gvars.map(v => (
+                                      <div key={v.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                                        <div
+                                          style={{ width: 36, height: 36, borderRadius: '50%', background: v.color_hex?.startsWith('http') ? '#f0f0f0' : (v.color_hex || '#ccc'), border: '2px solid var(--admin-border)', position: 'relative', cursor: 'pointer' }}
+                                          title={v.name}
+                                        >
+                                          {v.color_hex?.startsWith('http') && <img src={v.color_hex} alt={v.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />}
+                                        </div>
+                                        <span style={{ fontSize: '0.65rem', color: 'var(--admin-text-muted)', textAlign: 'center', maxWidth: 48, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</span>
+                                        <div style={{ display: 'flex', gap: 2 }}>
+                                          <button type="button" className="btn-action-icon" style={{ width: 20, height: 20, padding: 0 }} onClick={() => openEditVariant(v)}><Edit size={10} /></button>
+                                          <button type="button" className="btn-action-icon" style={{ width: 20, height: 20, padding: 0 }} onClick={() => handleDeleteVariant(v.id)}><Trash2 size={10} /></button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                              {ungrouped.length > 0 && (
+                                <div>
+                                  {hasGroups && <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)', marginBottom: 6 }}>Variations sans groupe :</div>}
+                                  {ungrouped.map(v => renderVariantRow(v))}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })() : (
                           <p style={{ color: 'var(--admin-text-muted)', marginBottom: '15px', fontSize: '0.9rem' }}>Aucune variation pour ce produit.</p>
                         )}
 
@@ -655,6 +699,39 @@ export default function AdminProducts() {
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label>Nom de la teinte *</label>
                               <input className="form-control" value={newVariant.name} onChange={e => setNewVariant({ ...newVariant, name: e.target.value })} placeholder="Ex: Rouge passion" />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label>Groupe de Choix <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.78rem' }}>(collection)</span></label>
+                              <div style={{ display: 'flex', gap: 6 }}>
+                                <input
+                                  className="form-control"
+                                  list={`choice-groups-${editId}`}
+                                  value={newVariant.choice_group}
+                                  onChange={e => setNewVariant({ ...newVariant, choice_group: e.target.value })}
+                                  placeholder="Ex: Choix 01 (laisser vide si standard)"
+                                />
+                                <datalist id={`choice-groups-${editId}`}>
+                                  {/* Generate Choix 01..12 suggestions */}
+                                  {[...new Set(variants.filter(v => v.choice_group).map(v => v.choice_group))]
+                                    .concat(['Choix 01','Choix 02','Choix 03','Choix 04','Choix 05','Choix 06']
+                                      .filter(c => !variants.some(v => v.choice_group === c)))
+                                    .slice(0, 12)
+                                    .map(g => <option key={g} value={g} />)
+                                  }
+                                </datalist>
+                                {/* Quick next group button */}
+                                <button
+                                  type="button"
+                                  title="Prochain groupe disponible"
+                                  style={{ padding: '0 10px', borderRadius: 6, border: '1px solid var(--admin-border)', background: 'var(--admin-surface2)', cursor: 'pointer', fontSize: '1.1rem', whiteSpace: 'nowrap' }}
+                                  onClick={() => {
+                                    const existing = [...new Set(variants.filter(v => v.choice_group).map(v => v.choice_group))].sort()
+                                    let next = 1
+                                    while (existing.includes(`Choix ${String(next).padStart(2, '0')}`)) next++
+                                    setNewVariant({ ...newVariant, choice_group: `Choix ${String(next).padStart(2, '0')}` })
+                                  }}
+                                >+</button>
+                              </div>
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label>Couleur (Hex) *</label>

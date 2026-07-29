@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import { getProduct, getRelatedProducts } from '../api/products'
 import { useCartStore } from '../store/cartStore'
@@ -27,16 +27,37 @@ export default function ProductPage() {
   const [relatedProducts, setRelatedProducts] = useState([])
   const [selectedRelated, setSelectedRelated] = useState([])
 
+  // Collection mode: selectedChoices = { "Choix 01": variantId, "Choix 02": variantId, ... }
+  const [selectedChoices, setSelectedChoices] = useState({})
+
   const addItem = useCartStore((s) => s.addItem)
   const user = useAuthStore((s) => s.user)
   const isB2B = user?.profile?.is_b2b
   const { toggle: toggleWishlist, isWishlisted } = useWishlistStore()
 
-  const displayPrice = selectedVariant?.price
-    ? parseFloat(selectedVariant.price)
-    : product
-      ? (product.is_promo ? parseFloat(product.promo_price) : parseFloat(product.price))
-      : 0
+  // Detect if this product is a collection
+  const isCollection = useMemo(() => {
+    if (!product?.variants?.length) return false
+    return product.variants.some(v => v.choice_group && v.choice_group.trim() !== '')
+  }, [product])
+
+  // All unique choice groups for this product
+  const choiceGroupLabels = useMemo(() => {
+    if (!isCollection || !product?.variants) return []
+    const groups = new Set(product.variants.filter(v => v.choice_group).map(v => v.choice_group))
+    return [...groups].sort()
+  }, [isCollection, product])
+
+  // All choices made = one selection per group
+  const allChoicesMade = useMemo(() => {
+    if (!isCollection) return true
+    return choiceGroupLabels.length > 0 && choiceGroupLabels.every(g => selectedChoices[g] != null)
+  }, [isCollection, choiceGroupLabels, selectedChoices])
+
+  // Price: always product price for collections
+  const displayPrice = product
+    ? (product.is_promo ? parseFloat(product.promo_price) : parseFloat(product.price))
+    : 0
 
   useEffect(() => {
     if (product && isB2B && product.b2b_min_stock > 1) {
@@ -55,7 +76,12 @@ export default function ProductPage() {
     getProduct(slug)
       .then((r) => {
         setProduct(r.data)
-        if (r.data.variants?.length > 0) setSelectedVariant(r.data.variants[0])
+        // Reset choices when product changes
+        setSelectedChoices({})
+        // For regular products, auto-select first variant
+        const vars = r.data.variants || []
+        const hasGroups = vars.some(v => v.choice_group)
+        if (!hasGroups && vars.length > 0) setSelectedVariant(vars[0])
       })
       .catch(() => { if (!product) setError('Produit introuvable.') })
       .finally(() => setLoading(false))
@@ -78,18 +104,40 @@ export default function ProductPage() {
     }
   }, [images.length])
 
+  // Handle collection choice selection
+  const handleChoiceSelect = useCallback((groupLabel, variant) => {
+    setSelectedChoices(prev => ({ ...prev, [groupLabel]: variant.id }))
+    if (variant.image) setSelectedImage(-1)
+  }, [])
+
+  // Option B: add one item per choice (each selected variant)
   const handleAddToCart = useCallback(() => {
-    addItem(product, selectedVariant, quantity, isB2B ? packaging : 'boite')
-    selectedRelated.forEach((rpId) => {
-      const rp = product.related_products?.find((p) => p.id === rpId)
-      if (rp) addItem(rp, null, 1)
-    })
-    if (window.fbq) window.fbq('track', 'AddToCart', { content_name: product.name, content_ids: [product.id], content_type: 'product', value: displayPrice * quantity, currency: 'DZD' })
-    if (window.ttq) window.ttq.track('AddToCart', { content_name: product.name, content_id: product.id, content_type: 'product', value: displayPrice * quantity, currency: 'DZD', quantity })
+    if (isCollection) {
+      if (!allChoicesMade) return
+      // Add one item per chosen variant, using product price for each
+      Object.entries(selectedChoices).forEach(([groupLabel, variantId]) => {
+        const variant = product.variants.find(v => v.id === variantId)
+        if (variant) {
+          // Use product price (not variant price) for collections
+          const collectionProduct = { ...product, promo_price: product.promo_price, price: product.price }
+          addItem(collectionProduct, { ...variant, price: null }, 1, 'boite')
+        }
+      })
+    } else {
+      addItem(product, selectedVariant, quantity, isB2B ? packaging : 'boite')
+      selectedRelated.forEach((rpId) => {
+        const rp = product.related_products?.find((p) => p.id === rpId)
+        if (rp) addItem(rp, null, 1)
+      })
+    }
+
+    if (window.fbq) window.fbq('track', 'AddToCart', { content_name: product.name, content_ids: [product.id], content_type: 'product', value: displayPrice * (isCollection ? choiceGroupLabels.length : quantity), currency: 'DZD' })
+    if (window.ttq) window.ttq.track('AddToCart', { content_name: product.name, content_id: product.id, content_type: 'product', value: displayPrice, currency: 'DZD', quantity })
+
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
     setSelectedRelated([])
-  }, [product, selectedVariant, quantity, packaging, isB2B, selectedRelated, displayPrice, addItem])
+  }, [product, selectedVariant, quantity, packaging, isB2B, selectedRelated, isCollection, selectedChoices, allChoicesMade, choiceGroupLabels.length, displayPrice, addItem])
 
   const handleVariantSelect = useCallback((v) => {
     setSelectedVariant(v)
@@ -171,6 +219,10 @@ export default function ProductPage() {
             onAddToCart={handleAddToCart}
             onToggleWishlist={() => toggleWishlist(product)}
             onRelatedChange={handleRelatedChange}
+            isCollection={isCollection}
+            selectedChoices={selectedChoices}
+            onChoiceSelect={handleChoiceSelect}
+            allChoicesMade={allChoicesMade}
           />
         </div>
 

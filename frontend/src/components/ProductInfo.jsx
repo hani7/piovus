@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { ProductShare } from './ProductReviews'
 
@@ -18,10 +18,27 @@ const ProductInfo = memo(function ProductInfo({
   onAddToCart,
   onToggleWishlist,
   onRelatedChange,
+  // Collection mode props
+  isCollection,
+  selectedChoices,
+  onChoiceSelect,
+  allChoicesMade,
 }) {
-  const displayPrice = selectedVariant?.price
-    ? parseFloat(selectedVariant.price)
-    : product.is_promo ? parseFloat(product.promo_price) : parseFloat(product.price)
+  // Group labels sorted (collection mode only)
+  const choiceGroups = useMemo(() => {
+    if (!isCollection) return {}
+    const groups = {}
+    product.variants?.forEach(v => {
+      if (v.choice_group) {
+        if (!groups[v.choice_group]) groups[v.choice_group] = []
+        groups[v.choice_group].push(v)
+      }
+    })
+    return groups
+  }, [product.variants, isCollection])
+
+  const groupLabels = useMemo(() =>
+    Object.keys(choiceGroups).sort(), [choiceGroups])
 
   return (
     <div className="product-info">
@@ -47,11 +64,10 @@ const ProductInfo = memo(function ProductInfo({
         </div>
       )}
 
-      {/* Price */}
+      {/* Price — always product price for collections */}
       <div className="product-info__pricing">
         {isB2B ? (
           <div className="product-info__b2b-pricing">
-            {/* Boîte */}
             <label className={`b2b-option${packaging === 'boite' ? ' b2b-option--active' : ''}`}>
               <input type="radio" name="packaging" value="boite" checked={packaging === 'boite'} onChange={() => onPackagingChange('boite')} />
               <div className="b2b-option__body">
@@ -68,7 +84,6 @@ const ProductInfo = memo(function ProductInfo({
                 </div>
               </div>
             </label>
-            {/* Carton */}
             <label className={`b2b-option${packaging === 'carton' ? ' b2b-option--active' : ''}`}>
               <input type="radio" name="packaging" value="carton" checked={packaging === 'carton'} onChange={() => onPackagingChange('carton')} />
               <div className="b2b-option__body">
@@ -89,13 +104,13 @@ const ProductInfo = memo(function ProductInfo({
               <p className="b2b-min-order">Quantité minimale de commande : {product.b2b_min_stock}</p>
             )}
           </div>
-        ) : selectedVariant?.price ? (
-          <span className="product-info__price">{parseFloat(selectedVariant.price).toLocaleString('fr-DZ')} DA</span>
         ) : product.is_promo ? (
           <>
             <span className="product-info__price product-info__price--promo">{parseFloat(product.promo_price).toLocaleString('fr-DZ')} DA</span>
             <span className="product-info__price product-info__price--original">{parseFloat(product.price).toLocaleString('fr-DZ')} DA</span>
           </>
+        ) : !isCollection && selectedVariant?.price ? (
+          <span className="product-info__price">{parseFloat(selectedVariant.price).toLocaleString('fr-DZ')} DA</span>
         ) : (
           <span className="product-info__price">{parseFloat(product.price).toLocaleString('fr-DZ')} DA</span>
         )}
@@ -113,8 +128,60 @@ const ProductInfo = memo(function ProductInfo({
         <p className="product-info__short-desc">{product.short_description}</p>
       )}
 
-      {/* Variant swatches */}
-      {product.variants?.length > 0 && (
+      {/* ── COLLECTION MODE: Grouped choices ── */}
+      {isCollection && groupLabels.length > 0 && (
+        <div className="product-info__collection-choices">
+          {groupLabels.map((groupLabel) => {
+            const groupVariants = choiceGroups[groupLabel] || []
+            const chosen = selectedChoices?.[groupLabel]
+            const chosenVariant = groupVariants.find(v => v.id === chosen)
+            return (
+              <div key={groupLabel} className="collection-choice-group">
+                <p className="collection-choice-group__label">
+                  {groupLabel}
+                  {chosenVariant
+                    ? <strong> — {chosenVariant.name}</strong>
+                    : <span className="collection-choice-group__hint"> — choisissez une teinte</span>
+                  }
+                </p>
+                <div className="product-info__swatches" role="radiogroup" aria-label={`Sélectionner ${groupLabel}`}>
+                  {groupVariants.filter(v => v.is_available !== false).map((v) => {
+                    const isImg = v.color_hex?.startsWith('http')
+                    const code = v.name.split(' ')[0]
+                    const isSelected = chosen === v.id
+                    return (
+                      <button
+                        key={v.id}
+                        className={`swatch${isSelected ? ' swatch--active' : ''}`}
+                        style={{ background: isImg ? '#f0f0f0' : (v.color_hex || '#cccccc') }}
+                        onClick={() => onChoiceSelect(groupLabel, v)}
+                        title={v.name}
+                        aria-label={v.name}
+                        aria-pressed={isSelected}
+                        id={`variant-${v.id}`}
+                      >
+                        {isImg && (
+                          <span className="swatch__code">{code}
+                            <img src={v.color_hex} alt={code} className="swatch__img" onError={(e) => { e.target.style.display = 'none' }} />
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+          {!allChoicesMade && (
+            <p className="collection-choices-hint">
+              ⚠️ Sélectionnez une teinte pour chaque choix pour ajouter au panier.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* ── REGULAR MODE: single variant swatches ── */}
+      {!isCollection && product.variants?.length > 0 && (
         <div className="product-info__variants">
           <p className="product-info__variant-label">
             Teinte: <strong>{selectedVariant?.name}</strong>
@@ -124,27 +191,22 @@ const ProductInfo = memo(function ProductInfo({
           </p>
           <div className="product-info__swatches" role="radiogroup" aria-label="Sélectionner une teinte">
             {product.variants.filter((v) => v.is_available !== false).map((v) => {
-              const isImage = v.color_hex?.startsWith('http')
+              const isImg = v.color_hex?.startsWith('http')
               const code = v.name.split(' ')[0]
               return (
                 <button
                   key={v.id}
                   className={`swatch${selectedVariant?.id === v.id ? ' swatch--active' : ''}`}
-                  style={{ background: isImage ? '#f0f0f0' : (v.color_hex || '#cccccc') }}
+                  style={{ background: isImg ? '#f0f0f0' : (v.color_hex || '#cccccc') }}
                   onClick={() => onVariantSelect(v)}
                   title={v.name}
                   aria-label={v.name}
                   aria-pressed={selectedVariant?.id === v.id}
                   id={`variant-${v.id}`}
                 >
-                  {isImage && (
+                  {isImg && (
                     <span className="swatch__code">{code}
-                      <img
-                        src={v.color_hex}
-                        alt={code}
-                        className="swatch__img"
-                        onError={(e) => { e.target.style.display = 'none' }}
-                      />
+                      <img src={v.color_hex} alt={code} className="swatch__img" onError={(e) => { e.target.style.display = 'none' }} />
                     </span>
                   )}
                 </button>
@@ -179,18 +241,21 @@ const ProductInfo = memo(function ProductInfo({
 
       {/* Qty + Add to cart + Wishlist */}
       <div className="product-info__actions">
-        <div className="product-info__qty" role="group" aria-label="Quantité">
-          <button
-            onClick={() => onQuantityChange(Math.max(isB2B && product.b2b_min_stock ? product.b2b_min_stock : 1, quantity - 1))}
-            aria-label="Diminuer la quantité"
-            id="qty-minus"
-          >−</button>
-          <span aria-live="polite">{quantity}</span>
-          <button onClick={() => onQuantityChange(quantity + 1)} aria-label="Augmenter la quantité" id="qty-plus">+</button>
-        </div>
+        {!isCollection && (
+          <div className="product-info__qty" role="group" aria-label="Quantité">
+            <button
+              onClick={() => onQuantityChange(Math.max(isB2B && product.b2b_min_stock ? product.b2b_min_stock : 1, quantity - 1))}
+              aria-label="Diminuer la quantité"
+              id="qty-minus"
+            >−</button>
+            <span aria-live="polite">{quantity}</span>
+            <button onClick={() => onQuantityChange(quantity + 1)} aria-label="Augmenter la quantité" id="qty-plus">+</button>
+          </div>
+        )}
         <button
           className={`btn btn-accent product-info__add-btn${added ? ' added' : ''}`}
           onClick={onAddToCart}
+          disabled={isCollection && !allChoicesMade}
           id="add-to-cart-btn"
           aria-label={added ? 'Produit ajouté au panier' : `Ajouter ${product.name} au panier`}
         >
@@ -210,7 +275,7 @@ const ProductInfo = memo(function ProductInfo({
       </div>
 
       {/* Stock */}
-      {product.stock > 0 && (
+      {!isCollection && product.stock > 0 && (
         <p className="product-info__stock">
           {product.stock > 10
             ? <span className="stock-ok">En stock</span>

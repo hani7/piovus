@@ -304,6 +304,7 @@ class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'En attente'),
         ('en_cours', 'En cours'),
+        ('payment_failed', 'Paiement échoué'),
         ('confirmed', 'Confirme'),
         ('shipped', 'En livraison'),
         ('fulfilled', 'Fulfilled'),

@@ -34,13 +34,25 @@ function Pagination({ page, totalPages, onPage }) {
 }
 
 const STATUS_LABELS = {
-  pending: 'En attente', confirmed: 'Confirmé',
-  shipped: 'En livraison', fulfilled: 'Livrée', cancelled: 'Annulée', returned: 'Retournée',
+  pending: 'En attente',
+  payment_failed: 'Paiement échoué',
+  confirmed: 'Confirmé',
+  en_cours: 'En cours',
+  shipped: 'En livraison',
+  fulfilled: 'Livrée',
+  cancelled: 'Annulée',
+  returned: 'Retournée',
 }
 
 const STATUS_BADGE = {
-  pending: 'badge-pending', confirmed: 'badge-confirmed',
-  shipped: 'badge-shipped', fulfilled: 'badge-fulfilled', cancelled: 'badge-cancelled', returned: 'badge-returned',
+  pending: 'badge-pending',
+  payment_failed: 'badge-danger',
+  confirmed: 'badge-confirmed',
+  en_cours: 'badge-pending',
+  shipped: 'badge-shipped',
+  fulfilled: 'badge-fulfilled',
+  cancelled: 'badge-cancelled',
+  returned: 'badge-returned',
 }
 
 export default function AdminOrders({ isB2B = false }) {
@@ -274,15 +286,18 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
   const visibleOrders = filteredOrders.slice((page - 1) * perPage, page * perPage)
   const allVisibleSelected = visibleOrders.length > 0 && visibleOrders.every(o => selectedIds.includes(o.id))
 
-  const activeOrders = orders.filter(o => o.status !== 'cancelled' && o.status !== 'returned')
+  const activeOrders = orders.filter(o =>
+    o.status !== 'cancelled' && o.status !== 'returned' && o.status !== 'payment_failed'
+  )
   const stats = {
-    total:     orders.length,
-    revenue:   activeOrders.reduce((acc, o) => acc + Number(o.total) - Number(o.delivery_cost || 0), 0),
-    pending:   orders.filter(o => o.status === 'pending').length,
-    confirmed: orders.filter(o => o.status === 'confirmed').length,
-    shipped:   orders.filter(o => o.status === 'shipped').length,
-    fulfilled: orders.filter(o => o.status === 'fulfilled').length,
-    cancelled: orders.filter(o => o.status === 'cancelled' || o.status === 'returned').length,
+    total:          orders.length,
+    revenue:        activeOrders.reduce((acc, o) => acc + Number(o.total) - Number(o.delivery_cost || 0), 0),
+    pending:        orders.filter(o => o.status === 'pending' || o.status === 'en_cours').length,
+    payment_failed: orders.filter(o => o.status === 'payment_failed').length,
+    confirmed:      orders.filter(o => o.status === 'confirmed').length,
+    shipped:        orders.filter(o => o.status === 'shipped').length,
+    fulfilled:      orders.filter(o => o.status === 'fulfilled').length,
+    cancelled:      orders.filter(o => o.status === 'cancelled' || o.status === 'returned').length,
     avgBasket: activeOrders.length > 0
       ? Math.round(activeOrders.reduce((acc, o) => acc + Number(o.total) - Number(o.delivery_cost || 0), 0) / activeOrders.length)
       : 0,
@@ -303,10 +318,11 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
         <StatCard label="Revenus (réels)"  value={`${stats.revenue.toLocaleString('fr-DZ')} DA`}                  color="#10b981" sub="hors annulées / retours" />
         <StatCard label="Panier Moyen"     value={`${stats.avgBasket.toLocaleString('fr-DZ')} DA`}                color="#6366f1" sub="commandes actives" />
         <StatCard label="En Attente"       value={stats.pending}                                                  color="#f59e0b" />
+        <StatCard label="⚠️ Paiement échoué" value={stats.payment_failed}                                          color="#ef4444" sub="CIB non confirmé" />
         <StatCard label="Confirmées"       value={stats.confirmed}                                                color="#8b5cf6" />
         <StatCard label="En Livraison"     value={stats.shipped}                                                  color="#3b82f6" />
         <StatCard label="Fulfilled"          value={stats.fulfilled}                                                color="#10b981" />
-        <StatCard label="Annulées / Ret."  value={stats.cancelled}                                                color="#ef4444" sub={stats.total > 0 ? `${Math.round(stats.cancelled/stats.total*100)}% taux annulation` : ''} />
+        <StatCard label="Annulées / Ret."  value={stats.cancelled}                                                color="#94a3b8" sub={stats.total > 0 ? `${Math.round(stats.cancelled/stats.total*100)}% taux annulation` : ''} />
       </div>
 
       <div className="admin-page-header">

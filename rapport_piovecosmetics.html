@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport d'Incident Critique - Piové Cosmetics</title>
+    <!-- Polices Corporate Modernes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* CEO Danger Mode Palette */
+            --bg-body: #f3f4f6;
+            --bg-page: #ffffff;
+            
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            
+            --dark-auth: #111827;       
+            --danger-red: #dc2626;      
+            --danger-dark: #991b1b;     
+            --danger-light: #fef2f2;    
+            
+            --border-light: #e5e7eb;
+            --border-danger: #fca5a5;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-danger: 0 0 15px rgba(220, 38, 38, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Page Structure (A4) --- */
+        .page {
+            max-width: 210mm;
+            margin: 40px auto;
+            background: var(--bg-page);
+            padding: 25mm 20mm;
+            border: 1px solid var(--border-light);
+            border-top: 8px solid var(--danger-red);
+            box-shadow: var(--shadow-md);
+            position: relative;
+        }
+
+        @media print {
+            body { background: var(--bg-page); }
+            .page { 
+                margin: 0; padding: 0; box-shadow: none; border-left: none; border-right: none; border-bottom: none; max-width: 100%;
+                page-break-after: always;
+            }
+            .page:last-child { page-break-after: auto; }
+            @page { margin: 1.5cm; }
+        }
+
+        /* --- Header (Executive Danger Style) --- */
+        .header {
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+
+        .logo-img { max-width: 180px; height: auto; }
+        
+        .logo-placeholder {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--dark-auth);
+            letter-spacing: -1px;
+        }
+        .logo-placeholder span { color: var(--danger-red); }
+
+        .classification {
+            background: var(--danger-red);
+            color: #ffffff;
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-radius: 4px;
+            box-shadow: var(--shadow-danger);
+            display: flex;
+            align-items: center;
+        }
+        .classification::before {
+            content: '⚠';
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .doc-title {
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: var(--dark-auth);
+            line-height: 1.1;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .doc-subtitle {
+            font-size: 1.2rem;
+            color: var(--danger-red);
+            font-weight: 700;
+        }
+
+        /* --- Metadata Grid --- */
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            background: var(--danger-light);
+            border: 1px solid var(--border-danger);
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 35px;
+        }
+
+        .meta-item { display: flex; flex-direction: column; }
+        
+        .meta-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--danger-dark);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .meta-value { font-size: 1.05rem; font-weight: 800; color: var(--dark-auth); }
+        .meta-value.alert { color: var(--danger-red); text-transform: uppercase; }
+
+        /* --- Sections & Typography --- */
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--dark-auth);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 1.2em;
+            background-color: var(--danger-red);
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+
+        .text-block {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+        .text-block strong { font-weight: 800; color: var(--danger-dark); }
+
+        /* --- Threat Grid (Danger Focused) --- */
+        .threat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .threat-box {
+            padding: 15px 20px;
+            background: var(--bg-page);
+            border: 2px solid var(--border-danger);
+            border-left: 6px solid var(--danger-red);
+            border-radius: 6px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .threat-box h4 {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--danger-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        .threat-box p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; font-weight: 500;}
+
+        /* --- Tables --- */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 35px 0;
+            border: 2px solid var(--border-light);
+        }
+
+        .data-table th, .data-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .data-table th {
+            background: var(--dark-auth);
+            color: #ffffff;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .data-table td { font-size: 0.9rem; color: var(--text-main); vertical-align: top; font-weight: 500;}
+
+        .status-badge {
+            background: var(--danger-red);
+            color: #ffffff;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            border-radius: 4px;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- Verdict Box (CEO Level) --- */
+        .verdict-box {
+            margin-top: 30px;
+            padding: 25px 30px;
+            background: var(--danger-light);
+            border: 2px solid var(--danger-red);
+            border-radius: 6px;
+            box-shadow: var(--shadow-danger);
+        }
+
+        .verdict-title {
+            color: var(--danger-red);
+            font-size: 1.3rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+        
+        .verdict-title::before {
+            content: '⚠';
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .verdict-box p {
+            font-weight: 500;
+        }
+
+        /* --- Footer --- */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================== -->
+    <!-- PAGE 1 : RÉSUMÉ EXÉCUTIF ET ANOMALIES          -->
+    <!-- ============================================== -->
+    <div class="page">
+        <header class="header">
+            <div class="header-top">
+                <img src="logo.png" alt="Piové Cosmetics" class="logo-img" onerror="this.outerHTML='<div class=\'logo-placeholder\'>Piové<span>.</span></div>'">
+                <div class="classification">Alerte Critique (Direction)</div>
+            </div>
+            
+            <h1 class="doc-title">Rapport d'Incident Majeur</h1>
+            <div class="doc-subtitle">Constat des Défaillances Prestataire (Novihost)</div>
+        </header>
+        
+        <div class="metadata-grid">
+            <div class="meta-item">
+                <span class="meta-label">Périmètre Impacté</span>
+                <span class="meta-value">piovecosmetics.com</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Prestataire Responsable</span>
+                <span class="meta-value">Novihost (Serveur Contabo)</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Niveau de Menace</span>
+                <span class="meta-value alert">INFRASTRUCTURE COMPROMISE</span>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="section-title">1. Constat d'Urgence</h2>
+            <p class="text-block">
+                Ce rapport d'expertise est émis suite au <strong>blocage mondial de la plateforme piovecosmetics.com</strong> par les systèmes antivirus d'entreprise. L'audit démontre formellement que ce préjudice n'est pas lié à l'activité de Piové, mais découle d'une <strong>négligence technique inacceptable du prestataire d'hébergement Novihost</strong>, livrant un système gravement défaillant.
+            </p>
+        </div>
+
+        <div>
+            <h2 class="section-title">2. Inventaire des Fautes (Novihost)</h2>
+            <p class="text-block">
+                Le prestataire a livré un environnement toxique, bafouant toutes les normes de l'industrie. Voici les <strong>10 anomalies majeures</strong> (dont un manque d'infogérance et des ressources frauduleuses) justifiant la classification du site en "Danger".
+            </p>
+            
+            <div class="threat-grid">
+                <div class="threat-box">
+                    <h4>Serveur Non Infogéré (Unmanaged)</h4>
+                    <p>Le prestataire a livré un serveur "Unmanaged" totalement abandonné. <strong>Aucune infogérance, aucune mise à jour, ni surveillance proactive</strong> n'est assurée par Novihost. Le site est livré à lui-même.</p>
+                </div>
+                <div class="threat-box">
+                    <h4>Ressources VPS Bridées / Fausses</h4>
+                    <p>Le VPS ne délivre absolument pas <strong>les fonctionnalités réelles ni les performances promises</strong>. L'environnement technique est instable, bridé, et incapable d'opérer un e-commerce professionnel.</p>
+                </div>
+                <div class="threat-box">
+                    <h4>Site Non Sécurisé & Exposé</h4>
+                    <p>L'hébergement est livré <strong>sans aucune politique de sécurité</strong>. L'absence totale de pare-feu applicatif (WAF) expose publiquement le site aux attaques DDoS, entraînant le rejet immédiat des antivirus.</p>
+                </div>
+                <div class="threat-box">
+                    <h4>Attribution d'une IP Blacklistée</h4>
+                    <p>Novihost a sous-loué un serveur low-cost (Contabo) et attribué l'IP <code>173.249.2.186</code>. Cette adresse était déjà <strong>fichée mondialement pour Spam (DRONE BL)</strong> avant même son utilisation.</p>
+                </div>
+                <div class="threat-box">
+                    <h4>Saturation du Webmail (Spam)</h4>
+                    <p>Faute de configuration d'une passerelle de filtrage (Antispam) par l'hébergeur, les messageries de l'entreprise subissent <strong>un bombardement quotidien de spams et de cyberattaques</strong>.</p>
+                </div>
+                <div class="threat-box">
+                    <h4>Vulnérabilité à l'Usurpation (Spoofing)</h4>
+                    <p>Le prestataire n'a configuré <strong>aucune signature cryptographique (DKIM/DMARC)</strong>. Un pirate peut envoyer de faux emails au nom de Piové, ruinant la délivrabilité chez Google et Microsoft.</p>
+                </div>
+                <div class="threat-box">
+                    <h4>Empoisonnement DNS Critique</h4>
+                    <p>La résolution du nom de domaine n'est pas chiffrée (<strong>DNSSEC désactivé</strong>). Cette négligence permet à des attaquants de détourner silencieusement les clients vers de faux serveurs.</p>
+                </div>
+                <div class="threat-box">
+                    <h4>Fuite de Données Structurelles</h4>
+                    <p>Le serveur crie publiquement son empreinte technologique (<code>Server: Apache</code>). Cette fuite de métadonnées aide les cybercriminels à cibler des failles ("Zero-day") de façon automatisée.</p>
+                </div>
+                <div class="threat-box">
+                    <h4>Architecture Mutualisée Dangereuse</h4>
+                    <p>Les flux Web (E-commerce) et Mail (SMTP) sont concentrés sur la même machine. La compromission de la messagerie par une attaque entraîne <strong>la chute instantanée de la boutique entière</strong>.</p>
+                </div>
+                <div class="threat-box">
+                    <h4>Absence de Chiffrement Strict</h4>
+                    <p>La sécurité HTTPS n'est pas forcée de bout en bout (<strong>Protocole HSTS absent</strong>). L'interception des sessions clients (Man-in-the-Middle) est laissée possible par l'hébergeur.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <span>Rapport Confidentiel &bull; Direction Piové</span>
+            <span>Page 1 / 2</span>
+        </footer>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- PAGE 2 : PREUVES FORENSIQUES                   -->
+    <!-- ============================================== -->
+    <div class="page">
+        
+        <div>
+            <h2 class="section-title">3. Preuves Forensiques du Blacklistage</h2>
+            <p class="text-block">Analyse des registres mondiaux de Threat Intelligence (MXToolbox). L'IP fournie par Novihost est classée sans équivoque comme <strong>source de menaces actives</strong>.</p>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="35%">Autorité de Régulation</th>
+                        <th>Raison du Blocage Identifiée</th>
+                        <th width="15%">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>DRONE BL</strong><br>
+                            <span style="font-size: 0.75rem; color: #9ca3af; font-weight: 500;">Réseau Anti-Botnet Mondial</span>
+                        </td>
+                        <td>L'adresse IP de Novihost (<code>173.249.2.186</code>) est identifiée comme participant à des attaques distribuées (Machines Zombies).</td>
+                        <td><span class="status-badge">BLOQUÉ</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>RATS Spam</strong><br>
+                            <span style="font-size: 0.75rem; color: #9ca3af; font-weight: 500;">Base de Détection de Pourriels</span>
+                        </td>
+                        <td>Volume anormal d'injections de courriers indésirables (Spam) détecté en provenance de ce serveur.</td>
+                        <td><span class="status-badge">BLOQUÉ</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div>
+            <h2 class="section-title">4. Défaut de Conformité Applicative</h2>
+            <p class="text-block">L'analyse du serveur démontre que <strong>100% des directives de sécurité requises</strong> pour un site e-commerce sont ignorées par Novihost (Taux d'échec : 100%).</p>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="45%">Directive de Sécurité Oubliée</th>
+                        <th width="15%">État Serveur</th>
+                        <th>Risque Induit par l'Hébergeur</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Strict-Transport-Security (HSTS)</strong></td>
+                        <td><span class="status-badge">MANQUANT</span></td>
+                        <td>Vulnérabilité à l'interception des données clients.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Content-Security-Policy (CSP)</strong></td>
+                        <td><span class="status-badge">MANQUANT</span></td>
+                        <td>Possibilité d'injection de scripts pirates (XSS).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>X-Frame-Options</strong></td>
+                        <td><span class="status-badge">MANQUANT</span></td>
+                        <td>Risque de détournement de l'interface (Clickjacking).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>X-Content-Type-Options</strong></td>
+                        <td><span class="status-badge">MANQUANT</span></td>
+                        <td>Exécution de charges virales (MIME Sniffing).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="verdict-box">
+            <h3 class="verdict-title">Bilan des Responsabilités</h3>
+            <p class="text-block" style="margin-bottom: 0;">
+                Il est formellement établi que le préjudice majeur subi par Piové Cosmetics (Déni d'accès mondial par les pare-feux, <strong>bombardement massif des messageries d'entreprise par des cyberattaques</strong>, et perte de confiance client) est <strong>entièrement imputable à une faute de service de Novihost</strong>.<br><br>
+                En livrant une infrastructure compromise dès l'origine (IP blacklistée), <strong>sans infogérance, avec des ressources bridées, et un site non sécurisé</strong>, le prestataire a refusé d'appliquer les mesures de durcissement serveur élémentaires. Il a ainsi exposé l'entreprise à des risques intolérables. Cette négligence technique absolue justifie à elle seule le classement du domaine en "Danger Critique" par la communauté mondiale de cybersécurité.
+            </p>
+        </div>
+
+        <footer class="footer" style="margin-top: 80px;">
+            <span>Rapport Exécutif &bull; Direction Piové</span>
+            <span>Page 2 / 2</span>
+        </footer>
+    </div>
+
+</body>
+</html>

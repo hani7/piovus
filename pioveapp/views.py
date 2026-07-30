@@ -621,11 +621,13 @@ class OrderViewSet(viewsets.ModelViewSet):
             total += price * qty
 
         # Statut initial selon le mode de paiement
-        # Cash → 'en_cours' (En cours de traitement)
-        # CIB/Satim/Dahabia → 'confirmed' (paiement reçu)
+        # Cash      → 'en_cours'  (En cours de traitement, paiement à la livraison)
+        # CIB/SATIM → 'pending'   (En attente de confirmation bancaire)
+        # NOTE: Le statut CIB passera à 'confirmed' UNIQUEMENT via le callback SATIM
+        #       si et seulement si la banque valide la transaction.
         if payment_method == 'cib':
-            initial_status = 'confirmed'
-            history_note = 'Paiement en ligne confirme - commande enregistree.'
+            initial_status = 'pending'
+            history_note = 'Commande CIB en attente de confirmation du paiement en ligne.'
         else:
             initial_status = 'en_cours'
             history_note = 'Commande recue et en cours de traitement.'
@@ -2658,8 +2660,13 @@ def satim_callback(request):
             try:
                 o = Order.objects.get(id=order_id_piove)
                 if o.payment_status != 'paid':
-                    o.status = 'cancelled'
+                    o.status = 'payment_failed'
                     o.save(update_fields=['status'])
+                    OrderStatusHistory.objects.create(
+                        order=o,
+                        status='payment_failed',
+                        notes="Paiement CIB abandonné : le client n'a pas finalisé le paiement (paramètres SATIM manquants)."
+                    )
             except Order.DoesNotExist:
                 pass
         return redirect_to('cancelled', reason='missing_params')
@@ -2687,13 +2694,13 @@ def satim_callback(request):
             )
         return redirect_to('success')
     else:
-        order.status = 'cancelled'
+        order.status = 'payment_failed'
         order.save(update_fields=['status'])
-        fail_msg = confirm_res.get('message', 'Paiement annul├® ou ├®chou├®.')
+        fail_msg = confirm_res.get('message', 'Paiement annulé ou échoué.')
         OrderStatusHistory.objects.create(
             order=order,
-            status='cancelled',
-            notes=f"Paiement CIB/Edahabia annul├® : {fail_msg}"
+            status='payment_failed',
+            notes=f"Paiement CIB/Edahabia échoué : {fail_msg}"
         )
         return redirect_to('cancelled', reason='payment_failed', msg=fail_msg)
 

@@ -138,14 +138,22 @@ export default function AddressesPage() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
-  // Communes filtrées selon wilaya choisie — données importées directement (pas de fetch)
+  // Communes filtrées selon wilaya choisie — dédupliquées, triées
   const filteredCommunes = useMemo(() => {
     const obj = wilayasData.find(w => w.name === form.wilaya)
     if (!obj) return []
+    const seen = new Set()
     return communesData
       .filter(c => String(c.wilaya_id) === String(obj.id))
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .filter(c => {
+        const key = c.name.trim().toLowerCase()
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
   }, [form.wilaya])
+
 
 
   useEffect(() => {

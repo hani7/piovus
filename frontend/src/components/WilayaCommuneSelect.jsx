@@ -19,12 +19,19 @@ export default function WilayaCommuneSelect({
     [wilaya]
   )
 
-  // Communes de la wilaya choisie, triées alphabétiquement
+  // Communes de la wilaya choisie, dédupliquées et triées alphabétiquement
   const filteredCommunes = useMemo(() => {
     if (!selectedWilayaObj) return []
+    const seen = new Set()
     return communesData
       .filter(c => String(c.wilaya_id) === String(selectedWilayaObj.id))
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .filter(c => {
+        const key = c.name.trim().toLowerCase()
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
   }, [selectedWilayaObj])
 
   return (

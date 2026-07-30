@@ -1,4 +1,4 @@
-﻿/* Hero */
+/* Hero */
 .homepage {
   padding-top: 0;
 }
@@ -15,11 +15,47 @@
   overflow: hidden;
   transition: background 0.8s ease;
 }
+
+/* Image de fond du hero */
+.hero__bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  pointer-events: none;
+  /* fondu à chaque changement de slide */
+  animation: heroFadeIn 0.6s ease;
+}
+
+@keyframes heroFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 @media (max-width: 768px) {
-  .hero { min-height: 45vh; }
+  .hero {
+    min-height: unset;
+    height: auto;
+    aspect-ratio: unset;
+    /* Empilement vertical : image puis bouton */
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hero__bg-img {
+    position: relative;
+    inset: unset;
+    width: 100%;
+    height: auto;
+    /* Image entière, non rognée */
+    object-fit: contain;
+    display: block;
+  }
 }
 @media (max-width: 480px) {
-  .hero { min-height: 40vh; max-height: 55vh; }
+  .hero { max-height: unset; }
 }
 
 .hero--1 {
@@ -208,12 +244,28 @@
 }
 @media (max-width: 480px) {
   .hero__bottom {
-    bottom: 16px;
-    max-width: calc(100vw - 80px);
+    /* Sur mobile : sous l'image, pas en superposition */
+    position: relative;
+    bottom: unset;
+    left: unset;
+    transform: none;
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
   }
   .hero__cta {
     padding: 10px 24px;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
+    color: white !important;
+  }
+  /* Masquer le contenu texte (titre/eyebrow) sur mobile — l'image parle d'elle-même */
+  .hero__content {
+    display: none;
   }
 }
 

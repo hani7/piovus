@@ -64,12 +64,14 @@ export default function HomePage() {
         <section 
           className="hero" 
           aria-label="Bannière principale"
-          style={{ 
-            backgroundImage: `url(${mediaUrl(heroBanners[slide].image)})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
         >
+          {/* Image hero — visible complètement sur mobile */}
+          <img
+            key={slide}
+            src={mediaUrl(heroBanners[slide].image)}
+            alt={heroBanners[slide].title || 'Bannière'}
+            className="hero__bg-img"
+          />
         <div className="hero__content container">
           <div className="hero__text">
             <p className="hero__eyebrow">{heroBanners[slide].subtitle}</p>

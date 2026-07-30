@@ -2626,13 +2626,32 @@ class AdminMediaView(APIView):
         rel_path = request.query_params.get('path', '').strip('/')
         if not rel_path:
             return Response({'error': 'path requis'}, status=400)
+        # Protection contre traversal
         if '..' in rel_path:
             return Response({'error': 'Chemin invalide'}, status=400)
-        full_path = os.path.join(settings.MEDIA_ROOT, rel_path)
+        # Normaliser les séparateurs (Windows vs Linux)
+        rel_path = rel_path.replace('\\', '/').strip('/')
+        # Convertir MEDIA_ROOT en str (peut être un objet Path)
+        media_root = str(settings.MEDIA_ROOT).rstrip('/').rstrip('\\')
+        full_path = os.path.normpath(os.path.join(media_root, rel_path))
+        # Sécurité : vérifier que le chemin reste dans MEDIA_ROOT
+        if not full_path.startswith(os.path.normpath(media_root)):
+            return Response({'error': 'Chemin hors médiathèque'}, status=403)
         if os.path.isfile(full_path):
-            os.remove(full_path)
-            return Response({'deleted': rel_path})
-        return Response({'error': 'Fichier introuvable'}, status=404)
+            try:
+                os.remove(full_path)
+                return Response({'deleted': rel_path})
+            except OSError as e:
+                return Response({'error': f'Impossible de supprimer: {str(e)}'}, status=500)
+        # Retourner des infos de debug pour diagnostiquer le problème en prod
+        return Response({
+            'error': 'Fichier introuvable',
+            'debug': {
+                'full_path': full_path,
+                'media_root': media_root,
+                'rel_path': rel_path,
+            }
+        }, status=404)
 
 
 # ÔöÇÔöÇÔöÇ SATIM Payment Callback ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import adminClient from '../../api/adminClient'
 import {
   Image, Video, Upload, Trash2, Copy, CheckCircle,
@@ -79,7 +79,12 @@ export default function AdminMediatheque() {
       // Optimistic remove from local state (faster than reloading)
       setFiles(prev => prev.filter(x => x.rel_path !== f.rel_path))
     } catch (err) {
-      const msg = err?.response?.data?.error || 'Erreur lors de la suppression'
+      const data = err?.response?.data
+      let msg = data?.error || 'Erreur lors de la suppression'
+      // Show debug info if available (helps diagnose path issues in production)
+      if (data?.debug) {
+        msg += `\n\nDébug:\n- Chemin attendu: ${data.debug.full_path}\n- MEDIA_ROOT: ${data.debug.media_root}\n- rel_path: ${data.debug.rel_path}`
+      }
       alert(`❌ ${msg}`)
     }
   }

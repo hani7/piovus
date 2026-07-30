@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { getFeaturedProducts, getNewArrivals, getCategories, getBanners, getPromotions } from '../api/products'
+import mediaUrl from '../api/mediaUrl'
 import ProductCarousel from '../components/ProductCarousel'
 import ProductCard from '../components/ProductCard'
 import CategoryCarouselSection from '../components/CategoryCarouselSection'
@@ -64,7 +65,7 @@ export default function HomePage() {
           className="hero" 
           aria-label="Bannière principale"
           style={{ 
-            backgroundImage: `url(${heroBanners[slide].image})`,
+            backgroundImage: `url(${mediaUrl(heroBanners[slide].image)})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
@@ -137,7 +138,7 @@ export default function HomePage() {
               <Link key={cat.slug} to={`/${cat.slug}`} className="cat-card" id={`cat-${cat.slug}`}>
                 <div className="cat-card__img">
                   {cat.image ? (
-                    <img src={cat.image} alt={cat.name} />
+                    <img src={mediaUrl(cat.image)} alt={cat.name} />
                   ) : (
                     <div className="cat-card__placeholder" />
                   )}

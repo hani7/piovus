@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import ProductCard from '../components/ProductCard'
 import PageSEO from '../components/PageSEO'
 import { getProductsByCategory, getCategories, getBanners } from '../api/products'
+import mediaUrl from '../api/mediaUrl'
 import './CategoryPage.css'
 
 export default function CategoryPage() {
@@ -56,7 +57,7 @@ export default function CategoryPage() {
       <div
         className="category-page__hero"
         style={{
-          backgroundImage: categoryBanners.length > 0 ? `url(${categoryBanners[0].image})` : 'none',
+          backgroundImage: categoryBanners.length > 0 ? `url(${mediaUrl(categoryBanners[0].image)})` : 'none',
         }}
       >
         <div className="category-page__hero-overlay" />
@@ -71,7 +72,7 @@ export default function CategoryPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '24px' }}>
             {categoryBanners.slice(1).map(banner => (
               <a key={banner.id} href={banner.cta_url || '#'} style={{ display: 'block', borderRadius: '12px', overflow: 'hidden' }}>
-                <img src={banner.image} alt={banner.title} style={{ width: '100%', height: 'auto', maxHeight: '300px', objectFit: 'cover', display: 'block' }} />
+                <img src={mediaUrl(banner.image)} alt={banner.title} style={{ width: '100%', height: 'auto', maxHeight: '300px', objectFit: 'cover', display: 'block' }} />
               </a>
             ))}
           </div>

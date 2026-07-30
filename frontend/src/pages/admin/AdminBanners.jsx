@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import adminClient from '../../api/adminClient'
+import mediaUrl from '../../api/mediaUrl'
 import { Plus, Edit, Trash2, X } from 'lucide-react'
 import './admin.css'
 
@@ -60,7 +61,7 @@ export default function AdminBanners() {
       cta_url: b.cta_url, promo_code: b.promo_code, placement: b.placement || 'hero', 
       category: b.category || '', order: b.order, is_active: b.is_active 
     })
-    setEditId(b.id); setImgFile(null); setImgPreview(b.image || null); setModal('edit')
+    setEditId(b.id); setImgFile(null); setImgPreview(mediaUrl(b.image) || null); setModal('edit')
   }
 
   const handleSave = async (e) => {
@@ -118,7 +119,7 @@ export default function AdminBanners() {
               {banners.map((b) => (
                 <tr key={b.id}>
                   <td>
-                    {b.image ? <img src={b.image} alt={b.title} style={{width: 60, height: 40, objectFit: 'cover', borderRadius: 4}}/> : '-'}
+                    {b.image ? <img src={mediaUrl(b.image)} alt={b.title} style={{width: 60, height: 40, objectFit: 'cover', borderRadius: 4}}/> : '-'}
                   </td>
                   <td>
                     <strong>{b.title}</strong>

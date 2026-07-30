@@ -4,6 +4,7 @@ import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
 import { useWishlistStore } from '../store/wishlistStore'
 import { ShoppingBag, Eye, Zap, Heart } from 'lucide-react'
+import mediaUrl from '../api/mediaUrl'
 import './ProductCard.css'
 
 const ProductCard = memo(function ProductCard({ product }) {
@@ -49,7 +50,7 @@ const ProductCard = memo(function ProductCard({ product }) {
         <Link to={`/produit/${product.slug}`} state={{ initialProduct: product }} style={{ display: 'block', width: '100%', height: '100%' }}>
           {product.thumbnail ? (
           <img
-            src={product.thumbnail}
+            src={mediaUrl(product.thumbnail)}
             alt={product.name}
             className="product-card__img"
             loading="lazy"

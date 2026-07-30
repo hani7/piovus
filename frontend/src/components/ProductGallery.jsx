@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import mediaUrl from '../api/mediaUrl'
 
 /** ProductGallery — image/video carousel with thumbnail strip */
 const ProductGallery = memo(function ProductGallery({
@@ -14,12 +15,12 @@ const ProductGallery = memo(function ProductGallery({
         {images.length > 0 || selectedVariant?.image ? (
           <>
             {selectedImage === -1 && selectedVariant?.image ? (
-              <img src={selectedVariant.image} alt={selectedVariant.name} loading="lazy" decoding="async" />
+              <img src={mediaUrl(selectedVariant.image)} alt={selectedVariant.name} loading="lazy" decoding="async" />
             ) : images[selectedImage]?.video ? (
               <video
                 key={images[selectedImage].video}
                 src={images[selectedImage].video + '#t=0.001'}
-                poster={images[selectedImage].image || undefined}
+                poster={mediaUrl(images[selectedImage].image) || undefined}
                 controls
                 preload="auto"
                 playsInline
@@ -27,7 +28,7 @@ const ProductGallery = memo(function ProductGallery({
               />
             ) : (
               <img
-                src={images[selectedImage]?.image || product.thumbnail}
+                src={mediaUrl(images[selectedImage]?.image) || mediaUrl(product.thumbnail)}
                 alt={images[selectedImage]?.alt || product.name}
                 loading="eager"
                 decoding="async"
@@ -84,7 +85,7 @@ const ProductGallery = memo(function ProductGallery({
                 </div>
               ) : (
                 <>
-                  <img src={img.image} alt={img.alt || product.name} loading="lazy" decoding="async" />
+                  <img src={mediaUrl(img.image)} alt={img.alt || product.name} loading="lazy" decoding="async" />
                   {img.video && (
                     <div className="thumb-video-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>

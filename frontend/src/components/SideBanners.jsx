@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import client from '../api/client'
+import mediaUrl from '../api/mediaUrl'
 import './SideBanners.css'
 
 export default function SideBanners() {
@@ -37,7 +38,7 @@ export default function SideBanners() {
     if (banner.video) {
       return (
         <video
-          src={banner.video}
+          src={mediaUrl(banner.video)}
           autoPlay
           loop
           muted
@@ -45,7 +46,7 @@ export default function SideBanners() {
         />
       )
     }
-    return <img src={banner.image} alt={banner.title || ''} />
+    return <img src={mediaUrl(banner.image)} alt={banner.title || ''} />
   }
 
   if (leftBanners.length === 0 && rightBanners.length === 0) return null

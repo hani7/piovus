@@ -152,8 +152,10 @@ export default function CheckoutPage() {
     if (!form.guest_last_name.trim()) errs.guest_last_name = 'Champ obligatoire'
     if (!form.guest_phone.trim()) errs.guest_phone = 'Champ obligatoire'
     if (!form.wilaya) errs.wilaya = 'Champ obligatoire'
+    if (!form.city) errs.city = 'Champ obligatoire'
     if (!form.delivery_company_id) errs.delivery = 'Veuillez sélectionner un transporteur'
     return errs
+
   }
 
   const handleSubmit = async (e) => {

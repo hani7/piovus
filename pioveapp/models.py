@@ -192,6 +192,8 @@ class Banner(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True, blank=True, related_name='banners')
     is_active = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['order']

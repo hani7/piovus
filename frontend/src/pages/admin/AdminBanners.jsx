@@ -111,6 +111,7 @@ export default function AdminBanners() {
                 <th>Image</th>
                 <th>Titre</th>
                 <th>Emplacement</th>
+                <th>Dernière modif.</th>
                 <th>Actif</th>
                 <th>Actions</th>
               </tr>
@@ -125,7 +126,19 @@ export default function AdminBanners() {
                     <strong>{b.title}</strong>
                     {b.subtitle && <div style={{fontSize: '0.8rem', color: '#666'}}>{b.subtitle}</div>}
                   </td>
-                  <td><span className="badge">{PLACEMENT_LABELS[b.placement] || b.placement}</span></td>
+                  <td><span className={`badge ${b.placement === 'hero' ? 'badge-confirmed' : ''}`}>{PLACEMENT_LABELS[b.placement] || b.placement}</span></td>
+                  <td style={{ fontSize: '0.82rem', color: '#475569', whiteSpace: 'nowrap' }}>
+                    {b.updated_at ? (
+                      <>
+                        <div style={{ fontWeight: 600, color: '#0f172a' }}>
+                          {new Date(b.updated_at).toLocaleDateString('fr-DZ', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: 2 }}>
+                          {new Date(b.updated_at).toLocaleTimeString('fr-DZ', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </>
+                    ) : '—'}
+                  </td>
                   <td>
                     <span className={`badge ${b.is_active ? 'badge-success' : 'badge-danger'}`}>
                       {b.is_active ? 'Oui' : 'Non'}
@@ -139,7 +152,7 @@ export default function AdminBanners() {
                   </td>
                 </tr>
               ))}
-              {banners.length === 0 && <tr><td colSpan="5" style={{textAlign:'center'}}>Aucun élément trouvé.</td></tr>}
+              {banners.length === 0 && <tr><td colSpan="6" style={{textAlign:'center'}}>Aucun élément trouvé.</td></tr>}
             </tbody>
           </table>
         )}

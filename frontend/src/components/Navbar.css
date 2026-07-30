@@ -72,8 +72,15 @@
 
 @media (max-width: 900px) {
   .navbar__links { display: none; }
-  .navbar__wishlist-btn { display: none; }
-  .navbar__account-btn { display: none; }
+}
+
+/* Cacher Wishlist + Compte sur mobile — disponibles dans la barre de navigation basse */
+@media (max-width: 768px) {
+  .navbar__wishlist-btn,
+  .navbar__account-btn,
+  .navbar__hide-mobile {
+    display: none !important;
+  }
 }
 
 /* Logo */

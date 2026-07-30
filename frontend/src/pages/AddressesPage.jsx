@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useAuthStore } from '../store/authStore'
 import client from '../api/client'
 import { MapPin, Save, Search, ChevronDown, X } from 'lucide-react'
@@ -131,14 +131,36 @@ const labelStyle = { display: 'block', marginBottom: '8px', fontSize: '0.85rem',
 
 export default function AddressesPage() {
   const { user, setUser } = useAuthStore()
-  const [form, setForm] = useState({ address: '', wilaya: '', phone: '' })
+  const [form, setForm] = useState({ address: '', wilaya: '', city: '', phone: '' })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
+  // Chargement des communes
+  const [communes, setCommunes] = useState([])
+  const [wilayas, setWilayas] = useState([])
+  useEffect(() => {
+    Promise.all([fetch('/wilayas.json').then(r => r.json()), fetch('/communes.json').then(r => r.json())])
+      .then(([w, c]) => { setWilayas(w); setCommunes(c) })
+  }, [])
+
+  // Communes filtrées selon wilaya choisie
+  const filteredCommunes = useMemo(() => {
+    const obj = wilayas.find(w => w.name === form.wilaya)
+    if (!obj) return []
+    return communes
+      .filter(c => String(c.wilaya_id) === String(obj.id))
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [communes, wilayas, form.wilaya])
+
   useEffect(() => {
     if (user?.profile) {
-      setForm({ address: user.profile.address || '', wilaya: user.profile.wilaya || '', phone: user.profile.phone || '' })
+      setForm({
+        address: user.profile.address || '',
+        wilaya:  user.profile.wilaya  || '',
+        city:    user.profile.city    || '',
+        phone:   user.profile.phone   || '',
+      })
     }
   }, [user])
 
@@ -179,8 +201,38 @@ export default function AddressesPage() {
 
           <div>
             <label style={labelStyle}>Wilaya</label>
-            <WilayaSelect value={form.wilaya} onChange={val => setForm({...form, wilaya: val})} />
+            <WilayaSelect
+              value={form.wilaya}
+              onChange={val => setForm({ ...form, wilaya: val, city: '' })}
+            />
           </div>
+
+          {/* Commune — affichée seulement si une wilaya est sélectionnée */}
+          {form.wilaya && (
+            <div>
+              <label style={labelStyle}>Commune</label>
+              {filteredCommunes.length > 0 ? (
+                <select
+                  value={form.city}
+                  onChange={e => setForm({ ...form, city: e.target.value })}
+                  style={inputStyle}
+                >
+                  <option value="">-- Choisir une commune --</option>
+                  {filteredCommunes.map(c => (
+                    <option key={c.id} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  style={inputStyle}
+                  type="text"
+                  value={form.city}
+                  onChange={e => setForm({ ...form, city: e.target.value })}
+                  placeholder="Votre commune"
+                />
+              )}
+            </div>
+          )}
 
           <div>
             <label style={labelStyle}>Adresse de livraison complète</label>

@@ -1,22 +1,13 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import client from '../api/client'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { createOrder } from '../api/orders'
 import { useAuthStore } from '../store/authStore'
+import WilayaCommuneSelect from '../components/WilayaCommuneSelect'
 import './CheckoutPage.css'
 
-const WILAYAS = [
-  'Adrar','Chlef','Laghouat','Oum El Bouaghi','Batna','Béjaïa','Biskra','Béchar',
-  'Blida','Bouira','Tamanrasset','Tébessa','Tlemcen','Tiaret','Tizi Ouzou','Alger',
-  'Djelfa','Jijel','Sétif','Saïda','Skikda','Sidi Bel Abbès','Annaba','Guelma',
-  'Constantine','Médéa','Mostaganem','M\'Sila','Mascara','Ouargla','Oran','El Bayadh',
-  'Illizi','Bordj Bou Arréridj','Boumerdès','El Tarf','Tindouf','Tissemsilt',
-  'El Oued','Khenchela','Souk Ahras','Tipaza','Mila','Aïn Defla','Naâma',
-  'Aïn Témouchent','Ghardaïa','Relizane',
-  'Timimoun','Bordj Badji Mokhtar','Ouled Djellal','Béni Abbès','In Salah',
-  'In Guezzam','Touggourt','Djanet','El M\'Ghair','El Meniaa'
-]
+
 
 export default function CheckoutPage() {
   const { items, clearCart, coupon } = useCartStore()
@@ -144,8 +135,15 @@ export default function CheckoutPage() {
   }, [form.wilaya, form.delivery_company_id, form.delivery_type, companies])
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-    if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' })
+    // Supporte les deux signatures : event ET (name, value) depuis WilayaCommuneSelect
+    if (typeof e === 'string') {
+      const [name, value] = [e, arguments[1]]
+      setForm(f => ({ ...f, [name]: value }))
+      if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value })
+      if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' })
+    }
   }
 
   const validate = () => {
@@ -297,18 +295,16 @@ export default function CheckoutPage() {
             <div className="checkout-section">
               <h3>Adresse de livraison</h3>
               <div className="checkout-grid-2">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="wilaya">Wilaya *</label>
-                  <select className={`form-input ${errors.wilaya ? 'error' : ''}`} id="wilaya" name="wilaya" value={form.wilaya} onChange={handleChange}>
-                    <option value="">-- Choisir une wilaya --</option>
-                    {WILAYAS.map((w) => <option key={w} value={w}>{w}</option>)}
-                  </select>
-                  {errors.wilaya && <span className="field-error">{errors.wilaya}</span>}
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="city">Commune</label>
-                  <input className="form-input" id="city" name="city" value={form.city} onChange={handleChange} placeholder="Votre commune" />
-                </div>
+                <WilayaCommuneSelect
+                  wilaya={form.wilaya}
+                  city={form.city}
+                  onChange={(name, value) => {
+                    setForm(f => ({ ...f, [name]: value }))
+                    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
+                  }}
+                  errors={errors}
+                  required
+                />
               </div>
             </div>
 

@@ -74,12 +74,12 @@ export default function Footer() {
 
         <div className="footer__col">
           <h4>Nos Catégories</h4>
-          <Link to="/category/eyes">Eyes</Link>
-          <Link to="/category/face">Face</Link>
-          <Link to="/category/lips">Lips</Link>
-          <Link to="/category/nails">Nails</Link>
-          <Link to="/category/skin-care-body">Skin Care & Body</Link>
-          <Link to="/category/accessoires">Accessoires</Link>
+          <Link to="/eyes">Eyes</Link>
+          <Link to="/face">Face</Link>
+          <Link to="/lips">Lips</Link>
+          <Link to="/nails">Nails</Link>
+          <Link to="/skin-care-body">Skin Care & Body</Link>
+          <Link to="/accessoires">Accessoires</Link>
         </div>
 
         <div className="footer__col">

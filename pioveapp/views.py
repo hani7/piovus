@@ -2788,12 +2788,14 @@ class TrackOrderView(APIView):
     throttle_scope = 'track'
 
     STATUS_LABELS = {
-        'pending':   'En attente de confirmation',
-        'confirmed': 'Commande confirmée',
-        'shipped':   'En cours de livraison',
-        'fulfilled': 'Livrée',
-        'cancelled': 'Annulée',
-        'returned':  'Retournée',
+        'pending':         'En attente de confirmation du paiement',
+        'en_cours':        'En cours de traitement',
+        'payment_failed':  'Paiement échoué — veuillez contacter le support',
+        'confirmed':       'Commande confirmée',
+        'shipped':         'En cours de livraison',
+        'fulfilled':       'Livrée',
+        'cancelled':       'Annulée',
+        'returned':        'Retournée',
     }
 
     def get(self, request):

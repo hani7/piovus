@@ -1,4 +1,4 @@
-﻿/* Admin Theme */
+/* Admin Theme */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
@@ -522,6 +522,7 @@
 .badge-returned  { background: rgba(249,115,22,0.15); color: #c2410c; }
 .badge-active    { background: rgba(94,201,142,0.15);  color: var(--admin-success); }
 .badge-inactive  { background: rgba(240,106,106,0.15); color: var(--admin-danger); }
+.badge-danger    { background: rgba(220,38,38,0.12);   color: #dc2626; border: 1px solid rgba(220,38,38,0.25); font-weight: 700; }
 
 /* Buttons */
 .btn-primary {

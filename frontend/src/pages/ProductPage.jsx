@@ -190,7 +190,7 @@ export default function ProductPage() {
           <Link to="/">Accueil</Link> /
           <Link to="/shop">Produits</Link> /
           {product.categories?.length > 0 && (
-            <Link to={`/category/${product.categories[0].slug}`}>{product.categories[0].name}</Link>
+            <Link to={`/${product.categories[0].slug}`}>{product.categories[0].name}</Link>
           )}
           / <span aria-current="page">{product.name}</span>
         </nav>

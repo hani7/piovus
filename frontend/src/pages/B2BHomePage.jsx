@@ -48,7 +48,7 @@ export default function B2BHomePage() {
             </Link>
             
             {(categories || []).map(cat => (
-              <Link key={cat.slug} to={`/category/${cat.slug}`} className="b2b-cat-item">
+              <Link key={cat.slug} to={`/${cat.slug}`} className="b2b-cat-item">
                 <div className="b2b-cat-icon">
                   {cat.image ? (
                     <img src={cat.image} alt={cat.name} loading="lazy" />

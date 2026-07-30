@@ -95,7 +95,7 @@ export default function Navbar() {
               {(categories || [])
                 .filter(c => c.slug !== 'offres-speciales' && c.slug !== 'offres-speciales')
                 .map((c) => (
-                  <Link key={c.slug} to={`/category/${c.slug}`}>{c.name}</Link>
+                  <Link key={c.slug} to={`/${c.slug}`}>{c.name}</Link>
                 ))}
             </nav>
           </div>
@@ -212,7 +212,7 @@ export default function Navbar() {
           <div className="sidebar__section-title">Nos Catégories</div>
           <Link to="/shop" onClick={closeSidebar} className="sidebar__link">Tous les Produits</Link>
           {(categories || []).map((c) => (
-            <Link key={c.slug} to={`/category/${c.slug}`} onClick={closeSidebar} className="sidebar__link">
+            <Link key={c.slug} to={`/${c.slug}`} onClick={closeSidebar} className="sidebar__link">
               {c.name}
             </Link>
           ))}

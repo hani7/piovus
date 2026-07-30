@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { getFeaturedProducts, getNewArrivals, getCategories, getBanners, getPromotions } from '../api/products'
 import ProductCarousel from '../components/ProductCarousel'
@@ -134,7 +134,7 @@ export default function HomePage() {
           <div className="section-line" />
           <div className="categories-grid">
             {(categories || []).map((cat) => (
-              <Link key={cat.slug} to={`/category/${cat.slug}`} className="cat-card" id={`cat-${cat.slug}`}>
+              <Link key={cat.slug} to={`/${cat.slug}`} className="cat-card" id={`cat-${cat.slug}`}>
                 <div className="cat-card__img">
                   {cat.image ? (
                     <img src={cat.image} alt={cat.name} />

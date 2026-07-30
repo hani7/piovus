@@ -4,13 +4,25 @@ import adminClient from '../../api/adminClient'
 import { Printer, RefreshCw, Edit2 } from 'lucide-react'
 
 const STATUS_LABELS = {
-  pending: 'En attente', confirmed: 'Confirmé',
-  shipped: 'En livraison', fulfilled: 'Livrée', cancelled: 'Annulée', returned: 'Retournée',
+  pending: 'En attente',
+  payment_failed: 'Paiement échoué',
+  confirmed: 'Confirmé',
+  en_cours: 'En cours',
+  shipped: 'En livraison',
+  fulfilled: 'Livrée',
+  cancelled: 'Annulée',
+  returned: 'Retournée',
 }
 
 const STATUS_BADGE = {
-  pending: 'badge-pending', confirmed: 'badge-confirmed',
-  shipped: 'badge-shipped', fulfilled: 'badge-fulfilled', cancelled: 'badge-cancelled', returned: 'badge-returned',
+  pending: 'badge-pending',
+  payment_failed: 'badge-danger',
+  confirmed: 'badge-confirmed',
+  en_cours: 'badge-pending',
+  shipped: 'badge-shipped',
+  fulfilled: 'badge-fulfilled',
+  cancelled: 'badge-cancelled',
+  returned: 'badge-returned',
 }
 
 export default function AdminOrderDetail() {

@@ -1,5 +1,5 @@
 import { useState, useEffect, Suspense, lazy } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
 import client from './api/client'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -56,6 +56,12 @@ const AdminUserHistory = lazy(() => import('./pages/admin/AdminUserHistory'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
 const AdminMediatheque = lazy(() => import('./pages/admin/AdminMediatheque'))
 const AdminProfile = lazy(() => import('./pages/admin/AdminProfile'))
+
+// Redirect /category/:slug → /:slug (backwards compatibility)
+function CategoryRedirect() {
+  const { slug } = useParams()
+  return <Navigate to={`/${slug}`} replace />
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -194,7 +200,8 @@ export default function App() {
           <Route path="/" element={isB2B ? <B2BHomePage /> : <HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/produit/:slug" element={<ProductPage />} />
-          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/category/:slug" element={<CategoryRedirect />} />
+          <Route path="/:slug" element={<CategoryPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/compte" element={<AccountPage />} />

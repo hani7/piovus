@@ -46,7 +46,7 @@ const ProductInfo = memo(function ProductInfo({
       <div className="product-info__header">
         {product.categories?.length > 0 && (
           <p className="product-info__category">
-            <Link to={`/category/${product.categories[0].slug}`}>{product.categories[0].name}</Link>
+            <Link to={`/${product.categories[0].slug}`}>{product.categories[0].name}</Link>
           </p>
         )}
         <ProductShare product={product} />

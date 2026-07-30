@@ -1,4 +1,4 @@
-﻿import { useParams, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import ProductCard from '../components/ProductCard'
 import PageSEO from '../components/PageSEO'
@@ -50,7 +50,7 @@ export default function CategoryPage() {
       <PageSEO
         title={category?.name || slug}
         description={`Découvrez notre collection ${category?.name || ''} chez Piové Cosmetics. Maquillage et soins de qualité — livraison dans toute l'Algérie.`}
-        url={`/category/${slug}`}
+        url={`/${slug}`}
       />
       {/* Hero Banner (admin-managed) */}
       <div

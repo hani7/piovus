@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { useAuthStore } from '../store/authStore'
 import client from '../api/client'
 import { MapPin, Save, Search, ChevronDown, X } from 'lucide-react'
+import wilayasData  from '../../public/wilayas.json'
+import communesData from '../../public/communes.json'
 import './OrdersPage.css'
 
 const WILAYAS = [
@@ -136,22 +138,15 @@ export default function AddressesPage() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
-  // Chargement des communes
-  const [communes, setCommunes] = useState([])
-  const [wilayas, setWilayas] = useState([])
-  useEffect(() => {
-    Promise.all([fetch('/wilayas.json').then(r => r.json()), fetch('/communes.json').then(r => r.json())])
-      .then(([w, c]) => { setWilayas(w); setCommunes(c) })
-  }, [])
-
-  // Communes filtrées selon wilaya choisie
+  // Communes filtrées selon wilaya choisie — données importées directement (pas de fetch)
   const filteredCommunes = useMemo(() => {
-    const obj = wilayas.find(w => w.name === form.wilaya)
+    const obj = wilayasData.find(w => w.name === form.wilaya)
     if (!obj) return []
-    return communes
+    return communesData
       .filter(c => String(c.wilaya_id) === String(obj.id))
       .sort((a, b) => a.name.localeCompare(b.name))
-  }, [communes, wilayas, form.wilaya])
+  }, [form.wilaya])
+
 
   useEffect(() => {
     if (user?.profile) {

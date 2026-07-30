@@ -1,30 +1,10 @@
 /**
  * WilayaCommuneSelect — Sélecteur wilaya + commune lié pour l'Algérie
- *
- * Props :
- *   wilaya      — valeur wilaya sélectionnée
- *   city        — valeur commune sélectionnée
- *   onChange    — function(name, value) appelée à chaque changement
- *   errors      — { wilaya?: string, city?: string }
- *   required    — bool (wilaya obligatoire)
- *   className   — classe CSS optionnelle sur le wrapper
+ * Les données sont importées directement (bundlées) pour éviter les erreurs de fetch.
  */
-import { useState, useEffect, useMemo } from 'react'
-
-// Chargement lazy des données JSON (une seule fois en mémoire)
-let _wilayas = null
-let _communes = null
-
-async function loadData() {
-  if (_wilayas && _communes) return { wilayas: _wilayas, communes: _communes }
-  const [wRes, cRes] = await Promise.all([
-    fetch('/wilayas.json'),
-    fetch('/communes.json'),
-  ])
-  _wilayas  = await wRes.json()
-  _communes = await cRes.json()
-  return { wilayas: _wilayas, communes: _communes }
-}
+import { useMemo } from 'react'
+import wilayasData  from '../../public/wilayas.json'
+import communesData from '../../public/communes.json'
 
 export default function WilayaCommuneSelect({
   wilaya,
@@ -32,43 +12,23 @@ export default function WilayaCommuneSelect({
   onChange,
   errors = {},
   required = false,
-  className = '',
 }) {
-  const [wilayas,  setWilayas]  = useState([])
-  const [communes, setCommunes] = useState([])
-
-  useEffect(() => {
-    loadData().then(({ wilayas: w, communes: c }) => {
-      setWilayas(w)
-      setCommunes(c)
-    })
-  }, [])
-
-  // Trouver l'ID de la wilaya sélectionnée
+  // Wilaya sélectionnée → trouver l'objet correspondant
   const selectedWilayaObj = useMemo(
-    () => wilayas.find(w => w.name === wilaya),
-    [wilayas, wilaya]
+    () => wilayasData.find(w => w.name === wilaya),
+    [wilaya]
   )
 
-  // Filtrer les communes de la wilaya choisie
+  // Communes de la wilaya choisie, triées alphabétiquement
   const filteredCommunes = useMemo(() => {
     if (!selectedWilayaObj) return []
-    return communes
+    return communesData
       .filter(c => String(c.wilaya_id) === String(selectedWilayaObj.id))
       .sort((a, b) => a.name.localeCompare(b.name))
-  }, [communes, selectedWilayaObj])
-
-  const handleWilaya = (e) => {
-    onChange('wilaya', e.target.value)
-    onChange('city', '') // reset commune quand wilaya change
-  }
-
-  const handleCity = (e) => {
-    onChange('city', e.target.value)
-  }
+  }, [selectedWilayaObj])
 
   return (
-    <div className={`wilaya-commune-select ${className}`} style={{ display: 'contents' }}>
+    <>
       {/* Wilaya */}
       <div className="form-group">
         <label className="form-label" htmlFor="wilaya">
@@ -79,32 +39,34 @@ export default function WilayaCommuneSelect({
           id="wilaya"
           name="wilaya"
           value={wilaya}
-          onChange={handleWilaya}
+          onChange={e => {
+            onChange('wilaya', e.target.value)
+            onChange('city', '') // réinitialiser la commune quand la wilaya change
+          }}
         >
           <option value="">-- Choisir une wilaya --</option>
-          {wilayas.map((w) => (
+          {wilayasData.map(w => (
             <option key={w.id} value={w.name}>
-              {w.code ? `${w.code}. ` : ''}{w.name}
+              {w.code}. {w.name}
             </option>
           ))}
         </select>
         {errors.wilaya && <span className="field-error">{errors.wilaya}</span>}
       </div>
 
-      {/* Commune */}
+      {/* Commune — dropdown si wilaya choisie, sinon input désactivé */}
       <div className="form-group">
         <label className="form-label" htmlFor="city">Commune</label>
-        {filteredCommunes.length > 0 ? (
+        {wilaya && filteredCommunes.length > 0 ? (
           <select
             className="form-input"
             id="city"
             name="city"
             value={city}
-            onChange={handleCity}
-            disabled={!wilaya}
+            onChange={e => onChange('city', e.target.value)}
           >
             <option value="">-- Choisir une commune --</option>
-            {filteredCommunes.map((c) => (
+            {filteredCommunes.map(c => (
               <option key={c.id} value={c.name}>{c.name}</option>
             ))}
           </select>
@@ -114,13 +76,14 @@ export default function WilayaCommuneSelect({
             id="city"
             name="city"
             value={city}
-            onChange={handleCity}
-            placeholder={wilaya ? 'Votre commune' : 'Choisissez d\'abord une wilaya'}
+            onChange={e => onChange('city', e.target.value)}
+            placeholder={wilaya ? 'Votre commune' : "Choisissez d'abord une wilaya"}
             disabled={!wilaya}
+            style={!wilaya ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
           />
         )}
         {errors.city && <span className="field-error">{errors.city}</span>}
       </div>
-    </div>
+    </>
   )
 }

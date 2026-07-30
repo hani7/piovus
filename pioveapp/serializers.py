@@ -1,10 +1,29 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.conf import settings
 from .models import (
     Category, Product, ProductImage, ProductVariant,
     Banner, Order, OrderItem, Review, UserProfile,
     DeliveryCompany, DeliveryRate, Customer, OrderStatusHistory, Coupon
 )
+
+
+# ─── Mixin : URL absolue des images via API_URL ───────────────────────────────
+class AbsoluteImageMixin:
+    """
+    Force les URLs d'images à utiliser settings.API_URL au lieu de
+    request.build_absolute_uri() qui retourne l'IP interne derrière
+    le reverse proxy cPanel.
+    """
+    def _abs(self, url):
+        if not url:
+            return None
+        if url.startswith('http://') or url.startswith('https://'):
+            return url
+        api_base = getattr(settings, 'API_URL', '').rstrip('/')
+        if api_base:
+            return f"{api_base}{url if url.startswith('/') else '/' + url}"
+        return url
 
 
 # ─── Coupons ─────────────────────────────────────────────────────────────────
@@ -14,13 +33,18 @@ class CouponSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
 # ─── Category ────────────────────────────────────────────────────────────────
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(AbsoluteImageMixin, serializers.ModelSerializer):
     product_count = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
         fields = ['id', 'name', 'slug', 'image', 'order', 'product_count']
+
+    def get_image(self, obj):
+        return self._abs(obj.image.url if obj.image else None)
 
     def get_product_count(self, obj):
         return obj.multi_products.filter(is_active=True).count()
@@ -94,7 +118,30 @@ class ProductDetailSerializer(ProductListSerializer):
 
 
 # ─── Banner ──────────────────────────────────────────────────────────────────
-class BannerSerializer(serializers.ModelSerializer):
+class AbsoluteImageMixin:
+    """
+    Mixin qui force l'URL absolue des ImageField via settings.API_URL
+    au lieu de request.build_absolute_uri() qui retourne l'IP interne
+    sur les serveurs derrière un reverse proxy (ex: cPanel).
+    """
+    def _abs(self, url):
+        from django.conf import settings
+        if not url:
+            return None
+        if url.startswith('http://') or url.startswith('https://'):
+            return url
+        api_base = getattr(settings, 'API_URL', '').rstrip('/')
+        if api_base:
+            return f"{api_base}{url if url.startswith('/') else '/' + url}"
+        return url
+
+
+class BannerSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        return self._abs(obj.image.url if obj.image else None)
+
     class Meta:
         model = Banner
         fields = ['id', 'title', 'subtitle', 'image', 'cta_label', 'cta_url', 'promo_code', 'placement', 'category', 'is_active', 'order']
@@ -359,7 +406,12 @@ class AdminProductSerializer(serializers.ModelSerializer):
 
 
 
-class AdminBannerSerializer(serializers.ModelSerializer):
+class AdminBannerSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        return self._abs(obj.image.url if obj.image else None)
+
     class Meta:
         model = Banner
         fields = ['id', 'title', 'subtitle', 'image', 'cta_label', 'cta_url', 'promo_code', 'placement', 'category', 'is_active', 'order', 'created_at', 'updated_at']

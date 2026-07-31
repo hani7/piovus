@@ -635,14 +635,34 @@ def track_shipment(barcode):
         if value_list and isinstance(value_list, list):
             pkg = value_list[0]
             track_log = pkg.get('TrackLog') or []
-            # Normalize events to standard format, most recent LAST → reverse for [0]=latest
+
+            # ── Translation: API StatusEnName → Mylerz Portal display name ──
+            # The API returns technical names; the Mylerz portal shows different labels.
+            # Mapping verified by comparing API responses with portal screenshots.
+            API_TO_PORTAL = {
+                'Data Uploaded':                    'Ready in Pickup',
+                'Ready For Pickup':                 'Ready in Picking',
+                'In Transit to Destination HUB':    'Received in Hub in Shuttling',
+                'Received at Destination HUB':      'Ready in Forward delivery',
+                'Out for Delivery':                 'Out For Delivery',
+                'Out For Delivery':                 'Out For Delivery',
+                'Delivered':                        'Delivered in Forward delivery',
+                'Delivery Failed':                  'Failed Delivery Attempt',
+                'Returned to Sender':               'Return to Shipper',
+                'Cancelled':                        'Cancelled',
+            }
+
+            # Normalize events, most recent LAST → reverse for [0]=latest
             normalized = []
             for ev in reversed(track_log):  # reverse: most recent first
+                raw_status = ev.get('StatusEnName') or ev.get('StatusArName') or ''
+                portal_status = API_TO_PORTAL.get(raw_status, raw_status)  # use portal name if known
                 normalized.append({
-                    'Status':      ev.get('StatusEnName') or ev.get('StatusArName') or '',
+                    'Status':      portal_status,
+                    'StatusRaw':   raw_status,
                     'StatusAr':    ev.get('StatusArName') or '',
                     'Date':        ev.get('ChangedDate') or ev.get('date') or '',
-                    'Description': ev.get('StatusEnName') or '',
+                    'Description': portal_status,
                     'Location':    '',
                 })
             return {'success': True, 'tracking': normalized, 'raw': data}

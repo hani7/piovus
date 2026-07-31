@@ -281,6 +281,27 @@ def normalize_wilaya(raw):
             if _strip_accents(w.lower()).startswith(key_stripped[:prefix_len]):
                 return w
 
+    # 6. Commune -> Wilaya lookup: if raw is a commune name, find its parent wilaya
+    #    Fixes bug: order.wilaya accidentally set to commune name instead of wilaya name
+    try:
+        import json as _json, os as _os
+        _base = _os.path.dirname(_os.path.abspath(__file__))
+        _communes_path = _os.path.join(_base, '..', 'frontend', 'public', 'communes.json')
+        _wilayas_path  = _os.path.join(_base, '..', 'frontend', 'public', 'wilayas.json')
+        with open(_communes_path, encoding='utf-8-sig') as _fp:
+            _communes = _json.load(_fp)
+        with open(_wilayas_path, encoding='utf-8-sig') as _fp:
+            _wilayas = _json.load(_fp)
+        _wid_map = {str(w['id']): w['name'] for w in _wilayas}
+        for _commune in _communes:
+            if _strip_accents(_commune.get('name', '').lower()) == key_stripped:
+                _wname = _wid_map.get(str(_commune.get('wilaya_id', '')))
+                if _wname and _wname in WILAYA_LIST:
+                    logger.warning(f"normalize_wilaya: '{raw}' is a commune - mapped to wilaya '{_wname}'" )
+                    return _wname
+    except Exception as _lookup_err:
+        logger.debug(f'normalize_wilaya: commune lookup failed: {_lookup_err}')
+
     logger.warning(f"normalize_wilaya: could not map '{raw}' — using as-is (len={len(raw)})")
     # Do NOT fall back to 'Alger' for non-empty strings — return as-is so Mylerz
     # can attempt to match it, rather than silently mapping everything to Alger.

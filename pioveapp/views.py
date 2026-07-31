@@ -1410,48 +1410,89 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         if not order.mylerz_barcode:
             return Response({'error': 'Aucun code-barres Mylerz pour cette commande.'}, status=400)
         from . import mylerz_service
+        import logging
+        _logger = logging.getLogger(__name__)
 
         # ── Mapping statut Mylerz → statut Piové ──────────────────────────
         MYLERZ_TO_PIOVE = {
-            # En livraison
             'ready in forward delivery':            'shipped',
             'received by myler in forward delivery':'shipped',
+            'received in hub in shuttling':         'shipped',
+            'received in hub':                      'shipped',
             'out for delivery':                     'shipped',
             'shuttling':                            'shipped',
             'forward delivery':                     'shipped',
             'dispatched':                           'shipped',
             'in transit':                           'shipped',
             'picked up':                            'shipped',
+            'ready in picking':                     'confirmed',
+            'ready in pickup':                      'confirmed',
             'shipment created':                     'confirmed',
-            # Livré
             'delivered in forward delivery':        'fulfilled',
             'delivered':                            'fulfilled',
             'delivery confirmed':                   'fulfilled',
-            # Retourné
             'returned':                             'returned',
             'return to shipper':                    'returned',
             'returned to shipper':                  'returned',
             'reverse delivery':                     'returned',
             'reverse in transit':                   'returned',
-            # Annulé
             'cancelled':                            'cancelled',
             'cancel':                               'cancelled',
         }
 
         res = mylerz_service.track_shipment(order.mylerz_barcode)
+        _logger.info(f"mylerz_track raw response for #{order.id}: {res}")
+
         if res.get('success'):
             tracking = res.get('tracking', [])
-            if tracking:
-                latest = tracking[0]
-                new_mylerz_status = latest.get('Status') or latest.get('status') or ''
+            _logger.info(f"mylerz_track tracking list for #{order.id}: {tracking}")
 
-                # Mettre à jour mylerz_status
+            if tracking:
+                # ── Extraire le statut depuis tous les champs possibles Mylerz ──
+                first = tracking[0]
+                _logger.info(f"mylerz_track first event keys: {list(first.keys()) if isinstance(first, dict) else first}")
+
+                new_mylerz_status = (
+                    first.get('Status') or
+                    first.get('status') or
+                    first.get('PackageStatus') or
+                    first.get('packageStatus') or
+                    first.get('CurrentStatus') or
+                    first.get('currentStatus') or
+                    first.get('StatusDescription') or
+                    first.get('statusDescription') or
+                    first.get('EventStatus') or
+                    first.get('eventStatus') or
+                    ''
+                )
+
+                # Si la réponse est une liste d'événements imbriqués (Events[])
+                if not new_mylerz_status and isinstance(first, dict):
+                    events = first.get('Events') or first.get('events') or first.get('TrackingHistory') or []
+                    if events and isinstance(events, list):
+                        ev0 = events[0]
+                        new_mylerz_status = (
+                            ev0.get('Status') or ev0.get('status') or
+                            ev0.get('EventStatus') or ev0.get('eventStatus') or ''
+                        )
+
+                _logger.info(f"mylerz_track extracted status for #{order.id}: '{new_mylerz_status}'")
+
+                # Mettre à jour mylerz_status dans la DB
                 if new_mylerz_status and order.mylerz_status != new_mylerz_status:
                     order.mylerz_status = new_mylerz_status
                     order.save(update_fields=['mylerz_status'])
 
                 # Mapper vers statut Piové
                 mapped = MYLERZ_TO_PIOVE.get(new_mylerz_status.lower().strip())
+                if not mapped:
+                    # Essai partiel (ex: "Ready In Forward Delivery" vs "Ready in Forward delivery")
+                    sl = new_mylerz_status.lower()
+                    for key, val in MYLERZ_TO_PIOVE.items():
+                        if key in sl or sl in key:
+                            mapped = val
+                            break
+
                 if mapped and order.status != mapped:
                     old_status = order.status
                     order.status = mapped
@@ -1459,14 +1500,49 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                     OrderStatusHistory.objects.create(
                         order=order,
                         status=mapped,
-                        notes=f"Statut mis à jour automatiquement via Mylerz : {new_mylerz_status}"
+                        notes=f"Statut mis à jour via Mylerz : {new_mylerz_status}"
                     )
-                    import logging
-                    logging.getLogger(__name__).info(
-                        f"Order #{order.id}: status {old_status} → {mapped} (Mylerz: {new_mylerz_status})"
-                    )
+                    _logger.info(f"Order #{order.id}: {old_status} → {mapped} (Mylerz: {new_mylerz_status})")
 
-        return Response({**res, 'piove_status': order.status, 'mylerz_status': order.mylerz_status})
+        return Response({
+            **res,
+            'piove_status': order.status,
+            'mylerz_status': order.mylerz_status,
+        })
+
+    @action(detail=True, methods=['get'])
+    def mylerz_track_debug(self, request, pk=None):
+        """Debug: retourne la réponse brute Mylerz TrackPackages pour ce colis."""
+        order = self.get_object()
+        if not order.mylerz_barcode:
+            return Response({'error': 'Pas de barcode Mylerz.'}, status=400)
+
+        import requests as req_lib
+        from . import mylerz_service
+
+        payload = [{"Barcode": order.mylerz_barcode}]
+        try:
+            token = mylerz_service.get_mylerz_token()
+            headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json',
+            }
+            resp = req_lib.post(
+                f"{mylerz_service.MYLERZ_BASE_URL}/api/packages/TrackPackages",
+                json=payload,
+                headers=headers,
+                timeout=20,
+            )
+            return Response({
+                'barcode': order.mylerz_barcode,
+                'http_status': resp.status_code,
+                'raw_json': resp.json() if resp.headers.get('content-type', '').startswith('application/json') else None,
+                'raw_text': resp.text[:3000],
+                'payload_sent': payload,
+            })
+        except Exception as e:
+            import traceback
+            return Response({'error': str(e), 'traceback': traceback.format_exc()}, status=500)
 
 
     @action(detail=True, methods=['post'])

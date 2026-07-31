@@ -1410,16 +1410,64 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         if not order.mylerz_barcode:
             return Response({'error': 'Aucun code-barres Mylerz pour cette commande.'}, status=400)
         from . import mylerz_service
+
+        # ── Mapping statut Mylerz → statut Piové ──────────────────────────
+        MYLERZ_TO_PIOVE = {
+            # En livraison
+            'ready in forward delivery':            'shipped',
+            'received by myler in forward delivery':'shipped',
+            'out for delivery':                     'shipped',
+            'shuttling':                            'shipped',
+            'forward delivery':                     'shipped',
+            'dispatched':                           'shipped',
+            'in transit':                           'shipped',
+            'picked up':                            'shipped',
+            'shipment created':                     'confirmed',
+            # Livré
+            'delivered in forward delivery':        'fulfilled',
+            'delivered':                            'fulfilled',
+            'delivery confirmed':                   'fulfilled',
+            # Retourné
+            'returned':                             'returned',
+            'return to shipper':                    'returned',
+            'returned to shipper':                  'returned',
+            'reverse delivery':                     'returned',
+            'reverse in transit':                   'returned',
+            # Annulé
+            'cancelled':                            'cancelled',
+            'cancel':                               'cancelled',
+        }
+
         res = mylerz_service.track_shipment(order.mylerz_barcode)
         if res.get('success'):
             tracking = res.get('tracking', [])
             if tracking:
                 latest = tracking[0]
-                new_status = latest.get('Status') or latest.get('status')
-                if new_status and order.mylerz_status != new_status:
-                    order.mylerz_status = new_status
+                new_mylerz_status = latest.get('Status') or latest.get('status') or ''
+
+                # Mettre à jour mylerz_status
+                if new_mylerz_status and order.mylerz_status != new_mylerz_status:
+                    order.mylerz_status = new_mylerz_status
                     order.save(update_fields=['mylerz_status'])
-        return Response(res)
+
+                # Mapper vers statut Piové
+                mapped = MYLERZ_TO_PIOVE.get(new_mylerz_status.lower().strip())
+                if mapped and order.status != mapped:
+                    old_status = order.status
+                    order.status = mapped
+                    order.save(update_fields=['status'])
+                    OrderStatusHistory.objects.create(
+                        order=order,
+                        status=mapped,
+                        notes=f"Statut mis à jour automatiquement via Mylerz : {new_mylerz_status}"
+                    )
+                    import logging
+                    logging.getLogger(__name__).info(
+                        f"Order #{order.id}: status {old_status} → {mapped} (Mylerz: {new_mylerz_status})"
+                    )
+
+        return Response({**res, 'piove_status': order.status, 'mylerz_status': order.mylerz_status})
+
 
     @action(detail=True, methods=['post'])
     def mylerz_cancel(self, request, pk=None):

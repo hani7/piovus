@@ -69,13 +69,13 @@ export default function AdminOrders({ isB2B = false }) {
   const [selectedIds, setSelectedIds] = useState([])
   const [mylerzFilter, setMylerzFilter] = useState('')   // 'with' | 'without' | or mylerz_status value
   const [mylerzShipping, setMylerzShipping] = useState(false)
+  const [mylerzSyncing, setMylerzSyncing] = useState(false)
 
   const handleModalShip = async (orderId) => {
     if (!window.confirm('Expédier cette commande via Mylerz ?')) return
     setMylerzShipping(true)
     try {
       await adminClient.post(`/admin/orders/${orderId}/mylerz_ship/`)
-      // Refresh the detail object from order list
       const fresh = await adminClient.get(`/admin/orders/${orderId}/`)
       setDetail(fresh.data)
       load()
@@ -84,6 +84,26 @@ export default function AdminOrders({ isB2B = false }) {
       alert('\u274C ' + msg)
     } finally {
       setMylerzShipping(false)
+    }
+  }
+
+  // ── Sync statut Mylerz → Piové ──────────────────────────────────────────
+  const handleSyncMylerz = async (orderId) => {
+    setMylerzSyncing(true)
+    try {
+      const res = await adminClient.get(`/admin/orders/${orderId}/mylerz_track/`)
+      const fresh = await adminClient.get(`/admin/orders/${orderId}/`)
+      setDetail(fresh.data)
+      // Mettre à jour dans la liste aussi
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, mylerz_status: fresh.data.mylerz_status, status: fresh.data.status } : o))
+      const myStatus = res.data?.mylerz_status || ''
+      const pioveStatus = res.data?.piove_status || fresh.data.status || ''
+      alert(`✅ Sync réussie\nMylerz : ${myStatus}\nStatut Piové : ${STATUS_LABELS[pioveStatus] || pioveStatus}`)
+    } catch (e) {
+      const msg = e.response?.data?.error || e.response?.data?.message || 'Impossible de contacter Mylerz'
+      alert('\u274C ' + msg)
+    } finally {
+      setMylerzSyncing(false)
     }
   }
 
@@ -692,11 +712,34 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                  Bordereau
                </button>
-               {/* Bouton Expédier — bleu, affiché uniquement si pas encore expédié */}
+
+               {/* Bouton Sync Mylerz — uniquement si barcode existant */}
+               {detail.mylerz_barcode && (
+                 <button
+                   className="btn"
+                   style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f59e0b', color: 'white', border: 'none', borderRadius: 20, fontWeight: 600, padding: '8px 18px', opacity: mylerzSyncing ? 0.7 : 1, cursor: mylerzSyncing ? 'not-allowed' : 'pointer' }}
+                   onClick={() => handleSyncMylerz(detail.id)}
+                   disabled={mylerzSyncing}
+                   title="Récupérer le statut Mylerz et mettre à jour la commande"
+                 >
+                   {mylerzSyncing
+                     ? <><div className="spin" style={{ width: 13, height: 13, borderWidth: 2 }} /> Sync...</>
+                     : <><RefreshCw size={14}/> Sync Mylerz</>}
+                 </button>
+               )}
+
+               {/* Barcode + statut ou bouton Expédier */}
                {detail.mylerz_barcode ? (
-                 <span style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#dcfce7', color: '#15803d', borderRadius: 20, padding: '8px 16px', fontWeight: 600, fontSize: '0.82rem', border: '1px solid #86efac' }}>
-                   ✅ {detail.mylerz_barcode}
-                 </span>
+                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                   <span style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#dcfce7', color: '#15803d', borderRadius: 20, padding: '8px 16px', fontWeight: 600, fontSize: '0.82rem', border: '1px solid #86efac' }}>
+                     ✅ {detail.mylerz_barcode}
+                   </span>
+                   {detail.mylerz_status && (
+                     <span style={{ fontSize: '0.72rem', color: '#6b7280', fontStyle: 'italic', paddingRight: 8 }}>
+                       {detail.mylerz_status}
+                     </span>
+                   )}
+                 </div>
                ) : (
                  <button
                    className="btn"
@@ -716,6 +759,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                )}
                <button className="btn" style={{ background: '#dc3545', color: 'white', borderRadius: 20, border: 'none', fontWeight: 600, padding: '8px 20px' }} onClick={() => setDetail(null)}>Fermer</button>
             </div>
+
           </div>
         </div>
       )}

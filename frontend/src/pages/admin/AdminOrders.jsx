@@ -408,12 +408,11 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
   return (
     <div>
       {/* ── Stats Piové + Mylerz dans une seule grille ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(155px, 1fr))', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 20 }}>
         <StatCard label="Total Commandes"  value={stats.total}                                                    color="#0f172a" />
         <StatCard label="Revenus (réels)"  value={`${stats.revenue.toLocaleString('fr-DZ')} DA`}                  color="#10b981" sub="hors annulées / retours" />
         <StatCard label="Panier Moyen"     value={`${stats.avgBasket.toLocaleString('fr-DZ')} DA`}                color="#6366f1" sub="commandes actives" />
         <StatCard label="En Attente"       value={stats.pending}                                                  color="#f59e0b" />
-        <StatCard label="⚠️ Paiement échoué" value={stats.payment_failed}                                          color="#ef4444" sub="CIB non confirmé" />
         <StatCard label="Confirmées"       value={stats.confirmed}                                                color="#8b5cf6" />
         <StatCard label="En Livraison"     value={stats.shipped}                                                  color="#3b82f6" />
         <StatCard label="Fulfilled"        value={stats.fulfilled}                                                color="#10b981" />

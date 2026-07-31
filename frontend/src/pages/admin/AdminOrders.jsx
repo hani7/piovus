@@ -58,15 +58,18 @@ const STATUS_BADGE = {
 // Couleurs calquées sur le portail Mylerz
 const MYLERZ_STATUS_STYLE = (s = '') => {
   const sl = s.toLowerCase()
-  if (sl.includes('delivered'))      return { bg: '#dcfce7', color: '#15803d', border: '#86efac', icon: '✅' }
-  if (sl.includes('ready in forward')) return { bg: '#dbeafe', color: '#1d4ed8', border: '#93c5fd', icon: '🚚' }
-  if (sl.includes('forward delivery')) return { bg: '#dbeafe', color: '#1d4ed8', border: '#93c5fd', icon: '🚚' }
+  // Vrais statuts Mylerz Algeria (StatusEnName)
+  if (sl.includes('delivered'))                    return { bg: '#dcfce7', color: '#15803d', border: '#86efac', icon: '✅' }
+  if (sl.includes('received at destination'))      return { bg: '#dbeafe', color: '#1d4ed8', border: '#93c5fd', icon: '🚚' }
+  if (sl.includes('in transit to destination'))    return { bg: '#e0e7ff', color: '#4338ca', border: '#a5b4fc', icon: '🔄' }
+  if (sl.includes('ready in forward') || sl.includes('forward delivery')) return { bg: '#dbeafe', color: '#1d4ed8', border: '#93c5fd', icon: '🚚' }
   if (sl.includes('received in hub') || sl.includes('received by myler')) return { bg: '#e0e7ff', color: '#4338ca', border: '#a5b4fc', icon: '📦' }
-  if (sl.includes('shuttling') || sl.includes('in transit')) return { bg: '#fef9c3', color: '#a16207', border: '#fde047', icon: '🔄' }
-  if (sl.includes('picking') || sl.includes('pickup'))     return { bg: '#fef3c7', color: '#b45309', border: '#fcd34d', icon: '📋' }
-  if (sl.includes('shipment created'))  return { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1', icon: '📤' }
-  if (sl.includes('returned') || sl.includes('reverse'))   return { bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5', icon: '↩️' }
-  if (sl.includes('cancel'))            return { bg: '#f3f4f6', color: '#6b7280', border: '#d1d5db', icon: '❌' }
+  if (sl.includes('shuttling') || sl.includes('in transit'))              return { bg: '#fef9c3', color: '#a16207', border: '#fde047', icon: '🔄' }
+  if (sl.includes('out for delivery'))             return { bg: '#dbeafe', color: '#1d4ed8', border: '#93c5fd', icon: '🛵' }
+  if (sl.includes('ready for pickup') || sl.includes('picking') || sl.includes('pickup')) return { bg: '#fef3c7', color: '#b45309', border: '#fcd34d', icon: '📋' }
+  if (sl.includes('data uploaded') || sl.includes('shipment created'))    return { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1', icon: '📤' }
+  if (sl.includes('returned') || sl.includes('reverse') || sl.includes('return')) return { bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5', icon: '↩️' }
+  if (sl.includes('cancel'))                       return { bg: '#f3f4f6', color: '#6b7280', border: '#d1d5db', icon: '❌' }
   return { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa', icon: '📦' }
 }
 

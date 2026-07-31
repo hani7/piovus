@@ -132,15 +132,18 @@ export default function CheckoutPage() {
 
   }, [form.wilaya, form.delivery_company_id, form.delivery_type, companies])
 
-  const handleChange = (e) => {
-    // Supporte les deux signatures : event ET (name, value) depuis WilayaCommuneSelect
-    if (typeof e === 'string') {
-      const [name, value] = [e, arguments[1]]
+  const handleChange = (nameOrEvent, value) => {
+    // Supporte les deux signatures :
+    // - (event) depuis les inputs HTML classiques
+    // - (name, value) depuis WilayaCommuneSelect
+    if (typeof nameOrEvent === 'string') {
+      const name = nameOrEvent
       setForm(f => ({ ...f, [name]: value }))
       if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
     } else {
-      setForm({ ...form, [e.target.name]: e.target.value })
-      if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' })
+      const e = nameOrEvent
+      setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+      if (errors[e.target.name]) setErrors(prev => ({ ...prev, [e.target.name]: '' }))
     }
   }
 

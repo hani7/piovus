@@ -83,7 +83,7 @@ export default function OrderConfirmedPage() {
         background: '#fff',
         borderRadius: 20,
         boxShadow: '0 8px 40px rgba(0,0,0,0.08)',
-        margin: '24px auto',
+        margin: '60px auto 40px',
       }}>
         {/* Icône succès animée */}
         <div style={{

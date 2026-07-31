@@ -1413,31 +1413,44 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         import logging
         _logger = logging.getLogger(__name__)
 
-        # ── Mapping statut Mylerz → statut Piové ──────────────────────────
+        # ── Mapping statut Mylerz Algeria → statut Piové ──────────────────
+        # Vrais StatusEnName depuis TrackLog (vérifiés via API réelle)
         MYLERZ_TO_PIOVE = {
-            'ready in forward delivery':            'shipped',
-            'received by myler in forward delivery':'shipped',
+            # Création / attente ramassage
+            'data uploaded':                        'confirmed',
+            'shipment created':                     'confirmed',
+            'ready for pickup':                     'confirmed',
+            'ready in pickup':                      'confirmed',
+            'ready in picking':                     'confirmed',
+            # En transit / en livraison
+            'in transit to destination hub':        'shipped',
+            'received at destination hub':          'shipped',
             'received in hub in shuttling':         'shipped',
             'received in hub':                      'shipped',
+            'received by myler in forward delivery':'shipped',
+            'ready in forward delivery':            'shipped',
+            'forward delivery':                     'shipped',
             'out for delivery':                     'shipped',
             'shuttling':                            'shipped',
-            'forward delivery':                     'shipped',
             'dispatched':                           'shipped',
-            'in transit':                           'shipped',
             'picked up':                            'shipped',
-            'ready in picking':                     'confirmed',
-            'ready in pickup':                      'confirmed',
-            'shipment created':                     'confirmed',
-            'delivered in forward delivery':        'fulfilled',
+            'in transit':                           'shipped',
+            # Livré
             'delivered':                            'fulfilled',
+            'delivered in forward delivery':        'fulfilled',
             'delivery confirmed':                   'fulfilled',
+            'shipment delivered':                   'fulfilled',
+            # Retourné
             'returned':                             'returned',
             'return to shipper':                    'returned',
             'returned to shipper':                  'returned',
             'reverse delivery':                     'returned',
             'reverse in transit':                   'returned',
+            'return initiated':                     'returned',
+            # Annulé
             'cancelled':                            'cancelled',
             'cancel':                               'cancelled',
+            'shipment cancelled':                   'cancelled',
         }
 
         res = mylerz_service.track_shipment(order.mylerz_barcode)

@@ -591,8 +591,23 @@ def create_shipment(order):
 
 def track_shipment(barcode):
     """
-    Get live tracking data for a given barcode from Mylerz.
-    Returns list of tracking events or error dict.
+    Get live tracking data for a given barcode from Mylerz Algeria.
+
+    Real API response format (verified):
+    {
+      "Value": [{
+        "Barcode": "...",
+        "RefNumber": "...",
+        "TrackLog": [
+          { "StatusEnName": "Data Uploaded", "StatusArName": "...", "ChangedDate": "2026-..." },
+          { "StatusEnName": "Ready For Pickup", ... },
+          { "StatusEnName": "Received at Destination HUB", ... }
+          // Most recent = LAST item
+        ]
+      }],
+      "IsErrorState": false,
+      "ErrorDescription": null
+    }
     """
     payload = [{"Barcode": barcode}]
     try:
@@ -606,16 +621,45 @@ def track_shipment(barcode):
         data = resp.json()
         logger.info(f"Mylerz track response for {barcode}: {data}")
 
-        if data.get('IsSuccess') or data.get('isSuccess'):
+        # ── Detect success: real API uses IsErrorState, not IsSuccess ──────
+        is_error = data.get('IsErrorState', False) or data.get('isErrorState', False)
+        # Also accept old format with IsSuccess for backward compat
+        has_old_success = data.get('IsSuccess') or data.get('isSuccess')
+
+        if is_error and not has_old_success:
+            msg = data.get('ErrorDescription') or data.get('Message') or data.get('message') or 'Erreur de suivi Mylerz.'
+            return {'success': False, 'tracking': [], 'message': msg, 'raw': data}
+
+        # ── Parse Value[] format (real Mylerz Algeria API) ─────────────────
+        value_list = data.get('Value') or []
+        if value_list and isinstance(value_list, list):
+            pkg = value_list[0]
+            track_log = pkg.get('TrackLog') or []
+            # Normalize events to standard format, most recent LAST → reverse for [0]=latest
+            normalized = []
+            for ev in reversed(track_log):  # reverse: most recent first
+                normalized.append({
+                    'Status':      ev.get('StatusEnName') or ev.get('StatusArName') or '',
+                    'StatusAr':    ev.get('StatusArName') or '',
+                    'Date':        ev.get('ChangedDate') or ev.get('date') or '',
+                    'Description': ev.get('StatusEnName') or '',
+                    'Location':    '',
+                })
+            return {'success': True, 'tracking': normalized, 'raw': data}
+
+        # ── Fallback: old IsSuccess / Data[] format ────────────────────────
+        if has_old_success:
             result_list = data.get('Data') or data.get('data') or []
             return {'success': True, 'tracking': result_list, 'raw': data}
-        else:
-            msg = data.get('Message') or data.get('message') or 'Erreur de suivi.'
-            return {'success': False, 'tracking': [], 'message': msg, 'raw': data}
+
+        # Nothing matched
+        msg = data.get('Message') or data.get('message') or data.get('ErrorDescription') or 'Erreur de suivi.'
+        return {'success': False, 'tracking': [], 'message': msg, 'raw': data}
 
     except requests.RequestException as e:
         logger.error(f"Mylerz track_shipment error for {barcode}: {e}")
         return {'success': False, 'tracking': [], 'message': str(e), 'raw': None}
+
 
 
 # ─── Cancellation ─────────────────────────────────────────────────────────────

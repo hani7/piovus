@@ -100,12 +100,15 @@ export default function CategoryPage() {
             
             {/* Pagination */}
             {totalCount > 20 && (
-              <div className="shop-pagination" style={{marginTop: '40px'}}>
+              <nav className="shop-pagination" aria-label="Pagination">
                 <button
-                  className="btn btn-outline"
+                  className="shop-pagination__arrow"
                   disabled={page === 1}
                   onClick={() => { setPage(page - 1); window.scrollTo(0,0) }}
-                >← Précédent</button>
+                  aria-label="Page précédente"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
 
                 {Array.from({ length: Math.ceil(totalCount / 20) }, (_, i) => i + 1)
                   .filter(p => p === 1 || p === Math.ceil(totalCount / 20) || Math.abs(p - page) <= 2)
@@ -116,24 +119,27 @@ export default function CategoryPage() {
                   }, [])
                   .map((p, i) =>
                     p === '...' ? (
-                      <span key={`ellipsis-${i}`} style={{ padding: '0 4px', color: 'var(--color-muted)' }}>...</span>
+                      <span key={`ellipsis-${i}`} className="shop-pagination__ellipsis">…</span>
                     ) : (
                       <button
                         key={p}
-                        className={`btn ${p === page ? 'btn-accent' : 'btn-outline'}`}
+                        className={`shop-pagination__page ${p === page ? 'active' : ''}`}
                         onClick={() => { setPage(p); window.scrollTo(0,0) }}
-                        style={{ minWidth: 36 }}
+                        aria-label={`Page ${p}`}
                       >{p}</button>
                     )
                   )
                 }
 
                 <button
-                  className="btn btn-outline"
+                  className="shop-pagination__arrow"
                   disabled={page >= Math.ceil(totalCount / 20)}
                   onClick={() => { setPage(page + 1); window.scrollTo(0,0) }}
-                >Suivant →</button>
-              </div>
+                  aria-label="Page suivante"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </nav>
             )}
           </div>
         )}

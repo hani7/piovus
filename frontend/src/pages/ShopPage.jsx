@@ -243,11 +243,13 @@ export default function ShopPage() {
             {totalPages > 1 && (
               <nav className="shop-pagination" aria-label="Pagination">
                 <button
-                  className="btn btn-outline"
+                  className="shop-pagination__arrow"
                   disabled={page === 1}
                   onClick={() => { setPage(page - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                   aria-label="Page précédente"
-                >← Précédent</button>
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
 
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
@@ -262,7 +264,7 @@ export default function ShopPage() {
                     ) : (
                       <button
                         key={p}
-                        className={`btn ${p === page ? 'btn-accent' : 'btn-outline'}`}
+                        className={`shop-pagination__page ${p === page ? 'active' : ''}`}
                         onClick={() => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                         aria-label={`Page ${p}`}
                         aria-current={p === page ? 'page' : undefined}
@@ -271,11 +273,13 @@ export default function ShopPage() {
                   )}
 
                 <button
-                  className="btn btn-outline"
+                  className="shop-pagination__arrow"
                   disabled={page >= totalPages}
                   onClick={() => { setPage(page + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                   aria-label="Page suivante"
-                >Suivant →</button>
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
               </nav>
             )}
           </div>

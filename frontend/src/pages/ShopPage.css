@@ -169,3 +169,74 @@
   gap: 20px;
   color: var(--color-gray-500);
 }
+
+/* -- Pagination -- */
+.shop-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;   /* align�e � droite */
+  gap: 6px;
+  margin-top: 36px;
+  padding-bottom: 32px;
+}
+
+/* Bouton fl�che (pr�c�dent / suivant) */
+.shop-pagination__arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-gray-300, #d1d5db);
+  background: #fff;
+  color: var(--color-gray-700, #374151);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+  flex-shrink: 0;
+}
+.shop-pagination__arrow:hover:not(:disabled) {
+  background: var(--color-accent, #c9485b);
+  border-color: var(--color-accent, #c9485b);
+  color: #fff;
+}
+.shop-pagination__arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Bouton num�ro de page */
+.shop-pagination__page {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-gray-300, #d1d5db);
+  background: #fff;
+  color: var(--color-gray-700, #374151);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.shop-pagination__page:hover {
+  border-color: var(--color-accent, #c9485b);
+  color: var(--color-accent, #c9485b);
+}
+.shop-pagination__page.active {
+  background: var(--color-accent, #c9485b);
+  border-color: var(--color-accent, #c9485b);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Ellipsis */
+.shop-pagination__ellipsis {
+  width: 32px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-gray-400, #9ca3af);
+  line-height: 32px;
+}

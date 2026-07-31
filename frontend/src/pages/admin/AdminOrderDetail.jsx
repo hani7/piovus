@@ -53,6 +53,7 @@ export default function AdminOrderDetail() {
   const [mylerzLoading, setMylerzLoading] = useState(false)
   const [trackingData, setTrackingData] = useState(null)
   const [showTracking, setShowTracking] = useState(false)
+  const [mylerzStatusDate, setMylerzStatusDate] = useState(null) // date du dernier statut Mylerz
 
   // Edit panel state
   const [showEdit, setShowEdit] = useState(false)
@@ -150,13 +151,19 @@ export default function AdminOrderDetail() {
       .then(res => {
         const newMylerz = res.data?.mylerz_status
         const newPiove  = res.data?.piove_status
+        const tracking  = res.data?.tracking || []
         if (newMylerz) {
           setDetail(prev => prev ? {
             ...prev,
             mylerz_status: newMylerz,
             status: newPiove || prev.status,
           } : prev)
-          setTrackingData(res.data.tracking || [])
+          setTrackingData(tracking)
+          setShowTracking(tracking.length > 0)
+          // Date du statut le plus récent (index 0 = plus récent)
+          if (tracking.length > 0 && tracking[0].Date) {
+            setMylerzStatusDate(tracking[0].Date)
+          }
         }
       })
       .catch(() => {}) // silencieux
@@ -218,7 +225,8 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
       const res = await adminClient.get(`/admin/orders/${id}/mylerz_track/`)
       const newMylerz = res.data?.mylerz_status
       const newPiove  = res.data?.piove_status
-      setTrackingData(res.data.tracking || [])
+      const tracking  = res.data?.tracking || []
+      setTrackingData(tracking)
       setShowTracking(true)
       if (newMylerz) {
         setDetail(prev => prev ? {
@@ -226,6 +234,9 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
           mylerz_status: newMylerz,
           status: newPiove || prev.status,
         } : prev)
+        if (tracking.length > 0 && tracking[0].Date) {
+          setMylerzStatusDate(tracking[0].Date)
+        }
       }
     } catch (e) {
       alert(e.response?.data?.message || 'Erreur de suivi.')
@@ -577,18 +588,28 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                        <div style={{ fontWeight: 600, color: '#0f172a' }}>{detail.mylerz_pickup_code}</div>
                      </>
                    )}
-                   {(() => {
-                     const ms = MYLERZ_STATUS_STYLE(detail.mylerz_status)
-                     return (
-                       <div style={{ marginTop: 12, background: ms.bg, border: `1.5px solid ${ms.border}`, borderRadius: 10, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                         <span style={{ fontSize: '1.2rem' }}>{ms.icon}</span>
-                         <div>
-                           <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: ms.color, marginBottom: 2 }}>Statut Mylerz</div>
-                           <div style={{ fontWeight: 800, fontSize: '0.9rem', color: ms.color }}>{detail.mylerz_status || 'Shipment Created'}</div>
-                         </div>
-                       </div>
-                     )
-                   })()}
+                    {(() => {
+                      const ms = MYLERZ_STATUS_STYLE(detail.mylerz_status)
+                      const fmtDate = mylerzStatusDate
+                        ? new Date(mylerzStatusDate).toLocaleString('fr-DZ', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                        : null
+                      return (
+                        <div style={{ marginTop: 12, background: ms.bg, border: `1.5px solid ${ms.border}`, borderRadius: 10, padding: '10px 12px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: '1.2rem' }}>{ms.icon}</span>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: ms.color, marginBottom: 2 }}>Statut Mylerz</div>
+                              <div style={{ fontWeight: 800, fontSize: '0.9rem', color: ms.color }}>{detail.mylerz_status || 'Shipment Created'}</div>
+                            </div>
+                          </div>
+                          {fmtDate && (
+                            <div style={{ marginTop: 6, fontSize: '0.75rem', color: ms.color, opacity: 0.8 }}>
+                              📅 {fmtDate}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
                   </div>
 
 
@@ -606,18 +627,26 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                    )}
                  </div>
 
-                 {/* Tracking info display */}
-                 {showTracking && trackingData && (
-                   <div style={{ marginTop: 16, borderTop: '1px solid #e2e8f0', paddingTop: 12 }}>
-                     <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 8 }}>Historique Mylerz :</div>
-                     {trackingData.length > 0 ? trackingData.map((t, idx) => (
-                       <div key={idx} style={{ marginBottom: 8, paddingLeft: 10, borderLeft: '2px solid #cbd5e1' }}>
-                         <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b' }}>{t.Status || t.status}</div>
-                         <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{new Date(t.Date || t.date).toLocaleString('fr-DZ')}</div>
-                       </div>
-                     )) : <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Aucun suivi disponible.</div>}
-                   </div>
-                 )}
+                  {/* Historique Mylerz */}
+                  {showTracking && trackingData && trackingData.length > 0 && (
+                    <div style={{ marginTop: 16, borderTop: '1px solid #e2e8f0', paddingTop: 12 }}>
+                      <div style={{ fontWeight: 600, fontSize: '0.75rem', color: '#64748b', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Historique Mylerz</div>
+                      {trackingData.map((t, idx) => {
+                        const ts = MYLERZ_STATUS_STYLE(t.Status || '')
+                        const dt = t.Date ? new Date(t.Date).toLocaleString('fr-DZ', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''
+                        return (
+                          <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+                            <span style={{ fontSize: '0.85rem', marginTop: 1 }}>{ts.icon}</span>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: ts.color }}>{t.Status}</div>
+                              <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{dt}</div>
+                            </div>
+                            {idx === 0 && <span style={{ fontSize: '0.6rem', background: ts.bg, color: ts.color, border: `1px solid ${ts.border}`, borderRadius: 10, padding: '2px 6px', fontWeight: 700, whiteSpace: 'nowrap' }}>ACTUEL</span>}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                </div>
              ) : (
                <div>
@@ -643,11 +672,24 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                   <div key={h.id} style={{ position: 'relative', zIndex: 1, paddingLeft: 24, marginBottom: idx === detail.history.length - 1 ? 0 : 20 }}>
                     {/* Dot */}
                     <div style={{ position: 'absolute', left: 0, top: 4, width: 10, height: 10, borderRadius: '50%', background: idx === 0 ? '#0f172a' : '#cbd5e1', border: '2px solid #fff' }}></div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#1e293b', marginBottom: 2 }}>{h.status_display}</div>
+                    {(() => {
+                      const mylerzMatch = h.notes && h.notes.match(/Mylerz\s*:\s*(.+)$/i)
+                      const mylerzLabel = mylerzMatch ? mylerzMatch[1].trim() : null
+                      if (mylerzLabel) {
+                        const ms = MYLERZ_STATUS_STYLE(mylerzLabel)
+                        return (
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: ms.bg, border: `1px solid ${ms.border}`, borderRadius: 20, padding: '3px 10px', marginBottom: 4 }}>
+                            <span style={{ fontSize: '0.9rem' }}>{ms.icon}</span>
+                            <span style={{ fontWeight: 700, fontSize: '0.82rem', color: ms.color }}>{mylerzLabel}</span>
+                          </div>
+                        )
+                      }
+                      return <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#1e293b', marginBottom: 2 }}>{h.status_display}</div>
+                    })()}
                     <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 4 }}>
                       {new Date(h.created_at).toLocaleString('fr-DZ', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </div>
-                    {h.notes && (
+                    {h.notes && !h.notes.match(/Mylerz\s*:/i) && (
                       <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: 4, fontSize: '0.8rem', color: '#475569', marginTop: 4 }}>
                         {h.notes}
                       </div>

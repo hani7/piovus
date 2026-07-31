@@ -333,12 +333,32 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
     }
   }
 
-  // Mylerz filter logic
-  const mylerzStatuses = [...new Set(orders.map(o => o.mylerz_status).filter(Boolean))]
+  // Vrais statuts Mylerz Algeria connus
+  const MYLERZ_STATUS_OPTIONS = [
+    'Data Uploaded',
+    'Ready For Pickup',
+    'In Transit to Destination HUB',
+    'Received at Destination HUB',
+    'Ready in Forward delivery',
+    'Out For Delivery',
+    'Delivered',
+    'Returned',
+    'Cancelled',
+  ]
+
+  // Statuts Mylerz dynamiques (présents dans les commandes chargées)
+  const dynamicMylerzStatuses = [...new Set(orders.map(o => o.mylerz_status).filter(Boolean))]
+  // Fusionner statuts connus + dynamiques sans doublons
+  const allMylerzStatuses = [...new Set([...MYLERZ_STATUS_OPTIONS, ...dynamicMylerzStatuses])]
+
   const filteredOrders = (() => {
-    if (mylerzFilter === 'with')    return orders.filter(o => o.mylerz_barcode)
-    if (mylerzFilter === 'without') return orders.filter(o => !o.mylerz_barcode)
-    if (mylerzFilter)               return orders.filter(o => (o.mylerz_status || '') === mylerzFilter)
+    // Filtre par statut Mylerz (préfixé 'mylerz:')
+    if (filter?.startsWith('mylerz:')) {
+      const ms = filter.slice(7)
+      return orders.filter(o => (o.mylerz_status || '') === ms)
+    }
+    // Filtre par statut Piové standard
+    if (filter) return orders.filter(o => o.status === filter)
     return orders
   })()
   const visibleOrders = filteredOrders.slice((page - 1) * perPage, page * perPage)
@@ -445,13 +465,20 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
             <select
               className="admin-filter-select"
               value={filter}
-              onChange={e => setFilter(e.target.value)}
+              onChange={e => { setFilter(e.target.value); setPage(1) }}
               id="orders-filter"
             >
               <option value="">Tous les statuts</option>
-              {Object.entries(STATUS_LABELS).map(([v, l]) => (
-                <option key={v} value={v}>{l}</option>
-              ))}
+              <optgroup label="── Statuts Piové ──">
+                {Object.entries(STATUS_LABELS).map(([v, l]) => (
+                  <option key={v} value={v}>{l}</option>
+                ))}
+              </optgroup>
+              <optgroup label="── Statuts Mylerz ──">
+                {allMylerzStatuses.map(s => (
+                  <option key={s} value={`mylerz:${s}`}>📦 {s}</option>
+                ))}
+              </optgroup>
             </select>
             <select
               className="admin-filter-select"
@@ -462,20 +489,6 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
               <option value="unpaid">Non payé</option>
               <option value="paid">Payé</option>
               <option value="refunded">Remboursé</option>
-            </select>
-            {/* Mylerz filter */}
-            <select
-              className="admin-filter-select"
-              value={mylerzFilter}
-              onChange={e => { setMylerzFilter(e.target.value); setPage(1) }}
-              style={{ borderColor: mylerzFilter ? '#f59e0b' : undefined }}
-            >
-              <option value="">Mylerz: Tous</option>
-              <option value="with">📦 Avec colis Mylerz</option>
-              <option value="without">⏳ Sans expédition</option>
-              {mylerzStatuses.map(s => (
-                <option key={s} value={s}>{s}</option>
-              ))}
             </select>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
               Afficher
@@ -494,7 +507,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
             </div>
           </div>
           <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
-            {mylerzFilter ? `${filteredOrders.length} / ${orders.length}` : orders.length} commande{orders.length !== 1 ? 's' : ''}
+            {filter ? `${filteredOrders.length} / ${orders.length}` : orders.length} commande{orders.length !== 1 ? 's' : ''}
           </span>
         </div>
 

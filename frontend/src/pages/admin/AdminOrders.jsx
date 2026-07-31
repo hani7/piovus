@@ -395,6 +395,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
     }
   })
   // Order by count desc
+  const mylerzStatsEntries = Object.entries(mylerzStatsCounts).sort((a, b) => b[1] - a[1])
   const mylerzTotal = mylerzStatsEntries.reduce((s, [, c]) => s + c, 0)
 
   const KpiCard = ({ label, value, sub, color, icon }) => (

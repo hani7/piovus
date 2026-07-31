@@ -366,8 +366,6 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
     if (filter) return orders.filter(o => o.status === filter)
     return orders
   })()
-  const visibleOrders = filteredOrders.slice((page - 1) * perPage, page * perPage)
-  const allVisibleSelected = visibleOrders.length > 0 && visibleOrders.every(o => selectedIds.includes(o.id))
 
   const activeOrders = orders.filter(o =>
     o.status !== 'cancelled' && o.status !== 'returned' && o.status !== 'payment_failed'
@@ -386,6 +384,17 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
       : 0,
   }
 
+  // Mylerz stats — count orders per Mylerz status
+  const mylerzOrdersTotal = orders.filter(o => o.mylerz_barcode).length
+  const mylerzStatsCounts = {}
+  orders.forEach(o => {
+    if (o.mylerz_status) {
+      mylerzStatsCounts[o.mylerz_status] = (mylerzStatsCounts[o.mylerz_status] || 0) + 1
+    }
+  })
+  // Order by count desc
+  const mylerzStatsEntries = Object.entries(mylerzStatsCounts).sort((a, b) => b[1] - a[1])
+
   const StatCard = ({ label, value, color, sub }) => (
     <div style={{ background: 'white', padding: '16px 20px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
       <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px' }}>{label}</span>
@@ -396,7 +405,8 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
 
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
+      {/* ── Stats Piové ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 12 }}>
         <StatCard label="Total Commandes"  value={stats.total}                                                    color="#0f172a" />
         <StatCard label="Revenus (réels)"  value={`${stats.revenue.toLocaleString('fr-DZ')} DA`}                  color="#10b981" sub="hors annulées / retours" />
         <StatCard label="Panier Moyen"     value={`${stats.avgBasket.toLocaleString('fr-DZ')} DA`}                color="#6366f1" sub="commandes actives" />
@@ -407,6 +417,45 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
         <StatCard label="Fulfilled"          value={stats.fulfilled}                                                color="#10b981" />
         <StatCard label="Annulées / Ret."  value={stats.cancelled}                                                color="#94a3b8" sub={stats.total > 0 ? `${Math.round(stats.cancelled/stats.total*100)}% taux annulation` : ''} />
       </div>
+
+      {/* ── Stats Mylerz ── */}
+      {mylerzOrdersTotal > 0 && (
+        <div style={{ marginBottom: 20, background: 'white', border: '1px solid #e2e8f0', borderRadius: 12, padding: '12px 16px' }}>
+          <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: '#64748b', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>📦</span> Suivi Mylerz
+            <span style={{ marginLeft: 'auto', fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>{mylerzOrdersTotal} colis expédiés</span>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {mylerzStatsEntries.map(([status, count]) => {
+              const ms = MYLERZ_STATUS_STYLE(status)
+              const isActive = filter === `mylerz:${status}`
+              return (
+                <button
+                  key={status}
+                  onClick={() => { setFilter(isActive ? '' : `mylerz:${status}`); setPage(1) }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    background: isActive ? ms.color : ms.bg,
+                    border: `1.5px solid ${isActive ? ms.color : ms.border}`,
+                    borderRadius: 20, padding: '5px 12px',
+                    cursor: 'pointer', transition: 'all 0.15s',
+                    boxShadow: isActive ? `0 2px 8px ${ms.border}` : 'none',
+                  }}
+                >
+                  <span style={{ fontSize: '0.85rem' }}>{ms.icon}</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: isActive ? 'white' : ms.color }}>{status}</span>
+                  <span style={{
+                    background: isActive ? 'rgba(255,255,255,0.3)' : ms.border,
+                    color: isActive ? 'white' : ms.color,
+                    borderRadius: 10, padding: '1px 7px',
+                    fontSize: '0.75rem', fontWeight: 800,
+                  }}>{count}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="admin-page-header">
         <h2 style={{ fontSize: '1.3rem', fontWeight: 700 }}>{isB2B ? 'Commandes B2B' : 'Commandes'}</h2>

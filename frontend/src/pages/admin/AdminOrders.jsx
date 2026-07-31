@@ -397,56 +397,81 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
   // Order by count desc
   const mylerzStatsEntries = Object.entries(mylerzStatsCounts).sort((a, b) => b[1] - a[1])
 
-  const StatCard = ({ label, value, color, sub }) => (
-    <div style={{ background: 'white', padding: '12px 14px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 1 }}>
-      <span style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px' }}>{label}</span>
-      <span style={{ fontSize: '1.15rem', fontWeight: 700, color, marginTop: 2, lineHeight: 1.2 }}>{value}</span>
-      {sub && <span style={{ fontSize: '0.62rem', color: '#94a3b8', marginTop: 2 }}>{sub}</span>}
+  const StatCard = ({ label, value, color, sub, onClick, active }) => (
+    <div
+      onClick={onClick}
+      style={{
+        background: active ? color : 'white',
+        padding: '10px 14px',
+        borderRadius: 10,
+        border: `1px solid ${active ? color : '#e2e8f0'}`,
+        borderLeft: `3px solid ${color}`,
+        display: 'flex', flexDirection: 'column', gap: 2,
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'all 0.12s',
+        boxShadow: active ? `0 2px 8px ${color}33` : '0 1px 3px rgba(0,0,0,0.04)',
+      }}
+    >
+      <span style={{ fontSize: '0.6rem', color: active ? `${color}cc` : '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.7px' }}>{label}</span>
+      <span style={{ fontSize: '1.25rem', fontWeight: 800, color: active ? color : '#0f172a', lineHeight: 1.1 }}>{value}</span>
+      {sub && <span style={{ fontSize: '0.58rem', color: active ? `${color}99` : '#cbd5e1', marginTop: 1 }}>{sub}</span>}
     </div>
   )
 
   return (
     <div>
-      {/* ── Stats Piové + Mylerz dans une seule grille ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 20 }}>
-        <StatCard label="Total Commandes"  value={stats.total}                                                    color="#0f172a" />
-        <StatCard label="Revenus (réels)"  value={`${stats.revenue.toLocaleString('fr-DZ')} DA`}                  color="#10b981" sub="hors annulées / retours" />
-        <StatCard label="Panier Moyen"     value={`${stats.avgBasket.toLocaleString('fr-DZ')} DA`}                color="#6366f1" sub="commandes actives" />
-        <StatCard label="En Attente"       value={stats.pending}                                                  color="#f59e0b" />
-        <StatCard label="Confirmées"       value={stats.confirmed}                                                color="#8b5cf6" />
-        <StatCard label="Annulées / Ret."  value={stats.cancelled}                                                color="#94a3b8" sub={stats.total > 0 ? `${Math.round(stats.cancelled/stats.total*100)}% taux annulation` : ''} />
-
-        {/* ── Cartes Mylerz dynamiques ── */}
-        {mylerzStatsEntries.map(([status, count]) => {
-          const ms = MYLERZ_STATUS_STYLE(status)
-          const isActive = filter === `mylerz:${status}`
-          return (
-            <div
-              key={status}
-              onClick={() => { setFilter(isActive ? '' : `mylerz:${status}`); setPage(1) }}
-              style={{
-                background: isActive ? ms.color : ms.bg,
-                border: `1.5px solid ${isActive ? ms.color : ms.border}`,
-                borderRadius: 12, padding: '16px 20px',
-                display: 'flex', flexDirection: 'column', gap: 4,
-                cursor: 'pointer',
-                boxShadow: isActive ? `0 4px 12px ${ms.border}` : 'none',
-                transition: 'all 0.15s',
-              }}
-            >
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: isActive ? 'rgba(255,255,255,0.85)' : '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span>{ms.icon}</span> {status}
-              </span>
-              <span style={{ fontSize: '1.45rem', fontWeight: 700, color: isActive ? 'white' : ms.color, marginTop: 2, lineHeight: 1.2 }}>
-                {count}
-              </span>
-              <span style={{ fontSize: '0.72rem', color: isActive ? 'rgba(255,255,255,0.7)' : '#94a3b8', marginTop: 2 }}>
-                commandes Mylerz
-              </span>
-            </div>
-          )
-        })}
+      {/* ── Piové KPIs ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8, marginBottom: 10 }}>
+        <StatCard label="Total"        value={stats.total}                                                    color="#0f172a" />
+        <StatCard label="Revenus"      value={`${stats.revenue.toLocaleString('fr-DZ')} DA`}                  color="#10b981" sub="hors annulées" />
+        <StatCard label="Panier Moy."  value={`${stats.avgBasket.toLocaleString('fr-DZ')} DA`}                color="#6366f1" sub="commandes actives" />
+        <StatCard label="En Attente"   value={stats.pending}                                                  color="#f59e0b" />
+        <StatCard label="Confirmées"   value={stats.confirmed}                                                color="#8b5cf6" />
+        <StatCard label="Annulées"     value={stats.cancelled}                                                color="#94a3b8" sub={stats.total > 0 ? `${Math.round(stats.cancelled/stats.total*100)}%` : ''} />
       </div>
+
+      {/* ── Mylerz Stats ── */}
+      {mylerzStatsEntries.length > 0 && (
+        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 12, marginBottom: 20, overflow: 'hidden' }}>
+          {/* Header */}
+          <div style={{ background: '#0f172a', padding: '7px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '1px' }}>📦 Mylerz</span>
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'white', marginLeft: 'auto' }}>
+              {mylerzStatsEntries.reduce((s, [, c]) => s + c, 0)} colis
+            </span>
+          </div>
+          {/* Pills */}
+          <div style={{ padding: '10px 12px', display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            {mylerzStatsEntries.map(([status, count]) => {
+              const ms = MYLERZ_STATUS_STYLE(status)
+              const isActive = filter === `mylerz:${status}`
+              return (
+                <button
+                  key={status}
+                  onClick={() => { setFilter(isActive ? '' : `mylerz:${status}`); setPage(1) }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    background: isActive ? ms.color : ms.bg,
+                    border: `1.5px solid ${isActive ? ms.color : ms.border}`,
+                    borderRadius: 20, padding: '4px 10px',
+                    cursor: 'pointer', transition: 'all 0.12s',
+                    boxShadow: isActive ? `0 2px 8px ${ms.border}` : 'none',
+                  }}
+                >
+                  <span style={{ fontSize: '0.78rem' }}>{ms.icon}</span>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: isActive ? 'white' : ms.color, whiteSpace: 'nowrap' }}>{status}</span>
+                  <span style={{
+                    background: isActive ? 'rgba(255,255,255,0.25)' : ms.border,
+                    color: isActive ? 'white' : ms.color,
+                    borderRadius: 10, padding: '1px 7px',
+                    fontSize: '0.7rem', fontWeight: 800, minWidth: 20, textAlign: 'center',
+                  }}>{count}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="admin-page-header">
         <h2 style={{ fontSize: '1.3rem', fontWeight: 700 }}>{isB2B ? 'Commandes B2B' : 'Commandes'}</h2>

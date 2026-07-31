@@ -24,70 +24,71 @@ MYLERZ_WAREHOUSE = getattr(settings, 'MYLERZ_WAREHOUSE_NAME', '') or ''
 
 # ─── Wilaya → Mylerz City Name Mapping ──────────────────────────────────────
 # Mylerz Algeria uses specific city names (no accents, specific spelling).
-# This maps EVERY possible form the frontend might send → exact Mylerz city name.
-# Based on Mylerz Algeria v1.3.1 documentation + GetCityZoneList.
+# This maps EVERY possible form the frontend/user might send → exact Mylerz city name.
+# Verified against Mylerz Algeria GetCityZoneList API (Zone.EnName values).
 
-# Exact Mylerz city names (index 0 = wilaya 1, index 57 = wilaya 58)
 WILAYA_LIST = [
-    "Adrar",           # 01
-    "Chlef",           # 02
-    "Laghouat",        # 03
-    "Oum El Bouaghi",  # 04
-    "Batna",           # 05
-    "Bejaia",          # 06
-    "Biskra",          # 07
-    "Bechar",          # 08
-    "Blida",           # 09
-    "Bouira",          # 10
-    "Tamanrasset",     # 11
-    "Tebessa",         # 12
-    "Tlemcen",         # 13
-    "Tiaret",          # 14
-    "Tizi Ouzou",      # 15
-    "Alger",           # 16
-    "Djelfa",          # 17
-    "Jijel",           # 18
-    "Setif",           # 19
-    "Saida",           # 20
-    "Skikda",          # 21
-    "Sidi Bel Abbes",  # 22
-    "Annaba",          # 23
-    "Guelma",          # 24
-    "Constantine",     # 25
-    "Medea",           # 26
-    "Mostaganem",      # 27
-    "M'Sila",          # 28
-    "Mascara",         # 29
-    "Ouargla",         # 30
-    "Oran",            # 31
-    "El Bayadh",       # 32
-    "Illizi",          # 33
+    "Adrar",               # 01
+    "Chlef",               # 02
+    "Laghouat",            # 03
+    "Oum el Bouaghi",      # 04 — Mylerz: "Oum el Bouaghi" (pas "Oum El Bouaghi")
+    "Batna",               # 05
+    "Bejaia",              # 06
+    "Biskra",              # 07
+    "Bechar",              # 08
+    "Blida",               # 09
+    "Bouira",              # 10
+    "Tamanghasset",        # 11 — Mylerz: "Tamanghasset" (pas "Tamanrasset")
+    "Tebessa",             # 12
+    "Tlemcen",             # 13
+    "Tiaret",              # 14
+    "Tizi Ouzou",          # 15
+    "Alger",               # 16
+    "Djelfa",              # 17
+    "Jijel",               # 18
+    "Setif",               # 19
+    "Saida",               # 20
+    "Skikda",              # 21
+    "Sidi Bel Abbes",      # 22
+    "Annaba",              # 23
+    "Guelma",              # 24
+    "Constantine",         # 25
+    "Medea",               # 26
+    "Mostaganem",          # 27
+    "M Sila",              # 28 — Mylerz: "M Sila" (pas "M'Sila")
+    "Mascara",             # 29
+    "Ouargla",             # 30
+    "Oran",                # 31
+    "El Bayadh",           # 32
+    "Illizi",              # 33
     "Bordj Bou Arreridj",  # 34
-    "Boumerdes",       # 35
-    "El Tarf",         # 36
-    "Tindouf",         # 37
-    "Tissemsilt",      # 38
-    "El Oued",         # 39
-    "Khenchela",       # 40
-    "Souk Ahras",      # 41
-    "Tipaza",          # 42
-    "Mila",            # 43
-    "Ain Defla",       # 44
-    "Naama",           # 45
-    "Ain Temouchent",  # 46
-    "Ghardaia",        # 47
-    "Relizane",        # 48
-    "Timimoun",        # 49
-    "Bordj Badji Mokhtar",  # 50
-    "Ouled Djellal",   # 51
-    "Beni Abbes",      # 52
-    "In Salah",        # 53
-    "In Guezzam",      # 54
-    "Touggourt",       # 55
-    "Djanet",          # 56
-    "El M'Ghair",      # 57
-    "El Meniaa",       # 58
+    "Boumerdes",           # 35
+    "El Tarf",             # 36
+    "Tindouf",             # 37
+    "Tissemsilt",          # 38
+    "El Oued",             # 39
+    "Khenchela",           # 40
+    "Souk Ahras",          # 41
+    "Tipaza",              # 42
+    "Mila",                # 43
+    "Ain Defla",           # 44
+    "Naama",               # 45
+    "Ain Temouchent",      # 46
+    "Ghardaia",            # 47
+    "Relizane",            # 48
+    "Timimoun",            # 49
+    "Bordj Badji Mokhtar", # 50
+    "Ouled Djellal",       # 51
+    "Beni Abbes",          # 52
+    "In Salah",            # 53
+    "In Guezzam",          # 54
+    "Touggourt",           # 55
+    "Djanet",              # 56
+    "El M Ghair",          # 57 — Mylerz: "El M Ghair" (pas "El M'Ghair")
+    "El Meniaa",           # 58
 ]
+
+
 
 # Exhaustive alias map: any form the frontend/user might send → exact Mylerz name
 # Keys are lowercase. Covers accented French, unaccented, partial, Arabic transliterations.
@@ -99,7 +100,7 @@ _WILAYA_ALIASES = {
     # 03 Laghouat
     "laghouat": "Laghouat", "el aghouat": "Laghouat",
     # 04 Oum El Bouaghi
-    "oum el bouaghi": "Oum El Bouaghi", "oum el-bouaghi": "Oum El Bouaghi", "oum bouaghi": "Oum El Bouaghi",
+    "oum el bouaghi": "Oum el Bouaghi", "oum el-bouaghi": "Oum el Bouaghi", "oum bouaghi": "Oum el Bouaghi",
     # 05 Batna
     "batna": "Batna",
     # 06 Bejaia
@@ -112,8 +113,8 @@ _WILAYA_ALIASES = {
     "blida": "Blida", "el boulaida": "Blida",
     # 10 Bouira
     "bouira": "Bouira",
-    # 11 Tamanrasset
-    "tamanrasset": "Tamanrasset", "tamanghasset": "Tamanrasset",
+    # 11 Tamanrasset / Tamanghasset
+    "tamanrasset": "Tamanghasset", "tamanghasset": "Tamanghasset",
     # 12 Tebessa
     "tebessa": "Tebessa", "tébessa": "Tebessa", "tbessa": "Tebessa",
     # 13 Tlemcen
@@ -148,7 +149,7 @@ _WILAYA_ALIASES = {
     # 27 Mostaganem
     "mostaganem": "Mostaganem",
     # 28 M'Sila
-    "m'sila": "M'Sila", "msila": "M'Sila", "m sila": "M'Sila",
+    "m'sila": "M Sila", "msila": "M Sila", "m sila": "M Sila",
     # 29 Mascara
     "mascara": "Mascara",
     # 30 Ouargla
@@ -208,7 +209,7 @@ _WILAYA_ALIASES = {
     # 56 Djanet
     "djanet": "Djanet",
     # 57 El M'Ghair
-    "el m'ghair": "El M'Ghair", "el mghair": "El M'Ghair", "el-mghair": "El M'Ghair",
+    "el m'ghair": "El M Ghair", "el mghair": "El M Ghair", "el-mghair": "El M Ghair",
     # 58 El Meniaa
     "el meniaa": "El Meniaa", "el-meniaa": "El Meniaa",
 }

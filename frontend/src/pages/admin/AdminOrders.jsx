@@ -133,7 +133,8 @@ export default function AdminOrders({ isB2B = false }) {
   const load = () => {
     setLoading(true)
     const params = new URLSearchParams()
-    if (filter) params.append('status', filter)
+    // Only send standard Piové status to backend — Mylerz filters are client-side only
+    if (filter && !filter.startsWith('mylerz:')) params.append('status', filter)
     if (paymentFilter) params.append('payment_status', paymentFilter)
     if (deliveryFilter) params.append('delivery_type', deliveryFilter)
     if (search) params.append('search', search)

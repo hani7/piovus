@@ -25,6 +25,21 @@ const STATUS_BADGE = {
   returned: 'badge-returned',
 }
 
+// Couleurs identiques au portail Mylerz
+const MYLERZ_STATUS_STYLE = (s = '') => {
+  const sl = s.toLowerCase()
+  if (sl.includes('delivered'))           return { bg: '#dcfce7', color: '#15803d', border: '#86efac', icon: '✅' }
+  if (sl.includes('ready in forward'))    return { bg: '#dbeafe', color: '#1d4ed8', border: '#93c5fd', icon: '🚚' }
+  if (sl.includes('forward delivery'))    return { bg: '#dbeafe', color: '#1d4ed8', border: '#93c5fd', icon: '🚚' }
+  if (sl.includes('received in hub') || sl.includes('received by myler')) return { bg: '#e0e7ff', color: '#4338ca', border: '#a5b4fc', icon: '📦' }
+  if (sl.includes('shuttling') || sl.includes('in transit')) return { bg: '#fef9c3', color: '#a16207', border: '#fde047', icon: '🔄' }
+  if (sl.includes('picking') || sl.includes('pickup'))      return { bg: '#fef3c7', color: '#b45309', border: '#fcd34d', icon: '📋' }
+  if (sl.includes('shipment created'))    return { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1', icon: '📤' }
+  if (sl.includes('returned') || sl.includes('reverse'))    return { bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5', icon: '↩️' }
+  if (sl.includes('cancel'))              return { bg: '#f3f4f6', color: '#6b7280', border: '#d1d5db', icon: '❌' }
+  return { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa', icon: '📦' }
+}
+
 export default function AdminOrderDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -116,7 +131,7 @@ export default function AdminOrderDetail() {
     setLoading(true)
     adminClient.get(`/admin/orders/${id}/`)
       .then(r => setDetail(r.data))
-      .catch(e => {
+      .catch(() => {
         alert('Erreur: Commande introuvable')
         navigate('/piove-secure-2026/orders')
       })
@@ -124,6 +139,25 @@ export default function AdminOrderDetail() {
   }
 
   useEffect(() => { load() }, [id])
+
+  // ── Auto-sync Mylerz dès le chargement (silencieux) ──────────────────────
+  useEffect(() => {
+    if (!detail?.mylerz_barcode) return
+    adminClient.get(`/admin/orders/${id}/mylerz_track/`)
+      .then(res => {
+        const newMylerz = res.data?.mylerz_status
+        const newPiove  = res.data?.piove_status
+        if (newMylerz) {
+          setDetail(prev => prev ? {
+            ...prev,
+            mylerz_status: newMylerz,
+            status: newPiove || prev.status,
+          } : prev)
+          setTrackingData(res.data.tracking || [])
+        }
+      })
+      .catch(() => {}) // silencieux
+  }, [detail?.mylerz_barcode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStatus = async (newStatus) => {
     await adminClient.patch(`/admin/orders/${id}/`, { status: newStatus })
@@ -179,14 +213,17 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
     setMylerzLoading(true)
     try {
       const res = await adminClient.get(`/admin/orders/${id}/mylerz_track/`)
-      setTrackingData(res.data.tracking)
+      const newMylerz = res.data?.mylerz_status
+      const newPiove  = res.data?.piove_status
+      setTrackingData(res.data.tracking || [])
       setShowTracking(true)
-      // also update status from tracking
-      if (res.data.tracking && res.data.tracking.length > 0) {
-        detail.mylerz_status = res.data.tracking[0].Status || res.data.tracking[0].status
-        setDetail({...detail})
+      if (newMylerz) {
+        setDetail(prev => prev ? {
+          ...prev,
+          mylerz_status: newMylerz,
+          status: newPiove || prev.status,
+        } : prev)
       }
-      alert('Statut actualisé.')
     } catch (e) {
       alert(e.response?.data?.message || 'Erreur de suivi.')
     } finally {
@@ -537,9 +574,20 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                        <div style={{ fontWeight: 600, color: '#0f172a' }}>{detail.mylerz_pickup_code}</div>
                      </>
                    )}
-                   <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 8, marginBottom: 4 }}>Statut Mylerz:</div>
-                   <div style={{ fontWeight: 600, color: '#3b82f6' }}>{detail.mylerz_status || 'En attente'}</div>
-                 </div>
+                   {(() => {
+                     const ms = MYLERZ_STATUS_STYLE(detail.mylerz_status)
+                     return (
+                       <div style={{ marginTop: 12, background: ms.bg, border: `1.5px solid ${ms.border}`, borderRadius: 10, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                         <span style={{ fontSize: '1.2rem' }}>{ms.icon}</span>
+                         <div>
+                           <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: ms.color, marginBottom: 2 }}>Statut Mylerz</div>
+                           <div style={{ fontWeight: 800, fontSize: '0.9rem', color: ms.color }}>{detail.mylerz_status || 'Shipment Created'}</div>
+                         </div>
+                       </div>
+                     )
+                   })()}
+                  </div>
+
 
                  <div style={{ display: 'flex', gap: 8, flexDirection: 'column', marginTop: 12 }}>
                    <button className="btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', fontSize: '0.85rem', background: '#f59e0b', color: 'white', borderRadius: 50, border: 'none' }} onClick={handleMylerzTrack} disabled={mylerzLoading}>

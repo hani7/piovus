@@ -398,10 +398,10 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
   const mylerzStatsEntries = Object.entries(mylerzStatsCounts).sort((a, b) => b[1] - a[1])
 
   const StatCard = ({ label, value, color, sub }) => (
-    <div style={{ background: 'white', padding: '16px 20px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px' }}>{label}</span>
-      <span style={{ fontSize: '1.45rem', fontWeight: 700, color, marginTop: 2, lineHeight: 1.2 }}>{value}</span>
-      {sub && <span style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: 2 }}>{sub}</span>}
+    <div style={{ background: 'white', padding: '12px 14px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <span style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px' }}>{label}</span>
+      <span style={{ fontSize: '1.15rem', fontWeight: 700, color, marginTop: 2, lineHeight: 1.2 }}>{value}</span>
+      {sub && <span style={{ fontSize: '0.62rem', color: '#94a3b8', marginTop: 2 }}>{sub}</span>}
     </div>
   )
 
@@ -414,8 +414,6 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
         <StatCard label="Panier Moyen"     value={`${stats.avgBasket.toLocaleString('fr-DZ')} DA`}                color="#6366f1" sub="commandes actives" />
         <StatCard label="En Attente"       value={stats.pending}                                                  color="#f59e0b" />
         <StatCard label="Confirmées"       value={stats.confirmed}                                                color="#8b5cf6" />
-        <StatCard label="En Livraison"     value={stats.shipped}                                                  color="#3b82f6" />
-        <StatCard label="Fulfilled"        value={stats.fulfilled}                                                color="#10b981" />
         <StatCard label="Annulées / Ret."  value={stats.cancelled}                                                color="#94a3b8" sub={stats.total > 0 ? `${Math.round(stats.cancelled/stats.total*100)}% taux annulation` : ''} />
 
         {/* ── Cartes Mylerz dynamiques ── */}

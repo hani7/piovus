@@ -470,10 +470,16 @@ def create_shipment(order):
                 wilaya_normalized = w
                 break
 
-    city = wilaya_normalized                  # ex: "Tlemcen" — toujours la wilaya
-    neighborhood = commune if commune else ''  # ex: "el mansourah" ou vide
+    city = wilaya_normalized                  # ex: "Laghouat" — toujours la wilaya
+    neighborhood = commune if commune else ''  # ex: "Benacer Ben Chohra"
     district_val = wilaya_normalized
-    street = order.shipping_address or commune or wilaya_normalized
+    # Street = full address so the livreur sees it even if portal shows hub zone
+    if commune and wilaya_normalized:
+        street = f"{wilaya_normalized} - {commune}"
+    elif order.shipping_address:
+        street = order.shipping_address
+    else:
+        street = wilaya_normalized or commune or ''
 
     logger.info(
         f"Mylerz order #{order.id}: raw_wilaya={raw_wilaya!r} → city={city!r}, "
@@ -523,7 +529,7 @@ def create_shipment(order):
             "Neighborhood": neighborhood,
             "District": district_val,
             "Address_Category": address_category,
-            "Special_Notes": getattr(order, 'notes', '') or '',
+            "Special_Notes": f"Wilaya: {wilaya_normalized} | Commune: {neighborhood} | {getattr(order, 'notes', '') or ''}".strip(' |'),
             "Reference": ref_unique,  # unique per attempt to avoid duplicate rejection
             "AllowToOpenPackage": True,
             "ValueOfGoods": float(order.total),

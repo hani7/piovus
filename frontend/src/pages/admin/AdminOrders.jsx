@@ -55,6 +55,21 @@ const STATUS_BADGE = {
   returned: 'badge-returned',
 }
 
+// Couleurs calquées sur le portail Mylerz
+const MYLERZ_STATUS_STYLE = (s = '') => {
+  const sl = s.toLowerCase()
+  if (sl.includes('delivered'))      return { bg: '#dcfce7', color: '#15803d', border: '#86efac', icon: '✅' }
+  if (sl.includes('ready in forward')) return { bg: '#dbeafe', color: '#1d4ed8', border: '#93c5fd', icon: '🚚' }
+  if (sl.includes('forward delivery')) return { bg: '#dbeafe', color: '#1d4ed8', border: '#93c5fd', icon: '🚚' }
+  if (sl.includes('received in hub') || sl.includes('received by myler')) return { bg: '#e0e7ff', color: '#4338ca', border: '#a5b4fc', icon: '📦' }
+  if (sl.includes('shuttling') || sl.includes('in transit')) return { bg: '#fef9c3', color: '#a16207', border: '#fde047', icon: '🔄' }
+  if (sl.includes('picking') || sl.includes('pickup'))     return { bg: '#fef3c7', color: '#b45309', border: '#fcd34d', icon: '📋' }
+  if (sl.includes('shipment created'))  return { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1', icon: '📤' }
+  if (sl.includes('returned') || sl.includes('reverse'))   return { bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5', icon: '↩️' }
+  if (sl.includes('cancel'))            return { bg: '#f3f4f6', color: '#6b7280', border: '#d1d5db', icon: '❌' }
+  return { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa', icon: '📦' }
+}
+
 export default function AdminOrders({ isB2B = false }) {
   const navigate = useNavigate()
   const [orders, setOrders] = useState([])
@@ -132,6 +147,26 @@ export default function AdminOrders({ isB2B = false }) {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [detail])
+
+  // ── Auto-sync Mylerz quand on ouvre un détail avec barcode ───────────────────
+  useEffect(() => {
+    if (!detail?.mylerz_barcode) return
+    // Sync silencieux en arrière-plan
+    adminClient.get(`/admin/orders/${detail.id}/mylerz_track/`)
+      .then(res => {
+        const newMylerz = res.data?.mylerz_status
+        const newPiove  = res.data?.piove_status
+        if (newMylerz && (newMylerz !== detail.mylerz_status || newPiove !== detail.status)) {
+          setDetail(prev => prev ? { ...prev, mylerz_status: newMylerz, status: newPiove || prev.status } : prev)
+          setOrders(prev => prev.map(o =>
+            o.id === detail.id
+              ? { ...o, mylerz_status: newMylerz, status: newPiove || o.status }
+              : o
+          ))
+        }
+      })
+      .catch(() => {/* silencieux */})
+  }, [detail?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { 
     setPage(1)
@@ -507,22 +542,23 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                       )}
                     </td>
                     <td>
-                      {o.mylerz_barcode ? (
-                        /* Commande expédiée — affiche le statut Mylerz */
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                          <span style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 4,
-                            background: '#fff7ed', color: '#c2410c',
-                            border: '1px solid #fed7aa',
-                            fontSize: '0.65rem', padding: '2px 7px', borderRadius: 20,
-                            fontWeight: 700, whiteSpace: 'nowrap',
-                          }}>
-                            📦 {o.mylerz_status || 'Mylerz — En attente'}
-                          </span>
-                          <span style={{ fontSize: '0.6rem', color: '#94a3b8', fontFamily: 'monospace' }}>{o.mylerz_barcode}</span>
-                        </div>
-                      ) : (
-                        /* Pas encore expédiée — affiche le statut interne */
+                      {o.mylerz_barcode ? (() => {
+                        const ms = MYLERZ_STATUS_STYLE(o.mylerz_status)
+                        return (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                            <span style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 4,
+                              background: ms.bg, color: ms.color,
+                              border: `1px solid ${ms.border}`,
+                              fontSize: '0.65rem', padding: '3px 8px', borderRadius: 20,
+                              fontWeight: 700, whiteSpace: 'nowrap', maxWidth: 180,
+                            }}>
+                              {ms.icon} {o.mylerz_status || 'Shipment Created'}
+                            </span>
+                            <span style={{ fontSize: '0.6rem', color: '#94a3b8', fontFamily: 'monospace' }}>{o.mylerz_barcode}</span>
+                          </div>
+                        )
+                      })() : (
                         <span className={`badge ${STATUS_BADGE[o.status]}`} style={{ fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>
                           {STATUS_LABELS[o.status]}
                         </span>
@@ -645,7 +681,41 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                   </div>
                 </div>
               </div>
-              
+
+              {/* ── Bloc statut Mylerz (si barcode) ── */}
+              {detail.mylerz_barcode && (() => {
+                const ms = MYLERZ_STATUS_STYLE(detail.mylerz_status)
+                return (
+                  <div style={{
+                    background: ms.bg,
+                    border: `1.5px solid ${ms.border}`,
+                    borderRadius: 12,
+                    padding: '12px 16px',
+                    marginBottom: 14,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span style={{ fontSize: '1.4rem' }}>{ms.icon}</span>
+                      <div>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: ms.color, marginBottom: 2 }}>
+                          Statut Mylerz
+                        </div>
+                        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: ms.color }}>
+                          {detail.mylerz_status || 'Shipment Created'}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '0.7rem', color: ms.color, opacity: 0.7, marginBottom: 2 }}>Barcode</div>
+                      <div style={{ fontSize: '0.75rem', fontFamily: 'monospace', fontWeight: 600, color: ms.color }}>{detail.mylerz_barcode}</div>
+                    </div>
+                  </div>
+                )
+              })()}
+
               <div style={{ background: 'var(--admin-surface2)', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
                 {detail.items?.map(item => (
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', borderBottom: '1px solid var(--admin-border)' }}>

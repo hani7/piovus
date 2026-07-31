@@ -14,9 +14,7 @@ export default function CheckoutPage() {
   const { user } = useAuthStore()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [redirecting, setRedirecting] = useState(false)
-  const [orderId, setOrderId] = useState(null)
   const [errors, setErrors] = useState({})
 
   const playSuccessSound = () => {
@@ -192,32 +190,19 @@ export default function CheckoutPage() {
       } else if (res.data.satim_error) {
         window.location.href = `/payment-result?status=fail&reason=init_failed&msg=${encodeURIComponent(res.data.satim_error)}`
       } else {
-        // Cash on delivery or B2B success
+        // Cash on delivery — redirect to dedicated confirmation page
+        // Meta Purchase pixel is fired in OrderConfirmedPage
         const finalValue = total + deliveryCost - (coupon ? coupon.discount_amount : 0)
-        if (window.fbq) {
-          window.fbq('track', 'Purchase', {
-            value: finalValue,
-            currency: 'DZD',
-            content_ids: items.map(i => i.product.id),
-            content_type: 'product'
-          })
-        }
-        if (window.ttq) {
-          window.ttq.track('CompletePayment', {
-            value: finalValue,
-            currency: 'DZD',
-            contents: items.map(i => ({
-              content_id: i.product.id,
-              content_name: i.product.name,
-              quantity: i.quantity,
-              price: i.price
-            }))
-          })
-        }
-        setOrderId(res.data.id)
-        setSuccess(true)
         playSuccessSound()
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        navigate('/order-confirmed', {
+          replace: true,
+          state: {
+            orderId: res.data.id,
+            total:   finalValue,
+            items:   items,
+            method:  'cash',
+          }
+        })
       }
     } catch (err) {
       const serverMsg = err?.response?.data?.error || err?.response?.data?.detail || JSON.stringify(err?.response?.data)
@@ -228,31 +213,12 @@ export default function CheckoutPage() {
   }
 
 
-  if (items.length === 0 && !success) {
+  if (items.length === 0) {
     return (
       <div className="checkout-empty container page-enter">
         <p>Votre panier est vide.</p>
         <Link to="/shop" className="btn btn-accent" id="checkout-empty-shop">Continuer mes achats</Link>
       </div>
-    )
-  }
-
-  if (success) {
-    return (
-      <main className="checkout-page page-enter">
-        <div className="container">
-          <div className="checkout-success">
-            <div className="checkout-success__icon">✓</div>
-            <h1>Commande confirmée !</h1>
-            <p>Votre commande <strong>#{orderId}</strong> a bien été enregistrée.</p>
-            <p>Notre équipe vous contactera pour confirmer la livraison.</p>
-            <div className="checkout-success__actions">
-              <Link to="/" className="btn btn-outline" id="success-home">Retour à l'accueil</Link>
-              {user && <Link to="/compte/commandes" className="btn btn-accent" id="success-orders">Voir mes commandes</Link>}
-            </div>
-          </div>
-        </div>
-      </main>
     )
   }
 

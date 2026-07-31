@@ -88,7 +88,71 @@ WILAYA_LIST = [
     "El Meniaa",           # 58
 ]
 
-
+# ─── Mylerz City Codes ───────────────────────────────────────────────────────
+# Maps zone EnName → Mylerz City Code (from GetCityZoneList API).
+# Using City Codes instead of zone names routes packages to the CORRECT hub
+# (e.g. CLF for Chlef, LGH for Laghouat) instead of defaulting to ALG (Alger).
+# Verified 2026-07-31 from production Mylerz Algeria API.
+MYLERZ_CITY_CODES = {
+    "Blida": "BLD",
+    "Alger": "ALG",
+    "Boumerdes": "BRD",
+    "Tipaza": "TPZ",
+    "Adrar": "Adra",
+    "Chlef": "Chle",
+    "Laghouat": "Laghoua",
+    "Oum el Bouaghi": "Oum El Bouagh",
+    "Batna": "Batn",
+    "Bejaia": "Bejai",
+    "Biskra": "Biskr",
+    "Bechar": "Becha",
+    "Bouira": "Bouir",
+    "Tamanghasset": "Tamanghasse",
+    "Tebessa": "Tebess",
+    "Tlemcen": "Tlemce",
+    "Tiaret": "Tiare",
+    "Tizi Ouzou": "Tizi Ouzo",
+    "Djelfa": "Djelf",
+    "Jijel": "Jije",
+    "Setif": "Seti",
+    "Saida": "Said",
+    "Skikda": "Skikd",
+    "Sidi Bel Abbes": "Sidi Bel Abbe",
+    "Annaba": "Annab",
+    "Guelma": "Guelm",
+    "Constantine": "Constantin",
+    "Medea": "Mede",
+    "Mostaganem": "Mostagane",
+    "M Sila": "M Sil",
+    "Mascara": "Mascar",
+    "Ouargla": "Ouargl",
+    "Oran": "Ora",
+    "El Bayadh": "El Bayad",
+    "Illizi": "Illiz",
+    "Bordj Bou Arreridj": "Bordj Bou Arrerid",
+    "El Tarf": "El Tar",
+    "Tindouf": "Tindou",
+    "Tissemsilt": "Tissemsil",
+    "El Oued": "El Oue",
+    "Khenchela": "Khenchel",
+    "Souk Ahras": "Souk Ahra",
+    "Mila": "Mil",
+    "Ain Defla": "Ain Defl",
+    "Naama": "Naam",
+    "Ain Temouchent": "Ain Temouchen",
+    "Ghardaia": "Ghardai",
+    "Relizane": "Relizan",
+    "El M Ghair": "El M Ghai",
+    "El Meniaa": "El Menia",
+    "Ouled Djellal": "Ouled Djella",
+    "Bordj Badji Mokhtar": "Bordj Badji Mokhta",
+    "Beni Abbes": "Beni Abbe",
+    "Timimoun": "Timimou",
+    "Touggourt": "Touggour",
+    "Djanet": "Djane",
+    "In Salah": "In Sala",
+    "In Guezzam": "In Guezza",
+}
 
 # Exhaustive alias map: any form the frontend/user might send → exact Mylerz name
 # Keys are lowercase. Covers accented French, unaccented, partial, Arabic transliterations.
@@ -470,10 +534,14 @@ def create_shipment(order):
                 wilaya_normalized = w
                 break
 
-    city = wilaya_normalized                  # ex: "Laghouat" — toujours la wilaya
-    neighborhood = commune if commune else ''  # ex: "Benacer Ben Chohra"
+    # Map wilaya name → Mylerz City Code for correct hub routing
+    # Using zone names causes all non-Alger orders to route through ALG (Alger)
+    # Using city codes routes to the correct regional hub (CLF, LGH, etc.)
+    city_code = MYLERZ_CITY_CODES.get(wilaya_normalized, wilaya_normalized)
+    city = city_code                              # Mylerz City Code → correct hub
+    neighborhood = commune if commune else ''     # ex: "Benacer Ben Chohra"
     district_val = wilaya_normalized
-    # Street = full address so the livreur sees it even if portal shows hub zone
+    # Street = full address so the livreur sees it clearly
     if commune and wilaya_normalized:
         street = f"{wilaya_normalized} - {commune}"
     elif order.shipping_address:

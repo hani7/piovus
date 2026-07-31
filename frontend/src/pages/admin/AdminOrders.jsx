@@ -366,6 +366,8 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
     if (filter) return orders.filter(o => o.status === filter)
     return orders
   })()
+  const visibleOrders = filteredOrders.slice((page - 1) * perPage, page * perPage)
+  const allVisibleSelected = visibleOrders.length > 0 && visibleOrders.every(o => selectedIds.includes(o.id))
 
   const activeOrders = orders.filter(o =>
     o.status !== 'cancelled' && o.status !== 'returned' && o.status !== 'payment_failed'

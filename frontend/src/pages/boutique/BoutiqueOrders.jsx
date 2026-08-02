@@ -22,7 +22,8 @@ export default function BoutiqueOrders() {
     try {
       setLoading(true)
       const res = await boutiqueClient.get('/boutique/orders/')
-      setOrders(res.data)
+      const data = res.data.results || res.data
+      setOrders(Array.isArray(data) ? data : [])
     } catch (e) {
       console.error(e)
     } finally {

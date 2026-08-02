@@ -1,13 +1,43 @@
-import { useEffect, useState } from 'react'
-import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom'
-import { Store, LogOut, Package, LayoutDashboard, Menu, X } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { NavLink, useNavigate, Outlet, Navigate, Link, useLocation } from 'react-router-dom'
+import { LayoutDashboard, LogOut, Menu, Maximize2, Minimize2, Sun, Moon, Store } from 'lucide-react'
+import '../admin/admin.css' // Reuse the exact same admin CSS
 
 export default function BoutiqueLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  
   const [boutiqueInfo, setBoutiqueInfo] = useState(null)
   const [user, setUser] = useState(null)
-  const [isSidebarOpen, setSidebarOpen] = useState(false)
+  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [now, setNow] = useState(new Date())
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('admin_dark_mode') === 'true')
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  useEffect(() => {
+    localStorage.setItem('admin_dark_mode', darkMode)
+  }, [darkMode])
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', onFsChange)
+    return () => document.removeEventListener('fullscreenchange', onFsChange)
+  }, [])
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {})
+    } else {
+      document.exitFullscreen().catch(() => {})
+    }
+  }
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const token = localStorage.getItem('boutique_access_token')
@@ -15,7 +45,6 @@ export default function BoutiqueLayout() {
       navigate('/boutique/login')
       return
     }
-
     try {
       const u = JSON.parse(localStorage.getItem('boutique_user') || 'null')
       const b = JSON.parse(localStorage.getItem('boutique_info') || 'null')
@@ -38,115 +67,106 @@ export default function BoutiqueLayout() {
     window.location.href = '/boutique/login'
   }
 
-  if (!boutiqueInfo) return <div style={{ padding: 40, textAlign: 'center' }}>Chargement...</div>
+  if (!boutiqueInfo || !user) return <div style={{ padding: 40, textAlign: 'center' }}>Chargement...</div>
 
-  const NAV_ITEMS = [
-    { to: '/boutique', label: 'Tableau de bord', icon: <LayoutDashboard size={20} />, end: true },
-  ]
+  const initials = (user.first_name?.[0] || user.username?.[0] || 'B').toUpperCase()
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', color: '#0f172a', fontFamily: "'Inter', sans-serif" }}>
+    <div className={`admin-app${darkMode ? ' dark-mode' : ''}`}>
       
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 40 }}
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
       {/* Sidebar */}
-      <aside 
-        style={{ 
-          width: '260px', 
-          background: '#fff', 
-          borderRight: '1px solid #e2e8f0', 
-          display: 'flex', 
-          flexDirection: 'column',
-          position: 'fixed',
-          top: 0, bottom: 0, left: 0,
-          zIndex: 50,
-          transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.3s ease-in-out',
-        }}
-        className="md-sidebar-fixed" // In a real app, use CSS media queries to set transform: translateX(0) on md screens and static position
-      >
-        <style>{`
-          @media (min-width: 768px) {
-            .md-sidebar-fixed { transform: translateX(0) !important; position: sticky !important; }
-            .mobile-header-btn { display: none !important; }
-          }
-        `}</style>
+      <aside className={`admin-sidebar ${!isSidebarOpen ? 'collapsed' : ''}`}>
+        <div className="admin-sidebar-logo">
+          <img src="/logo.png" alt="PIOVÉ" style={{ height: '35px', width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)', alignSelf: 'flex-start', marginBottom: '8px' }} />
+          <span>Espace Boutique</span>
+        </div>
 
-        <div style={{ padding: '24px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#be123c' }}>
-            <Store size={24} />
-            <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>Espace Boutique</span>
+        <div style={{ padding: '0 20px', marginBottom: '15px' }}>
+            <div style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Store size={14} color="#cc0000" />
+                    {boutiqueInfo.name}
+                </div>
+                <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: 2 }}>{boutiqueInfo.wilaya}</div>
+            </div>
+        </div>
+
+        <nav className="admin-nav">
+          <div className="admin-nav-section">
+            <div className="admin-nav-section-label">Général</div>
+            <NavLink
+              to="/boutique"
+              end
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              <LayoutDashboard size={20} />
+              <span style={{ flex: 1 }}>Tableau de bord</span>
+            </NavLink>
           </div>
-          <button className="mobile-header-btn" onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: '#64748b' }}>
-            <X size={24} />
-          </button>
-        </div>
-
-        <div style={{ padding: '20px', flex: 1, overflowY: 'auto' }}>
-          <div style={{ marginBottom: 20, padding: 12, background: '#fdf2f8', borderRadius: 8, color: '#9f1239' }}>
-            <div style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{boutiqueInfo.name}</div>
-            <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>{boutiqueInfo.wilaya}</div>
-          </div>
-
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {NAV_ITEMS.map((item, i) => {
-              const isActive = item.end ? pathname === item.to : pathname.startsWith(item.to)
-              return (
-                <Link
-                  key={i}
-                  to={item.to}
-                  onClick={() => setSidebarOpen(false)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px',
-                    borderRadius: '8px', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 500,
-                    color: isActive ? '#be123c' : '#475569',
-                    background: isActive ? '#fdf2f8' : 'transparent',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {item.icon}
-                  {item.label}
-                </Link>
-              )
-            })}
-          </nav>
-        </div>
-
-        <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0' }}>
-          <button 
-            onClick={handleLogout}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '10px 16px', 
-              background: 'none', border: 'none', color: '#ef4444', fontWeight: 600, cursor: 'pointer',
-              borderRadius: '8px'
-            }}
-          >
-            <LogOut size={20} /> Déconnexion
-          </button>
-        </div>
+        </nav>
       </aside>
 
-      {/* Main Content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
-        <header style={{ background: '#fff', borderBottom: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', alignItems: 'center', position: 'sticky', top: 0, zIndex: 10 }}>
-          <button className="mobile-header-btn" onClick={() => setSidebarOpen(true)} style={{ background: 'none', border: 'none', marginRight: 16, cursor: 'pointer' }}>
-            <Menu size={24} color="#0f172a" />
-          </button>
-          <div style={{ fontWeight: 600, color: '#1e293b' }}>
-            Bienvenue, {user?.first_name || user?.username}
+      {/* Main */}
+      <main className={`admin-main ${!isSidebarOpen ? 'expanded' : ''}`}>
+        <header className="admin-topbar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              style={{ background: 'none', border: 'none', color: 'var(--admin-text)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            >
+              <Menu size={24} />
+            </button>
+            <span className="admin-topbar-title" style={{ marginRight: 24 }}>Espace Boutique</span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            {/* Fullscreen Toggle */}
+            <button
+              onClick={toggleFullscreen}
+              title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran (F11)'}
+              style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '6px', borderRadius: '8px', transition: 'all 0.2s' }}
+            >
+              {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+            </button>
+            
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              title={darkMode ? 'Passer en mode clair' : 'Passer en mode sombre'}
+              style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '6px', borderRadius: '8px', transition: 'all 0.2s' }}
+            >
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
+            <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-500)', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: '1.2' }}>
+              <span style={{ fontWeight: 600, color: 'var(--admin-text)' }}>
+                {now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+              <span style={{ fontSize: '0.8rem' }}>
+                {now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              </span>
+            </div>
+
+            <div style={{ position: 'relative' }}>
+              <div className="admin-topbar-user" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} style={{ cursor: 'pointer' }}>
+                <span>{user?.first_name || user?.username}</span>
+                <div className="admin-avatar">{initials}</div>
+              </div>
+              {isUserMenuOpen && (
+                <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 8, background: 'var(--admin-surface)', border: '1px solid var(--admin-border)', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', minWidth: 200, zIndex: 50 }}>
+                  <button style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', color: 'var(--admin-danger)', cursor: 'pointer', fontWeight: 600 }} onClick={() => { setIsUserMenuOpen(false); handleLogout(); }}>
+                    <LogOut size={16} /> Se déconnecter
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
-        
-        <main style={{ flex: 1, padding: '24px', overflowX: 'hidden' }}>
+
+        <div className="admin-content">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   )
 }

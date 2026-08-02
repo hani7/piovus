@@ -233,8 +233,7 @@ export default function App() {
           {/* Boutique */}
           <Route path="/boutique/login" element={<BoutiqueLogin />} />
           <Route path="/boutique" element={<BoutiqueLayout />}>
-            <Route index element={<BoutiqueDashboard />} />
-            <Route path="orders" element={<BoutiqueOrders />} />
+            <Route index element={<BoutiqueOrders />} />
           </Route>
 
           {/* Admin */}

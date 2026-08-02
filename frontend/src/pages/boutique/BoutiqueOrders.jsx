@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, Eye, CheckCircle, Package, XCircle } from 'lucide-react'
+import { Search, Eye, CheckCircle, Package, XCircle, Clock } from 'lucide-react'
 import boutiqueClient from '../../api/boutiqueClient'
 
 export default function BoutiqueOrders() {
@@ -75,9 +75,42 @@ export default function BoutiqueOrders() {
     return matchSearch && matchStatus
   })
 
+  const stats = {
+    total: orders.length,
+    pending: orders.filter(o => o.boutique_status === 'pending').length,
+    ready: orders.filter(o => o.boutique_status === 'ready').length,
+    collected: orders.filter(o => o.boutique_status === 'collected').length
+  }
+
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24, color: '#1e293b' }}>Gestion des Retraits</h1>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24, color: '#1e293b' }}>Tableau de bord</h1>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ background: '#e0e7ff', color: '#4338ca', padding: 12, borderRadius: 12 }}><Package size={24} /></div>
+          <div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>Total assignées</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>{stats.total}</div>
+          </div>
+        </div>
+
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ background: '#fef3c7', color: '#b45309', padding: 12, borderRadius: 12 }}><Clock size={24} /></div>
+          <div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>En attente / Prêtes</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>{stats.pending + stats.ready}</div>
+          </div>
+        </div>
+
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ background: '#dcfce7', color: '#15803d', padding: 12, borderRadius: 12 }}><CheckCircle size={24} /></div>
+          <div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>Récupérées (Terminées)</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>{stats.collected}</div>
+          </div>
+        </div>
+      </div>
 
       <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', marginBottom: 24 }}>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>

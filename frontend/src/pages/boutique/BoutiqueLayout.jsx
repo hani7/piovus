@@ -42,7 +42,6 @@ export default function BoutiqueLayout() {
 
   const NAV_ITEMS = [
     { to: '/boutique', label: 'Tableau de bord', icon: <LayoutDashboard size={20} />, end: true },
-    { to: '/boutique/orders', label: 'Commandes', icon: <Package size={20} /> },
   ]
 
   return (

@@ -14,7 +14,8 @@ from .views import (
     AdminNewsletterSendView, AdminNewsletterUploadImageView, AdminReportView, ApplyCouponView,
     SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet,
     mylerz_webhook, satim_callback, satim_test_view, AdminMediaView,
-    AdminProfileView, AdminChangePasswordView, TrackOrderView
+    AdminProfileView, AdminChangePasswordView, TrackOrderView,
+    AdminBoutiqueViewSet, BoutiqueOrderViewSet, BoutiqueLoginView
 )
 from django.core.management import call_command
 from django.http import JsonResponse
@@ -59,6 +60,10 @@ admin_router.register(r'orders', AdminOrderViewSet, basename='admin-order')
 admin_router.register(r'customers', CustomerViewSet, basename='admin-customer')
 admin_router.register(r'coupons', AdminCouponViewSet, basename='admin-coupon')
 admin_router.register(r'b2b-requests', AdminB2BRequestViewSet, basename='admin-b2b-requests')
+admin_router.register(r'boutiques', AdminBoutiqueViewSet, basename='admin-boutique')
+
+boutique_router = DefaultRouter()
+boutique_router.register(r'orders', BoutiqueOrderViewSet, basename='boutique-order')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -82,6 +87,9 @@ urlpatterns = [
     path('auth/google/', GoogleLoginView.as_view(), name='auth-google'),
     path('auth/facebook/', FacebookLoginView.as_view(), name='auth-facebook'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    # Boutique
+    path('boutique/login/', BoutiqueLoginView.as_view(), name='boutique-login'),
+    path('boutique/', include(boutique_router.urls)),
     # Admin
     path('admin/dashboard/', AdminDashboardView.as_view(), name='admin-dashboard'),
     path('admin/reports/', AdminReportView.as_view(), name='admin-reports'),

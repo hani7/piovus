@@ -2077,6 +2077,35 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             threading.Thread(target=send_order_email, args=(order.id, recipient_email)).start()
 
         return Response(AdminOrderSerializer(order).data, status=status.HTTP_201_CREATED)
+    @action(detail=True, methods=['post'], url_path='transfer_to_boutique')
+    def transfer_to_boutique(self, request, pk=None):
+        from .models import Boutique
+        order = self.get_object()
+        boutique_id = request.data.get('boutique_id')
+        if not boutique_id:
+            return Response({'error': 'Boutique ID requis.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            boutique = Boutique.objects.get(id=boutique_id)
+        except Boutique.DoesNotExist:
+            return Response({'error': 'Boutique introuvable.'}, status=status.HTTP_404_NOT_FOUND)
+
+        old_status = order.status
+        order.boutique = boutique
+        order.status = 'boutique'
+        order.boutique_status = 'pending'
+        from django.utils import timezone
+        order.boutique_transferred_at = timezone.now()
+        order.save(update_fields=['boutique', 'status', 'boutique_status', 'boutique_transferred_at'])
+
+        from .models import OrderStatusHistory
+        OrderStatusHistory.objects.create(
+            order=order,
+            status='boutique',
+            notes=f"Transférée à la boutique : {boutique.name}"
+        )
+        _send_boutique_transfer_email(order, boutique)
+
+        return Response({'success': True, 'message': 'Commande transférée à la boutique.', 'order': AdminOrderSerializer(order).data})
 
 
 class AdminCouponViewSet(ActivityLogMixin, viewsets.ModelViewSet):
@@ -3051,4 +3080,188 @@ class TrackOrderView(APIView):
             })
 
         return Response({'orders': results})
+
+
+# ─── Boutique ─────────────────────────────────────────────────────────────────
+from .models import Boutique
+from .serializers import BoutiqueSerializer, BoutiqueOrderSerializer
+from rest_framework.permissions import BasePermission
+
+
+class IsBoutiqueUser(BasePermission):
+    """Permission: user belongs to 'boutique' group and has a boutique profile."""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.groups.filter(name='boutique').exists()
+
+
+class AdminBoutiqueViewSet(viewsets.ModelViewSet):
+    """Admin CRUD for boutiques. Creates/updates associated User accounts."""
+    queryset = Boutique.objects.select_related('user').all()
+    serializer_class = BoutiqueSerializer
+    permission_classes = [IsAdminUser]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        username = data.get('username', '').strip()
+        password = data.get('password', '').strip()
+        if not username or not password:
+            return Response({'detail': 'Username et mot de passe requis.'}, status=status.HTTP_400_BAD_REQUEST)
+        if User.objects.filter(username=username).exists():
+            return Response({'detail': f"L'utilisateur '{username}' existe déjà."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create Django user
+        from django.contrib.auth.models import Group
+        user = User.objects.create_user(username=username, password=password)
+        user.is_staff = True  # needed to pass IsAdminUser on boutique login
+        user.first_name = data.get('name', username)
+        user.save()
+        grp, _ = Group.objects.get_or_create(name='boutique')
+        user.groups.add(grp)
+
+        boutique = Boutique.objects.create(
+            name=data.get('name', ''),
+            address=data.get('address', ''),
+            wilaya=data.get('wilaya', ''),
+            phone=data.get('phone', ''),
+            is_active=data.get('is_active', True),
+            user=user,
+        )
+        return Response(BoutiqueSerializer(boutique).data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        boutique = self.get_object()
+        data = request.data
+
+        # Update password if provided
+        new_password = data.get('password', '').strip()
+        if new_password:
+            boutique.user.set_password(new_password)
+            boutique.user.save()
+
+        boutique.name = data.get('name', boutique.name)
+        boutique.address = data.get('address', boutique.address)
+        boutique.wilaya = data.get('wilaya', boutique.wilaya)
+        boutique.phone = data.get('phone', boutique.phone)
+        boutique.is_active = data.get('is_active', boutique.is_active)
+        boutique.save()
+        return Response(BoutiqueSerializer(boutique).data)
+
+    def destroy(self, request, *args, **kwargs):
+        boutique = self.get_object()
+        user = boutique.user
+        boutique.delete()
+        if user:
+            user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BoutiqueLoginView(APIView):
+    """Login for boutique users — returns JWT + boutique info."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username', '')
+        password = request.data.get('password', '')
+        user = authenticate(username=username, password=password)
+        if not user:
+            return Response({'detail': 'Identifiants incorrects.'}, status=status.HTTP_401_UNAUTHORIZED)
+        if not user.groups.filter(name='boutique').exists():
+            return Response({'detail': 'Accès non autorisé.'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            boutique = user.boutique_profile
+        except Boutique.DoesNotExist:
+            return Response({'detail': 'Boutique non trouvée.'}, status=status.HTTP_404_NOT_FOUND)
+
+        token = RefreshToken.for_user(user)
+        return Response({
+            'access': str(token.access_token),
+            'refresh': str(token),
+            'boutique': BoutiqueSerializer(boutique).data,
+            'user': {'id': user.id, 'username': user.username, 'first_name': user.first_name},
+        })
+
+
+class BoutiqueOrderViewSet(viewsets.ReadOnlyModelViewSet):
+    """Boutique sees only orders assigned to them. Can confirm or cancel."""
+    serializer_class = BoutiqueOrderSerializer
+    permission_classes = [IsBoutiqueUser]
+
+    def get_queryset(self):
+        try:
+            boutique = self.request.user.boutique_profile
+            return Order.objects.filter(boutique=boutique, is_deleted=False).select_related('boutique').prefetch_related('items__product', 'items__variant').order_by('-created_at')
+        except Boutique.DoesNotExist:
+            return Order.objects.none()
+
+    @action(detail=True, methods=['post'])
+    def confirm(self, request, pk=None):
+        order = self.get_object()
+        order.boutique_status = 'collected'
+        order.status = 'fulfilled'
+        order.save(update_fields=['boutique_status', 'status'])
+        return Response({'detail': 'Commande confirmée — retrait effectué.'})
+
+    @action(detail=True, methods=['post'])
+    def cancel(self, request, pk=None):
+        order = self.get_object()
+        order.boutique_status = 'cancelled'
+        order.status = 'cancelled'
+        order.save(update_fields=['boutique_status', 'status'])
+        return Response({'detail': 'Commande annulée par la boutique.'})
+
+    @action(detail=True, methods=['post'])
+    def mark_ready(self, request, pk=None):
+        order = self.get_object()
+        order.boutique_status = 'ready'
+        order.save(update_fields=['boutique_status'])
+        return Response({'detail': 'Commande marquée prête à retirer.'})
+
+
+def _send_boutique_transfer_email(order, boutique):
+    """Send email to client notifying them their order is available at the boutique."""
+    try:
+        email = None
+        if order.user and order.user.email:
+            email = order.user.email
+        elif order.guest_email:
+            email = order.guest_email
+        if not email:
+            return
+
+        client_name = order.guest_name or (order.user.get_full_name() if order.user else 'Client')
+        subject = f"🏪 Votre commande #{order.id} est disponible en boutique — Piové"
+        text_body = (
+            f"Bonjour {client_name},\n\n"
+            f"Bonne nouvelle ! Votre commande #{order.id} est maintenant disponible pour retrait à la boutique suivante :\n\n"
+            f"📍 {boutique.name}\n"
+            f"📌 Adresse : {boutique.address or 'Voir coordonnées'}\n"
+            f"📞 Téléphone : {boutique.phone or 'N/A'}\n\n"
+            f"Merci d'apporter une pièce d'identité lors du retrait.\n\n"
+            f"L'équipe Piové Cosmetics"
+        )
+        html_body = f"""
+        <div style="font-family:sans-serif;max-width:560px;margin:auto;padding:24px;background:#fff;border-radius:12px;border:1px solid #f0f0f0">
+          <img src="https://piovecosmetics.dz/logo.png" alt="Piové" style="height:40px;margin-bottom:20px"/>
+          <h2 style="color:#be123c;margin:0 0 12px">Votre commande est disponible ! 🎉</h2>
+          <p>Bonjour <strong>{client_name}</strong>,</p>
+          <p>Votre commande <strong>#{order.id}</strong> est prête pour retrait en boutique :</p>
+          <div style="background:#fdf2f8;border-left:4px solid #be123c;padding:16px;border-radius:8px;margin:16px 0">
+            <p style="margin:0 0 6px"><strong>🏪 {boutique.name}</strong></p>
+            <p style="margin:0 0 6px;color:#475569">📌 {boutique.address or 'Voir coordonnées'}</p>
+            <p style="margin:0;color:#475569">📞 {boutique.phone or 'N/A'}</p>
+          </div>
+          <p style="color:#64748b;font-size:0.9rem">Merci d'apporter une pièce d'identité lors du retrait.</p>
+          <hr style="border:none;border-top:1px solid #f1f5f9;margin:20px 0"/>
+          <p style="color:#94a3b8;font-size:0.8rem;text-align:center">Piové Cosmetics — piovecosmetics.dz</p>
+        </div>
+        """
+        msg = EmailMultiAlternatives(subject, text_body, settings.DEFAULT_FROM_EMAIL, [email])
+        msg.attach_alternative(html_body, "text/html")
+        threading.Thread(target=msg.send, kwargs={'fail_silently': True}).start()
+    except Exception:
+        pass
 

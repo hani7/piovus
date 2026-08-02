@@ -4,7 +4,7 @@ from django.conf import settings
 from .models import (
     Category, Product, ProductImage, ProductVariant,
     Banner, Order, OrderItem, Review, UserProfile,
-    DeliveryCompany, DeliveryRate, Customer, OrderStatusHistory, Coupon
+    DeliveryCompany, DeliveryRate, Customer, OrderStatusHistory, Coupon, Boutique
 )
 
 
@@ -429,6 +429,7 @@ class AdminOrderSerializer(serializers.ModelSerializer):
     is_blacklisted = serializers.SerializerMethodField()
     source = serializers.SerializerMethodField()
     deleted_by_name = serializers.SerializerMethodField()
+    boutique_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -439,9 +440,10 @@ class AdminOrderSerializer(serializers.ModelSerializer):
             'status', 'status_display', 'payment_status', 'payment_method', 'total', 'notes', 'source',
             'items', 'history', 'created_at', 'updated_at', 'is_blacklisted', 'customer',
             'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status',
-            'is_deleted', 'deleted_at', 'deleted_by_name'
+            'is_deleted', 'deleted_at', 'deleted_by_name',
+            'boutique', 'boutique_status', 'boutique_transferred_at', 'boutique_name',
         ]
-        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted', 'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status', 'is_deleted', 'deleted_at', 'deleted_by_name']
+        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted', 'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status', 'is_deleted', 'deleted_at', 'deleted_by_name', 'boutique_name', 'boutique_transferred_at']
 
     def get_customer_name(self, obj):
         if obj.user:
@@ -459,9 +461,39 @@ class AdminOrderSerializer(serializers.ModelSerializer):
         return None
 
     def get_source(self, obj):
-        # Safe fallback in case column doesn't exist on production DB yet
         return getattr(obj, 'source', '') or ''
 
+    def get_boutique_name(self, obj):
+        return obj.boutique.name if obj.boutique else None
+
+
+# ─── Boutique Serializers ────────────────────────────────────────────────────────────────
+class BoutiqueSerializer(serializers.ModelSerializer):
+    """Used by admin CRUD and transfer modal."""
+    username = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Boutique
+        fields = ['id', 'name', 'address', 'wilaya', 'phone', 'is_active', 'username', 'created_at']
+        read_only_fields = ['created_at', 'username']
+
+    def get_username(self, obj):
+        return obj.user.username if obj.user else None
+
+
+class BoutiqueOrderSerializer(serializers.ModelSerializer):
+    """Minimal order view for boutique users."""
+    items = OrderItemSerializer(many=True, read_only=True)
+    boutique_status_display = serializers.CharField(source='get_boutique_status_display', read_only=True)
+
+    class Meta:
+        model = Order
+        fields = [
+            'id', 'guest_name', 'guest_phone', 'wilaya', 'city', 'shipping_address',
+            'total', 'payment_method', 'status', 'boutique_status', 'boutique_status_display',
+            'boutique_transferred_at', 'items', 'notes', 'created_at',
+        ]
+        read_only_fields = ['__all__']
 
 class AdminOrderStatusSerializer(serializers.ModelSerializer):
     class Meta:

@@ -171,6 +171,24 @@ class ProductVariant(models.Model):
         return f"{self.product.name} — {self.name}"
 
 
+# ─── Boutique ────────────────────────────────────────────────────────────────
+class Boutique(models.Model):
+    name      = models.CharField(max_length=200)
+    address   = models.TextField(blank=True)
+    wilaya    = models.CharField(max_length=100, blank=True)
+    phone     = models.CharField(max_length=20, blank=True)
+    user      = models.OneToOneField(User, on_delete=models.CASCADE, related_name='boutique_profile', null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class Banner(models.Model):
     PLACEMENT_CHOICES = [
         ('hero', 'Hero Slider (Accueil)'),
@@ -312,6 +330,13 @@ class Order(models.Model):
         ('fulfilled', 'Fulfilled'),
         ('cancelled', 'Annulee'),
         ('returned', 'Retournee'),
+        ('boutique', 'En boutique'),
+    ]
+    BOUTIQUE_STATUS_CHOICES = [
+        ('pending',   'En attente de retrait'),
+        ('ready',     'Prête à retirer'),
+        ('collected', 'Récupérée'),
+        ('cancelled', 'Annulée'),
     ]
 
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
@@ -338,6 +363,11 @@ class Order(models.Model):
     mylerz_barcode = models.CharField(max_length=100, blank=True, verbose_name='Code-barres Mylerz')
     mylerz_pickup_code = models.CharField(max_length=100, blank=True, verbose_name='Code de collecte Mylerz')
     mylerz_status = models.CharField(max_length=200, blank=True, verbose_name='Statut Mylerz')
+
+    # Boutique pickup integration
+    boutique = models.ForeignKey('Boutique', null=True, blank=True, on_delete=models.SET_NULL, related_name='orders', verbose_name='Boutique')
+    boutique_status = models.CharField(max_length=20, choices=BOUTIQUE_STATUS_CHOICES, blank=True, default='', verbose_name='Statut Boutique')
+    boutique_transferred_at = models.DateTimeField(null=True, blank=True, verbose_name='Transférée en boutique le')
     payment_method = models.CharField(max_length=20, choices=[('cash', 'Paiement à la livraison'), ('cib', 'CIB ou Edahabia')], default='cash')
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     

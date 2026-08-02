@@ -57,6 +57,13 @@ const AdminUserHistory = lazy(() => import('./pages/admin/AdminUserHistory'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
 const AdminMediatheque = lazy(() => import('./pages/admin/AdminMediatheque'))
 const AdminProfile = lazy(() => import('./pages/admin/AdminProfile'))
+const AdminBoutiques = lazy(() => import('./pages/admin/AdminBoutiques'))
+
+// Boutique
+const BoutiqueLogin = lazy(() => import('./pages/boutique/BoutiqueLogin'))
+const BoutiqueLayout = lazy(() => import('./pages/boutique/BoutiqueLayout'))
+const BoutiqueDashboard = lazy(() => import('./pages/boutique/BoutiqueDashboard'))
+const BoutiqueOrders = lazy(() => import('./pages/boutique/BoutiqueOrders'))
 
 // Redirect /category/:slug → /:slug (backwards compatibility)
 function CategoryRedirect() {
@@ -74,7 +81,7 @@ function ScrollToTop() {
 
 export default function App() {
   const { pathname } = useLocation()
-  const isAdmin = pathname.startsWith('/piove-secure-2026')
+  const isAdmin = pathname.startsWith('/piove-secure-2026') || pathname.startsWith('/boutique')
   const user = useAuthStore(s => s.user)
   const isB2B = user?.profile?.is_b2b
   
@@ -223,6 +230,13 @@ export default function App() {
           <Route path="/conditions" element={<TermsPage />} />
 <Route path="/suivi" element={<TrackPage />} />
 
+          {/* Boutique */}
+          <Route path="/boutique/login" element={<BoutiqueLogin />} />
+          <Route path="/boutique" element={<BoutiqueLayout />}>
+            <Route index element={<BoutiqueDashboard />} />
+            <Route path="orders" element={<BoutiqueOrders />} />
+          </Route>
+
           {/* Admin */}
           <Route path="/piove-secure-2026/login" element={<AdminLogin />} />
           <Route path="/piove-secure-2026" element={<AdminLayout />}>
@@ -249,6 +263,7 @@ export default function App() {
             <Route path="mediatheque" element={<AdminMediatheque />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="profile" element={<AdminProfile />} />
+            <Route path="boutiques" element={<AdminBoutiques />} />
           </Route>
         </Routes>
       </Suspense>

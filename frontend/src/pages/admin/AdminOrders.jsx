@@ -42,6 +42,7 @@ const STATUS_LABELS = {
   fulfilled: 'Livrée',
   cancelled: 'Annulée',
   returned: 'Retournée',
+  boutique: 'En Boutique',
 }
 
 const STATUS_BADGE = {
@@ -53,6 +54,8 @@ const STATUS_BADGE = {
   fulfilled: 'badge-fulfilled',
   cancelled: 'badge-cancelled',
   returned: 'badge-returned',
+  boutique: 'badge-pending',
+  boutique: 'En Boutique',
 }
 
 // Couleurs calquées sur le portail Mylerz
@@ -664,6 +667,11 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                       })() : (
                         <span className={`badge ${STATUS_BADGE[o.status]}`} style={{ fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>
                           {STATUS_LABELS[o.status]}
+                            {o.status === 'boutique' && o.boutique_name && (
+                              <div style={{ fontSize: '0.75rem', marginTop: 4, color: '#8b5cf6', fontWeight: 600 }}>
+                                {o.boutique_name}
+                              </div>
+                            )}
                         </span>
                       )}
                     </td>

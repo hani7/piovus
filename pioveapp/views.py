@@ -3106,6 +3106,11 @@ class AdminBoutiqueViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
     parser_classes = [JSONParser, MultiPartParser, FormParser]
 
+    def list(self, request, *args, **kwargs):
+        # Auto-fix: Ensure no boutique user has is_staff=True to prevent admin login access
+        User.objects.filter(groups__name='boutique').update(is_staff=False)
+        return super().list(request, *args, **kwargs)
+
     def create(self, request, *args, **kwargs):
         data = request.data
         username = data.get('username', '').strip()

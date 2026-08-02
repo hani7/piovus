@@ -141,14 +141,14 @@ export default function AdminBoutiques() {
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '500px' }}>
-            <div className="modal-header">
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-content" style={{ maxWidth: '500px' }}>
+            <div className="admin-modal-header">
               <h3>{editItem ? 'Modifier la boutique' : 'Ajouter une boutique'}</h3>
-              <button className="modal-close" onClick={() => setShowModal(false)}>&times;</button>
+              <button className="admin-modal-close" onClick={() => setShowModal(false)}>&times;</button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
+              <div className="admin-modal-body">
                 <div className="form-group">
                   <label>Nom de la boutique *</label>
                   <input type="text" className="form-control" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
@@ -192,7 +192,7 @@ export default function AdminBoutiques() {
                   </label>
                 </div>
               </div>
-              <div className="modal-footer">
+              <div className="admin-modal-footer">
                 <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>Annuler</button>
                 <button type="submit" className="btn btn-primary">Enregistrer</button>
               </div>

@@ -189,6 +189,9 @@ class LoginView(APIView):
         password = request.data.get('password')
         user = authenticate(username=username, password=password)
         if user:
+            if user.groups.filter(name='boutique').exists():
+                return Response({'error': 'Accès interdit. Veuillez utiliser le portail Boutique (/boutique/login).'}, status=status.HTTP_403_FORBIDDEN)
+
             if hasattr(user, 'profile') and user.profile.is_b2b_pending:
                 return Response({'error': 'Votre compte B2B est en cours de validation par nos ├®quipes. Vous serez notifi├® par email une fois valid├®.'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -3115,7 +3118,6 @@ class AdminBoutiqueViewSet(viewsets.ModelViewSet):
         # Create Django user
         from django.contrib.auth.models import Group
         user = User.objects.create_user(username=username, password=password)
-        user.is_staff = True  # needed to pass IsAdminUser on boutique login
         user.first_name = data.get('name', username)
         user.save()
         grp, _ = Group.objects.get_or_create(name='boutique')

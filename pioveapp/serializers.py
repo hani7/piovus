@@ -407,15 +407,20 @@ class AdminProductSerializer(serializers.ModelSerializer):
 
 
 class AdminBannerSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
-
-    def get_image(self, obj):
-        return self._abs(obj.image.url if obj.image else None)
+    # NOTE: do NOT declare image as SerializerMethodField here — that makes it read-only
+    # and uploaded images would be silently ignored. We override to_representation instead.
 
     class Meta:
         model = Banner
         fields = ['id', 'title', 'subtitle', 'image', 'cta_label', 'cta_url', 'promo_code', 'placement', 'category', 'is_active', 'order', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        # Return absolute URL for image (read path) while keeping field writable for uploads
+        rep['image'] = self._abs(instance.image.url if instance.image else None)
+        return rep
+
 class AdminOrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     history = OrderStatusHistorySerializer(many=True, read_only=True)

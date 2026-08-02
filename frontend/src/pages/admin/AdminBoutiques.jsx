@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Plus, Edit, Trash2, MapPin, Phone, User, Activity } from 'lucide-react'
 import adminClient from '../../api/adminClient'
+import wilayasData from '../../../public/wilayas.json'
 
 export default function AdminBoutiques() {
   const [boutiques, setBoutiques] = useState([])
@@ -88,8 +89,8 @@ export default function AdminBoutiques() {
 
   return (
     <div className="admin-page">
-      <div className="admin-header">
-        <h1>Gestion des Boutiques</h1>
+      <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 style={{ margin: 0 }}>Gestion des Boutiques</h1>
         <button className="btn btn-primary" onClick={() => handleOpenModal()}>
           <Plus size={18} /> Ajouter une boutique
         </button>
@@ -154,7 +155,12 @@ export default function AdminBoutiques() {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Wilaya</label>
-                    <input type="text" className="form-control" value={formData.wilaya} onChange={e => setFormData({...formData, wilaya: e.target.value})} />
+                    <input list="wilayas-list" className="form-control" placeholder="Rechercher une wilaya..." value={formData.wilaya} onChange={e => setFormData({...formData, wilaya: e.target.value})} />
+                    <datalist id="wilayas-list">
+                      {wilayasData.map(w => (
+                        <option key={w.code} value={`${w.code} - ${w.name}`} />
+                      ))}
+                    </datalist>
                   </div>
                   <div className="form-group">
                     <label>Téléphone</label>

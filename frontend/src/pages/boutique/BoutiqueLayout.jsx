@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useNavigate, Outlet, Navigate, Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, LogOut, Menu, Maximize2, Minimize2, Sun, Moon, Store } from 'lucide-react'
+import { ShoppingCart, LogOut, Menu, Maximize2, Minimize2, Sun, Moon, Store } from 'lucide-react'
 import '../admin/admin.css' // Reuse the exact same admin CSS
 
 export default function BoutiqueLayout() {
@@ -99,8 +99,8 @@ export default function BoutiqueLayout() {
               end
               className={({ isActive }) => isActive ? 'active' : ''}
             >
-              <LayoutDashboard size={20} />
-              <span style={{ flex: 1 }}>Tableau de bord</span>
+              <ShoppingCart size={20} />
+              <span style={{ flex: 1 }}>Commandes</span>
             </NavLink>
           </div>
         </nav>

@@ -85,7 +85,7 @@ export default function BoutiqueOrders() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24, color: '#1e293b' }}>Tableau de bord</h1>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24, color: '#1e293b' }}>Gestion des commandes</h1>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
         <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 16 }}>

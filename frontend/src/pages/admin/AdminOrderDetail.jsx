@@ -162,8 +162,9 @@ export default function AdminOrderDetail() {
   const fetchBoutiques = async () => {
     try {
       const res = await adminClient.get('/admin/boutiques/')
-      if (Array.isArray(res.data)) {
-        setBoutiquesList(res.data.filter(b => b.is_active))
+      const data = res.data.results || res.data
+      if (Array.isArray(data)) {
+        setBoutiquesList(data.filter(b => b.is_active))
       }
     } catch (e) { console.error(e) }
   }

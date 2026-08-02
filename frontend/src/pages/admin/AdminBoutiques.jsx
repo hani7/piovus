@@ -26,8 +26,9 @@ export default function AdminBoutiques() {
   const fetchBoutiques = async () => {
     try {
       const res = await adminClient.get('/admin/boutiques/')
-      if (Array.isArray(res.data)) {
-        setBoutiques(res.data)
+      const data = res.data.results || res.data
+      if (Array.isArray(data)) {
+        setBoutiques(data)
       } else {
         setBoutiques([])
       }

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piové Cosmetics - Release Notes v1.3 & v1.4</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .header {
+            background-color: #050505;
+            color: #ffffff;
+            padding: 50px 40px;
+            text-align: center;
+            border-bottom: 5px solid #cc0000;
+            position: relative;
+        }
+        .logo-container {
+            margin-bottom: 25px;
+        }
+        .logo-container img {
+            height: 65px;
+            filter: brightness(0) invert(1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .header p {
+            margin: 15px 0 0;
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .content {
+            padding: 50px;
+        }
+        .intro {
+            font-size: 16px;
+            color: #334155;
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 5px solid #0f172a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .section-title span {
+            background: #cc0000;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-right: 15px;
+            box-shadow: 0 4px 6px rgba(204, 0, 0, 0.2);
+        }
+        
+        .grid-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-features {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .feature-box {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            transition: transform 0.2s;
+        }
+        .feature-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+            border-color: #cbd5e1;
+        }
+        .feature-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        .feature-title::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 24px;
+            background-color: #cc0000;
+            margin-right: 12px;
+            border-radius: 4px;
+        }
+        .feature-desc {
+            font-size: 15px;
+            color: #475569;
+            margin: 0;
+            line-height: 1.7;
+        }
+        
+        /* Workflow block */
+        .workflow {
+            background: linear-gradient(145deg, #ffffff, #fdf2f8);
+            border: 1px solid #fbcfe8;
+            padding: 35px;
+            border-radius: 12px;
+            margin: 40px 0;
+            box-shadow: 0 10px 20px rgba(190, 18, 60, 0.05);
+        }
+        .workflow h4 {
+            margin: 0 0 30px 0;
+            color: #9f1239;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            font-weight: 800;
+        }
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+        }
+        .workflow-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .workflow-step-icon {
+            width: 50px;
+            height: 50px;
+            background: #be123c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(190, 18, 60, 0.3);
+            border: 4px solid #fff;
+        }
+        .workflow-step-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: #881337;
+            margin-bottom: 5px;
+        }
+        .workflow-step-sub {
+            font-size: 12px;
+            font-weight: 400;
+            color: #4c1d95;
+            display: block;
+            line-height: 1.4;
+            padding: 0 10px;
+        }
+        .workflow-line {
+            position: absolute;
+            top: 25px;
+            left: 15%;
+            right: 15%;
+            height: 3px;
+            background: #f43f5e;
+            z-index: 0;
+            opacity: 0.3;
+        }
+        
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .tech-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #334155;
+            line-height: 1.6;
+        }
+        .tech-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            top: 2px;
+            color: #16a34a;
+            font-size: 18px;
+            font-weight: 800;
+        }
+        
+        .highlight {
+            background: #fef2f2;
+            border-left: 5px solid #cc0000;
+            padding: 25px;
+            margin: 50px 0 0;
+            border-radius: 0 10px 10px 0;
+            font-size: 15.5px;
+            line-height: 1.7;
+        }
+        .footer {
+            background-color: #050505;
+            padding: 35px 40px;
+            text-align: center;
+            font-size: 13px;
+            color: #94a3b8;
+            border-top: 1px solid #1e293b;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; }
+            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .workflow { box-shadow: none; border: 2px solid #fbcfe8; }
+            .feature-box { box-shadow: none; border: 1px solid #cbd5e1; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="https://www.piovecosmetics.com/logo.png" alt="PIOVÉ COSMETICS" onerror="this.outerHTML='<h2 style=\'margin:0;font-size:42px;letter-spacing:4px;\'>PIOVÉ <span style=\'font-weight:300\'>COSMETICS</span></h2>'">
+            </div>
+            <h1>Rapport d'Ingénierie & Déploiement</h1>
+            <p>Mises à jour Majeures v1.3 & v1.4</p>
+        </div>
+
+        <div class="content">
+            <div class="intro">
+                <h3 style="margin-top:0; color:#0f172a; font-size: 20px;">Résumé Exécutif</h3>
+                <p style="margin-bottom:0;">Nous avons le plaisir de vous livrer le déploiement technique des versions <strong>v1.3</strong> et <strong>v1.4</strong> de l'infrastructure e-commerce Piové Cosmetics. Ces deux itérations massives marquent l'achèvement du <strong>Système de Logistique Omnicanal (Retrait en Magasin)</strong>. Nous avons entièrement restructuré l'architecture de la base de données, sécurisé les endpoints API, et déployé des interfaces Front-End de pointe pour garantir une gestion des ventes physiques aussi robuste que la gestion en ligne.</p>
+            </div>
+
+            <!-- SECTION 1 -->
+            <div class="section-title">
+                <span>v1.3</span> Espace "Boutiques" & Interfaces Partenaires
+            </div>
+            
+            <div class="grid-features">
+                <div class="feature-box">
+                    <div class="feature-title">Panneau d'Administration Centralisé</div>
+                    <p class="feature-desc">Création d'un module <i>CRUD (Create, Read, Update, Delete)</i> complet dans l'interface administrateur. Vous pouvez gérer votre réseau de boutiques, attribuer des responsables, définir les adresses exactes et utiliser un moteur de recherche intelligent indexant les 58 Wilayas algériennes pour un routage logistique précis.</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-title">Portail Partenaire "Premium" Isolé</div>
+                    <p class="feature-desc">Développement from-scratch d'un environnement (<em>/boutique/login</em>) strictement dédié aux gérants de magasins physiques. L'interface hérite du "Design System" de l'administration centrale (Mode Sombre, animations fluides, architecture responsive) pour maintenir une image de marque luxueuse et cohérente.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 2 -->
+            <div class="section-title">
+                <span>v1.4</span> Flux Logistique & Assignation des Commandes
+            </div>
+
+            <div class="grid-features">
+                <div class="feature-box">
+                    <div class="feature-title">Moteur d'Assignation Dynamique</div>
+                    <p class="feature-desc">Intégration d'une modale d'assignation en un clic. Depuis n'importe quelle commande sur le panel Admin, vos opérateurs peuvent désormais transférer la responsabilité de préparation et de livraison à une boutique spécifique. La base de données est mise à jour instantanément.</p>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-title">Tableau de Bord Analytique Boutiques</div>
+                    <p class="feature-desc">Dès leur connexion, les gérants bénéficient de compteurs statistiques calculés en temps réel : volume de commandes assignées, commandes en attente de préparation et taux de commandes récupérées (terminées).</p>
+                </div>
+            </div>
+
+            <!-- WORKFLOW -->
+            <div class="workflow">
+                <h4>Nouvelle Topologie du Parcours Client (Click & Collect)</h4>
+                <div class="workflow-steps">
+                    <div class="workflow-line"></div>
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">1</div>
+                        <div class="workflow-step-text">Assignation</div>
+                        <span class="workflow-step-sub">L'administrateur Piové affecte la commande à un point de vente.</span>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">2</div>
+                        <div class="workflow-step-text">Préparation</div>
+                        <span class="workflow-step-sub">La boutique valide la disponibilité et marque la commande "Prête".</span>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="workflow-step-icon">3</div>
+                        <div class="workflow-step-text">Clôture</div>
+                        <span class="workflow-step-sub">Le client récupère ses articles, le statut passe à "Terminée".</span>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="highlight">
+                <strong>Recommandations pour le lancement (Go-Live) :</strong> 
+                <br><br>
+                L'infrastructure complète est testée, optimisée et hautement sécurisée. Vous pouvez dès à présent démarrer la formation de vos gérants de magasins.
+                <br>• Fournissez-leur le lien sécurisé : <strong>/boutique/login</strong>
+                <br>• Leurs identifiants créés depuis votre administration centrale sont immédiatement opérationnels.
+            </div>
+        </div>
+
+        <div class="footer">
+            Généré le 2 Août 2026 • Document d'Ingénierie Confidentiel • Département Technique Piové Cosmetics
+        </div>
+    </div>
+
+</body>
+</html>

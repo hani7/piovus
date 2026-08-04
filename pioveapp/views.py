@@ -2342,12 +2342,26 @@ class AdminReportView(APIView):
         group_by = request.query_params.get('group_by', 'day') # day, week, month
         status_filter = request.query_params.get('status')
 
-        qs = Order.objects.all()
-        if status_filter:
-            qs = qs.filter(status=status_filter)
-        else:
-            qs = qs.exclude(status='cancelled')
+        # REVENUE_Q : même logique que le tableau de bord
+        # Cash → uniquement fulfilled (livré + payé en main propre)
+        # CIB  → uniquement payment_status='paid' (callback SATIM confirmé)
+        from django.db.models import Q as DQ
+        REVENUE_Q = (
+            DQ(payment_method='cash', status='fulfilled', is_deleted=False) |
+            DQ(payment_method='cib', payment_status='paid', is_deleted=False)
+        )
 
+        # qs_all : toutes commandes non supprimées (pour la table de commandes)
+        qs_all = Order.objects.filter(is_deleted=False)
+        if status_filter:
+            qs_all = qs_all.filter(status=status_filter)
+        if start_date:
+            qs_all = qs_all.filter(created_at__date__gte=start_date)
+        if end_date:
+            qs_all = qs_all.filter(created_at__date__lte=end_date)
+
+        # qs : uniquement les commandes réellement payées (CA réel)
+        qs = Order.objects.filter(REVENUE_Q)
         if start_date:
             qs = qs.filter(created_at__date__gte=start_date)
         if end_date:
@@ -2411,11 +2425,12 @@ class AdminReportView(APIView):
 
         from django.db.models import Count, Sum, Q
 
+        # Pour le chart : revenue = CA réel (qs filtré), décomptes par statut = toutes commandes (qs_all)
         aggregated = (
-            qs.annotate(period=trunc)
+            qs_all.annotate(period=trunc)
             .values('period')
             .annotate(
-                revenue=Sum('total'), 
+                revenue=Sum('total', filter=REVENUE_Q),
                 orders_count=Count('id'),
                 pending=Count('id', filter=Q(status='pending')),
                 confirmed=Count('id', filter=Q(status='confirmed')),
@@ -2443,8 +2458,8 @@ class AdminReportView(APIView):
                 })
 
         orders_data = []
-        for o in qs.order_by('-created_at')[:200]: # limit to 200 for table performance
-            customer = o.user.get_full_name() or o.user.username if o.user else (o.guest_name or 'Invit├®')
+        for o in qs_all.order_by('-created_at')[:200]: # limit to 200 for table performance
+            customer = o.user.get_full_name() or o.user.username if o.user else (o.guest_name or 'Invité')
             orders_data.append({
                 'id': o.id,
                 'date': o.created_at.strftime('%Y-%m-%d %H:%M'),
@@ -2465,10 +2480,10 @@ class AdminReportView(APIView):
         from django.db.models import Count, Sum, Q
         from django.db.models.functions import ExtractMonth
 
-        annual_qs = Order.objects.filter(created_at__year=annual_year)
+        annual_qs = Order.objects.filter(created_at__year=annual_year, is_deleted=False)
         annual_stats = annual_qs.annotate(month=ExtractMonth('created_at')).values('month').annotate(
             total_orders=Count('id'),
-            total_revenue=Sum('total'),
+            total_revenue=Sum('total', filter=REVENUE_Q & Q(created_at__year=annual_year)),
             pending=Count('id', filter=Q(status='pending')),
             confirmed=Count('id', filter=Q(status='confirmed')),
             shipped=Count('id', filter=Q(status='shipped')),

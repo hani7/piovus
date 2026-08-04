@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { X, Edit, Trash2 } from 'lucide-react'
+import { X, Edit, Trash2, LayoutList, LayoutGrid } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 
 const EMPTY_FORM = {
@@ -63,6 +63,12 @@ export default function AdminProducts() {
   const [modifiedProducts, setModifiedProducts] = useState({})
   const [draggedIndex, setDraggedIndex] = useState(null)
   const [dragOverIndex, setDragOverIndex] = useState(null)
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('admin_products_view') || 'list')
+
+  const toggleView = (mode) => {
+    setViewMode(mode)
+    localStorage.setItem('admin_products_view', mode)
+  }
 
   const fileRef = useRef()
   const variantFileRef = useRef()
@@ -350,6 +356,38 @@ export default function AdminProducts() {
                 {saving ? 'Sauvegarde...' : 'Sauvegarder tout'}
               </button>
             )}
+
+            {/* View mode toggle */}
+            <div style={{ display: 'flex', gap: 4, marginLeft: 8, background: 'var(--admin-surface2)', borderRadius: 8, padding: '3px' }}>
+              <button
+                onClick={() => toggleView('list')}
+                title="Vue liste"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 32, height: 32, borderRadius: 6, border: 'none', cursor: 'pointer',
+                  background: viewMode === 'list' ? 'var(--admin-surface)' : 'transparent',
+                  color: viewMode === 'list' ? 'var(--color-primary)' : 'var(--admin-text-muted)',
+                  boxShadow: viewMode === 'list' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <LayoutList size={16} />
+              </button>
+              <button
+                onClick={() => toggleView('grid')}
+                title="Vue grille"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 32, height: 32, borderRadius: 6, border: 'none', cursor: 'pointer',
+                  background: viewMode === 'grid' ? 'var(--admin-surface)' : 'transparent',
+                  color: viewMode === 'grid' ? 'var(--color-primary)' : 'var(--admin-text-muted)',
+                  boxShadow: viewMode === 'grid' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <LayoutGrid size={16} />
+              </button>
+            </div>
           </div>
           <button className="btn-primary" onClick={openAdd} id="add-product-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
@@ -363,70 +401,191 @@ export default function AdminProducts() {
           <div className="admin-loading"><div className="spin" /><span>Chargement...</span></div>
         ) : (
           <>
-            <div className="admin-table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Image</th><th>Nom</th><th>Catégorie</th><th>Contenance</th><th>Prix</th><th>Stock</th><th>Statut</th><th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginated.map(p => (
-                    <tr key={p.id}>
-                      <td>
-                        {p.thumbnail
-                          ? <img src={p.thumbnail} alt={p.name} />
-                          : <div style={{ width: 44, height: 44, borderRadius: 8, background: 'var(--admin-surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20" style={{ color: 'var(--admin-text-muted)' }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                            </div>
-                        }
-                      </td>
-                      <td style={{ fontWeight: 500 }}>{p.name}</td>
-                      <td style={{ color: 'var(--admin-text-muted)' }}>{p.categories?.map(c => c.name).join(', ') || '—'}</td>
-                      <td style={{ color: 'var(--admin-text-muted)', whiteSpace: 'nowrap' }}>
-                        {p.contenance ? `${p.contenance} ${p.contenance_unit || ''}` : '—'}
-                      </td>
-                      <td>
-                        {spreadsheetMode ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <input type="number" className={`spreadsheet-input ${modifiedProducts[p.id]?.price !== undefined ? 'changed' : ''}`} value={modifiedProducts[p.id]?.price ?? p.price} onChange={e => handleInlineChange(p.id, 'price', e.target.value)} placeholder="Prix" />
-                            {p.is_promo && <input type="number" className={`spreadsheet-input ${modifiedProducts[p.id]?.promo_price !== undefined ? 'changed' : ''}`} value={modifiedProducts[p.id]?.promo_price ?? (p.promo_price || '')} onChange={e => handleInlineChange(p.id, 'promo_price', e.target.value)} placeholder="Promo" />}
-                          </div>
-                        ) : (
-                          <>
-                            <div style={{ fontWeight: 600 }}>{Number(p.price).toLocaleString('fr-DZ')} DA</div>
-                            {p.is_promo && <div style={{ fontSize: '0.75rem', color: 'var(--admin-rose)' }}>{Number(p.promo_price).toLocaleString('fr-DZ')} DA promo</div>}
-                          </>
-                        )}
-                      </td>
-                      <td>
-                        {spreadsheetMode ? (
-                          <input type="number" className={`spreadsheet-input ${modifiedProducts[p.id]?.stock !== undefined ? 'changed' : ''}`} value={modifiedProducts[p.id]?.stock ?? p.stock} onChange={e => handleInlineChange(p.id, 'stock', e.target.value)} style={{ width: '80px' }} />
-                        ) : (
-                          <span style={{ color: p.stock === 0 ? 'var(--admin-danger)' : p.stock <= p.min_stock_alert ? 'var(--admin-warning)' : 'var(--admin-success)', fontWeight: 600 }}>
-                            {p.stock}
-                          </span>
-                        )}
-                      </td>
-                      <td><span className={`badge ${p.is_active ? 'badge-active' : 'badge-inactive'}`}>{p.is_active ? 'Actif' : 'Inactif'}</span></td>
-                      <td>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button className="btn-action-icon" onClick={() => openEdit(p)} title="Modifier">
-                            <Edit size={16} />
-                          </button>
-                          <button className="btn-action-icon" onClick={() => handleDelete(p.id)} title="Supprimer">
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
+            {/* ── LIST VIEW ── */}
+            {viewMode === 'list' && (
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Image</th><th>Nom</th><th>Catégorie</th><th>Contenance</th><th>Prix</th><th>Stock</th><th>Statut</th><th>Actions</th>
                     </tr>
-                  ))}
-                  {paginated.length === 0 && (
-                    <tr><td colSpan={8}><div className="admin-empty"><p>Aucun produit trouvé.</p></div></td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {paginated.map(p => (
+                      <tr key={p.id}>
+                        <td>
+                          {p.thumbnail
+                            ? <img src={p.thumbnail} alt={p.name} />
+                            : <div style={{ width: 44, height: 44, borderRadius: 8, background: 'var(--admin-surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20" style={{ color: 'var(--admin-text-muted)' }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                              </div>
+                          }
+                        </td>
+                        <td style={{ fontWeight: 500 }}>{p.name}</td>
+                        <td style={{ color: 'var(--admin-text-muted)' }}>{p.categories?.map(c => c.name).join(', ') || '—'}</td>
+                        <td style={{ color: 'var(--admin-text-muted)', whiteSpace: 'nowrap' }}>
+                          {p.contenance ? `${p.contenance} ${p.contenance_unit || ''}` : '—'}
+                        </td>
+                        <td>
+                          {spreadsheetMode ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <input type="number" className={`spreadsheet-input ${modifiedProducts[p.id]?.price !== undefined ? 'changed' : ''}`} value={modifiedProducts[p.id]?.price ?? p.price} onChange={e => handleInlineChange(p.id, 'price', e.target.value)} placeholder="Prix" />
+                              {p.is_promo && <input type="number" className={`spreadsheet-input ${modifiedProducts[p.id]?.promo_price !== undefined ? 'changed' : ''}`} value={modifiedProducts[p.id]?.promo_price ?? (p.promo_price || '')} onChange={e => handleInlineChange(p.id, 'promo_price', e.target.value)} placeholder="Promo" />}
+                            </div>
+                          ) : (
+                            <>
+                              <div style={{ fontWeight: 600 }}>{Number(p.price).toLocaleString('fr-DZ')} DA</div>
+                              {p.is_promo && <div style={{ fontSize: '0.75rem', color: 'var(--admin-rose)' }}>{Number(p.promo_price).toLocaleString('fr-DZ')} DA promo</div>}
+                            </>
+                          )}
+                        </td>
+                        <td>
+                          {spreadsheetMode ? (
+                            <input type="number" className={`spreadsheet-input ${modifiedProducts[p.id]?.stock !== undefined ? 'changed' : ''}`} value={modifiedProducts[p.id]?.stock ?? p.stock} onChange={e => handleInlineChange(p.id, 'stock', e.target.value)} style={{ width: '80px' }} />
+                          ) : (
+                            <span style={{ color: p.stock === 0 ? 'var(--admin-danger)' : p.stock <= p.min_stock_alert ? 'var(--admin-warning)' : 'var(--admin-success)', fontWeight: 600 }}>
+                              {p.stock}
+                            </span>
+                          )}
+                        </td>
+                        <td><span className={`badge ${p.is_active ? 'badge-active' : 'badge-inactive'}`}>{p.is_active ? 'Actif' : 'Inactif'}</span></td>
+                        <td>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button className="btn-action-icon" onClick={() => openEdit(p)} title="Modifier">
+                              <Edit size={16} />
+                            </button>
+                            <button className="btn-action-icon" onClick={() => handleDelete(p.id)} title="Supprimer">
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {paginated.length === 0 && (
+                      <tr><td colSpan={8}><div className="admin-empty"><p>Aucun produit trouvé.</p></div></td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* ── GRID VIEW ── */}
+            {viewMode === 'grid' && (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                gap: '16px',
+                padding: '8px 4px'
+              }}>
+                {paginated.length === 0 && (
+                  <div className="admin-empty" style={{ gridColumn: '1/-1' }}><p>Aucun produit trouvé.</p></div>
+                )}
+                {paginated.map(p => (
+                  <div
+                    key={p.id}
+                    style={{
+                      background: 'var(--admin-surface)',
+                      border: '1px solid var(--admin-border)',
+                      borderRadius: 12,
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      transition: 'box-shadow 0.2s, transform 0.2s',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.10)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                    onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none' }}
+                  >
+                    {/* Image */}
+                    <div style={{ width: '100%', aspectRatio: '1', background: 'var(--admin-surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
+                      {p.thumbnail
+                        ? <img src={p.thumbnail} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" width="48" height="48" style={{ color: 'var(--admin-border)' }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      }
+                      {/* Status badge overlay */}
+                      <span
+                        style={{
+                          position: 'absolute', top: 8, right: 8,
+                          fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px',
+                          borderRadius: 20,
+                          background: p.is_active ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+                          color: p.is_active ? '#10b981' : '#ef4444',
+                          border: `1px solid ${p.is_active ? '#10b981' : '#ef4444'}`,
+                          backdropFilter: 'blur(4px)'
+                        }}
+                      >
+                        {p.is_active ? 'Actif' : 'Inactif'}
+                      </span>
+                      {/* Promo badge */}
+                      {p.is_promo && (
+                        <span style={{ position: 'absolute', top: 8, left: 8, fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px', borderRadius: 20, background: '#cc0000', color: '#fff' }}>PROMO</span>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--admin-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {p.name}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>
+                        {p.categories?.map(c => c.name).join(', ') || '—'}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--admin-text)' }}>
+                            {Number(p.is_promo ? p.promo_price : p.price).toLocaleString('fr-DZ')} DA
+                          </div>
+                          {p.is_promo && (
+                            <div style={{ fontSize: '0.72rem', color: 'var(--admin-text-muted)', textDecoration: 'line-through' }}>
+                              {Number(p.price).toLocaleString('fr-DZ')} DA
+                            </div>
+                          )}
+                        </div>
+                        <span style={{
+                          fontSize: '0.75rem', fontWeight: 700,
+                          color: p.stock === 0 ? 'var(--admin-danger)' : p.stock <= p.min_stock_alert ? 'var(--admin-warning)' : 'var(--admin-success)'
+                        }}>
+                          Stock: {p.stock}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{ display: 'flex', borderTop: '1px solid var(--admin-border)' }}>
+                      <button
+                        onClick={() => openEdit(p)}
+                        title="Modifier"
+                        style={{
+                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          gap: 6, padding: '10px', border: 'none', background: 'transparent',
+                          color: 'var(--admin-text-muted)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 500,
+                          borderRight: '1px solid var(--admin-border)', transition: 'background 0.15s, color 0.15s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.07)'; e.currentTarget.style.color = '#3b82f6' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--admin-text-muted)' }}
+                      >
+                        <Edit size={14} /> Modifier
+                      </button>
+                      <button
+                        onClick={() => handleDelete(p.id)}
+                        title="Supprimer"
+                        style={{
+                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          gap: 6, padding: '10px', border: 'none', background: 'transparent',
+                          color: 'var(--admin-text-muted)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 500,
+                          transition: 'background 0.15s, color 0.15s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.07)'; e.currentTarget.style.color = '#ef4444' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--admin-text-muted)' }}
+                      >
+                        <Trash2 size={14} /> Supprimer
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '16px', padding: '0 4px' }}>
               <Pagination page={page} totalPages={totalPages} onPage={setPage} />
             </div>

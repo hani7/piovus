@@ -3137,7 +3137,8 @@ class AdminBoutiqueViewSet(viewsets.ModelViewSet):
 
         # Create Django user
         from django.contrib.auth.models import Group
-        user = User.objects.create_user(username=username, password=password)
+        email = data.get('email', '').strip()
+        user = User.objects.create_user(username=username, password=password, email=email)
         user.first_name = data.get('name', username)
         user.save()
         grp, _ = Group.objects.get_or_create(name='boutique')
@@ -3162,7 +3163,11 @@ class AdminBoutiqueViewSet(viewsets.ModelViewSet):
         new_password = data.get('password', '').strip()
         if new_password:
             boutique.user.set_password(new_password)
-            boutique.user.save()
+            
+        if 'email' in data:
+            boutique.user.email = data.get('email', '').strip()
+            
+        boutique.user.save()
 
         boutique.name = data.get('name', boutique.name)
         boutique.address = data.get('address', boutique.address)

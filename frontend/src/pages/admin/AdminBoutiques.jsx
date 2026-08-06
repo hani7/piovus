@@ -14,6 +14,7 @@ export default function AdminBoutiques() {
     address: '',
     wilaya: '',
     phone: '',
+    email: '',
     username: '',
     password: '',
     is_active: true
@@ -48,6 +49,7 @@ export default function AdminBoutiques() {
         address: b.address,
         wilaya: b.wilaya,
         phone: b.phone,
+        email: b.email || '',
         username: b.username || '',
         password: '', // Leave blank when editing
         is_active: b.is_active
@@ -55,7 +57,7 @@ export default function AdminBoutiques() {
     } else {
       setEditItem(null)
       setFormData({
-        name: '', address: '', wilaya: '', phone: '', username: '', password: '', is_active: true
+        name: '', address: '', wilaya: '', phone: '', email: '', username: '', password: '', is_active: true
       })
     }
     setShowModal(true)
@@ -171,6 +173,11 @@ export default function AdminBoutiques() {
                 <div className="form-group">
                   <label>Adresse détaillée</label>
                   <textarea className="form-control" rows="2" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}></textarea>
+                </div>
+                
+                <div className="form-group">
+                  <label>Email</label>
+                  <input type="email" className="form-control" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                 </div>
                 
                 <h4 className="mt-4 mb-2 text-sm font-semibold uppercase text-muted">Compte de connexion</h4>

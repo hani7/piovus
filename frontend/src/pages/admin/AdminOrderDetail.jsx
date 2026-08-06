@@ -347,11 +347,11 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
              </>
           ) : (
              <>
-               <button className="admin-btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, display: 'flex', alignItems: 'center', border: 'none' }} onClick={handleMylerzShip} disabled={mylerzLoading || detail.status === 'boutique'}>
+               <button className="admin-btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, display: 'flex', alignItems: 'center', border: 'none', backgroundColor: '#3b82f6', color: 'white' }} onClick={handleMylerzShip} disabled={mylerzLoading || detail.status === 'boutique'}>
                  EXPÉDIER
                </button>
                {detail.status !== 'boutique' && (
-                 <button className="admin-btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, backgroundColor: '#8b5cf6', color: 'white', border: 'none', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setShowBoutiqueModal(true)}>
+                 <button className="admin-btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, backgroundColor: '#3b82f6', color: 'white', border: 'none', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setShowBoutiqueModal(true)}>
                    <Store size={14} /> BOUTIQUE
                  </button>
                )}
@@ -1090,6 +1090,34 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
         </div>
       </div>
     )}
+
+    {/* ── BOUTIQUE TRANSFER MODAL ── */}
+    {showBoutiqueModal && (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }} onClick={() => setShowBoutiqueModal(false)} />
+        <div style={{ position: 'relative', background: '#fff', borderRadius: 12, padding: 24, width: 400, maxWidth: '90vw', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginTop: 0, color: '#1e293b' }}>Assigner à une boutique</h3>
+          <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>Veuillez sélectionner la boutique pour transférer cette commande.</p>
+          <select 
+            value={selectedBoutique}
+            onChange={e => setSelectedBoutique(e.target.value)}
+            style={{ width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', marginBottom: 20 }}
+          >
+            <option value="">-- Choisir une boutique --</option>
+            {boutiquesList.map(b => (
+              <option key={b.id} value={b.id}>{b.name} ({b.wilaya})</option>
+            ))}
+          </select>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+            <button onClick={() => setShowBoutiqueModal(false)} style={{ padding: '8px 16px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Annuler</button>
+            <button onClick={handleTransferBoutique} disabled={transferring || !selectedBoutique} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: (transferring || !selectedBoutique) ? 'not-allowed' : 'pointer', fontWeight: 600 }}>
+              {transferring ? 'Transfert...' : 'Confirmer'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
     </>
   )
 }

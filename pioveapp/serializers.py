@@ -471,14 +471,18 @@ class AdminOrderSerializer(serializers.ModelSerializer):
 class BoutiqueSerializer(serializers.ModelSerializer):
     """Used by admin CRUD and transfer modal."""
     username = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
 
     class Meta:
         model = Boutique
-        fields = ['id', 'name', 'address', 'wilaya', 'phone', 'is_active', 'username', 'created_at']
-        read_only_fields = ['created_at', 'username']
+        fields = ['id', 'name', 'address', 'wilaya', 'phone', 'is_active', 'username', 'email', 'created_at']
+        read_only_fields = ['created_at', 'username', 'email']
 
     def get_username(self, obj):
         return obj.user.username if obj.user else None
+
+    def get_email(self, obj):
+        return obj.user.email if obj.user else ''
 
 
 class BoutiqueOrderSerializer(serializers.ModelSerializer):

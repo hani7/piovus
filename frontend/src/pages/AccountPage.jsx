@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useWishlistStore } from '../store/wishlistStore'
@@ -226,6 +226,7 @@ export default function AccountPage() {
             onSuccess={handleGoogleSuccess}
             onError={() => alert('Échec de la connexion Google')}
             useOneTap
+            shape="pill"
           />
         </div>
       </GoogleOAuthProvider>

@@ -389,7 +389,7 @@ export default function CheckoutPage() {
                     <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Paiement sécurisé en ligne (les frais de livraison seront réglés à la réception).</div>
                   </div>
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
+                <label style={{ display: 'none', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
                   <input 
                     type="radio" 
                     name="payment_method" 

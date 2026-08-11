@@ -114,13 +114,25 @@ export default function ProductPage() {
   const handleAddToCart = useCallback(() => {
     if (isCollection) {
       if (!allChoicesMade) return
-      // Add one item per chosen variant, using product price for each
+      const numGroups = choiceGroupLabels.length
+      // Le prix total de la collection = prix du produit.
+      // Chaque choix reçoit price/numGroups pour que total panier = product.price
+      const pricePerChoice = parseFloat(
+        product.is_promo && product.promo_price
+          ? product.promo_price
+          : product.price
+      ) / numGroups
       Object.entries(selectedChoices).forEach(([groupLabel, variantId]) => {
         const variant = product.variants.find(v => v.id === variantId)
         if (variant) {
-          // Use product price (not variant price) for collections
-          const collectionProduct = { ...product, promo_price: product.promo_price, price: product.price }
-          addItem(collectionProduct, { ...variant, price: null }, 1, 'boite')
+          // On passe le prix unitaire via variant.price pour contourner le calcul du store
+          addItem(
+            // Mettre promo_price et price à 0 pour éviter qu'ils soient utilisés par le store
+            { ...product, promo_price: null, effective_price: pricePerChoice, price: pricePerChoice, is_promo: false },
+            { ...variant, price: null },
+            1,
+            'boite'
+          )
         }
       })
     } else {
@@ -131,8 +143,10 @@ export default function ProductPage() {
       })
     }
 
-    if (window.fbq) window.fbq('track', 'AddToCart', { content_name: product.name, content_ids: [product.id], content_type: 'product', value: displayPrice * (isCollection ? choiceGroupLabels.length : quantity), currency: 'DZD' })
-    if (window.ttq) window.ttq.track('AddToCart', { content_name: product.name, content_id: product.id, content_type: 'product', value: displayPrice, currency: 'DZD', quantity })
+    // Pour les collections : valeur = prix du produit (pas × nombre de choix)
+    if (window.fbq) window.fbq('track', 'AddToCart', { content_name: product.name, content_ids: [product.id], content_type: 'product', value: isCollection ? displayPrice : displayPrice * quantity, currency: 'DZD' })
+    if (window.ttq) window.ttq.track('AddToCart', { content_name: product.name, content_id: product.id, content_type: 'product', value: displayPrice, currency: 'DZD', quantity: isCollection ? 1 : quantity })
+
 
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)

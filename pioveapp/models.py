@@ -368,7 +368,7 @@ class Order(models.Model):
     boutique = models.ForeignKey('Boutique', null=True, blank=True, on_delete=models.SET_NULL, related_name='orders', verbose_name='Boutique')
     boutique_status = models.CharField(max_length=20, choices=BOUTIQUE_STATUS_CHOICES, blank=True, default='', verbose_name='Statut Boutique')
     boutique_transferred_at = models.DateTimeField(null=True, blank=True, verbose_name='Transférée en boutique le')
-    payment_method = models.CharField(max_length=20, choices=[('cash', 'Paiement à la livraison'), ('cib', 'CIB ou Edahabia')], default='cash')
+    payment_method = models.CharField(max_length=20, choices=[('cash', 'Paiement à la livraison'), ('cib', 'CIB ou Edahabia'), ('yassir', 'Yassir Cash')], default='cash')
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
     is_viewed = models.BooleanField(default=False)
@@ -376,6 +376,11 @@ class Order(models.Model):
     # Coupon fields
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    # ─── Yassir Cash ────────────────────────────────────────────────────────
+    yassir_payment_id    = models.CharField(max_length=200, blank=True, default='', verbose_name='Yassir Payment ID')
+    yassir_client_secret = models.CharField(max_length=500, blank=True, default='', verbose_name='Yassir Client Secret')
+    yassir_status        = models.CharField(max_length=50,  blank=True, default='', verbose_name='Statut Yassir')
     
     notes = models.TextField(blank=True)
     source = models.CharField(max_length=100, blank=True, default='', help_text="Origine de la commande (ex: fb, ig, direct, referral)")
@@ -396,9 +401,10 @@ class Order(models.Model):
 
     def recalculate_total(self):
         subtotal = sum(item.subtotal for item in self.items.all())
-        # We assume discount_amount is calculated during checkout and saved.
-        # Ensure total is not negative
-        self.total = max(Decimal('0'), subtotal - self.discount_amount)
+        delivery = self.delivery_cost or Decimal('0')
+        discount = self.discount_amount or Decimal('0')
+        # Total = articles + livraison - réduction
+        self.total = max(Decimal('0'), subtotal + delivery - discount)
         self.save(update_fields=['total'])
 
 

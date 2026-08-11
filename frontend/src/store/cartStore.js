@@ -42,9 +42,11 @@ export const useCartStore = create(
                       return parseFloat(product.b2b_promo_price_box || product.b2b_price_box || product.b2b_price || product.effective_price);
                     }
                   }
-                  // Retail: prix variante > prix promo > prix effectif
+                  // Retail: si le produit est en promo, on utilise toujours promo_price
+                  if (product.is_promo && product.promo_price) return parseFloat(product.promo_price);
+                  // Sinon, prix variante > prix effectif
                   if (variant?.price) return parseFloat(variant.price);
-                  return parseFloat(product.promo_price || product.effective_price);
+                  return parseFloat(product.effective_price);
                 })(),
                 weight: (() => {
                   const user = useAuthStore.getState().user;

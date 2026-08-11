@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import client from '../api/client'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
-import { createOrder } from '../api/orders'
+import { createOrder, initiateYassir } from '../api/orders'
 import { useAuthStore } from '../store/authStore'
 import WilayaCommuneSelect from '../components/WilayaCommuneSelect'
 import './CheckoutPage.css'
@@ -195,20 +195,34 @@ export default function CheckoutPage() {
       } else {
         // Cash on delivery — redirect to dedicated confirmation page
         // Meta Purchase pixel is fired in OrderConfirmedPage
-        const finalValue = total + deliveryCost - (coupon ? coupon.discount_amount : 0)
-        playSuccessSound()
-        navigate('/order-confirmed', {
-          replace: true,
-          state: {
-            orderId: res.data.id,
-            total:   finalValue,
-            items:   items,
-            method:  'cash',
+        if (form.payment_method === 'yassir') {
+          // Initier Yassir Cash
+          const yassirRes = await initiateYassir(res.data.id)
+          if (yassirRes.data?.payUrl) {
+            localStorage.setItem('lastOrder', JSON.stringify(res.data))
+            const returnUrl = encodeURIComponent(`${window.location.origin}/api/yassir/callback/`)
+            // Append returnUrl exactly as required by Yassir
+            const sep = yassirRes.data.payUrl.includes('?') ? '&' : '?'
+            window.location.href = `${yassirRes.data.payUrl}${sep}returnUrl=${returnUrl}`
+          } else {
+            throw new Error('Impossible de générer le lien de paiement Yassir')
           }
-        })
+        } else {
+          const finalValue = total + deliveryCost - (coupon ? coupon.discount_amount : 0)
+          playSuccessSound()
+          navigate('/order-confirmed', {
+            replace: true,
+            state: {
+              orderId: res.data.id,
+              total:   finalValue,
+              items:   items,
+              method:  'cash',
+            }
+          })
+        }
       }
     } catch (err) {
-      const serverMsg = err?.response?.data?.error || err?.response?.data?.detail || JSON.stringify(err?.response?.data)
+      const serverMsg = err?.response?.data?.error || err?.response?.data?.detail || err.message || JSON.stringify(err?.response?.data)
       setErrors({ submit: serverMsg || 'Une erreur est survenue. Veuillez réessayer.' })
     } finally {
       setLoading(false)
@@ -375,6 +389,22 @@ export default function CheckoutPage() {
                     <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Paiement sécurisé en ligne (les frais de livraison seront réglés à la réception).</div>
                   </div>
                 </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
+                  <input 
+                    type="radio" 
+                    name="payment_method" 
+                    value="yassir" 
+                    checked={form.payment_method === 'yassir'}
+                    onChange={handleChange}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>Yassir Cash</span>
+                      <strong style={{ color: '#0066FF', fontSize: '1.2rem' }}>YASSIR</strong>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Payez via votre portefeuille Yassir (OTP). Les frais de livraison seront payés à la livraison.</div>
+                  </div>
+                </label>
               </div>
             </div>
 
@@ -386,7 +416,7 @@ export default function CheckoutPage() {
             )}
 
             <button type="submit" className="btn btn-accent checkout-submit-btn" disabled={loading || total < 1500} id="submit-order-btn" style={{ fontSize: 'clamp(0.75rem, 3vw, 1rem)', letterSpacing: '0.03em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {loading ? 'Traitement...' : `Confirmer la commande — ${form.payment_method === 'cib' ? (coupon ? coupon.new_total : total).toLocaleString('fr-DZ') : ((coupon ? coupon.new_total : total) + deliveryCost).toLocaleString('fr-DZ')} DA`}
+              {loading ? 'Traitement...' : `Confirmer la commande — ${(form.payment_method === 'cib' || form.payment_method === 'yassir') ? (coupon ? coupon.new_total : total).toLocaleString('fr-DZ') : ((coupon ? coupon.new_total : total) + deliveryCost).toLocaleString('fr-DZ')} DA`}
             </button>
           </form>
         </div>
@@ -427,11 +457,11 @@ export default function CheckoutPage() {
               <span className="checkout-summary__shipping">{deliveryCost > 0 ? `${deliveryCost.toLocaleString('fr-DZ')} DA` : 'Calculée à la commande'}</span>
             </div>
             <div className="checkout-summary__row checkout-summary__row--total" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: form.payment_method === 'cib' ? 8 : 0 }}>
-                <span>Total estimé {form.payment_method === 'cib' && '(en ligne)'}</span>
-                <span>{form.payment_method === 'cib' ? (coupon ? coupon.new_total : total).toLocaleString('fr-DZ') : ((coupon ? coupon.new_total : total) + deliveryCost).toLocaleString('fr-DZ')} DA</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: (form.payment_method === 'cib' || form.payment_method === 'yassir') ? 8 : 0 }}>
+                <span>Total estimé {(form.payment_method === 'cib' || form.payment_method === 'yassir') && '(en ligne)'}</span>
+                <span>{(form.payment_method === 'cib' || form.payment_method === 'yassir') ? (coupon ? coupon.new_total : total).toLocaleString('fr-DZ') : ((coupon ? coupon.new_total : total) + deliveryCost).toLocaleString('fr-DZ')} DA</span>
               </div>
-              {form.payment_method === 'cib' && deliveryCost > 0 && (
+              {(form.payment_method === 'cib' || form.payment_method === 'yassir') && deliveryCost > 0 && (
                 <div style={{ fontSize: '0.85rem', color: '#cc0000', fontWeight: 'bold', width: '100%', textAlign: 'right' }}>
                   + {deliveryCost.toLocaleString('fr-DZ')} DA à régler au livreur
                 </div>

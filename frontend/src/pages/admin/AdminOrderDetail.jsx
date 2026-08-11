@@ -347,7 +347,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
              </>
           ) : (
              <>
-               <button className="admin-btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, display: 'flex', alignItems: 'center', border: 'none', backgroundColor: '#3b82f6', color: 'white' }} onClick={handleMylerzShip} disabled={mylerzLoading || detail.status === 'boutique'}>
+               <button className="admin-btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: 20, display: 'flex', alignItems: 'center', border: 'none', backgroundColor: '#FFC349', color: '#1e293b', fontWeight: 'bold' }} onClick={handleMylerzShip} disabled={mylerzLoading || detail.status === 'boutique'}>
                  EXPÉDIER
                </button>
                {detail.status !== 'boutique' && (
@@ -694,7 +694,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 12 }}>
                    Aucun colis généré pour cette commande.
                  </div>
-                 <button className="btn" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, background: '#3b82f6', color: 'white', borderRadius: 50, border: 'none', padding: '10px 0' }} onClick={handleMylerzShip} disabled={mylerzLoading || detail.status === 'boutique'}>
+                 <button className="btn" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, background: '#FFC349', color: '#1e293b', fontWeight: 'bold', borderRadius: 50, border: 'none', padding: '10px 0' }} onClick={handleMylerzShip} disabled={mylerzLoading || detail.status === 'boutique'}>
                    Expédier
                  </button>
                </div>
@@ -1058,7 +1058,64 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               </div>
             </section>
 
+            {/* LIVE ORDER SUMMARY */}
+            {(() => {
+              const existingTotal = editItems
+                .filter(i => Number(i._qty) > 0)
+                .reduce((s, i) => s + Number(i.price_at_purchase) * Number(i._qty), 0)
+              const newTotal = newItems
+                .reduce((s, ni) => s + parseFloat(ni.product.effective_price || ni.product.price || 0) * ni.quantity, 0)
+              const delivery = Number(detail.delivery_cost || 0)
+              const discount = Number(detail.discount_amount || 0)
+              const subtotal = existingTotal + newTotal
+              const grand = Math.max(0, subtotal + delivery - discount)
+              const removedCount = editItems.filter(i => Number(i._qty) === 0).length
+
+              return (
+                <section style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, padding: '14px 16px' }}>
+                  <h4 style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', margin: '0 0 12px 0' }}>
+                    📊 Récapitulatif (aperçu)
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: '0.85rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
+                      <span>Articles ({editItems.filter(i => Number(i._qty) > 0).length} existants{newItems.length > 0 ? ` + ${newItems.length} nouveau(x)` : ''})</span>
+                      <span style={{ fontWeight: 600 }}>{subtotal.toLocaleString('fr-DZ')} DA</span>
+                    </div>
+                    {delivery > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                        <span>Livraison</span>
+                        <span>{delivery.toLocaleString('fr-DZ')} DA</span>
+                      </div>
+                    )}
+                    {discount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981' }}>
+                        <span>Réduction (coupon)</span>
+                        <span>- {discount.toLocaleString('fr-DZ')} DA</span>
+                      </div>
+                    )}
+                    {removedCount > 0 && (
+                      <div style={{ fontSize: '0.73rem', color: '#ef4444', padding: '4px 8px', background: '#fef2f2', borderRadius: 6 }}>
+                        ⚠️ {removedCount} article(s) seront supprimé(s)
+                      </div>
+                    )}
+                    <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '0.95rem', color: '#0f172a' }}>
+                      <span>Nouveau total</span>
+                      <span style={{ color: grand !== Number(detail.total) ? '#dc2626' : '#0f172a' }}>
+                        {grand.toLocaleString('fr-DZ')} DA
+                        {grand !== Number(detail.total) && (
+                          <span style={{ fontSize: '0.72rem', color: '#94a3b8', marginLeft: 6, fontWeight: 400 }}>
+                            (était {Number(detail.total).toLocaleString('fr-DZ')} DA)
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+              )
+            })()}
+
             {/* NOTES */}
+
             <section>
               <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', marginBottom: 8 }}>Notes internes</h4>
               <textarea

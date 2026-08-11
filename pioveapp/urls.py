@@ -15,7 +15,8 @@ from .views import (
     SiteSettingsView, AdminSiteSettingsView, AdminB2BRequestViewSet,
     mylerz_webhook, satim_callback, satim_test_view, AdminMediaView,
     AdminProfileView, AdminChangePasswordView, TrackOrderView,
-    AdminBoutiqueViewSet, BoutiqueOrderViewSet, BoutiqueLoginView
+    AdminBoutiqueViewSet, BoutiqueOrderViewSet, BoutiqueLoginView,
+    yassir_initiate, yassir_callback, yassir_webhook,
 )
 from django.core.management import call_command
 from django.http import JsonResponse
@@ -68,6 +69,9 @@ boutique_router.register(r'orders', BoutiqueOrderViewSet, basename='boutique-ord
 urlpatterns = [
     path('', include(router.urls)),
     path('settings/', SiteSettingsView.as_view(), name='site-settings'),
+    path('yassir/initiate/', yassir_initiate, name='yassir-initiate'),
+    path('yassir/callback/', yassir_callback, name='yassir-callback'),
+    path('yassir/webhook/', yassir_webhook, name='yassir-webhook'),
     path('apply-coupon/', ApplyCouponView.as_view(), name='apply-coupon'),
     path('mylerz/webhook/', mylerz_webhook, name='mylerz-webhook'),
     path('track/', TrackOrderView.as_view(), name='track-order'),

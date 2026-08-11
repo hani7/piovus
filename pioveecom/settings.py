@@ -245,6 +245,17 @@ SATIM_TERMINAL_ID = os.environ.get('SATIM_TERMINAL_ID', '')
 SATIM_BASE_URL   = os.environ.get('SATIM_BASE_URL', 'https://cib.satim.dz/payment/rest')
 SATIM_SOURCE_IP  = os.environ.get('SATIM_SOURCE_IP', '')
 
+# ─── YASSIR CASH PAYMENT API ──────────────────────────────────────────────────
+# Obtenir les credentials lors de l'onboarding Yassir (contact: payment@yassir.io)
+# Déclarer la Return URL auprès de Yassir : https://api.piovecosmetics.dz/api/yassir/callback/
+YASSIR_CLIENT_ID      = os.environ.get('YASSIR_CLIENT_ID', '')
+YASSIR_CLIENT_SECRET  = os.environ.get('YASSIR_CLIENT_SECRET', '')
+YASSIR_SERVICE_CODE   = os.environ.get('YASSIR_SERVICE_CODE', 'PIOVE')
+YASSIR_PUBLISHABLE_KEY = os.environ.get('YASSIR_PUBLISHABLE_KEY', '')
+# 'staging' ou 'production'
+YASSIR_ENV            = os.environ.get('YASSIR_ENV', 'staging')
+
+
 
 # ─── UPLOAD SIZE LIMITS (video support) ──────────────────────────────────────
 DATA_UPLOAD_MAX_MEMORY_SIZE = 209715200   # 200MB

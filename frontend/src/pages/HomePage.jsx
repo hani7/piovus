@@ -60,7 +60,12 @@ export default function HomePage() {
   return (
     <main className="homepage page-enter">
       {/* Hero Slider */}
-      {heroBanners.length > 0 && (
+      {loading ? (
+        /* Skeleton hero pendant le chargement */
+        <section className="hero hero-skeleton" aria-hidden="true" style={{ background: '#f1f5f9', minHeight: '80vh' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+        </section>
+      ) : heroBanners.length > 0 ? (
         <section 
           className="hero" 
           aria-label="Bannière principale"
@@ -120,7 +125,7 @@ export default function HomePage() {
           </>
         )}
       </section>
-      )}
+      ) : null}
 
 
       {/* Best Sellers Block */}

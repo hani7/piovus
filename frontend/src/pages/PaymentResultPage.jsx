@@ -61,7 +61,7 @@ export default function PaymentResultPage() {
           <div className="payment-result__icon payment-result__icon--success">✓</div>
           <h1 className="payment-result__title">Paiement Réussi !</h1>
           <p className="payment-result__desc">
-            Merci pour votre achat. Votre paiement CIB/Edahabia a été validé avec succès.
+            Merci pour votre achat. Votre paiement en ligne a été validé avec succès.
             {order ? " Voici votre facture :" : ""}
           </p>
 
@@ -80,7 +80,7 @@ export default function PaymentResultPage() {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <strong>Date :</strong> {new Date().toLocaleDateString('fr-FR')}<br/>
-                  <strong>Mode de paiement :</strong> CIB / Edahabia
+                  <strong>Mode de paiement :</strong> {order.payment_method === 'yassir' ? 'Yassir Cash' : 'CIB / Edahabia'}
                 </div>
               </div>
 

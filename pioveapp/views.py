@@ -131,14 +131,11 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
 # ÔöÇÔöÇÔöÇ Banners ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 class BannerViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Banner.objects.filter(is_active=True)
+    queryset = Banner.objects.filter(is_active=True).order_by('order')
     serializer_class = BannerSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['placement']
-
-    @method_decorator(cache_page(60 * 15))
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    # Pas de cache serveur — les banners peuvent changer à tout moment depuis l'admin
 
 
 # ÔöÇÔöÇÔöÇ Auth ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
@@ -1204,10 +1201,13 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 logger.warning(f'UAL create error: {e}')
 
-            # Refresh to clear stale prefetch cache before serializing
-            order.refresh_from_db()
+            # Re-fetch complet pour vider le cache prefetch avant sérialisation
+            from .models import Order as OrderModel
+            fresh_order = OrderModel.objects.select_related('user', 'customer').prefetch_related(
+                'items__product__images', 'items__variant', 'history'
+            ).get(pk=order.pk)
             from .serializers import AdminOrderSerializer as Ser
-            return Response(Ser(order, context={'request': request}).data)
+            return Response(Ser(fresh_order, context={'request': request}).data)
 
         except Exception as e:
             import traceback
@@ -3292,3 +3292,129 @@ def _send_boutique_transfer_email(order, boutique):
     except Exception:
         pass
 
+
+
+# ─── Yassir Cash Payment ─────────────────────────────────────────────────────
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseRedirect
+import json as _json
+from django.http import JsonResponse as DjangoJson
+
+@csrf_exempt
+def yassir_initiate(request):
+    if request.method != 'POST':
+        return DjangoJson({'error': 'Method not allowed'}, status=405)
+    try:
+        body = _json.loads(request.body)
+        order_id = body.get('order_id')
+        if not order_id:
+            return DjangoJson({'error': 'order_id requis'}, status=400)
+        try:
+            order = Order.objects.get(pk=order_id)
+        except Order.DoesNotExist:
+            return DjangoJson({'error': 'Commande introuvable'}, status=404)
+        if order.payment_method != 'yassir':
+            return DjangoJson({'error': 'Cette commande ne supporte pas Yassir Cash'}, status=400)
+        from .yassir_service import register_customer, create_payment_intent, proceed_wallet, YassirError
+        phone = order.guest_phone or ''
+        if not phone:
+            return DjangoJson({'error': 'Numéro de téléphone requis pour Yassir Cash'}, status=400)
+        try:
+            register_customer(phone)
+        except YassirError as e:
+            logger.warning(f'[Yassir] register_customer warning: {e}')
+        try:
+            intent = create_payment_intent(order_id=order.id, amount=float(order.total), phone=phone)
+        except YassirError as e:
+            return DjangoJson({'error': str(e)}, status=502)
+        payment_id = intent.get('id') or intent.get('paymentId') or ''
+        client_secret = intent.get('clientSecret', '')
+        try:
+            proceed_data = proceed_wallet(payment_id)
+        except YassirError as e:
+            return DjangoJson({'error': str(e)}, status=502)
+        pay_url = proceed_data.get('metadata', {}).get('payUrl') or proceed_data.get('payUrl', '')
+        order.yassir_payment_id    = payment_id
+        order.yassir_client_secret = client_secret
+        order.yassir_status        = 'INITIALIZED'
+        order.save(update_fields=['yassir_payment_id', 'yassir_client_secret', 'yassir_status'])
+        logger.info(f'[Yassir] Initiate OK — order #{order_id}, paymentId={payment_id}')
+        return DjangoJson({'payUrl': pay_url, 'paymentId': payment_id})
+    except Exception as e:
+        logger.exception(f'[Yassir] yassir_initiate error: {e}')
+        return DjangoJson({'error': 'Erreur serveur Yassir'}, status=500)
+
+
+@csrf_exempt
+def yassir_callback(request):
+    payment_id  = request.GET.get('paymentId', '')
+    status_code = request.GET.get('statusCode', '')
+    frontend_url = getattr(settings, 'FRONTEND_URL', 'https://piovecosmetics.dz')
+    if not payment_id:
+        return HttpResponseRedirect(f'{frontend_url}/payment-result?status=fail&reason=no_payment_id')
+    try:
+        order = Order.objects.get(yassir_payment_id=payment_id)
+    except Order.DoesNotExist:
+        logger.error(f'[Yassir] Callback: order not found for paymentId={payment_id}')
+        return HttpResponseRedirect(f'{frontend_url}/payment-result?status=fail&reason=order_not_found')
+    try:
+        from .yassir_service import check_payment
+        check_data = check_payment(payment_id)
+        verified_status = int(check_data.get('statusCode', status_code or 0))
+    except Exception as e:
+        logger.warning(f'[Yassir] check_payment warning: {e}')
+        verified_status = int(status_code) if status_code else 0
+    if verified_status == 2:
+        order.payment_status = 'paid'
+        order.status         = 'confirmed'
+        order.yassir_status  = 'SUCCEEDED'
+        order.save(update_fields=['payment_status', 'status', 'yassir_status'])
+        OrderStatusHistory.objects.create(order=order, status='confirmed', notes='Paiement Yassir Cash confirme automatiquement.')
+        logger.info(f'[Yassir] Payment SUCCEEDED for order #{order.id}')
+        return HttpResponseRedirect(f'{frontend_url}/order-confirmed?orderId={order.id}&method=yassir&status=success')
+    else:
+        order.yassir_status = 'REJECTED'
+        order.save(update_fields=['yassir_status'])
+        logger.info(f'[Yassir] Payment FAILED (statusCode={verified_status}) for order #{order.id}')
+        return HttpResponseRedirect(f'{frontend_url}/payment-result?status=fail&reason=yassir_rejected&orderId={order.id}')
+
+
+@csrf_exempt
+def yassir_webhook(request):
+    if request.method != 'POST':
+        return DjangoJson({'ok': False}, status=405)
+    try:
+        payload = _json.loads(request.body)
+        logger.info(f'[Yassir Webhook] Received: {payload}')
+        remote_status = payload.get('remoteStatusCode')
+        action_id     = payload.get('actionId', '')
+        payment_id    = payload.get('paymentId', '')
+        order = None
+        if payment_id:
+            order = Order.objects.filter(yassir_payment_id=payment_id).first()
+        if not order and action_id:
+            try:
+                order = Order.objects.get(pk=int(action_id))
+            except (Order.DoesNotExist, ValueError):
+                pass
+        if not order:
+            logger.warning(f'[Yassir Webhook] Order not found — actionId={action_id}')
+            return DjangoJson({'ok': True})
+        if remote_status == 2 and order.payment_status != 'paid':
+            order.payment_status = 'paid'
+            order.status         = 'confirmed'
+            order.yassir_status  = 'SUCCEEDED'
+            order.save(update_fields=['payment_status', 'status', 'yassir_status'])
+            OrderStatusHistory.objects.create(order=order, status='confirmed', notes='Paiement Yassir Cash confirme via webhook.')
+            logger.info(f'[Yassir Webhook] Order #{order.id} confirmed')
+        elif remote_status == 3:
+            order.yassir_status = 'REJECTED'
+            order.save(update_fields=['yassir_status'])
+        elif remote_status == 10:
+            order.yassir_status = 'RELEASED'
+            order.save(update_fields=['yassir_status'])
+        return DjangoJson({'ok': True})
+    except Exception as e:
+        logger.exception(f'[Yassir Webhook] Error: {e}')
+        return DjangoJson({'ok': True})

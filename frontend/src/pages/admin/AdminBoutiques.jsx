@@ -143,11 +143,11 @@ export default function AdminBoutiques() {
       </div>
 
       {showModal && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal-content" style={{ maxWidth: '500px' }}>
-            <div className="admin-modal-header">
-              <h3>{editItem ? 'Modifier la boutique' : 'Ajouter une boutique'}</h3>
-              <button className="admin-modal-close" onClick={() => setShowModal(false)}>&times;</button>
+        <div className="admin-modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }}>
+          <div className="admin-modal-content" style={{ maxWidth: '550px', width: '90%', background: '#ffffff', borderRadius: '12px', padding: '24px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)', color: '#1e293b' }}>
+            <div className="admin-modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold' }}>{editItem ? 'Modifier la boutique' : 'Ajouter une boutique'}</h3>
+              <button className="admin-modal-close" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}>&times;</button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="admin-modal-body">
@@ -199,9 +199,9 @@ export default function AdminBoutiques() {
                   </label>
                 </div>
               </div>
-              <div className="admin-modal-footer">
-                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>Annuler</button>
-                <button type="submit" className="btn btn-primary">Enregistrer</button>
+              <div className="admin-modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid #e2e8f0', paddingTop: '16px', marginTop: '24px' }}>
+                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)} style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>Annuler</button>
+                <button type="submit" className="btn btn-primary" style={{ padding: '8px 16px', borderRadius: '8px', background: '#dc2626', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>Enregistrer</button>
               </div>
             </form>
           </div>

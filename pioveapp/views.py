@@ -650,7 +650,11 @@ class OrderViewSet(viewsets.ModelViewSet):
             initial_status = 'en_cours'
             history_note = 'Commande recue et en cours de traitement.'
 
-        order.total = total + delivery_cost
+        order.total = Decimal(str(total)) + Decimal(str(delivery_cost)) - Decimal(str(discount_amount))
+        # Ensure total is not negative
+        if order.total < 0:
+            order.total = Decimal('0.00')
+            
         order.status = initial_status
         order.save(update_fields=['total', 'status'])
 

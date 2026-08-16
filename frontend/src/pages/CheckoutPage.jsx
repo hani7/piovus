@@ -179,6 +179,7 @@ export default function CheckoutPage() {
           product_id: i.product.id,
           variant_id: i.variant?.id || null,
           quantity: i.quantity,
+          packaging: i.packaging || 'boite',
         })),
         coupon_id: coupon ? coupon.id : null,
         discount_amount: coupon ? coupon.discount_amount : 0,

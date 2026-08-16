@@ -603,10 +603,28 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             is_b2b = request.user.is_authenticated and hasattr(request.user, 'profile') and request.user.profile.is_b2b
             if is_b2b:
-                price = product.b2b_price if product.b2b_price else (product.effective_price * (product.units_per_carton or 1))
+                packaging = item_data.get('packaging', 'boite')
+                if packaging == 'carton':
+                    base_price = product.b2b_promo_price_carton or product.b2b_price_carton or product.b2b_price or (product.effective_price * (product.units_per_carton or 1))
+                else:
+                    base_price = product.b2b_promo_price_box or product.b2b_price_box or product.b2b_price or product.effective_price
             else:
-                price = product.effective_price
+                base_price = product.effective_price
                 
+            # Calcul du prix final selon s'il s'agit d'une collection ou d'une variante spécifique
+            if variant and variant.choice_group:
+                # C'est un élément d'une collection : on divise le prix global par le nombre de groupes
+                num_groups = product.variants.exclude(choice_group='').values('choice_group').distinct().count()
+                if num_groups > 0:
+                    price = float(base_price) / float(num_groups)
+                else:
+                    price = float(base_price)
+            elif not is_b2b and variant and variant.price and not (product.is_promo and product.promo_price):
+                # Variante avec un prix spécifique (et pas de promo globale sur le produit)
+                price = float(variant.price)
+            else:
+                price = float(base_price)
+
             qty = item_data['quantity']
 
             OrderItem.objects.create(

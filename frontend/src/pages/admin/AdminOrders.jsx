@@ -637,7 +637,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                       {o.guest_phone || (o.user ? '—' : '—')}
                     </td>
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem' }}>{o.wilaya || '—'}</td>
-                    <td style={{ fontWeight: 600 }}>{(Number(o.total) - Number(o.delivery_cost)).toLocaleString('fr-DZ')} DA</td>
+                    <td style={{ fontWeight: 600 }}>{(o.items || []).reduce((acc, it) => acc + Number(it.subtotal || (it.price_at_purchase * it.quantity)), 0).toLocaleString('fr-DZ')} DA</td>
                     <td style={{ color: 'var(--color-gray-500)' }}>{Number(o.delivery_cost).toLocaleString('fr-DZ')} DA</td>
                     <td style={{ fontWeight: 700, color: 'var(--color-black)' }}>{Number(o.total).toLocaleString('fr-DZ')} DA</td>
                     <td>
@@ -665,14 +665,16 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                           </div>
                         )
                       })() : (
-                        <span className={`badge ${STATUS_BADGE[o.status]}`} style={{ fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>
-                          {STATUS_LABELS[o.status]}
-                            {o.status === 'boutique' && o.boutique_name && (
-                              <div style={{ fontSize: '0.75rem', marginTop: 4, color: '#8b5cf6', fontWeight: 600 }}>
-                                {o.boutique_name}
-                              </div>
-                            )}
-                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                          <span className={`badge ${STATUS_BADGE[o.status]}`} style={{ fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>
+                            {STATUS_LABELS[o.status]}
+                          </span>
+                          {o.status === 'boutique' && o.boutique_name && (
+                            <span style={{ fontSize: '0.65rem', color: '#8b5cf6', fontWeight: 700, background: '#f5f3ff', padding: '2px 6px', borderRadius: '4px', border: '1px solid #ddd6fe', whiteSpace: 'nowrap' }}>
+                              📍 {o.boutique_name}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>

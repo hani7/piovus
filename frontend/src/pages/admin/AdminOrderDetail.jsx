@@ -494,11 +494,11 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
             <div className="admin-card" style={{ padding: 16, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
               <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#64748b', marginBottom: 12, borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>Résumé Financier</h4>
               {(()=>{
-                const subtotal = Number(detail.total)
+                // Source de vérité : somme des items (recalcul côté frontend)
+                const itemsSubtotal = (detail.items || []).reduce((acc, it) => acc + Number(it.subtotal || (it.price_at_purchase * it.quantity)), 0)
                 const delivery = Number(detail.delivery_cost || 0)
                 const discount = Number(detail.discount_amount || 0)
-                const productsOnly = subtotal - delivery
-                const grand = subtotal + delivery - discount
+                const total = Number(detail.total)  // valeur en base
                 const Row = ({label, value, color, bold}) => (
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: '0.88rem' }}>
                     <span style={{ color: '#64748b' }}>{label}</span>
@@ -507,15 +507,15 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                 )
                 return (
                   <>
-                    <Row label="Produits" value={`${productsOnly.toLocaleString('fr-DZ')} DA`} />
+                    <Row label="Produits" value={`${itemsSubtotal.toLocaleString('fr-DZ')} DA`} />
                     <Row label="Livraison" value={`${delivery.toLocaleString('fr-DZ')} DA`} />
                     {discount > 0 && <Row label="Réduction" value={`- ${discount.toLocaleString('fr-DZ')} DA`} color="#10b981" />}
                     <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 8, marginTop: 4 }}>
-                      <Row label="Total" value={`${subtotal.toLocaleString('fr-DZ')} DA`} bold />
+                      <Row label="Total" value={`${total.toLocaleString('fr-DZ')} DA`} bold />
                     </div>
                     <div style={{ marginTop: 10, background: '#0f172a', color: '#fff', borderRadius: 10, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>Bénéfice net</span>
-                      <span style={{ fontWeight: 800, fontSize: '1rem', color: '#4ade80' }}>{productsOnly.toLocaleString('fr-DZ')} DA</span>
+                      <span style={{ fontWeight: 800, fontSize: '1rem', color: '#4ade80' }}>{itemsSubtotal.toLocaleString('fr-DZ')} DA</span>
                     </div>
                   </>
                 )
@@ -564,7 +564,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               <div style={{ width: 300 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, fontSize: '0.9rem', color: '#475569' }}>
                   <span>Sous-total des articles:</span>
-                  <span>{(Number(detail.total) - Number(detail.delivery_cost || 0)).toLocaleString('fr-DZ')} DA</span>
+                  <span>{(detail.items || []).reduce((acc, it) => acc + Number(it.subtotal || (it.price_at_purchase * it.quantity)), 0).toLocaleString('fr-DZ')} DA</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, fontSize: '0.9rem', color: '#475569' }}>
                   <span>Frais de livraison:</span>

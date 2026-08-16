@@ -2098,13 +2098,19 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         order.boutique_status = 'pending'
         from django.utils import timezone
         order.boutique_transferred_at = timezone.now()
-        order.save(update_fields=['boutique', 'status', 'boutique_status', 'boutique_transferred_at'])
+
+        # Commande en boutique = retrait en magasin → pas de frais de livraison
+        order.delivery_cost = Decimal('0')
+        order.save(update_fields=['boutique', 'status', 'boutique_status', 'boutique_transferred_at', 'delivery_cost'])
+
+        # Recalculer le total : articles uniquement (sans livraison)
+        order.recalculate_total()
 
         from .models import OrderStatusHistory
         OrderStatusHistory.objects.create(
             order=order,
             status='boutique',
-            notes=f"Transférée à la boutique : {boutique.name}"
+            notes=f"Transférée à la boutique : {boutique.name} — Frais de livraison supprimés."
         )
         _send_boutique_transfer_email(order, boutique)
 
@@ -3418,3 +3424,104 @@ def yassir_webhook(request):
     except Exception as e:
         logger.exception(f'[Yassir Webhook] Error: {e}')
         return DjangoJson({'ok': True})
+
+
+# ─── Meta Product Feed (Catalogue Facebook / Instagram) ──────────────────────
+
+def meta_product_feed(request):
+    """
+    Génère un flux XML RSS 2.0 / Google Shopping compatible avec le
+    Catalogue Meta (Facebook & Instagram Shopping).
+
+    URL publique : GET /api/meta-feed/
+    À enregistrer dans Meta Business Manager → Catalogues → Sources de données.
+
+    Pour désactiver la redirection temporaire et passer à la vraie source :
+    il suffit de supprimer (ou commenter) la ligne de redirection ci-dessous
+    et de laisser la génération dynamique du feed s'exécuter.
+    """
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # REDIRECTION 301 TEMPORAIRE — à supprimer quand le nouveau catalogue est prêt
+    # Décommentez ces 2 lignes pour activer la redirection :
+    #
+    # from django.http import HttpResponsePermanentRedirect
+    # return HttpResponsePermanentRedirect('https://www.piovecosmetics.dz/meta-feed.xml')
+    # ──────────────────────────────────────────────────────────────────────────
+
+    products = (
+        Product.objects
+        .filter(is_active=True)
+        .prefetch_related('images', 'categories', 'variants')
+    )
+
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">',
+        '<channel>',
+        '<title>Piove Cosmetics</title>',
+        '<link>https://www.piovecosmetics.dz</link>',
+        '<description>Catalogue produits Piove Cosmetics Algérie</description>',
+    ]
+
+    for product in products:
+        # ── Prix : première variante en stock, sinon prix du produit ──────────
+        price = "0.00"
+        try:
+            variant = product.variants.filter(stock__gt=0).first()
+            if variant:
+                price = f"{variant.price:.2f}"
+            elif product.price:
+                price = f"{float(product.price):.2f}"
+        except Exception:
+            pass
+
+        # ── Image principale ──────────────────────────────────────────────────
+        image_url = ""
+        try:
+            first_image = product.images.first()
+            if first_image and first_image.image:
+                image_url = request.build_absolute_uri(first_image.image.url)
+        except Exception:
+            pass
+
+        # ── Catégorie ─────────────────────────────────────────────────────────
+        category = product.categories.first()
+        category_name = category.name if category else "Cosmetics"
+
+        # ── Disponibilité ─────────────────────────────────────────────────────
+        availability = "in stock"
+        try:
+            if not product.variants.filter(stock__gt=0).exists():
+                availability = "out of stock"
+        except Exception:
+            pass
+
+        # ── Description (nettoyer les balises HTML éventuelles) ───────────────
+        import re
+        description = product.description or product.name
+        description = re.sub(r'<[^>]+>', '', description).strip()[:5000]
+
+        # ── URL produit ───────────────────────────────────────────────────────
+        product_url = f"https://www.piovecosmetics.dz/product/{product.slug}"
+
+        lines += [
+            '<item>',
+            f'  <g:id>{product.id}</g:id>',
+            f'  <g:title><![CDATA[{product.name}]]></g:title>',
+            f'  <g:description><![CDATA[{description}]]></g:description>',
+            f'  <g:link>{product_url}</g:link>',
+            f'  <g:image_link>{image_url}</g:image_link>',
+            f'  <g:availability>{availability}</g:availability>',
+            f'  <g:price>{price} DZD</g:price>',
+            f'  <g:brand>Piove Cosmetics</g:brand>',
+            f'  <g:condition>new</g:condition>',
+            f'  <g:google_product_category>Health &amp; Beauty &gt; Personal Care</g:google_product_category>',
+            f'  <g:product_type><![CDATA[{category_name}]]></g:product_type>',
+            '</item>',
+        ]
+
+    lines += ['</channel>', '</rss>']
+
+    xml_content = '\n'.join(lines)
+    return HttpResponse(xml_content, content_type='application/xml; charset=utf-8')

@@ -64,7 +64,7 @@ const ProductInfo = memo(function ProductInfo({
         </div>
       )}
 
-      {/* Price — always product price for collections */}
+      {/* Price */}
       <div className="product-info__pricing">
         {isB2B ? (
           <div className="product-info__b2b-pricing">
@@ -109,9 +109,11 @@ const ProductInfo = memo(function ProductInfo({
             <span className="product-info__price product-info__price--promo">{parseFloat(product.promo_price).toLocaleString('fr-DZ')} DA</span>
             <span className="product-info__price product-info__price--original">{parseFloat(product.price).toLocaleString('fr-DZ')} DA</span>
           </>
-        ) : !isCollection && selectedVariant?.price ? (
+        ) : !isCollection && selectedVariant?.price && parseFloat(selectedVariant.price) !== parseFloat(product.price) ? (
+          // Variante avec prix VOLONTAIREMENT différent du produit (ex: taille différente)
           <span className="product-info__price">{parseFloat(selectedVariant.price).toLocaleString('fr-DZ')} DA</span>
         ) : (
+          // Cas normal : toujours afficher le prix du produit
           <span className="product-info__price">{parseFloat(product.price).toLocaleString('fr-DZ')} DA</span>
         )}
       </div>

@@ -17,6 +17,7 @@ from .views import (
     AdminProfileView, AdminChangePasswordView, TrackOrderView,
     AdminBoutiqueViewSet, BoutiqueOrderViewSet, BoutiqueLoginView,
     yassir_initiate, yassir_callback, yassir_webhook,
+    meta_product_feed,
 )
 from django.core.management import call_command
 from django.http import JsonResponse
@@ -69,6 +70,10 @@ boutique_router.register(r'orders', BoutiqueOrderViewSet, basename='boutique-ord
 urlpatterns = [
     path('', include(router.urls)),
     path('settings/', SiteSettingsView.as_view(), name='site-settings'),
+    # ── Meta Catalogue Feed (Facebook / Instagram Shopping) ──────────────────
+    # Enregistrer cette URL dans Meta Business Manager → Catalogues → Sources de données
+    # URL complète : https://api.piovecosmetics.dz/api/meta-feed/
+    path('meta-feed/', meta_product_feed, name='meta-feed'),
     path('yassir/initiate/', yassir_initiate, name='yassir-initiate'),
     path('yassir/callback/', yassir_callback, name='yassir-callback'),
     path('yassir/webhook/', yassir_webhook, name='yassir-webhook'),

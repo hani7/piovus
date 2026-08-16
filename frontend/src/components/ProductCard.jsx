@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
@@ -12,6 +12,7 @@ const ProductCard = memo(function ProductCard({ product }) {
   const addItem = useCartStore((s) => s.addItem)
   const user = useAuthStore((s) => s.user)
   const { toggle: toggleWishlist, isWishlisted } = useWishlistStore()
+  const [imgError, setImgError] = useState(false)
 
   const hasVariants = product.variants?.length > 0
   const isPromo = product.is_promo || product.is_promotion
@@ -48,7 +49,7 @@ const ProductCard = memo(function ProductCard({ product }) {
     <article className="product-card">
       <div className="product-card__image-wrap" id={`product-${product.id}`}>
         <Link to={`/produit/${product.slug}`} state={{ initialProduct: product }} style={{ display: 'block', width: '100%', height: '100%' }}>
-          {product.thumbnail ? (
+          {product.thumbnail && !imgError ? (
           <img
             src={mediaUrl(product.thumbnail)}
             alt={product.name}
@@ -57,6 +58,7 @@ const ProductCard = memo(function ProductCard({ product }) {
             decoding="async"
             width="400"
             height="500"
+            onError={() => setImgError(true)}
           />
           ) : (
             <div className="product-card__placeholder">

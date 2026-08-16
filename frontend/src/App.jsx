@@ -188,11 +188,11 @@ export default function App() {
     }
   }, [])
 
-  if (loadingSettings) {
-    return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Chargement...</div>
-  }
+  // Ne pas bloquer tout le rendu — le banner et la navbar s'affichent immédiatement.
+  // La maintenance est gérée en dessous dès que les settings arrivent.
+  const isMaintenanceReady = !loadingSettings && settings?.is_maintenance_mode && !isAdmin
 
-  if (settings?.is_maintenance_mode && !isAdmin) {
+  if (isMaintenanceReady) {
     return <MaintenancePage message={settings?.maintenance_message} />
   }
 

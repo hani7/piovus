@@ -2,24 +2,59 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import client from '../api/client'
 
+const CACHE_KEY = 'piove_top_banner'
+
 export default function PromoBanner() {
-  const [banner, setBanner] = useState(null)
+  const [banner, setBanner] = useState(() => {
+    // Lire le cache immédiatement (évite le flash de disparition entre navigations)
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY)
+      return cached ? JSON.parse(cached) : null
+    } catch {
+      return null
+    }
+  })
+  const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
     client.get('/banners/?placement=top_banner')
       .then((res) => {
         const results = res.data.results || res.data
         if (results && results.length > 0) {
-          setBanner(results[0])
+          const b = results[0]
+          setBanner(b)
+          try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(b)) } catch {}
+        } else {
+          // Aucun banner actif → vider le cache
+          setBanner(null)
+          try { sessionStorage.removeItem(CACHE_KEY) } catch {}
         }
       })
-      .catch((err) => console.error('Failed to load top banner:', err))
+      .catch(() => {
+        // Erreur réseau : on garde le banner en cache s'il existe
+      })
   }, [])
 
-  if (!banner) return null
+  if (!banner || dismissed) return null
 
   return (
-    <div className="global-promo-banner" style={{ backgroundColor: '#1a1a1a', color: '#fff', textAlign: 'center', padding: '10px 15px', fontSize: '0.9rem', position: 'relative', zIndex: 1000, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+    <div
+      className="global-promo-banner"
+      style={{
+        backgroundColor: '#1a1a1a',
+        color: '#fff',
+        textAlign: 'center',
+        padding: '10px 40px 10px 15px',
+        fontSize: '0.9rem',
+        position: 'relative',
+        zIndex: 1000,
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '10px',
+      }}
+    >
       <strong>{banner.title}</strong>
       {banner.subtitle && <span>- {banner.subtitle}</span>}
       {banner.cta_label && banner.cta_url && (
@@ -27,6 +62,27 @@ export default function PromoBanner() {
           {banner.cta_label}
         </Link>
       )}
+      {/* Bouton fermeture */}
+      <button
+        onClick={() => setDismissed(true)}
+        aria-label="Fermer le bandeau"
+        style={{
+          position: 'absolute',
+          right: '12px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          background: 'none',
+          border: 'none',
+          color: '#aaa',
+          cursor: 'pointer',
+          fontSize: '1rem',
+          lineHeight: 1,
+          padding: '4px',
+        }}
+      >
+        ✕
+      </button>
     </div>
   )
 }
+

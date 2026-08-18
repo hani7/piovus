@@ -390,7 +390,7 @@ export default function CheckoutPage() {
                     <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Paiement sécurisé en ligne (les frais de livraison seront réglés à la réception).</div>
                   </div>
                 </label>
-                <label style={{ display: 'none', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: `1px solid ${form.payment_method === 'yassir' ? '#6C2BD9' : 'var(--color-gray-200)'}`, borderRadius: 'var(--radius-md)', padding: 16, transition: 'border-color 0.2s' }}>
                   <input 
                     type="radio" 
                     name="payment_method" 
@@ -401,9 +401,9 @@ export default function CheckoutPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                     <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span>Yassir Cash</span>
-                      <strong style={{ color: '#0066FF', fontSize: '1.2rem' }}>YASSIR</strong>
+                      <img src="/yassir-logo.png" alt="Yassir Cash" style={{ height: 28, objectFit: 'contain' }} />
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Payez via votre portefeuille Yassir (OTP). Les frais de livraison seront payés à la livraison.</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Payez via votre portefeuille Yassir. Les frais de livraison seront payés à la livraison.</div>
                   </div>
                 </label>
               </div>

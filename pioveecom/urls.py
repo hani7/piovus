@@ -177,6 +177,19 @@ def fix_yassir_view(request):
     except Exception as e:
         log.append(f'⚠️ git pull impossible: {e}')
 
+    # Step 1.5: Run migrations
+    try:
+        res_mig = subprocess.run(
+            ['python', 'manage.py', 'migrate'],
+            cwd=str(base_dir),
+            capture_output=True, text=True, timeout=30
+        )
+        log.append(f'✅ migrate: {res_mig.stdout.strip() or "OK"}')
+        if res_mig.stderr:
+            log.append(f'   stderr: {res_mig.stderr.strip()}')
+    except Exception as e:
+        log.append(f'⚠️ migrate impossible: {e}')
+
     # Step 2: Fix Yassir orders
     try:
         from pioveapp.models import Order

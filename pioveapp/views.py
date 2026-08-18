@@ -3411,8 +3411,10 @@ def yassir_initiate(request):
             logger.error(f'[Yassir] Unexpected statusCode={status_code} for order #{order.id}: {proceed}')
             return DjangoJson({'error': f'Réponse Yassir inattendue (statusCode={status_code}). Contactez le support.', 'details': proceed}, status=502)
     except Exception as e:
-        logger.exception(f'[Yassir] yassir_initiate error: {e}')
-        return DjangoJson({'error': 'Erreur serveur Yassir'}, status=500)
+        import traceback
+        trace = traceback.format_exc()
+        logger.exception(f'[Yassir] yassir_initiate error: {e}\n{trace}')
+        return DjangoJson({'error': f'Erreur interne Yassir: {e}', 'trace': trace}, status=500)
 
 
 @csrf_exempt

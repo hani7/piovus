@@ -12,19 +12,21 @@ Endpoints utilisés :
 
 import base64
 import logging
+import os
 import requests
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 # ─── Constantes ──────────────────────────────────────────────────────────────
-# Credentials Yassir Cash — Production (EXT_PIOVE_SHOP)
+# Credentials lus depuis les variables d'environnement cPanel
+# (Configuration → Applications Web → API.PIOVECOSMETICS.DZ)
 
-YASSIR_BASE_URL        = 'https://api.yassir.io'
-YASSIR_CLIENT_ID       = 'EXT_PIOVE_SHOP.EXT_PIOVE_SHOP.01M07X5FPQWRV1HJTWR06SBH2G'
-YASSIR_CLIENT_SECRET   = 'e4f3ad4ff8cdd772d7445d279653d3a265048f1f796b71606a185e80c40f67dad0f122d253d88ac4913e4ea2555732bdb8ab1eea99fb3d823464111161a5bf0b'
-YASSIR_SERVICE_CODE    = 'EXT_PIOVE_SHOP'
-YASSIR_PUBLISHABLE_KEY = 'pk_yassir_909a0bc0b5d71024e9131d766bdbc895'
+YASSIR_BASE_URL        = os.environ.get('YASSIR_BASE_URL', 'https://api.yassir.io')
+YASSIR_CLIENT_ID       = os.environ.get('YASSIR_CLIENT_ID', '')
+YASSIR_CLIENT_SECRET   = os.environ.get('YASSIR_CLIENT_SECRET', '')
+YASSIR_SERVICE_CODE    = os.environ.get('YASSIR_SERVICE_CODE', 'EXT_PIOVE_SHOP')
+YASSIR_PUBLISHABLE_KEY = os.environ.get('YASSIR_PUBLISHABLE_KEY', '')
 
 COUNTRY_CODE = 'DZA'
 

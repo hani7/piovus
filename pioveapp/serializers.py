@@ -340,7 +340,7 @@ class OrderCreateSerializer(serializers.Serializer):
     wilaya = serializers.CharField(required=False, allow_blank=True)
     city = serializers.CharField(required=False, allow_blank=True)
     notes = serializers.CharField(required=False, allow_blank=True)
-    payment_method = serializers.ChoiceField(choices=['cash', 'cib'], default='cash')
+    payment_method = serializers.ChoiceField(choices=['cash', 'cib', 'yassir'], default='cash')
     delivery_company_id = serializers.IntegerField(required=False, allow_null=True)
     delivery_type = serializers.ChoiceField(choices=['home', 'desk'], default='home')
     

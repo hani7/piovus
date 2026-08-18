@@ -186,46 +186,53 @@ export default function CheckoutPage() {
         source: localStorage.getItem('order_source') || 'direct',
       }
       const res = await createOrder(payload)
-      clearCart()
+
       if (res.data.satim_payment_url) {
         // CIB/Edahabia — redirect to SATIM payment page
+        clearCart()
         localStorage.setItem('lastOrder', JSON.stringify(res.data))
         window.location.href = res.data.satim_payment_url
+
       } else if (res.data.satim_error) {
+        clearCart()
         window.location.href = `/payment-result?status=fail&reason=init_failed&msg=${encodeURIComponent(res.data.satim_error)}`
-      } else {
-        // Cash on delivery — redirect to dedicated confirmation page
-        // Meta Purchase pixel is fired in OrderConfirmedPage
-          if (form.payment_method === 'yassir') {
-            // Initier Yassir Cash
-            try {
-              const yassirRes = await initiateYassir(res.data.id)
-              if (yassirRes.data?.payUrl) {
-                localStorage.setItem('lastOrder', JSON.stringify(res.data))
-                const returnUrl = encodeURIComponent(`${window.location.origin}/api/yassir/callback/`)
-                const sep = yassirRes.data.payUrl.includes('?') ? '&' : '?'
-                window.location.href = `${yassirRes.data.payUrl}${sep}returnUrl=${returnUrl}`
-              } else {
-                const errMsg = yassirRes.data?.error || 'Impossible de générer le lien de paiement Yassir'
-                setErrors({ submit: `Yassir Cash: ${errMsg}` })
-              }
-            } catch (yassirErr) {
-              const serverMsg = yassirErr?.response?.data?.error || yassirErr?.response?.data?.detail || yassirErr.message || 'Erreur Yassir Cash'
-              setErrors({ submit: `Yassir Cash: ${serverMsg}` })
-            }
-        } else {
-          const finalValue = total + deliveryCost - (coupon ? coupon.discount_amount : 0)
-          playSuccessSound()
-          navigate('/order-confirmed', {
-            replace: true,
-            state: {
-              orderId: res.data.id,
-              total:   finalValue,
-              items:   items,
-              method:  'cash',
-            }
-          })
+
+      } else if (form.payment_method === 'yassir') {
+        // Yassir Cash — initier le paiement AVANT de vider le panier
+        try {
+          const yassirRes = await initiateYassir(res.data.id)
+          if (yassirRes.data?.payUrl) {
+            // ✅ Succès — vider le panier et rediriger
+            clearCart()
+            localStorage.setItem('lastOrder', JSON.stringify(res.data))
+            const returnUrl = encodeURIComponent(`${window.location.origin}/api/yassir/callback/`)
+            const sep = yassirRes.data.payUrl.includes('?') ? '&' : '?'
+            window.location.href = `${yassirRes.data.payUrl}${sep}returnUrl=${returnUrl}`
+          } else {
+            // ❌ Pas de payUrl — afficher l'erreur, panier intact
+            const errMsg = yassirRes.data?.error || 'Impossible de générer le lien de paiement Yassir'
+            setErrors({ submit: `Erreur Yassir Cash : ${errMsg}` })
+          }
+        } catch (yassirErr) {
+          // ❌ Erreur réseau — afficher l'erreur, panier intact
+          const serverMsg = yassirErr?.response?.data?.error || yassirErr?.response?.data?.detail || yassirErr.message || 'Erreur Yassir Cash'
+          setErrors({ submit: `Erreur Yassir Cash : ${serverMsg}` })
         }
+
+      } else {
+        // Paiement à la livraison (cash)
+        clearCart()
+        const finalValue = total + deliveryCost - (coupon ? coupon.discount_amount : 0)
+        playSuccessSound()
+        navigate('/order-confirmed', {
+          replace: true,
+          state: {
+            orderId: res.data.id,
+            total:   finalValue,
+            items:   items,
+            method:  'cash',
+          }
+        })
       }
     } catch (err) {
       const serverMsg = err?.response?.data?.error || err?.response?.data?.detail || err.message || JSON.stringify(err?.response?.data)

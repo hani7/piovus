@@ -201,20 +201,28 @@ export default function CheckoutPage() {
         // Yassir Cash — initier le paiement AVANT de vider le panier
         try {
           const yassirRes = await initiateYassir(res.data.id)
-          if (yassirRes.data?.payUrl) {
-            // ✅ Succès — vider le panier et rediriger
+          const yData = yassirRes.data
+
+          if (yData?.redirect) {
+            // Succès direct (statusCode=2, sans OTP)
+            clearCart()
+            window.location.href = yData.redirect
+
+          } else if (yData?.payUrl) {
+            // OTP requis (statusCode=12) → rediriger vers page Yassir
             clearCart()
             localStorage.setItem('lastOrder', JSON.stringify(res.data))
-            const returnUrl = encodeURIComponent(`${window.location.origin}/api/yassir/callback/`)
-            const sep = yassirRes.data.payUrl.includes('?') ? '&' : '?'
-            window.location.href = `${yassirRes.data.payUrl}${sep}returnUrl=${returnUrl}`
+            const url = new URL(yData.payUrl)
+            const returnUrl = yData.returnUrl || `${window.location.origin}/api/yassir/callback/`
+            url.searchParams.set('returnUrl', returnUrl)
+            window.location.href = url.toString()
+
           } else {
-            // ❌ Pas de payUrl — afficher l'erreur, panier intact
-            const errMsg = yassirRes.data?.error || 'Impossible de générer le lien de paiement Yassir'
+            // Erreur : pas de payUrl ni redirect
+            const errMsg = yData?.error || 'Impossible de démarrer le paiement Yassir'
             setErrors({ submit: `Erreur Yassir Cash : ${errMsg}` })
           }
         } catch (yassirErr) {
-          // ❌ Erreur réseau — afficher l'erreur, panier intact
           const serverMsg = yassirErr?.response?.data?.error || yassirErr?.response?.data?.detail || yassirErr.message || 'Erreur Yassir Cash'
           setErrors({ submit: `Erreur Yassir Cash : ${serverMsg}` })
         }

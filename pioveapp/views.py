@@ -3347,30 +3347,69 @@ def yassir_initiate(request):
         if order.payment_method != 'yassir':
             return DjangoJson({'error': 'Cette commande ne supporte pas Yassir Cash'}, status=400)
         from .yassir_service import register_customer, create_payment_intent, proceed_wallet, YassirError
-        phone = order.guest_phone or ''
+        phone = order.guest_phone or (order.user.profile.phone if order.user else '') or ''
         if not phone:
             return DjangoJson({'error': 'Numéro de téléphone requis pour Yassir Cash'}, status=400)
+
+        guest_name = order.guest_name or (order.user.get_full_name() if order.user else 'Client Piové') or 'Client Piové'
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'https://piovecosmetics.dz')
+        api_base     = getattr(settings, 'API_URL', 'https://api.piovecosmetics.dz').rstrip('/')
+
+        # Étape 1 : Enregistrer le client (idempotent — 409 est OK)
         try:
-            register_customer(phone)
+            register_customer(phone, name=guest_name)
         except YassirError as e:
-            logger.warning(f'[Yassir] register_customer warning: {e}')
+            logger.warning(f'[Yassir] register_customer warning (non-bloquant): {e}')
+
+        # Étape 2 : Créer le Payment Intent
         try:
             intent = create_payment_intent(order_id=order.id, amount=float(order.total), phone=phone)
         except YassirError as e:
             return DjangoJson({'error': str(e)}, status=502)
-        payment_id = intent.get('id') or intent.get('paymentId') or ''
-        client_secret = intent.get('clientSecret', '')
+
+        payment_id    = intent['paymentId']
+        client_secret = intent['clientSecret']
+
+        # Étape 3 : Procéder au paiement (WALLET_V2) avec x-client-secret
         try:
-            proceed_data = proceed_wallet(payment_id)
+            proceed = proceed_wallet(payment_id, client_secret)
         except YassirError as e:
             return DjangoJson({'error': str(e)}, status=502)
-        pay_url = proceed_data.get('metadata', {}).get('payUrl') or proceed_data.get('payUrl', '')
+
+        status_code = proceed.get('statusCode')
+        pay_url     = proceed.get('payUrl', '')
+
+        # Sauvegarder dans la commande
         order.yassir_payment_id    = payment_id
         order.yassir_client_secret = client_secret
         order.yassir_status        = 'INITIALIZED'
         order.save(update_fields=['yassir_payment_id', 'yassir_client_secret', 'yassir_status'])
-        logger.info(f'[Yassir] Initiate OK — order #{order_id}, paymentId={payment_id}')
-        return DjangoJson({'payUrl': pay_url, 'paymentId': payment_id})
+
+        logger.info(f'[Yassir] Initiate — order #{order.id}, paymentId={payment_id}, statusCode={status_code}')
+
+        # statusCode=12 → OTP requis, rediriger vers payUrl
+        if status_code == 12 and pay_url:
+            return_url = f'{api_base}/api/yassir/callback/'
+            return DjangoJson({'payUrl': pay_url, 'paymentId': payment_id, 'returnUrl': return_url})
+
+        # statusCode=2 → succès direct (paiement sans OTP)
+        elif status_code == 2:
+            order.payment_status = 'paid'
+            order.status         = 'confirmed'
+            order.yassir_status  = 'SUCCEEDED'
+            order.save(update_fields=['payment_status', 'status', 'yassir_status'])
+            OrderStatusHistory.objects.create(order=order, status='confirmed', notes='Paiement Yassir Cash direct (sans OTP).')
+            success_url = f'{frontend_url}/order-confirmed?orderId={order.id}&method=yassir&status=success'
+            return DjangoJson({'redirect': success_url, 'paymentId': payment_id})
+
+        # statusCode=3 → rejeté
+        elif status_code == 3:
+            return DjangoJson({'error': 'Paiement Yassir rejeté. Vérifiez le solde de votre portefeuille.'}, status=402)
+
+        else:
+            # Réponse inattendue — retourner les détails pour debug
+            logger.error(f'[Yassir] Unexpected statusCode={status_code} for order #{order.id}: {proceed}')
+            return DjangoJson({'error': f'Réponse Yassir inattendue (statusCode={status_code}). Contactez le support.', 'details': proceed}, status=502)
     except Exception as e:
         logger.exception(f'[Yassir] yassir_initiate error: {e}')
         return DjangoJson({'error': 'Erreur serveur Yassir'}, status=500)

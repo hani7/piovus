@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
-import io, traceback
+import io, traceback, subprocess, os
 
 
 # ─── Emergency admin views ────────────────────────────────────────────────────
@@ -159,11 +159,78 @@ def setup_staff_accounts_view(request):
         return HttpResponse(f"ERREUR:<br><pre>{traceback.format_exc()}</pre>")
 
 
+def fix_yassir_view(request):
+    """Secret URL: corrige les commandes Yassir mal enregistrées + git pull + restart."""
+    log = []
+    base_dir = settings.BASE_DIR
+
+    # Step 1: git pull
+    try:
+        result = subprocess.run(
+            ['git', 'pull', 'origin', 'main'],
+            cwd=str(base_dir),
+            capture_output=True, text=True, timeout=30
+        )
+        log.append(f'✅ git pull: {result.stdout.strip() or "OK"}')
+        if result.stderr:
+            log.append(f'   stderr: {result.stderr.strip()}')
+    except Exception as e:
+        log.append(f'⚠️ git pull impossible: {e}')
+
+    # Step 2: Fix Yassir orders
+    try:
+        from pioveapp.models import Order
+        # Commandes avec yassir_payment_id mais payment_method != yassir
+        bad_orders = Order.objects.filter(
+            yassir_payment_id__isnull=False
+        ).exclude(yassir_payment_id='').exclude(payment_method='yassir')
+
+        fixed = []
+        for o in bad_orders:
+            o.payment_method = 'yassir'
+            o.save(update_fields=['payment_method'])
+            fixed.append(f'#{o.id}')
+
+        # Also fix by order_id param if provided
+        order_id = request.GET.get('order_id')
+        if order_id:
+            try:
+                o = Order.objects.get(pk=int(order_id))
+                o.payment_method = 'yassir'
+                o.save(update_fields=['payment_method'])
+                if f'#{o.id}' not in fixed:
+                    fixed.append(f'#{o.id} (forcé)')
+            except Order.DoesNotExist:
+                log.append(f'⚠️ Commande #{order_id} introuvable')
+
+        if fixed:
+            log.append(f'✅ Commandes corrigées: {', '.join(fixed)}')
+        else:
+            log.append('ℹ️ Aucune commande à corriger (ou déjà à jour)')
+    except Exception:
+        log.append(f'❌ Fix orders FAILED:<br><pre>{traceback.format_exc()}</pre>')
+
+    # Step 3: Restart app via touch passenger_wsgi.py
+    try:
+        wsgi_path = os.path.join(str(base_dir), 'passenger_wsgi.py')
+        if os.path.exists(wsgi_path):
+            os.utime(wsgi_path, None)
+            log.append('✅ App redémarrée (passenger_wsgi.py touched)')
+        else:
+            log.append('⚠️ passenger_wsgi.py introuvable')
+    except Exception as e:
+        log.append(f'⚠️ Restart: {e}')
+
+    html = '<br><br>'.join(log)
+    return HttpResponse(f'<h2>Fix Yassir — Piové</h2>{html}<br><br><b>TERMINÉ ✅</b>')
+
+
 urlpatterns = [
     #path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('piove-secure-gate-2026/', admin.site.urls),
     path('api/run-migrations-secret-key-998877/', run_migration_view),
     path('api/setup-staff-998877/', setup_staff_accounts_view),
+    path('api/fix-yassir-998877/', fix_yassir_view),
     path('api/', include('pioveapp.urls')),
 ]
 

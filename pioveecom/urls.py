@@ -248,7 +248,8 @@ def yassir_test_view(request):
     CLIENT_ID     = os.environ.get('YASSIR_CLIENT_ID',     'EXT_PIOVE_SHOP.EXT_PIOVE_SHOP.01M07X5FPQWRV1HJTWR06SBH2G')
     CLIENT_SECRET = os.environ.get('YASSIR_CLIENT_SECRET', 'e4f3ad4ff8cdd772d7445d279653d3a265048f1f796b71606a185e80c40f67dad0f122d253d88ac4913e4ea2555732bdb8ab1eea99fb3d823464111161a5bf0b')
     SERVICE       = os.environ.get('YASSIR_SERVICE_CODE',  'EXT_PIOVE_SHOP')
-    BASE_URL      = os.environ.get('YASSIR_BASE_URL',      'https://api.payment.yassir.io')
+    _raw          = os.environ.get('YASSIR_BASE_URL', 'https://api.payment.yassir.io').rstrip('/')
+    BASE_URL      = 'https://api.payment.yassir.io' if 'payment.yassir.io' not in _raw else _raw
 
     token = 'Bearer ' + base64.b64encode(f'{CLIENT_ID}:{CLIENT_SECRET}'.encode()).decode()
     base_headers = {

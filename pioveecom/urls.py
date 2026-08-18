@@ -225,12 +225,161 @@ def fix_yassir_view(request):
     return HttpResponse(f'<h2>Fix Yassir — Piové</h2>{html}<br><br><b>TERMINÉ ✅</b>')
 
 
+def yassir_test_view(request):
+    """
+    Diagnostic complet Yassir — suit exactement le Quick Start officiel :
+    https://stg-docs.payment.yassir.io/getting-started/quick-start
+
+    Étapes :
+    1. Register Customer  (POST /api/v1/customers)
+    2. Create Payment Intent (POST /api/v1/payments/intents)
+    3. Proceed Wallet  (POST /api/v1/payments/intents/{id}/proceed + x-client-secret)
+
+    Usage : GET /api/test-yassir-998877/?phone=0550123456&amount=100
+    """
+    import base64, json as _json
+    import requests as _req
+
+    phone  = request.GET.get('phone',  '0550000000')
+    amount = float(request.GET.get('amount', '100'))
+
+    # ── Credentials ──────────────────────────────────────────────────────────
+    import os
+    CLIENT_ID     = os.environ.get('YASSIR_CLIENT_ID',     'EXT_PIOVE_SHOP.EXT_PIOVE_SHOP.01M07X5FPQWRV1HJTWR06SBH2G')
+    CLIENT_SECRET = os.environ.get('YASSIR_CLIENT_SECRET', 'e4f3ad4ff8cdd772d7445d279653d3a265048f1f796b71606a185e80c40f67dad0f122d253d88ac4913e4ea2555732bdb8ab1eea99fb3d823464111161a5bf0b')
+    SERVICE       = os.environ.get('YASSIR_SERVICE_CODE',  'EXT_PIOVE_SHOP')
+    BASE_URL      = os.environ.get('YASSIR_BASE_URL',      'https://api.payment.yassir.io')
+
+    token = 'Bearer ' + base64.b64encode(f'{CLIENT_ID}:{CLIENT_SECRET}'.encode()).decode()
+    base_headers = {
+        'Authorization':  token,
+        'Content-Type':   'application/json',
+        'x-platform':     'API',
+        'x-service':      SERVICE,
+        'x-country-code': 'DZA',
+        'x-locale':       'fr_FR',
+    }
+
+    # Normalize phone
+    p = phone.strip().replace(' ', '')
+    if p.startswith('0'):      p = '+213' + p[1:]
+    elif p.startswith('213'):  p = '+' + p
+    elif not p.startswith('+'): p = '+213' + p
+
+    lines = [f'<h2>🧪 Yassir Quick Start Diagnostic</h2>']
+    lines.append(f'<b>BASE_URL:</b> {BASE_URL}')
+    lines.append(f'<b>SERVICE:</b>  {SERVICE}')
+    lines.append(f'<b>CLIENT_ID:</b> {CLIENT_ID[:30]}...')
+    lines.append(f'<b>Phone:</b>    {p}')
+    lines.append(f'<b>Amount:</b>   {amount} DZD')
+    lines.append('<hr>')
+
+    payment_id    = None
+    client_secret = None
+
+    # ── STEP 1: Register Customer ─────────────────────────────────────────────
+    lines.append('<h3>📌 Step 1 — Register Customer</h3>')
+    try:
+        r1 = _req.post(
+            f'{BASE_URL}/api/v1/customers',
+            json={'name': 'Test Piove', 'phone': p, 'isActive': True},
+            headers=base_headers, timeout=15
+        )
+        lines.append(f'<b>Status:</b> {r1.status_code}')
+        try:
+            lines.append(f'<b>Response:</b> <pre>{_json.dumps(r1.json(), indent=2, ensure_ascii=False)}</pre>')
+        except Exception:
+            lines.append(f'<b>Raw:</b> <pre>{r1.text[:500]}</pre>')
+        if r1.status_code in (200, 201, 409):
+            lines.append('✅ OK (409 = client déjà existant, c\'est normal)')
+        else:
+            lines.append(f'❌ ERREUR — arrêt du test')
+            return HttpResponse('<br>'.join(lines))
+    except Exception as e:
+        lines.append(f'❌ Exception: {e}')
+        return HttpResponse('<br>'.join(lines))
+
+    lines.append('<hr>')
+
+    # ── STEP 2: Create Payment Intent ─────────────────────────────────────────
+    lines.append('<h3>📌 Step 2 — Create Payment Intent</h3>')
+    try:
+        r2 = _req.post(
+            f'{BASE_URL}/api/v1/payments/intents?countryCode=DZA',
+            json={
+                'actionId':           'test_piove_999',
+                'amount':             amount,
+                'actionCurrencyCode': 'DZD',
+                'actionCountryCode':  'DZA',
+                'userId':             p,
+                'captureMethod':      'DIRECT',
+            },
+            headers=base_headers, timeout=15
+        )
+        lines.append(f'<b>Status:</b> {r2.status_code}')
+        try:
+            r2_json = r2.json()
+            lines.append(f'<b>Response:</b> <pre>{_json.dumps(r2_json, indent=2, ensure_ascii=False)}</pre>')
+            data2 = r2_json.get('data', {})
+            payment_id    = data2.get('paymentId') or data2.get('id')
+            client_secret = data2.get('clientSecret', '')
+        except Exception:
+            lines.append(f'<b>Raw:</b> <pre>{r2.text[:500]}</pre>')
+        if r2.status_code in (200, 201) and payment_id:
+            lines.append(f'✅ OK — paymentId: <b>{payment_id}</b>')
+            lines.append(f'✅ clientSecret: <b>{client_secret[:30]}...</b>')
+        else:
+            lines.append(f'❌ ERREUR — arrêt du test (pas de paymentId)')
+            return HttpResponse('<br>'.join(lines))
+    except Exception as e:
+        lines.append(f'❌ Exception: {e}')
+        return HttpResponse('<br>'.join(lines))
+
+    lines.append('<hr>')
+
+    # ── STEP 3: Proceed Wallet ────────────────────────────────────────────────
+    lines.append('<h3>📌 Step 3 — Proceed Wallet (WALLET_V2)</h3>')
+    proceed_headers = dict(base_headers)
+    proceed_headers['x-client-secret'] = client_secret
+    lines.append(f'<b>x-client-secret:</b> {client_secret[:30]}...')
+    try:
+        r3 = _req.post(
+            f'{BASE_URL}/api/v1/payments/intents/{payment_id}/proceed',
+            json={'paymentMethodCode': 'WALLET_V2'},
+            headers=proceed_headers, timeout=15
+        )
+        lines.append(f'<b>Status:</b> {r3.status_code}')
+        try:
+            r3_json = r3.json()
+            lines.append(f'<b>Response:</b> <pre>{_json.dumps(r3_json, indent=2, ensure_ascii=False)}</pre>')
+            data3     = r3_json.get('data', {})
+            status_c  = data3.get('statusCode')
+            pay_url   = (data3.get('metadata') or {}).get('payUrl', '')
+            lines.append(f'<b>statusCode:</b> {status_c}')
+            if status_c == 12:
+                lines.append(f'✅ OTP requis — payUrl: <a href="{pay_url}" target="_blank">{pay_url[:80]}...</a>')
+            elif status_c == 2:
+                lines.append('✅ Paiement DIRECT réussi (sans OTP)!')
+            elif status_c == 3:
+                lines.append('⚠️ Paiement rejeté (solde insuffisant?)')
+            else:
+                lines.append(f'⚠️ statusCode inattendu: {status_c}')
+        except Exception:
+            lines.append(f'<b>Raw:</b> <pre>{r3.text[:1000]}</pre>')
+    except Exception as e:
+        lines.append(f'❌ Exception: {e}')
+
+    lines.append('<hr><b>✅ Test terminé.</b>')
+    return HttpResponse('<br>'.join(lines))
+
+
 urlpatterns = [
     #path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('piove-secure-gate-2026/', admin.site.urls),
     path('api/run-migrations-secret-key-998877/', run_migration_view),
     path('api/setup-staff-998877/', setup_staff_accounts_view),
     path('api/fix-yassir-998877/', fix_yassir_view),
+    path('api/test-yassir-998877/', yassir_test_view),
     path('api/', include('pioveapp.urls')),
 ]
 

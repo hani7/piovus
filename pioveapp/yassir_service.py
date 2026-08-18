@@ -18,16 +18,13 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 # ─── Constantes ──────────────────────────────────────────────────────────────
+# Credentials Yassir Cash — Production (EXT_PIOVE_SHOP)
 
-YASSIR_ENV          = getattr(settings, 'YASSIR_ENV', 'staging')
-YASSIR_BASE_URL     = (
-    'https://stg-api.payment.yassir.io'
-    if YASSIR_ENV == 'staging'
-    else 'https://api.payment.yassir.io'
-)
-YASSIR_CLIENT_ID     = getattr(settings, 'YASSIR_CLIENT_ID', '')
-YASSIR_CLIENT_SECRET = getattr(settings, 'YASSIR_CLIENT_SECRET', '')
-YASSIR_SERVICE_CODE  = getattr(settings, 'YASSIR_SERVICE_CODE', 'PIOVE')
+YASSIR_BASE_URL        = 'https://api.yassir.io'
+YASSIR_CLIENT_ID       = 'EXT_PIOVE_SHOP.EXT_PIOVE_SHOP.01M07X5FPQWRV1HJTWR06SBH2G'
+YASSIR_CLIENT_SECRET   = 'e4f3ad4ff8cdd772d7445d279653d3a265048f1f796b71606a185e80c40f67dad0f122d253d88ac4913e4ea2555732bdb8ab1eea99fb3d823464111161a5bf0b'
+YASSIR_SERVICE_CODE    = 'EXT_PIOVE_SHOP'
+YASSIR_PUBLISHABLE_KEY = 'pk_yassir_909a0bc0b5d71024e9131d766bdbc895'
 
 COUNTRY_CODE = 'DZA'
 

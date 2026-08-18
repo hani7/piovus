@@ -419,7 +419,7 @@
   align-items: center;
   justify-content: center;
   border: 1.5px solid var(--color-gray-300);
-  border-radius: var(--radius-md);
+  border-radius: 50px;
   background: #fff;
   color: var(--color-gray-500);
   cursor: pointer;

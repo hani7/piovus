@@ -241,7 +241,7 @@ def yassir_test_view(request):
     import requests as _req
 
     phone  = request.GET.get('phone',  '0550000000')
-    amount = float(request.GET.get('amount', '100'))
+    amount = float(request.GET.get('amount', '100'))  # 0 DA est autorisé pour les tests
 
     # ── Credentials ──────────────────────────────────────────────────────────
     import os
@@ -291,8 +291,15 @@ def yassir_test_view(request):
             lines.append(f'<b>Response:</b> <pre>{_json.dumps(r1.json(), indent=2, ensure_ascii=False)}</pre>')
         except Exception:
             lines.append(f'<b>Raw:</b> <pre>{r1.text[:500]}</pre>')
-        if r1.status_code in (200, 201, 409):
-            lines.append('✅ OK (409 = client déjà existant, c\'est normal)')
+        # Staging = 400 "Customer already exists" / Production = 409
+        body_msg = ''
+        try: body_msg = r1.json().get('message', '').lower()
+        except Exception: pass
+        is_existing = r1.status_code in (200, 201, 409) or (
+            r1.status_code == 400 and 'already exists' in body_msg
+        )
+        if is_existing:
+            lines.append('✅ OK (client déjà existant ou créé avec succès)')
         else:
             lines.append(f'❌ ERREUR — arrêt du test')
             return HttpResponse('<br>'.join(lines))

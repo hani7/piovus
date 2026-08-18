@@ -401,7 +401,7 @@ export default function CheckoutPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                     <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span>Yassir Cash</span>
-                      <img src="/yassir-logo.png" alt="Yassir Cash" style={{ height: 28, objectFit: 'contain' }} />
+                      <img src="/yassir-logo.png" alt="Yassir Cash" style={{ height: 40, objectFit: 'contain' }} />
                     </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Payez via votre portefeuille Yassir. Les frais de livraison seront payés à la livraison.</div>
                   </div>

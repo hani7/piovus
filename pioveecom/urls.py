@@ -353,13 +353,18 @@ def yassir_test_view(request):
         try:
             r3_json = r3.json()
             lines.append(f'<b>Response:</b> <pre>{_json.dumps(r3_json, indent=2, ensure_ascii=False)}</pre>')
-            data3     = r3_json.get('data', {})
-            status_c  = data3.get('statusCode')
-            meta3     = data3.get('metadata') or data3.get('metaData') or {}
-            pay_url   = meta3.get('payUrl', '')
-            lines.append(f'<b>statusCode:</b> {status_c}')
-            if status_c == 12:
-                lines.append(f'✅ OTP requis — payUrl: <a href="{pay_url}" target="_blank">{pay_url[:80]}...</a>')
+            data3       = r3_json.get('data', {})
+            status_c    = data3.get('statusCode')
+            require_3ds = data3.get('require3DS', False)
+            meta3       = data3.get('metadata') or data3.get('metaData') or {}
+            pay_url     = meta3.get('payUrl', '')
+            # Normalisation : require3DS=True OU payUrl present => statusCode 12
+            if status_c is None:
+                status_c = 12 if (require_3ds or pay_url) else 2
+            lines.append(f'<b>statusCode (normalisé):</b> {status_c} | require3DS: {require_3ds}')
+            if status_c == 12 and pay_url:
+                lines.append(f'✅ OTP requis &mdash; <a href="{pay_url}" target="_blank">Cliquer pour tester le paiement OTP Yassir &rarr;</a>')
+                lines.append(f'<small>payUrl: {pay_url}</small>')
             elif status_c == 2:
                 lines.append('✅ Paiement DIRECT réussi (sans OTP)!')
             elif status_c == 3:

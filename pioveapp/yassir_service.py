@@ -209,11 +209,20 @@ def proceed_wallet(payment_id: str, client_secret: str, redirect_url: str = None
         # ⚠️ La doc montre deux variantes : metadata (WALLET) et metaData (cartes)
         meta = data.get('metadata') or data.get('metaData') or {}
         pay_url = meta.get('payUrl', '')
+        require_3ds = data.get('require3DS', False)
 
-        logger.info(f'[Yassir] Proceed {payment_id}: statusCode={status_code} payUrl={bool(pay_url)}')
+        # ⚠️ L'API staging ne retourne pas toujours statusCode.
+        # Si require3DS=True OU payUrl présent → équivalent statusCode 12 (OTP requis)
+        if status_code is None:
+            if require_3ds or pay_url:
+                status_code = 12
+            else:
+                status_code = 2  # succès direct
+
+        logger.info(f'[Yassir] Proceed {payment_id}: statusCode={status_code} require3DS={require_3ds} payUrl={bool(pay_url)}')
         return {
             'statusCode':  status_code,
-            'require3DS':  data.get('require3DS', False),
+            'require3DS':  require_3ds,
             'payUrl':      pay_url,
             'status':      data.get('status', ''),
             'raw':         data,

@@ -16,7 +16,7 @@ from .views import (
     mylerz_webhook, satim_callback, satim_test_view, AdminMediaView,
     AdminProfileView, AdminChangePasswordView, TrackOrderView,
     AdminBoutiqueViewSet, BoutiqueOrderViewSet, BoutiqueLoginView,
-    yassir_initiate, yassir_callback, yassir_webhook,
+    yassir_initiate, yassir_callback, yassir_webhook, yassir_verify,
     meta_product_feed,
 )
 from django.core.management import call_command
@@ -76,6 +76,7 @@ urlpatterns = [
     path('meta-feed/', meta_product_feed, name='meta-feed'),
     path('yassir/initiate/', yassir_initiate, name='yassir-initiate'),
     path('yassir/callback/', yassir_callback, name='yassir-callback'),
+    path('yassir/verify/', yassir_verify, name='yassir-verify'),
     path('yassir/webhook/', yassir_webhook, name='yassir-webhook'),
     path('apply-coupon/', ApplyCouponView.as_view(), name='apply-coupon'),
     path('mylerz/webhook/', mylerz_webhook, name='mylerz-webhook'),

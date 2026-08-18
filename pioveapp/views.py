@@ -3489,6 +3489,88 @@ def yassir_webhook(request):
         return DjangoJson({'ok': True})
 
 
+# ─── Yassir Verify — appelé par le frontend après retour OTP ─────────────────
+# Suit l'étape 5 du Payment Flow :
+# https://stg-docs.payment.yassir.io/guides/payment-flow#direct-flow
+# Yassir redirige vers /payment-result?paymentId=...&statusCode=2
+# Le frontend appelle POST /api/yassir/verify/ pour confirmer côté serveur
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def yassir_verify(request):
+    """
+    Vérification serveur du paiement Yassir après retour OTP.
+    Body: { payment_id, order_id (optionnel), status_code (optionnel) }
+    Retourne: { success: true/false, order_id, status }
+    """
+    try:
+        payment_id  = request.data.get('payment_id', '')
+        order_id    = request.data.get('order_id', '')
+        status_code = request.data.get('status_code', '')
+
+        if not payment_id:
+            return DjangoJson({'success': False, 'error': 'payment_id manquant'}, status=400)
+
+        # Trouver la commande
+        order = None
+        if order_id:
+            try:
+                order = Order.objects.get(pk=int(order_id))
+            except (Order.DoesNotExist, ValueError):
+                pass
+        if not order:
+            order = Order.objects.filter(yassir_payment_id=payment_id).first()
+        if not order:
+            logger.error(f'[Yassir Verify] Order not found — paymentId={payment_id}')
+            return DjangoJson({'success': False, 'error': 'Commande introuvable'}, status=404)
+
+        # Si déjà confirmé → répondre directement sans re-vérifier
+        if order.payment_status == 'paid' and order.yassir_status == 'SUCCEEDED':
+            logger.info(f'[Yassir Verify] Order #{order.id} already confirmed')
+            return DjangoJson({'success': True, 'order_id': order.id, 'status': 'already_paid'})
+
+        # Appel Check endpoint — vérification serveur (étape 5 du flow Yassir)
+        from .yassir_service import check_payment, YassirError
+        try:
+            check_data = check_payment(payment_id)
+            verified_code = int(check_data.get('statusCode', status_code or 0))
+        except (YassirError, Exception) as e:
+            logger.warning(f'[Yassir Verify] check_payment fallback: {e}')
+            # Utiliser le statusCode retourné par Yassir dans le redirect
+            try:
+                verified_code = int(status_code)
+            except (TypeError, ValueError):
+                verified_code = 0
+
+        logger.info(f'[Yassir Verify] order=#{order.id} paymentId={payment_id} verifiedCode={verified_code}')
+
+        if verified_code == 2:
+            # ✅ Succès — marquer la commande comme payée
+            order.payment_status = 'paid'
+            order.status         = 'confirmed'
+            order.yassir_status  = 'SUCCEEDED'
+            order.save(update_fields=['payment_status', 'status', 'yassir_status'])
+            OrderStatusHistory.objects.create(
+                order=order,
+                status='confirmed',
+                notes='Paiement Yassir Cash confirmé via OTP (verify endpoint).'
+            )
+            return DjangoJson({'success': True, 'order_id': order.id, 'status': 'paid'})
+
+        elif verified_code == 3:
+            order.yassir_status = 'REJECTED'
+            order.save(update_fields=['yassir_status'])
+            return DjangoJson({'success': False, 'order_id': order.id, 'status': 'rejected', 'error': 'Paiement rejeté'})
+
+        else:
+            return DjangoJson({'success': False, 'order_id': order.id, 'status': f'unknown_{verified_code}', 'error': f'Statut inattendu: {verified_code}'})
+
+    except Exception as e:
+        logger.exception(f'[Yassir Verify] Unexpected error: {e}')
+        return DjangoJson({'success': False, 'error': 'Erreur serveur'}, status=500)
+
+
 # ─── Meta Product Feed (Catalogue Facebook / Instagram) ──────────────────────
 
 def meta_product_feed(request):

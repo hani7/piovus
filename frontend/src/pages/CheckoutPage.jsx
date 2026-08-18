@@ -209,16 +209,20 @@ export default function CheckoutPage() {
             window.location.href = yData.redirect
 
           } else if (yData?.payUrl) {
-            // OTP requis (statusCode=12) → rediriger vers page Yassir
+            // statusCode=12 → OTP requis
+            // Selon la doc officielle Yassir, le returnUrl doit être une page FRONTEND
+            // Yassir y ajoute automatiquement ?paymentId=...&statusCode=2
             clearCart()
             localStorage.setItem('lastOrder', JSON.stringify(res.data))
+            localStorage.setItem('yassirPaymentId', yData.paymentId || '')
+
             const url = new URL(yData.payUrl)
-            const returnUrl = yData.returnUrl || `${window.location.origin}/api/yassir/callback/`
+            // returnUrl = page frontend qui reçoit paymentId + statusCode de Yassir
+            const returnUrl = `${window.location.origin}/payment-result?paymentId=${yData.paymentId}&orderId=${res.data.id}`
             url.searchParams.set('returnUrl', returnUrl)
             window.location.href = url.toString()
 
           } else {
-            // Erreur : pas de payUrl ni redirect
             const errMsg = yData?.error || 'Impossible de démarrer le paiement Yassir'
             setErrors({ submit: `Erreur Yassir Cash : ${errMsg}` })
           }

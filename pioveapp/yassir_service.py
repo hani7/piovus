@@ -165,7 +165,7 @@ def create_payment_intent(order_id: int, amount: float, phone: str) -> dict:
 
 # ─── 3. Procéder au paiement (WALLET_V2) ─────────────────────────────────────
 
-def proceed_wallet(payment_id: str, client_secret: str) -> dict:
+def proceed_wallet(payment_id: str, client_secret: str, redirect_url: str = None) -> dict:
     """
     Déclenche le paiement via le portefeuille Yassir (WALLET_V2).
 
@@ -175,10 +175,11 @@ def proceed_wallet(payment_id: str, client_secret: str) -> dict:
     Args:
         payment_id:    UUID du Payment Intent (data.paymentId)
         client_secret: clientSecret retourné par create_payment_intent (pa_..._secret_...)
+        redirect_url:  URL de retour (optionnel — utilisé pour les paiements carte)
 
     Returns:
         dict avec:
-          - statusCode: 12 → OTP requis, payUrl dans metadata
+          - statusCode: 12 → OTP/3DS requis, payUrl dans metadata
           - statusCode: 2  → paiement direct réussi
           - statusCode: 3  → rejeté
     """
@@ -188,6 +189,8 @@ def proceed_wallet(payment_id: str, client_secret: str) -> dict:
     headers['x-client-secret'] = client_secret  # ← OBLIGATOIRE selon la doc
 
     payload = {'paymentMethodCode': 'WALLET_V2'}
+    if redirect_url:
+        payload['redirectUrl'] = redirect_url   # utilisé pour les cartes
 
     try:
         resp = requests.post(url, json=payload, headers=headers, timeout=20)
@@ -195,7 +198,10 @@ def proceed_wallet(payment_id: str, client_secret: str) -> dict:
 
         data = resp.json().get('data', {})
         status_code = data.get('statusCode')
-        pay_url = (data.get('metadata') or {}).get('payUrl', '')
+
+        # ⚠️ La doc montre deux variantes : metadata (WALLET) et metaData (cartes)
+        meta = data.get('metadata') or data.get('metaData') or {}
+        pay_url = meta.get('payUrl', '')
 
         logger.info(f'[Yassir] Proceed {payment_id}: statusCode={status_code} payUrl={bool(pay_url)}')
         return {

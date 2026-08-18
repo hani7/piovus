@@ -354,7 +354,8 @@ def yassir_test_view(request):
             lines.append(f'<b>Response:</b> <pre>{_json.dumps(r3_json, indent=2, ensure_ascii=False)}</pre>')
             data3     = r3_json.get('data', {})
             status_c  = data3.get('statusCode')
-            pay_url   = (data3.get('metadata') or {}).get('payUrl', '')
+            meta3     = data3.get('metadata') or data3.get('metaData') or {}
+            pay_url   = meta3.get('payUrl', '')
             lines.append(f'<b>statusCode:</b> {status_c}')
             if status_c == 12:
                 lines.append(f'✅ OTP requis — payUrl: <a href="{pay_url}" target="_blank">{pay_url[:80]}...</a>')

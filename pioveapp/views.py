@@ -3517,6 +3517,24 @@ def yassir_webhook(request):
             order.yassir_status = 'RELEASED'
             order.save(update_fields=['yassir_status'])
 
+        elif remote_status == 4:
+            # Remboursement (total ou partiel) — les deux émettent le code 4
+            order.yassir_status = 'REFUNDED'
+            order.save(update_fields=['yassir_status'])
+            logger.info(f'[Yassir Webhook] 💸 Order #{order.id} refunded')
+
+        elif remote_status == 13:
+            # Pré-autorisation complétée (capture manuelle à faire ensuite)
+            order.yassir_status = 'PRE_AUTHORIZED'
+            order.save(update_fields=['yassir_status'])
+            logger.info(f'[Yassir Webhook] 🔒 Order #{order.id} pre-authorized')
+
+        elif remote_status == 14:
+            # Remboursement automatique (pré-auth expirée ou annulée)
+            order.yassir_status = 'AUTO_REFUNDED'
+            order.save(update_fields=['yassir_status'])
+            logger.info(f'[Yassir Webhook] ↩️ Order #{order.id} auto-refunded')
+
         return DjangoJson({'ok': True})
 
     except Exception as e:

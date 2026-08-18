@@ -100,11 +100,21 @@ def register_customer(phone: str, name: str = 'Client Piové') -> dict:
     try:
         resp = requests.post(url, json=payload, headers=_base_headers(), timeout=20)
 
-        if resp.status_code == 409:
-            # Client déjà existant — c'est normal, on continue
-            logger.info(f'[Yassir] Customer already exists: {normalized}')
-            data = resp.json().get('data', {})
-            return data if data else {'phone': normalized}
+        # Staging retourne 400 "Customer already exists" (production = 409)
+        # Les deux sont idempotents — on continue sans erreur
+        if resp.status_code in (400, 409):
+            body_json = {}
+            try:
+                body_json = resp.json()
+            except Exception:
+                pass
+            msg = body_json.get('message', '').lower()
+            if 'already exists' in msg or resp.status_code == 409:
+                logger.info(f'[Yassir] Customer already exists ({resp.status_code}): {normalized}')
+                data = body_json.get('data', {})
+                return data if data else {'phone': normalized}
+            # Autre erreur 400 — la propager
+            resp.raise_for_status()
 
         resp.raise_for_status()
         data = resp.json().get('data', {})

@@ -3330,6 +3330,8 @@ import json as _json
 from django.http import JsonResponse as DjangoJson
 
 @csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def yassir_initiate(request):
     if request.method != 'POST':
         return DjangoJson({'error': 'Method not allowed'}, status=405)

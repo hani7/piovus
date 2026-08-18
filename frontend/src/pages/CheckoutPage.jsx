@@ -196,18 +196,23 @@ export default function CheckoutPage() {
       } else {
         // Cash on delivery — redirect to dedicated confirmation page
         // Meta Purchase pixel is fired in OrderConfirmedPage
-        if (form.payment_method === 'yassir') {
-          // Initier Yassir Cash
-          const yassirRes = await initiateYassir(res.data.id)
-          if (yassirRes.data?.payUrl) {
-            localStorage.setItem('lastOrder', JSON.stringify(res.data))
-            const returnUrl = encodeURIComponent(`${window.location.origin}/api/yassir/callback/`)
-            // Append returnUrl exactly as required by Yassir
-            const sep = yassirRes.data.payUrl.includes('?') ? '&' : '?'
-            window.location.href = `${yassirRes.data.payUrl}${sep}returnUrl=${returnUrl}`
-          } else {
-            throw new Error('Impossible de générer le lien de paiement Yassir')
-          }
+          if (form.payment_method === 'yassir') {
+            // Initier Yassir Cash
+            try {
+              const yassirRes = await initiateYassir(res.data.id)
+              if (yassirRes.data?.payUrl) {
+                localStorage.setItem('lastOrder', JSON.stringify(res.data))
+                const returnUrl = encodeURIComponent(`${window.location.origin}/api/yassir/callback/`)
+                const sep = yassirRes.data.payUrl.includes('?') ? '&' : '?'
+                window.location.href = `${yassirRes.data.payUrl}${sep}returnUrl=${returnUrl}`
+              } else {
+                const errMsg = yassirRes.data?.error || 'Impossible de générer le lien de paiement Yassir'
+                setErrors({ submit: `Yassir Cash: ${errMsg}` })
+              }
+            } catch (yassirErr) {
+              const serverMsg = yassirErr?.response?.data?.error || yassirErr?.response?.data?.detail || yassirErr.message || 'Erreur Yassir Cash'
+              setErrors({ submit: `Yassir Cash: ${serverMsg}` })
+            }
         } else {
           const finalValue = total + deliveryCost - (coupon ? coupon.discount_amount : 0)
           playSuccessSound()

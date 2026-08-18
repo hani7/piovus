@@ -29,10 +29,14 @@ YASSIR_CLIENT_SECRET   = os.environ.get('YASSIR_CLIENT_SECRET', 'e4f3ad4ff8cdd77
 YASSIR_SERVICE_CODE    = os.environ.get('YASSIR_SERVICE_CODE', 'EXT_PIOVE_SHOP')
 YASSIR_PUBLISHABLE_KEY = os.environ.get('YASSIR_PUBLISHABLE_KEY', 'pk_yassir_909a0bc0b5d71024e9131d766bdbc895')
 
-# ⚠️ URL correcte selon la documentation officielle : https://stg-docs.payment.yassir.io
-# On force TOUJOURS api.payment.yassir.io — l'ancienne URL api.yassir.io est incorrecte
-_raw_url = os.environ.get('YASSIR_BASE_URL', 'https://api.payment.yassir.io').rstrip('/')
-YASSIR_BASE_URL = 'https://api.payment.yassir.io' if 'payment.yassir.io' not in _raw_url else _raw_url
+# ⚠️ La doc distingue 2 environnements :
+#   Staging (sandbox) : https://stg-api.payment.yassir.io  ← nos credentials actuels
+#   Production        : https://api.payment.yassir.io
+_raw_url = os.environ.get('YASSIR_BASE_URL', 'https://stg-api.payment.yassir.io').rstrip('/')
+# Auto-correction : api.yassir.io (ancienne URL incorrecte) → staging
+if 'payment.yassir.io' not in _raw_url:
+    _raw_url = 'https://stg-api.payment.yassir.io'
+YASSIR_BASE_URL = _raw_url
 
 COUNTRY_CODE = 'DZA'
 

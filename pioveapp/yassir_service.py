@@ -187,6 +187,7 @@ def proceed_wallet(payment_id: str, client_secret: str, redirect_url: str = None
 
     headers = _base_headers()
     headers['x-client-secret'] = client_secret  # ← OBLIGATOIRE selon la doc
+    headers['Idempotency-Key'] = payment_id      # ← sécurité retries (doc QR guide)
 
     payload = {'paymentMethodCode': 'WALLET_V2'}
     if redirect_url:

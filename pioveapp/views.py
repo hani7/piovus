@@ -3451,42 +3451,77 @@ def yassir_callback(request):
 
 @csrf_exempt
 def yassir_webhook(request):
+    """
+    Webhook Yassir — reçoit les notifications de changement de statut.
+
+    Payload (OTP wallet / QR wallet) :
+    {
+        "actionId":         "merchant-order-123",  ← notre Order.id
+        "remoteStatus":     "SUCCESS",
+        "remoteStatusCode": 2,                      ← 2=succès, 3=rejeté
+        "contextType":      "ORDER",
+        "orderId":          "2fddefa2-...",          ← UUID Yassir (QR flow)
+        "paymentId":        "pa_...",               ← UUID Yassir (OTP flow)
+        "additionalData":   {"paymentCheckoutId": "..."}
+    }
+    """
     if request.method != 'POST':
         return DjangoJson({'ok': False}, status=405)
     try:
         payload = _json.loads(request.body)
-        logger.info(f'[Yassir Webhook] Received: {payload}')
+        logger.info(f'[Yassir Webhook] Received: {_json.dumps(payload)}')
+
         remote_status = payload.get('remoteStatusCode')
         action_id     = payload.get('actionId', '')
-        payment_id    = payload.get('paymentId', '')
+        # OTP flow → paymentId | QR flow → orderId (Yassir UUID, not our pk)
+        payment_id    = payload.get('paymentId', '') or payload.get('orderId', '')
+
         order = None
+
+        # 1. Chercher par paymentId (stocké dans yassir_payment_id)
         if payment_id:
             order = Order.objects.filter(yassir_payment_id=payment_id).first()
+
+        # 2. Fallback sur actionId = notre Order.pk
         if not order and action_id:
             try:
                 order = Order.objects.get(pk=int(action_id))
             except (Order.DoesNotExist, ValueError):
                 pass
+
         if not order:
-            logger.warning(f'[Yassir Webhook] Order not found — actionId={action_id}')
-            return DjangoJson({'ok': True})
+            logger.warning(f'[Yassir Webhook] Order not found — actionId={action_id} paymentId={payment_id}')
+            return DjangoJson({'ok': True})  # toujours 200 pour Yassir
+
+        logger.info(f'[Yassir Webhook] order=#{order.id} remoteStatusCode={remote_status}')
+
         if remote_status == 2 and order.payment_status != 'paid':
+            # ✅ Paiement réussi
             order.payment_status = 'paid'
             order.status         = 'confirmed'
             order.yassir_status  = 'SUCCEEDED'
             order.save(update_fields=['payment_status', 'status', 'yassir_status'])
-            OrderStatusHistory.objects.create(order=order, status='confirmed', notes='Paiement Yassir Cash confirme via webhook.')
-            logger.info(f'[Yassir Webhook] Order #{order.id} confirmed')
+            OrderStatusHistory.objects.create(
+                order=order,
+                status='confirmed',
+                notes='Paiement Yassir Cash confirmé via webhook.'
+            )
+            logger.info(f'[Yassir Webhook] ✅ Order #{order.id} confirmed via webhook')
+
         elif remote_status == 3:
             order.yassir_status = 'REJECTED'
             order.save(update_fields=['yassir_status'])
+            logger.info(f'[Yassir Webhook] ❌ Order #{order.id} rejected')
+
         elif remote_status == 10:
             order.yassir_status = 'RELEASED'
             order.save(update_fields=['yassir_status'])
+
         return DjangoJson({'ok': True})
+
     except Exception as e:
         logger.exception(f'[Yassir Webhook] Error: {e}')
-        return DjangoJson({'ok': True})
+        return DjangoJson({'ok': True})  # toujours 200 pour éviter les retries Yassir
 
 
 # ─── Yassir Verify — appelé par le frontend après retour OTP ─────────────────

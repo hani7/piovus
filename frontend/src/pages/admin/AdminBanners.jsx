@@ -212,9 +212,13 @@ export default function AdminBanners() {
               </div>
 
               <div className="form-group">
-                <label>Image (Visuel / Background)</label>
-                {imgPreview && <img src={imgPreview} alt="preview" style={{width: 100, marginBottom: 10, borderRadius: 4}}/>}
-                <input type="file" className="form-input" accept="image/*" onChange={(e) => {
+                <label>Image ou Vidéo (Visuel / Background)</label>
+                {imgPreview && (
+                  (imgPreview.match(/\.(mp4|webm|mov)$/i) || (imgFile && imgFile.type && imgFile.type.startsWith('video/')))
+                    ? <video src={imgPreview} controls muted style={{width: 200, marginBottom: 10, borderRadius: 4}} />
+                    : <img src={imgPreview} alt="preview" style={{width: 100, marginBottom: 10, borderRadius: 4}}/>
+                )}
+                <input type="file" className="form-input" accept="image/*,video/mp4,video/webm,video/quicktime" onChange={(e) => {
                   const f = e.target.files[0]
                   if (f) {
                     setImgFile(f)

@@ -70,13 +70,26 @@ export default function HomePage() {
           className="hero" 
           aria-label="Bannière principale"
         >
-          {/* Image hero — visible complètement sur mobile */}
-          <img
-            key={slide}
-            src={mediaUrl(heroBanners[slide].image)}
-            alt={heroBanners[slide].title || 'Bannière'}
-            className="hero__bg-img"
-          />
+          {/* Image ou Vidéo hero — visible complètement sur mobile */}
+          {heroBanners[slide].image && heroBanners[slide].image.match(/\.(mp4|webm|mov)$/i) ? (
+            <video
+              key={`video-${slide}`}
+              src={mediaUrl(heroBanners[slide].image)}
+              className="hero__bg-img"
+              autoPlay
+              loop
+              muted
+              playsInline
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
+            <img
+              key={`img-${slide}`}
+              src={mediaUrl(heroBanners[slide].image)}
+              alt={heroBanners[slide].title || 'Bannière'}
+              className="hero__bg-img"
+            />
+          )}
         <div className="hero__content container">
           <div className="hero__text">
             <p className="hero__eyebrow">{heroBanners[slide].subtitle}</p>

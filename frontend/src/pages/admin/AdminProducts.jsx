@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { X, Edit, Trash2, LayoutList, LayoutGrid } from 'lucide-react'
 import adminClient from '../../api/adminClient'
+import mediaUrl from '../../api/mediaUrl'
 
 const EMPTY_FORM = {
   name: '', category_ids: [], description: '', short_description: '', price: '',
@@ -125,7 +126,7 @@ export default function AdminProducts() {
       stock: p.stock, min_stock_alert: p.min_stock_alert,
       is_featured: p.is_featured, is_new: p.is_new, is_bestseller: p.is_bestseller, is_promotion: p.is_promotion, is_active: p.is_active,
     })
-    setEditId(p.id); setThumbFile(null); setThumbPreview(p.thumbnail || null); setModal('edit')
+    setEditId(p.id); setThumbFile(null); setThumbPreview(p.thumbnail ? mediaUrl(p.thumbnail) : null); setModal('edit')
     setVariants(p.variants || [])
     setShowVariants(false)
     setGallery(p.images || [])
@@ -415,7 +416,7 @@ export default function AdminProducts() {
                       <tr key={p.id}>
                         <td>
                           {p.thumbnail
-                            ? <img src={p.thumbnail} alt={p.name} />
+                            ? <img src={mediaUrl(p.thumbnail)} alt={p.name} />
                             : <div style={{ width: 44, height: 44, borderRadius: 8, background: 'var(--admin-surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20" style={{ color: 'var(--admin-text-muted)' }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                               </div>
@@ -499,7 +500,7 @@ export default function AdminProducts() {
                     {/* Image */}
                     <div style={{ width: '100%', aspectRatio: '1', background: 'var(--admin-surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
                       {p.thumbnail
-                        ? <img src={p.thumbnail} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ? <img src={mediaUrl(p.thumbnail)} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" width="48" height="48" style={{ color: 'var(--admin-border)' }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                       }
                       {/* Status badge overlay */}
@@ -788,7 +789,7 @@ export default function AdminProducts() {
                             <div key={v.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--admin-surface)', padding: '10px', borderRadius: '6px' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                 {v.image ? (
-                                  <img src={v.image} alt={v.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                                  <img src={mediaUrl(v.image)} alt={v.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                                 ) : (
                                   <div style={{ width: '40px', height: '40px', background: 'var(--admin-border)', borderRadius: '4px' }} />
                                 )}
@@ -1010,7 +1011,7 @@ export default function AdminProducts() {
                                 ) : g.video && g.image ? (
                                   /* Vidéo avec image poster */
                                   <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                                    <img src={g.image} alt="poster" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <img src={mediaUrl(g.image)} alt="poster" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.25)' }}>
                                       <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="#333"><polygon points="5,3 19,12 5,21"/></svg>
@@ -1019,7 +1020,7 @@ export default function AdminProducts() {
                                   </div>
                                 ) : (
                                   /* Image simple */
-                                  <img src={g.image} alt="galerie" />
+                                  <img src={mediaUrl(g.image)} alt="galerie" />
                                 )}
                                 <button type="button" className="btn-danger" style={{ position: 'absolute', top: 5, right: 5, padding: '2px 5px', fontSize: '0.7rem' }} onClick={() => handleDeleteGallery(g.id)}>X</button>
                               </div>
@@ -1062,7 +1063,7 @@ export default function AdminProducts() {
                               <div key={`rp-${rp.id}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--admin-surface)', padding: '10px', borderRadius: '6px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                   {rp.thumbnail ? (
-                                    <img src={rp.thumbnail} alt={rp.name} style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} />
+                                    <img src={mediaUrl(rp.thumbnail)} alt={rp.name} style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} />
                                   ) : (
                                     <div style={{ width: '30px', height: '30px', background: 'var(--admin-border)', borderRadius: '4px' }} />
                                   )}

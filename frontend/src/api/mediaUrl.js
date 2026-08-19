@@ -10,7 +10,7 @@ const API_BASE = (import.meta.env.VITE_API_URL || '')
 
 export function mediaUrl(url) {
   if (!url) return null
-  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) return url
   // URL relative comme /media/banners/img.jpg
   return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
 }

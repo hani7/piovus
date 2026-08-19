@@ -202,7 +202,7 @@ class Banner(models.Model):
     ]
     title = models.CharField(max_length=200, blank=True, null=True)
     subtitle = models.CharField(max_length=300, blank=True)
-    image = models.ImageField(upload_to='banners/', blank=True, null=True)
+    image = models.FileField(upload_to='banners/', blank=True, null=True)
     cta_label = models.CharField(max_length=100, default='Découvrir')
     cta_url = models.CharField(max_length=200, default='/shop')
     promo_code = models.CharField(max_length=50, blank=True)

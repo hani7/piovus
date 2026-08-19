@@ -365,21 +365,31 @@ class AdminCategorySerializer(serializers.ModelSerializer):
         return obj.multi_products.count()
 
 
-class AdminProductVariantSerializer(serializers.ModelSerializer):
+class AdminProductVariantSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
         fields = ['id', 'product', 'name', 'color_hex', 'image', 'stock', 'sku', 'price', 'is_available', 'choice_group']
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['image'] = self._abs(instance.image.url if instance.image else None)
+        return rep
 
-class AdminProductImageSerializer(serializers.ModelSerializer):
+
+class AdminProductImageSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
     image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = ProductImage
         fields = ['id', 'product', 'image', 'video', 'alt', 'order']
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['image'] = self._abs(instance.image.url if instance.image else None)
+        return rep
 
-class AdminProductSerializer(serializers.ModelSerializer):
+
+class AdminProductSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
     categories = AdminCategorySerializer(many=True, read_only=True)
     category_ids = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), many=True, source='categories', required=False
@@ -403,6 +413,11 @@ class AdminProductSerializer(serializers.ModelSerializer):
             'thumbnail', 'weight_box', 'weight_carton', 'contenance', 'contenance_unit', 'created_at', 'updated_at', 'variants', 'images', 'related_products', 'related_product_ids'
         ]
         read_only_fields = ['slug', 'created_at', 'updated_at']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['thumbnail'] = self._abs(instance.thumbnail.url if instance.thumbnail else None)
+        return rep
 
 
 

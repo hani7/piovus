@@ -51,16 +51,30 @@ class CategorySerializer(AbsoluteImageMixin, serializers.ModelSerializer):
 
 
 # ─── Product Images & Variants ───────────────────────────────────────────────
-class ProductImageSerializer(serializers.ModelSerializer):
+class ProductImageSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    video = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductImage
         fields = ['id', 'image', 'video', 'alt', 'order']
 
+    def get_image(self, obj):
+        return self._abs(obj.image.url if obj.image else None)
 
-class ProductVariantSerializer(serializers.ModelSerializer):
+    def get_video(self, obj):
+        return self._abs(obj.video.url if obj.video else None)
+
+
+class ProductVariantSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductVariant
         fields = ['id', 'name', 'color_hex', 'image', 'stock', 'sku', 'price', 'is_available', 'choice_group']
+
+    def get_image(self, obj):
+        return self._abs(obj.image.url if obj.image else None)
 
 
 # ─── Review ──────────────────────────────────────────────────────────────────
@@ -77,11 +91,12 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 # ─── Product (list - compact) ─────────────────────────────────────────────────
-class ProductListSerializer(serializers.ModelSerializer):
+class ProductListSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)
     is_promo = serializers.BooleanField(read_only=True)
     effective_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     avg_rating = serializers.SerializerMethodField()
+    thumbnail = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -98,6 +113,9 @@ class ProductListSerializer(serializers.ModelSerializer):
         if not reviews:
             return None
         return round(sum(r.rating for r in reviews) / len(reviews), 1)
+
+    def get_thumbnail(self, obj):
+        return self._abs(obj.thumbnail.url if obj.thumbnail else None)
 
 
 # ─── Product (detail - full) ──────────────────────────────────────────────────

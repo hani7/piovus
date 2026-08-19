@@ -4,6 +4,8 @@ import client from '../api/client'
 
 const CACHE_KEY = 'piove_top_banner'
 
+const getDismissKey = (b) => `piove_banner_dismissed_${b.id}_${b.updated_at || ''}`
+
 export default function PromoBanner() {
   const [banner, setBanner] = useState(() => {
     // Lire le cache immédiatement (évite le flash de disparition entre navigations)
@@ -19,11 +21,18 @@ export default function PromoBanner() {
       const cached = sessionStorage.getItem(CACHE_KEY)
       if (cached) {
         const b = JSON.parse(cached)
-        return sessionStorage.getItem(`piove_banner_dismissed_${b.id}`) === 'true'
+        return sessionStorage.getItem(getDismissKey(b)) === 'true'
       }
     } catch {}
     return false
   })
+
+  // Recalculer 'dismissed' quand le banner vient de l'API avec une date différente
+  useEffect(() => {
+    if (banner) {
+      setDismissed(sessionStorage.getItem(getDismissKey(banner)) === 'true')
+    }
+  }, [banner])
 
   useEffect(() => {
     client.get('/banners/?placement=top_banner')
@@ -76,7 +85,7 @@ export default function PromoBanner() {
         onClick={() => {
           setDismissed(true)
           if (banner) {
-            sessionStorage.setItem(`piove_banner_dismissed_${banner.id}`, 'true')
+            sessionStorage.setItem(getDismissKey(banner), 'true')
           }
         }}
         aria-label="Fermer le bandeau"

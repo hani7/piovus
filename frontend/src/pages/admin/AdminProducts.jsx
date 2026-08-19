@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { X, Edit, Trash2, LayoutList, LayoutGrid } from 'lucide-react'
+import { X, Edit, Trash2, LayoutList, LayoutGrid, Eye } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 import mediaUrl from '../../api/mediaUrl'
 
@@ -452,6 +452,9 @@ export default function AdminProducts() {
                         <td><span className={`badge ${p.is_active ? 'badge-active' : 'badge-inactive'}`}>{p.is_active ? 'Actif' : 'Inactif'}</span></td>
                         <td>
                           <div style={{ display: 'flex', gap: 6 }}>
+                            <a href={`/produit/${p.slug}`} target="_blank" rel="noopener noreferrer" className="btn-action-icon" title="Voir le produit" style={{ color: 'var(--admin-text-muted)' }}>
+                              <Eye size={16} />
+                            </a>
                             <button className="btn-action-icon" onClick={() => openEdit(p)} title="Modifier">
                               <Edit size={16} />
                             </button>
@@ -553,6 +556,22 @@ export default function AdminProducts() {
 
                     {/* Actions */}
                     <div style={{ display: 'flex', borderTop: '1px solid var(--admin-border)' }}>
+                      <a
+                        href={`/produit/${p.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Voir"
+                        style={{
+                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          gap: 6, padding: '10px', textDecoration: 'none', background: 'transparent',
+                          color: 'var(--admin-text-muted)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 500,
+                          borderRight: '1px solid var(--admin-border)', transition: 'background 0.15s, color 0.15s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.07)'; e.currentTarget.style.color = '#3b82f6' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--admin-text-muted)' }}
+                      >
+                        <Eye size={14} /> Voir
+                      </a>
                       <button
                         onClick={() => openEdit(p)}
                         title="Modifier"

@@ -35,10 +35,10 @@ export default function SideBanners() {
   }
 
   const renderMedia = (banner) => {
-    if (banner.video) {
+    if (banner.image && banner.image.match(/\.(mp4|webm|mov)$/i)) {
       return (
         <video
-          src={mediaUrl(banner.video)}
+          src={mediaUrl(banner.image)}
           autoPlay
           loop
           muted
@@ -54,7 +54,8 @@ export default function SideBanners() {
   return (
     <>
       {leftBanners.filter(b => !hiddenBanners.includes(b.id)).map((banner, index) => {
-        const typeClass = banner.video ? 'side-banner--video' : 'side-banner--image'
+        const isVideo = banner.image && banner.image.match(/\.(mp4|webm|mov)$/i)
+        const typeClass = isVideo ? 'side-banner--video' : 'side-banner--image'
         return (
           <div
             key={`left-${banner.id}-${index}`}
@@ -72,7 +73,8 @@ export default function SideBanners() {
       })}
 
       {rightBanners.filter(b => !hiddenBanners.includes(b.id)).map((banner, index) => {
-        const typeClass = banner.video ? 'side-banner--video' : 'side-banner--image'
+        const isVideo = banner.image && banner.image.match(/\.(mp4|webm|mov)$/i)
+        const typeClass = isVideo ? 'side-banner--video' : 'side-banner--image'
         return (
           <div
             key={`right-${banner.id}-${index}`}

@@ -18,7 +18,7 @@
 
 /* VIDEO banner: 9:16 portrait */
 .side-banner--video {
-  width: 110px;
+  width: 160px;
   aspect-ratio: 9 / 16;
 }
 .side-banner--video video {
@@ -31,7 +31,7 @@
 /* IMAGE banner: natural size, capped */
 .side-banner--image {
   width: auto;
-  max-width: 120px;
+  max-width: 160px;
 }
 .side-banner--image img {
   width: 100%;

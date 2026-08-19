@@ -4,22 +4,25 @@ import client from '../api/client'
 import { X } from 'lucide-react'
 import './PromoPopup.css'
 
+const getDismissKey = (banner) => `piove_popup_seen_${banner.id}_${banner.updated_at || ''}`
+
 export default function PromoPopup() {
   const [banner, setBanner] = useState(null)
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    // Check if user already saw a popup recently
-    const hasSeen = sessionStorage.getItem('piove_popup_seen')
-    if (hasSeen) return
-
     client.get('/banners/?placement=popup')
       .then((res) => {
         const results = res.data.results || res.data
         if (results && results.length > 0) {
-          setBanner(results[0])
-          // Add small delay for better UX
-          setTimeout(() => setIsVisible(true), 5000)
+          const b = results[0]
+          // Check if this specific popup version was already seen
+          const hasSeen = localStorage.getItem(getDismissKey(b))
+          if (!hasSeen) {
+            setBanner(b)
+            // Add small delay for better UX
+            setTimeout(() => setIsVisible(true), 5000)
+          }
         }
       })
       .catch((err) => console.error('Failed to load popup banner:', err))
@@ -38,7 +41,9 @@ export default function PromoPopup() {
 
   const closePopup = () => {
     setIsVisible(false)
-    sessionStorage.setItem('piove_popup_seen', 'true')
+    if (banner) {
+      localStorage.setItem(getDismissKey(banner), 'true')
+    }
   }
 
   if (!banner || !isVisible) return null

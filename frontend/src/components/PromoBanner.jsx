@@ -10,7 +10,7 @@ export default function PromoBanner() {
   const [banner, setBanner] = useState(() => {
     // Lire le cache immédiatement (évite le flash de disparition entre navigations)
     try {
-      const cached = sessionStorage.getItem(CACHE_KEY)
+      const cached = localStorage.getItem(CACHE_KEY)
       return cached ? JSON.parse(cached) : null
     } catch {
       return null
@@ -18,10 +18,10 @@ export default function PromoBanner() {
   })
   const [dismissed, setDismissed] = useState(() => {
     try {
-      const cached = sessionStorage.getItem(CACHE_KEY)
+      const cached = localStorage.getItem(CACHE_KEY)
       if (cached) {
         const b = JSON.parse(cached)
-        return sessionStorage.getItem(getDismissKey(b)) === 'true'
+        return localStorage.getItem(getDismissKey(b)) === 'true'
       }
     } catch {}
     return false
@@ -30,7 +30,7 @@ export default function PromoBanner() {
   // Recalculer 'dismissed' quand le banner vient de l'API avec une date différente
   useEffect(() => {
     if (banner) {
-      setDismissed(sessionStorage.getItem(getDismissKey(banner)) === 'true')
+      setDismissed(localStorage.getItem(getDismissKey(banner)) === 'true')
     }
   }, [banner])
 
@@ -41,11 +41,11 @@ export default function PromoBanner() {
         if (results && results.length > 0) {
           const b = results[0]
           setBanner(b)
-          try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(b)) } catch {}
+          try { localStorage.setItem(CACHE_KEY, JSON.stringify(b)) } catch {}
         } else {
           // Aucun banner actif → vider le cache
           setBanner(null)
-          try { sessionStorage.removeItem(CACHE_KEY) } catch {}
+          try { localStorage.removeItem(CACHE_KEY) } catch {}
         }
       })
       .catch(() => {
@@ -85,7 +85,7 @@ export default function PromoBanner() {
         onClick={() => {
           setDismissed(true)
           if (banner) {
-            sessionStorage.setItem(getDismissKey(banner), 'true')
+            localStorage.setItem(getDismissKey(banner), 'true')
           }
         }}
         aria-label="Fermer le bandeau"

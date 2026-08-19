@@ -11,6 +11,10 @@ export default function SideBanners() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
+    // Charger les bannières masquées depuis le localStorage
+    const savedHidden = JSON.parse(localStorage.getItem('piove_hidden_side_banners') || '[]')
+    setHiddenBanners(savedHidden)
+
     client.get('/banners/')
       .then((res) => {
         const results = res.data.results || res.data
@@ -28,10 +32,19 @@ export default function SideBanners() {
     return () => clearTimeout(timer)
   }, [])
 
-  const handleClose = (e, id) => {
+  const getDismissKey = (banner) => `${banner.id}_${banner.updated_at || ''}`
+
+  const handleClose = (e, banner) => {
     e.preventDefault()
     e.stopPropagation()
-    setHiddenBanners(prev => [...prev, id])
+    const key = getDismissKey(banner)
+    
+    setHiddenBanners(prev => {
+      if (prev.includes(key)) return prev
+      const newHidden = [...prev, key]
+      localStorage.setItem('piove_hidden_side_banners', JSON.stringify(newHidden))
+      return newHidden
+    })
   }
 
   const renderMedia = (banner) => {
@@ -53,7 +66,7 @@ export default function SideBanners() {
 
   return (
     <>
-      {leftBanners.filter(b => !hiddenBanners.includes(b.id)).map((banner, index) => {
+      {leftBanners.filter(b => !hiddenBanners.includes(getDismissKey(b))).map((banner, index) => {
         const isVideo = banner.image && banner.image.match(/\.(mp4|webm|mov)$/i)
         const typeClass = isVideo ? 'side-banner--video' : 'side-banner--image'
         return (
@@ -62,7 +75,7 @@ export default function SideBanners() {
             className={`side-banner side-banner--left ${typeClass}${visible ? ' side-banner--visible' : ''}`}
             style={{ bottom: `${20 + index * 210}px` }}
           >
-            <button className="side-banner__close" onClick={(e) => handleClose(e, banner.id)}>
+            <button className="side-banner__close" onClick={(e) => handleClose(e, banner)}>
               <X size={12} />
             </button>
             <a href={banner.cta_url || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>
@@ -72,7 +85,7 @@ export default function SideBanners() {
         )
       })}
 
-      {rightBanners.filter(b => !hiddenBanners.includes(b.id)).map((banner, index) => {
+      {rightBanners.filter(b => !hiddenBanners.includes(getDismissKey(b))).map((banner, index) => {
         const isVideo = banner.image && banner.image.match(/\.(mp4|webm|mov)$/i)
         const typeClass = isVideo ? 'side-banner--video' : 'side-banner--image'
         return (
@@ -81,7 +94,7 @@ export default function SideBanners() {
             className={`side-banner side-banner--right ${typeClass}${visible ? ' side-banner--visible' : ''}`}
             style={{ bottom: `${20 + index * 210}px` }}
           >
-            <button className="side-banner__close" onClick={(e) => handleClose(e, banner.id)}>
+            <button className="side-banner__close" onClick={(e) => handleClose(e, banner)}>
               <X size={12} />
             </button>
             <a href={banner.cta_url || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>

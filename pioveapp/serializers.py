@@ -144,7 +144,7 @@ class BannerSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Banner
-        fields = ['id', 'title', 'subtitle', 'image', 'cta_label', 'cta_url', 'promo_code', 'placement', 'category', 'is_active', 'order']
+        fields = ['id', 'title', 'subtitle', 'image', 'cta_label', 'cta_url', 'promo_code', 'placement', 'category', 'is_active', 'order', 'updated_at']
 
 
 # ─── Auth / User ─────────────────────────────────────────────────────────────

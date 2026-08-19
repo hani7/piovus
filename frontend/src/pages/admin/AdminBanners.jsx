@@ -57,9 +57,9 @@ export default function AdminBanners() {
 
   const openEdit = (b) => {
     setForm({ 
-      title: b.title, subtitle: b.subtitle, cta_label: b.cta_label, 
-      cta_url: b.cta_url, promo_code: b.promo_code, placement: b.placement || 'hero', 
-      category: b.category || '', order: b.order, is_active: b.is_active 
+      title: b.title || '', subtitle: b.subtitle || '', cta_label: b.cta_label || '', 
+      cta_url: b.cta_url || '', promo_code: b.promo_code || '', placement: b.placement || 'hero', 
+      category: b.category || '', order: b.order || 0, is_active: b.is_active !== undefined ? b.is_active : true 
     })
     setEditId(b.id); setImgFile(null); setImgPreview(mediaUrl(b.image) || null); setModal('edit')
   }
@@ -71,7 +71,8 @@ export default function AdminBanners() {
       const fd = new FormData()
       Object.entries(form).forEach(([k, v]) => {
         if (k === 'category' && !v) return // skip empty category
-        if (typeof v === 'boolean') fd.append(k, v ? 'true' : 'false')
+        if (v === null || v === undefined) fd.append(k, '')
+        else if (typeof v === 'boolean') fd.append(k, v ? 'true' : 'false')
         else fd.append(k, v)
       })
       if (imgFile) fd.append('image', imgFile)

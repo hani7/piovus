@@ -14,7 +14,16 @@ export default function PromoBanner() {
       return null
     }
   })
-  const [dismissed, setDismissed] = useState(false)
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY)
+      if (cached) {
+        const b = JSON.parse(cached)
+        return sessionStorage.getItem(`piove_banner_dismissed_${b.id}`) === 'true'
+      }
+    } catch {}
+    return false
+  })
 
   useEffect(() => {
     client.get('/banners/?placement=top_banner')
@@ -64,7 +73,12 @@ export default function PromoBanner() {
       )}
       {/* Bouton fermeture */}
       <button
-        onClick={() => setDismissed(true)}
+        onClick={() => {
+          setDismissed(true)
+          if (banner) {
+            sessionStorage.setItem(`piove_banner_dismissed_${banner.id}`, 'true')
+          }
+        }}
         aria-label="Fermer le bandeau"
         style={{
           position: 'absolute',

@@ -176,12 +176,26 @@ export default function CheckoutPage() {
         ...form,
         guest_name: `${form.guest_first_name.trim()} ${form.guest_last_name.trim()}`.trim(),
         delivery_company_id: form.delivery_company_id ? Number(form.delivery_company_id) : null,
-        items: items.map((i) => ({
-          product_id: i.product.id,
-          variant_id: i.variant?.id || null,
-          quantity: i.quantity,
-          packaging: i.packaging || 'boite',
-        })),
+        items: items.reduce((acc, i) => {
+          if (i.collectionChoices && i.collectionChoices.length > 0) {
+            i.collectionChoices.forEach(v => {
+              acc.push({
+                product_id: i.product.id,
+                variant_id: v.id,
+                quantity: i.quantity,
+                packaging: i.packaging || 'boite',
+              })
+            })
+          } else {
+            acc.push({
+              product_id: i.product.id,
+              variant_id: i.variant?.id || null,
+              quantity: i.quantity,
+              packaging: i.packaging || 'boite',
+            })
+          }
+          return acc
+        }, []),
         coupon_id: coupon ? coupon.id : null,
         discount_amount: coupon ? coupon.discount_amount : 0,
         source: localStorage.getItem('order_source') || 'direct',
@@ -460,7 +474,14 @@ export default function CheckoutPage() {
                 </div>
                 <div className="checkout-summary__item-info">
                   <p className="checkout-summary__item-name">{i.product.name}</p>
-                  {i.variant && <p className="checkout-summary__item-variant">{i.variant.name}</p>}
+                  {i.variant && <p className="checkout-summary__item-variant">Teinte: {i.variant.name}</p>}
+                  {i.collectionChoices && (
+                    <div className="checkout-summary__item-variants" style={{fontSize: '0.75rem', color: 'var(--color-gray-500)', marginTop: 4}}>
+                      {i.collectionChoices.map((v, idx) => (
+                        <span key={v.id}>{v.name}{idx < i.collectionChoices.length - 1 ? ', ' : ''}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <p className="checkout-summary__item-price">{(i.price * i.quantity).toLocaleString('fr-DZ')} DA</p>
               </div>

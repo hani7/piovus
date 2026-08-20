@@ -114,27 +114,13 @@ export default function ProductPage() {
   const handleAddToCart = useCallback(() => {
     if (isCollection) {
       if (!allChoicesMade) return
-      const numGroups = choiceGroupLabels.length
-      // Le prix total de la collection = prix du produit.
-      // Chaque choix reçoit price/numGroups pour que total panier = product.price
-      const pricePerChoice = parseFloat(
-        product.is_promo && product.promo_price
-          ? product.promo_price
-          : product.price
-      ) / numGroups
-      Object.entries(selectedChoices).forEach(([groupLabel, variantId]) => {
-        const variant = product.variants.find(v => v.id === variantId)
-        if (variant) {
-          // On passe le prix unitaire via variant.price pour contourner le calcul du store
-          addItem(
-            // Mettre promo_price et price à 0 pour éviter qu'ils soient utilisés par le store
-            { ...product, promo_price: null, effective_price: pricePerChoice, price: pricePerChoice, is_promo: false },
-            { ...variant, price: null },
-            1,
-            'boite'
-          )
-        }
-      })
+      
+      const choicesArray = Object.values(selectedChoices).map(variantId => 
+        product.variants.find(v => v.id === variantId)
+      ).filter(Boolean);
+
+      addItem(product, null, quantity, isB2B ? packaging : 'boite', choicesArray);
+      
     } else {
       addItem(product, selectedVariant, quantity, isB2B ? packaging : 'boite')
       selectedRelated.forEach((rpId) => {

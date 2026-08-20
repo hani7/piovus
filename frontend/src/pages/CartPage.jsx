@@ -75,6 +75,19 @@ export default function CartPage() {
                 <div className="cart-row__info-block">
                   <Link to={`/produit/${item.product.slug}`} className="cart-row__name">{item.product.name}</Link>
                   {item.variant && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
+                  {item.collectionChoices && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
+                      {item.collectionChoices.map(v => (
+                        <span key={v.id} style={{
+                          fontSize: '0.72rem', background: '#f1f5f9',
+                          borderRadius: 4, padding: '2px 6px', color: '#475569',
+                          display: 'inline-flex', alignItems: 'center'
+                        }}>
+                          {v.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -82,6 +95,19 @@ export default function CartPage() {
               <div className="cart-row__info-standalone">
                 <Link to={`/produit/${item.product.slug}`} className="cart-row__name">{item.product.name}</Link>
                 {item.variant && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
+                {item.collectionChoices && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
+                    {item.collectionChoices.map(v => (
+                      <span key={v.id} style={{
+                        fontSize: '0.72rem', background: '#f1f5f9',
+                        borderRadius: 4, padding: '2px 6px', color: '#475569',
+                        display: 'inline-flex', alignItems: 'center'
+                      }}>
+                        {v.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <p style={{ fontWeight: 600, marginTop: 6, fontSize: '0.95rem' }}>{item.price.toLocaleString('fr-DZ')} DA</p>
               </div>
 

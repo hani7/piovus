@@ -11,9 +11,14 @@ export const useCartStore = create(
       applyCoupon: (couponData) => set({ coupon: couponData }),
       removeCoupon: () => set({ coupon: null }),
 
-      addItem: (product, variant = null, quantity = 1, packaging = 'boite') => {
+      addItem: (product, variant = null, quantity = 1, packaging = 'boite', collectionChoices = null) => {
         const items = get().items
-        const key = `${product.id}-${variant?.id || 'default'}-${packaging}`
+        
+        let variantKey = variant?.id || 'default'
+        if (collectionChoices) {
+          variantKey = 'coll-' + collectionChoices.map(v => v.id).sort().join('-')
+        }
+        const key = `${product.id}-${variantKey}-${packaging}`
         const existing = items.find((i) => i.key === key)
 
         if (existing) {
@@ -30,6 +35,7 @@ export const useCartStore = create(
                 key,
                 product,
                 variant,
+                collectionChoices,
                 quantity,
                 packaging,
                 price: (() => {
@@ -41,6 +47,10 @@ export const useCartStore = create(
                     } else {
                       return parseFloat(product.b2b_promo_price_box || product.b2b_price_box || product.b2b_price || product.effective_price);
                     }
+                  }
+                  // Collection price is the base product price
+                  if (collectionChoices) {
+                    return parseFloat(product.is_promo && product.promo_price ? product.promo_price : product.price);
                   }
                   // Retail: si le produit est en promo, on utilise toujours promo_price
                   if (product.is_promo && product.promo_price) return parseFloat(product.promo_price);

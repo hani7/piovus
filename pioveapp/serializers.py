@@ -20,7 +20,7 @@ class AbsoluteImageMixin:
             return None
         if url.startswith('http://') or url.startswith('https://'):
             return url
-        api_base = getattr(settings, 'FRONTEND_URL', 'https://piovecosmetics.dz').rstrip('/')
+        api_base = getattr(settings, 'API_URL', 'https://api.piovecosmetics.dz').rstrip('/')
         if api_base:
             return f"{api_base}{url if url.startswith('/') else '/' + url}"
         return url

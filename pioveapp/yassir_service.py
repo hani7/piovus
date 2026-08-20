@@ -32,10 +32,10 @@ YASSIR_PUBLISHABLE_KEY = os.environ.get('YASSIR_PUBLISHABLE_KEY', 'pk_yassir_909
 # ⚠️ La doc distingue 2 environnements :
 #   Staging (sandbox) : https://stg-api.payment.yassir.io
 #   Production        : https://api.payment.yassir.io
-_raw_url = os.environ.get('YASSIR_BASE_URL', 'https://api.payment.yassir.io').rstrip('/')
-# Auto-correction : api.yassir.io (ancienne URL incorrecte) → production
+_raw_url = os.environ.get('YASSIR_BASE_URL', 'https://stg-api.payment.yassir.io').rstrip('/')
+# Auto-correction : api.yassir.io (ancienne URL incorrecte) → staging
 if 'payment.yassir.io' not in _raw_url:
-    _raw_url = 'https://api.payment.yassir.io'
+    _raw_url = 'https://stg-api.payment.yassir.io'
 YASSIR_BASE_URL = _raw_url
 
 COUNTRY_CODE = 'DZA'

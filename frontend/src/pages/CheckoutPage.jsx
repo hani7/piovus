@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import client from '../api/client'
+import mediaUrl from '../api/mediaUrl'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { createOrder, initiateYassir } from '../api/orders'
@@ -453,7 +454,7 @@ export default function CheckoutPage() {
               <div key={i.key} className="checkout-summary__item">
                 <div className="checkout-summary__item-img">
                   {i.product.thumbnail
-                    ? <img src={i.product.thumbnail} alt={i.product.name} />
+                    ? <img src={mediaUrl(i.product.thumbnail)} alt={i.product.name} />
                     : <div className="checkout-summary__item-placeholder" />}
                   <span className="checkout-summary__qty">{i.quantity}</span>
                 </div>

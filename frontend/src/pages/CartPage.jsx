@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import client from '../api/client'
+import mediaUrl from '../api/mediaUrl'
 import './CartPage.css'
 
 export default function CartPage() {
@@ -67,7 +68,7 @@ export default function CartPage() {
               <div className="cart-row__product">
                 <div className="cart-row__img">
                   {item.product.thumbnail ? (
-                    <img src={item.product.thumbnail} alt={item.product.name} />
+                    <img src={mediaUrl(item.product.thumbnail)} alt={item.product.name} />
                   ) : <div className="cart-row__placeholder" />}
                 </div>
                 {/* Desktop: name shown inside product col */}

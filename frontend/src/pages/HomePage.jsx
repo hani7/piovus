@@ -81,7 +81,6 @@ export default function HomePage() {
                 loop
                 muted
                 playsInline
-                style={{ objectFit: 'cover' }}
               />
             ) : (
               <img

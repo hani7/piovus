@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { ProductShare } from './ProductReviews'
+import mediaUrl from '../api/mediaUrl'
 
 /** ProductInfo — pricing, variants, actions, description */
 const ProductInfo = memo(function ProductInfo({
@@ -148,7 +149,8 @@ const ProductInfo = memo(function ProductInfo({
                 </p>
                 <div className="product-info__swatches" role="radiogroup" aria-label={`Sélectionner ${groupLabel}`}>
                   {groupVariants.filter(v => v.is_available !== false).map((v) => {
-                    const isImg = v.color_hex?.startsWith('http')
+                    const imgUrl = v.image ? mediaUrl(v.image) : (v.color_hex?.startsWith('http') ? v.color_hex : null)
+                    const isImg = !!imgUrl
                     const code = v.name.split(' ')[0]
                     const isSelected = chosen === v.id
                     return (
@@ -164,8 +166,9 @@ const ProductInfo = memo(function ProductInfo({
                         id={`variant-${v.id}`}
                       >
                         {isImg && (
-                          <span className="swatch__code">{code}
-                            <img src={v.color_hex} alt={code} className="swatch__img" onError={(e) => { e.target.style.display = 'none' }} />
+                          <span className="swatch__code">
+                            <span>{code}</span>
+                            <img src={imgUrl} alt={code} className="swatch__img" onError={(e) => { e.target.style.display = 'none' }} />
                           </span>
                         )}
                       </button>
@@ -194,7 +197,8 @@ const ProductInfo = memo(function ProductInfo({
           </p>
           <div className="product-info__swatches" role="radiogroup" aria-label="Sélectionner une teinte">
             {product.variants.filter((v) => v.is_available !== false).map((v) => {
-              const isImg = v.color_hex?.startsWith('http')
+              const imgUrl = v.image ? mediaUrl(v.image) : (v.color_hex?.startsWith('http') ? v.color_hex : null)
+              const isImg = !!imgUrl
               const code = v.name.split(' ')[0]
               return (
                 <button
@@ -209,8 +213,9 @@ const ProductInfo = memo(function ProductInfo({
                   id={`variant-${v.id}`}
                 >
                   {isImg && (
-                    <span className="swatch__code">{code}
-                      <img src={v.color_hex} alt={code} className="swatch__img" onError={(e) => { e.target.style.display = 'none' }} />
+                    <span className="swatch__code">
+                      <span>{code}</span>
+                      <img src={imgUrl} alt={code} className="swatch__img" onError={(e) => { e.target.style.display = 'none' }} />
                     </span>
                   )}
                 </button>

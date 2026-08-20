@@ -3329,6 +3329,9 @@ from django.http import HttpResponseRedirect
 import json as _json
 from django.http import JsonResponse as DjangoJson
 
+import logging
+logger = logging.getLogger(__name__)
+
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])

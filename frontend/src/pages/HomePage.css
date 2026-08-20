@@ -58,8 +58,9 @@
     position: relative;
     inset: unset;
     width: 100%;
-    height: auto;
-    object-fit: contain;
+    height: 280px; /* Increased height as requested */
+    object-fit: cover;
+    object-position: center;
     display: block;
     opacity: 1;
     z-index: 1;
@@ -72,7 +73,7 @@
     width: 100%;
     max-width: none;
     padding: 16px 16px 24px 16px;
-    background: white;
+    background: transparent; /* Removed white background */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -84,12 +85,13 @@
   .hero__cta {
     background: var(--color-accent) !important;
     color: white !important;
-    padding: 12px 32px;
-    font-size: 0.9rem;
-    width: 100%;
-    max-width: 300px;
-    display: flex;
+    padding: 8px 24px;
+    font-size: 0.8rem;
+    width: auto;
+    max-width: none;
+    display: inline-flex;
     justify-content: center;
+    border-radius: 50px;
   }
 }
 @media (max-width: 480px) {

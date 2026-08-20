@@ -99,4 +99,16 @@
   .side-banner--left { left: 0px; }
   .side-banner--right { right: 0px; }
   .side-banner:hover { transform: scale(0.7) !important; }
+  
+  /* Make close button huge on mobile to counteract the 0.65 scale */
+  .side-banner__close {
+    width: 44px;
+    height: 44px;
+    top: 4px;
+    right: 4px;
+  }
+  .side-banner__close svg {
+    width: 24px !important;
+    height: 24px !important;
+  }
 }

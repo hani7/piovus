@@ -75,7 +75,7 @@ export default function SideBanners() {
             className={`side-banner side-banner--left ${typeClass}${visible ? ' side-banner--visible' : ''}`}
             style={{ bottom: `${20 + index * 210}px` }}
           >
-            <button className="side-banner__close" onClick={(e) => handleClose(e, banner)}>
+            <button className="side-banner__close" onClick={(e) => handleClose(e, banner)} onTouchStart={(e) => handleClose(e, banner)}>
               <X size={12} />
             </button>
             <a href={banner.cta_url || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>
@@ -94,7 +94,7 @@ export default function SideBanners() {
             className={`side-banner side-banner--right ${typeClass}${visible ? ' side-banner--visible' : ''}`}
             style={{ bottom: `${20 + index * 210}px` }}
           >
-            <button className="side-banner__close" onClick={(e) => handleClose(e, banner)}>
+            <button className="side-banner__close" onClick={(e) => handleClose(e, banner)} onTouchStart={(e) => handleClose(e, banner)}>
               <X size={12} />
             </button>
             <a href={banner.cta_url || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>

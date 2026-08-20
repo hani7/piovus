@@ -503,11 +503,9 @@ def create_shipment(order):
     logger.info(f"Mylerz create_shipment order #{order.id}: name={customer_name!r}, phone={mobile_no!r}, email={customer_email!r}")
 
     # Determine payment type
-    # If COD (cash on delivery) → Payment_Type = "Cash", COD_Value = total
-    # If pre-paid → Payment_Type = "Prepaid", COD_Value = "0"
-    if order.payment_method == 'cib':
-        payment_type = 'PP'
-        cod_value = 0.0
+    if order.payment_method in ['cib', 'yassir']:
+        payment_type = 'COD'
+        cod_value = float(order.delivery_cost)
     else:
         payment_type = 'COD'
         cod_value = float(order.total)

@@ -90,9 +90,19 @@ class ReviewSerializer(serializers.ModelSerializer):
         return obj.user.get_full_name() or obj.user.username if obj.user else 'Anonyme'
 
 
+class CategoryCompactSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug', 'image', 'order']
+
+    def get_image(self, obj):
+        return self._abs(obj.image.url if obj.image else None)
+
 # ─── Product (list - compact) ─────────────────────────────────────────────────
 class ProductListSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
-    categories = CategorySerializer(many=True, read_only=True)
+    categories = CategoryCompactSerializer(many=True, read_only=True)
     is_promo = serializers.BooleanField(read_only=True)
     effective_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     avg_rating = serializers.SerializerMethodField()
@@ -404,6 +414,7 @@ class AdminProductImageSerializer(AbsoluteImageMixin, serializers.ModelSerialize
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         rep['image'] = self._abs(instance.image.url if instance.image else None)
+        rep['video'] = self._abs(instance.video.url if instance.video else None)
         return rep
 
 

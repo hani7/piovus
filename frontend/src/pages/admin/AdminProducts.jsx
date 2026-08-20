@@ -452,8 +452,8 @@ export default function AdminProducts() {
                         <td><span className={`badge ${p.is_active ? 'badge-active' : 'badge-inactive'}`}>{p.is_active ? 'Actif' : 'Inactif'}</span></td>
                         <td>
                           <div style={{ display: 'flex', gap: 6 }}>
-                            <a href={`/produit/${p.slug}`} target="_blank" rel="noopener noreferrer" className="btn-action-icon" title="Voir le produit" style={{ color: 'var(--admin-text-muted)' }}>
-                              <Eye size={16} />
+                            <a href={`/produit/${p.slug}`} target="_blank" rel="noopener noreferrer" className="btn-action-icon" title="Voir le produit">
+                              <Eye size={16} color="white" />
                             </a>
                             <button className="btn-action-icon" onClick={() => openEdit(p)} title="Modifier">
                               <Edit size={16} />

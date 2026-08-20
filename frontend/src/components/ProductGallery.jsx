@@ -46,7 +46,7 @@ const ProductGallery = memo(function ProductGallery({
                 src={images[selectedImage].video + '#t=0.001'}
                 poster={mediaUrl(images[selectedImage].image) || undefined}
                 controls
-                preload="auto"
+                preload="metadata"
                 playsInline
                 className="product-gallery__video"
                 onError={() => setImgError(true)}

@@ -3363,7 +3363,8 @@ def yassir_initiate(request):
 
         # Étape 2 : Créer le Payment Intent
         try:
-            intent = create_payment_intent(order_id=order.id, amount=float(order.total), phone=phone)
+            amount_to_pay = float(order.total - order.delivery_cost)
+            intent = create_payment_intent(order_id=order.id, amount=amount_to_pay, phone=phone)
         except YassirError as e:
             return DjangoJson({'error': str(e)}, status=502)
 

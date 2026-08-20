@@ -10,11 +10,21 @@ const ProductGallery = memo(function ProductGallery({
   onSelectImage,
 }) {
   const [imgError, setImgError] = useState(false)
+  const [useFallback, setUseFallback] = useState(false)
 
   // Reset l'erreur si l'image sélectionnée change
   useEffect(() => {
     setImgError(false)
+    setUseFallback(false)
   }, [selectedImage, selectedVariant])
+
+  const handleMainImageError = () => {
+    if (!useFallback && product?.thumbnail) {
+      setUseFallback(true)
+    } else {
+      setImgError(true)
+    }
+  }
 
   const renderPlaceholder = () => (
     <div className="product-gallery__placeholder">
@@ -34,11 +44,11 @@ const ProductGallery = memo(function ProductGallery({
           <>
             {selectedImage === -1 && selectedVariant?.image ? (
               <img 
-                src={mediaUrl(selectedVariant.image)} 
+                src={useFallback ? mediaUrl(product.thumbnail) : mediaUrl(selectedVariant.image)} 
                 alt={selectedVariant.name} 
                 loading="lazy" 
                 decoding="async" 
-                onError={() => setImgError(true)}
+                onError={handleMainImageError}
               />
             ) : images[selectedImage]?.video ? (
               <video
@@ -53,11 +63,11 @@ const ProductGallery = memo(function ProductGallery({
               />
             ) : (
               <img
-                src={mediaUrl(images[selectedImage]?.image) || mediaUrl(product.thumbnail)}
+                src={useFallback ? mediaUrl(product.thumbnail) : (mediaUrl(images[selectedImage]?.image) || mediaUrl(product.thumbnail))}
                 alt={images[selectedImage]?.alt || product.name}
                 loading="eager"
                 decoding="async"
-                onError={() => setImgError(true)}
+                onError={handleMainImageError}
               />
             )}
             {images.length > 1 && selectedImage !== -1 && (
@@ -110,7 +120,14 @@ const ProductGallery = memo(function ProductGallery({
                     alt={img.alt || product.name} 
                     loading="lazy" 
                     decoding="async" 
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    onError={(e) => { 
+                      const fallback = mediaUrl(product?.thumbnail);
+                      if (fallback && !e.currentTarget.src.includes(fallback)) {
+                        e.currentTarget.src = fallback;
+                      } else {
+                        e.currentTarget.style.display = 'none';
+                      }
+                    }}
                   />
                   {img.video && (
                     <div className="thumb-video-icon" aria-hidden="true">

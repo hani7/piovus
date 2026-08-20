@@ -224,6 +224,9 @@ export default function CheckoutPage() {
           }
         } catch (yassirErr) {
           const serverMsg = yassirErr?.response?.data?.error || yassirErr?.response?.data?.detail || yassirErr.message || 'Erreur Yassir Cash'
+          if (serverMsg.includes("Vous n'avez pas la solution Yassir Cash")) {
+            alert("Vous n'avez pas la solution Yassir Cash, vous ne pouvez pas payer avec cette méthode.")
+          }
           setErrors({ submit: `Erreur Yassir Cash : ${serverMsg}` })
         }
 

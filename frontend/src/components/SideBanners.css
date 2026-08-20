@@ -84,9 +84,19 @@
   transform: scale(1.04) !important;
 }
 
-/* Hide on smaller screens */
+/* Scale down on smaller screens instead of hiding */
 @media (max-width: 1200px) {
   .side-banner {
-    display: none !important;
+    transform: scale(0.85);
+    transform-origin: bottom center;
   }
+}
+@media (max-width: 768px) {
+  .side-banner {
+    transform: scale(0.65);
+    transform-origin: bottom center;
+  }
+  .side-banner--left { left: 0px; }
+  .side-banner--right { right: 0px; }
+  .side-banner:hover { transform: scale(0.7) !important; }
 }

@@ -44,23 +44,48 @@
   .hero {
     min-height: unset;
     height: auto;
-    aspect-ratio: unset;
-    /* Empilement vertical : image puis bouton */
     flex-direction: column;
     align-items: stretch;
+    padding: 0;
   }
   .hero__bg-img {
     position: relative;
     inset: unset;
     width: 100%;
     height: auto;
-    /* Image entière, non rognée */
     object-fit: contain;
     display: block;
+    opacity: 1;
+    z-index: 1;
+  }
+  .hero__bottom {
+    position: relative;
+    bottom: unset;
+    left: unset;
+    transform: none;
+    width: 100%;
+    padding: 14px 16px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+    z-index: 10;
+    max-width: none;
+  }
+  .hero__cta {
+    background: white;
+    color: var(--color-black) !important;
   }
 }
 @media (max-width: 480px) {
-  .hero { max-height: unset; }
+  .hero { min-height: unset; height: auto; }
+  .hero__prev, .hero__next {
+    top: 45%;
+    transform: translateY(-50%);
+  }
 }
 
 .hero--1 {

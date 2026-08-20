@@ -327,7 +327,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
             }}>#{detail.id}</span>
           </h2>
           <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 4 }}>
-            {detail.payment_method === 'cib' ? 'Paiement en ligne (CIB/Edahabia)' : 'Paiement à la livraison'} — {new Date(detail.created_at).toLocaleString('fr-DZ')}
+            {detail.payment_method === 'cib' ? 'Paiement en ligne (CIB/Edahabia)' : detail.payment_method === 'yassir' ? 'Yassir Cash' : 'Paiement à la livraison'} - {new Date(detail.created_at).toLocaleString('fr-DZ')}
           </div>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -406,10 +406,10 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               <div style={{ fontSize: '0.88rem', marginBottom: 7, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: '#64748b' }}>Paiement</span>
                 <span style={{
-                  background: detail.payment_method === 'cib' ? '#e0e7ff' : '#f1f5f9',
-                  color: detail.payment_method === 'cib' ? '#3730a3' : '#475569',
-                  borderRadius: 20, padding: '2px 10px', fontSize: '0.78rem', fontWeight: 700
-                }}>{detail.payment_method === 'cib' ? 'En ligne' : 'Cash'}</span>
+                  background: detail.payment_method === 'cib' ? '#2563eb' : detail.payment_method === 'yassir' ? '#8b5cf6' : '#16a34a',
+                  color: 'white',
+                  borderRadius: 4, padding: '2px 8px', fontSize: '0.75rem', fontWeight: 'bold'
+                }}>{detail.payment_method === 'cib' ? 'EN LIGNE' : detail.payment_method === 'yassir' ? 'YASSIR' : 'CASH'}</span>
               </div>
               {detail.coupon_code && (
                 <div style={{ fontSize: '0.88rem', marginBottom: 7, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -576,8 +576,8 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, fontSize: '0.95rem', color: '#475569', fontWeight: 600 }}>
                   <span>Mode de paiement:</span>
-                  <span style={{ color: detail.payment_method === 'cib' ? 'var(--color-accent)' : 'inherit' }}>
-                    {detail.payment_method === 'cib' ? 'CIB ou Edahabia' : 'À la livraison (Cash)'}
+                  <span style={{ color: detail.payment_method === 'cib' || detail.payment_method === 'yassir' ? 'var(--color-accent)' : 'inherit' }}>
+                    {detail.payment_method === 'cib' ? 'CIB ou Edahabia' : detail.payment_method === 'yassir' ? 'Yassir Cash' : 'À la livraison (Cash)'}
                   </span>
                 </div>
               </div>

@@ -157,6 +157,7 @@ const ProductInfo = memo(function ProductInfo({
                         className={`swatch${isSelected ? ' swatch--active' : ''}`}
                         style={{ background: isImg ? '#f0f0f0' : (v.color_hex || '#cccccc') }}
                         onClick={() => onChoiceSelect(groupLabel, v)}
+                        onMouseEnter={() => onChoiceSelect(groupLabel, v)}
                         title={v.name}
                         aria-label={v.name}
                         aria-pressed={isSelected}
@@ -201,6 +202,7 @@ const ProductInfo = memo(function ProductInfo({
                   className={`swatch${selectedVariant?.id === v.id ? ' swatch--active' : ''}`}
                   style={{ background: isImg ? '#f0f0f0' : (v.color_hex || '#cccccc') }}
                   onClick={() => onVariantSelect(v)}
+                  onMouseEnter={() => onVariantSelect(v)}
                   title={v.name}
                   aria-label={v.name}
                   aria-pressed={selectedVariant?.id === v.id}

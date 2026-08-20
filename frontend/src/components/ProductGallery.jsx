@@ -25,7 +25,7 @@ const ProductGallery = memo(function ProductGallery({
     </div>
   )
 
-  const showPlaceholder = imgError || (images.length === 0 && !selectedVariant?.image)
+  const showPlaceholder = imgError || (images.length === 0 && !selectedVariant?.image && !product?.thumbnail)
 
   return (
     <div className="product-gallery">

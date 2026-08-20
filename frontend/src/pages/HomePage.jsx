@@ -89,6 +89,8 @@ export default function HomePage() {
                 src={mediaUrl(heroBanners[slide].image)}
                 alt={heroBanners[slide].title || 'Bannière'}
                 className="hero__bg-img"
+                loading="eager"
+                fetchPriority="high"
               />
             )
           ) : null}

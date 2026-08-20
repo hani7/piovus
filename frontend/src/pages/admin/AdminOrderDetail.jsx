@@ -408,7 +408,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                 <span style={{
                   background: detail.payment_method === 'cib' ? '#2563eb' : detail.payment_method === 'yassir' ? '#8b5cf6' : '#16a34a',
                   color: 'white',
-                  borderRadius: 4, padding: '2px 8px', fontSize: '0.75rem', fontWeight: 'bold'
+                  borderRadius: '50px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 'bold'
                 }}>{detail.payment_method === 'cib' ? 'EN LIGNE' : detail.payment_method === 'yassir' ? 'YASSIR' : 'CASH'}</span>
               </div>
               {detail.coupon_code && (

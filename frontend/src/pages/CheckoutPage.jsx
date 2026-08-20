@@ -189,12 +189,10 @@ export default function CheckoutPage() {
 
       if (res.data.satim_payment_url) {
         // CIB/Edahabia — redirect to SATIM payment page
-        clearCart()
         localStorage.setItem('lastOrder', JSON.stringify(res.data))
         window.location.href = res.data.satim_payment_url
 
       } else if (res.data.satim_error) {
-        clearCart()
         window.location.href = `/payment-result?status=fail&reason=init_failed&msg=${encodeURIComponent(res.data.satim_error)}`
 
       } else if (form.payment_method === 'yassir') {
@@ -205,14 +203,12 @@ export default function CheckoutPage() {
 
           if (yData?.redirect) {
             // Succès direct (statusCode=2, sans OTP)
-            clearCart()
             window.location.href = yData.redirect
 
           } else if (yData?.payUrl) {
             // statusCode=12 → OTP requis
             // Selon la doc officielle Yassir, le returnUrl doit être une page FRONTEND
             // Yassir y ajoute automatiquement ?paymentId=...&statusCode=2
-            clearCart()
             localStorage.setItem('lastOrder', JSON.stringify(res.data))
             localStorage.setItem('yassirPaymentId', yData.paymentId || '')
 

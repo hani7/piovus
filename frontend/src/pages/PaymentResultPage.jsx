@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import client from '../api/client'
+import { useCartStore } from '../store/cartStore'
+
 import './PaymentResultPage.css'
 
 export default function PaymentResultPage() {
@@ -19,6 +21,14 @@ export default function PaymentResultPage() {
   const [order, setOrder]     = useState(null)
   const [loading, setLoading] = useState(false)
   const [yassirStatus, setYassirStatus] = useState(null) // 'success' | 'failed' | 'checking'
+  const { clearCart } = useCartStore()
+
+  // 🎯 Clear cart on success
+  useEffect(() => {
+    if (status === 'success' || yassirStatus === 'success') {
+      clearCart()
+    }
+  }, [status, yassirStatus, clearCart])
 
   // ── Yassir return handler ────────────────────────────────────────────────────
   useEffect(() => {

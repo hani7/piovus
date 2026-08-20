@@ -642,11 +642,11 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                     <td style={{ fontWeight: 700, color: 'var(--color-black)' }}>{Number(o.total).toLocaleString('fr-DZ')} DA</td>
                     <td>
                       {o.payment_method === 'cib' ? (
-                        <span className="badge" style={{ background: '#2563eb', color: 'white', fontSize: '0.65rem', padding: '2px 8px', whiteSpace: 'nowrap', borderRadius: '4px', fontWeight: 'bold' }}>EN LIGNE</span>
+                        <span className="badge" style={{ background: '#2563eb', color: 'white', fontSize: '0.65rem', padding: '3px 10px', whiteSpace: 'nowrap', borderRadius: '50px', fontWeight: 'bold' }}>EN LIGNE</span>
                       ) : o.payment_method === 'yassir' ? (
-                        <span className="badge" style={{ background: '#8b5cf6', color: 'white', fontSize: '0.65rem', padding: '2px 8px', whiteSpace: 'nowrap', borderRadius: '4px', fontWeight: 'bold' }}>YASSIR</span>
+                        <span className="badge" style={{ background: '#8b5cf6', color: 'white', fontSize: '0.65rem', padding: '3px 10px', whiteSpace: 'nowrap', borderRadius: '50px', fontWeight: 'bold' }}>YASSIR</span>
                       ) : (
-                        <span className="badge" style={{ background: '#16a34a', color: 'white', fontSize: '0.65rem', padding: '2px 8px', whiteSpace: 'nowrap', borderRadius: '4px', fontWeight: 'bold' }}>CASH</span>
+                        <span className="badge" style={{ background: '#16a34a', color: 'white', fontSize: '0.65rem', padding: '3px 10px', whiteSpace: 'nowrap', borderRadius: '50px', fontWeight: 'bold' }}>CASH</span>
                       )}
                     </td>
                     <td>

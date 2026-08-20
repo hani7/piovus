@@ -47,7 +47,7 @@ export default function AdminProducts() {
   const [perPage, setPerPage] = useState(10)
   const [showVariants, setShowVariants] = useState(false)
   const [variants, setVariants] = useState([])
-  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '' })
+  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: true })
   const [variantFile, setVariantFile] = useState(null)
   const [editVariantId, setEditVariantId] = useState(null)
 
@@ -208,7 +208,7 @@ export default function AdminProducts() {
 
   const openEditVariant = (v) => {
     setEditVariantId(v.id)
-    setNewVariant({ name: v.name, color_hex: v.color_hex || '#000000', stock: v.stock, price: v.price || '', is_available: v.is_available !== false, choice_group: v.choice_group || '' })
+    setNewVariant({ name: v.name, color_hex: v.color_hex || '#000000', stock: v.stock, price: v.price || '', is_available: v.is_available !== false, choice_group: v.choice_group || '', show_image_in_swatch: v.show_image_in_swatch !== false })
     setVariantFile(null)
     setTimeout(() => {
       if (variantFormRef.current) {
@@ -222,7 +222,7 @@ export default function AdminProducts() {
 
   const cancelEditVariant = () => {
     setEditVariantId(null)
-    setNewVariant({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '' })
+    setNewVariant({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: true })
     setVariantFile(null)
     if (variantFileRef.current) variantFileRef.current.value = ''
   }
@@ -239,6 +239,7 @@ export default function AdminProducts() {
       fd.append('stock', newVariant.stock)
       fd.append('is_available', newVariant.is_available)
       fd.append('choice_group', newVariant.choice_group || '')
+      fd.append('show_image_in_swatch', newVariant.show_image_in_swatch)
       if (newVariant.price !== '' && newVariant.price !== null) fd.append('price', newVariant.price)
       if (variantFile) fd.append('image', variantFile)
       
@@ -925,7 +926,13 @@ export default function AdminProducts() {
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label>Image de la variation</label>
-                              <input type="file" accept="image/*" className="form-control" style={{ padding: '8px' }} ref={variantFileRef} onChange={e => setVariantFile(e.target.files[0])} />
+                              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                <input type="file" accept="image/*" className="form-control" style={{ padding: '8px', flex: 1 }} ref={variantFileRef} onChange={e => setVariantFile(e.target.files[0])} />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+                                  <input type="checkbox" id="show-img-swatch" checked={newVariant.show_image_in_swatch} onChange={e => setNewVariant({ ...newVariant, show_image_in_swatch: e.target.checked })} style={{ cursor: 'pointer', width: 16, height: 16 }} />
+                                  <label htmlFor="show-img-swatch" style={{ cursor: 'pointer', fontSize: '0.8rem', color: 'var(--admin-text)', marginBottom: 0 }}>Image en cercle</label>
+                                </div>
+                              </div>
                             </div>
                           </div>
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>

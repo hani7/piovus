@@ -71,7 +71,7 @@ class ProductVariantSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
 
     class Meta:
         model = ProductVariant
-        fields = ['id', 'name', 'color_hex', 'image', 'stock', 'sku', 'price', 'is_available', 'choice_group']
+        fields = ['id', 'name', 'color_hex', 'image', 'stock', 'sku', 'price', 'is_available', 'choice_group', 'show_image_in_swatch']
 
     def get_image(self, obj):
         return self._abs(obj.image.url if obj.image else None)
@@ -396,7 +396,7 @@ class AdminCategorySerializer(serializers.ModelSerializer):
 class AdminProductVariantSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
-        fields = ['id', 'product', 'name', 'color_hex', 'image', 'stock', 'sku', 'price', 'is_available', 'choice_group']
+        fields = ['id', 'product', 'name', 'color_hex', 'image', 'stock', 'sku', 'price', 'is_available', 'choice_group', 'show_image_in_swatch']
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)

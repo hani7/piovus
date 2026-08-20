@@ -149,7 +149,8 @@ const ProductInfo = memo(function ProductInfo({
                 </p>
                 <div className="product-info__swatches" role="radiogroup" aria-label={`Sélectionner ${groupLabel}`}>
                   {groupVariants.filter(v => v.is_available !== false).map((v) => {
-                    const imgUrl = v.image ? mediaUrl(v.image) : (v.color_hex?.startsWith('http') ? v.color_hex : null)
+                    const useImage = v.show_image_in_swatch !== false;
+                    const imgUrl = useImage ? (v.image ? mediaUrl(v.image) : (v.color_hex?.startsWith('http') ? v.color_hex : null)) : null;
                     const isImg = !!imgUrl
                     const code = v.name.split(' ')[0]
                     const isSelected = chosen === v.id
@@ -197,7 +198,8 @@ const ProductInfo = memo(function ProductInfo({
           </p>
           <div className="product-info__swatches" role="radiogroup" aria-label="Sélectionner une teinte">
             {product.variants.filter((v) => v.is_available !== false).map((v) => {
-              const imgUrl = v.image ? mediaUrl(v.image) : (v.color_hex?.startsWith('http') ? v.color_hex : null)
+              const useImage = v.show_image_in_swatch !== false;
+              const imgUrl = useImage ? (v.image ? mediaUrl(v.image) : (v.color_hex?.startsWith('http') ? v.color_hex : null)) : null;
               const isImg = !!imgUrl
               const code = v.name.split(' ')[0]
               return (

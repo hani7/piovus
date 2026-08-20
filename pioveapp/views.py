@@ -646,6 +646,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         if payment_method == 'cib':
             initial_status = 'pending'
             history_note = 'Commande CIB en attente de confirmation du paiement en ligne.'
+        elif payment_method == 'yassir':
+            initial_status = 'pending'
+            history_note = 'Commande Yassir Cash en attente de validation OTP.'
         else:
             initial_status = 'en_cours'
             history_note = 'Commande recue et en cours de traitement.'

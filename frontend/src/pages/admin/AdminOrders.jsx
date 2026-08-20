@@ -643,6 +643,8 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                     <td>
                       {o.payment_method === 'cib' ? (
                         <span className="badge" style={{ background: '#e0e7ff', color: '#3730a3', fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>En Ligne</span>
+                      ) : o.payment_method === 'yassir' ? (
+                        <span className="badge" style={{ background: '#fef08a', color: '#854d0e', fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>Yassir Cash</span>
                       ) : (
                         <span className="badge" style={{ background: '#f1f5f9', color: '#475569', fontSize: '0.65rem', padding: '2px 6px', whiteSpace: 'nowrap' }}>Cash</span>
                       )}
@@ -779,16 +781,16 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                   <div style={{
                     display: 'inline-flex', alignItems: 'center', gap: 6,
                     padding: '6px 12px', borderRadius: 8, alignSelf: 'flex-start',
-                    background: detail.payment_method === 'cib' ? '#e0e7ff' : '#f0fdf4',
-                    border: `1px solid ${detail.payment_method === 'cib' ? '#c7d2fe' : '#bbf7d0'}`,
+                    background: detail.payment_method === 'cib' ? '#e0e7ff' : detail.payment_method === 'yassir' ? '#fef08a' : '#f0fdf4',
+                    border: `1px solid ${detail.payment_method === 'cib' ? '#c7d2fe' : detail.payment_method === 'yassir' ? '#fde047' : '#bbf7d0'}`,
                   }}>
-                    <span style={{ fontSize: '1rem' }}>{detail.payment_method === 'cib' ? '💳' : '💵'}</span>
+                    <span style={{ fontSize: '1rem' }}>{detail.payment_method === 'cib' ? '💳' : detail.payment_method === 'yassir' ? '📱' : '💵'}</span>
                     <div>
-                      <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: detail.payment_method === 'cib' ? '#3730a3' : '#166534' }}>
-                        {detail.payment_method === 'cib' ? 'En ligne' : 'Cash'}
+                      <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: detail.payment_method === 'cib' ? '#3730a3' : detail.payment_method === 'yassir' ? '#854d0e' : '#166534' }}>
+                        {detail.payment_method === 'cib' ? 'En ligne' : detail.payment_method === 'yassir' ? 'Yassir Cash' : 'Cash'}
                       </div>
-                      <div style={{ fontSize: '0.72rem', color: detail.payment_method === 'cib' ? '#4338ca' : '#15803d' }}>
-                        {detail.payment_method === 'cib' ? 'CIB / Edahabia' : 'Paiement à la livraison'}
+                      <div style={{ fontSize: '0.72rem', color: detail.payment_method === 'cib' ? '#4338ca' : detail.payment_method === 'yassir' ? '#a16207' : '#15803d' }}>
+                        {detail.payment_method === 'cib' ? 'CIB / Edahabia' : detail.payment_method === 'yassir' ? "Paiement via l'application Yassir" : 'Paiement à la livraison'}
                       </div>
                     </div>
                   </div>

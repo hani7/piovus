@@ -139,58 +139,57 @@ const ProductInfo = memo(function ProductInfo({
             const chosen = selectedChoices?.[groupLabel]
             const chosenVariant = groupVariants.find(v => v.id === chosen)
             return (
-              <div key={groupLabel} className="collection-choice-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                  <p className="collection-choice-group__label" style={{ marginBottom: 0 }}>
+              <div key={groupLabel} className="collection-choice-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ flex: 1, paddingRight: 15 }}>
+                  <p className="collection-choice-group__label" style={{ marginBottom: 10 }}>
                     {groupLabel}
                     {chosenVariant
                       ? <strong> — {chosenVariant.name}</strong>
                       : <span className="collection-choice-group__hint"> — choisissez une teinte</span>
                     }
                   </p>
-                  {chosenVariant && (() => {
-                    const cRaw = chosenVariant.color_hex || '';
-                    const cUseImg = cRaw.includes('|img_on');
-                    const cHex = cRaw.replace('|img_on', '').replace('|img_off', '');
-                    const cImgUrl = cUseImg ? (chosenVariant.image ? mediaUrl(chosenVariant.image) : (cHex.startsWith('http') ? cHex : null)) : null;
-                    const cIsImg = !!cImgUrl;
-                    return (
-                      <div style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0, background: cIsImg ? '#f0f0f0' : (cHex || '#cccccc'), border: '1px solid rgba(0,0,0,0.1)', overflow: 'hidden', marginLeft: 10 }}>
-                        {cIsImg && <img src={cImgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={chosenVariant.name} onError={e => e.target.style.display = 'none'} />}
-                      </div>
-                    )
-                  })()}
+                  <div className="product-info__swatches" role="radiogroup" aria-label={`Sélectionner ${groupLabel}`}>
+                    {groupVariants.filter(v => v.is_available !== false).map((v) => {
+                      const rawColor = v.color_hex || '';
+                      const useImage = rawColor.includes('|img_on');
+                      const hexOnly = rawColor.replace('|img_on', '').replace('|img_off', '');
+                      const imgUrl = useImage ? (v.image ? mediaUrl(v.image) : (hexOnly.startsWith('http') ? hexOnly : null)) : null;
+                      const isImg = !!imgUrl
+                      const code = v.name.split(' ')[0]
+                      const isSelected = chosen === v.id
+                      return (
+                        <button
+                          key={v.id}
+                          className={`swatch${isSelected ? ' swatch--active' : ''}`}
+                          style={{ background: isImg ? '#f0f0f0' : (hexOnly || '#cccccc') }}
+                          onClick={() => onChoiceSelect(groupLabel, v)}
+                          title={v.name}
+                          aria-label={v.name}
+                          aria-pressed={isSelected}
+                          id={`variant-${v.id}`}
+                        >
+                          {isImg && (
+                            <span className="swatch__code">
+                              <img src={imgUrl} alt={code} className="swatch__img" onError={(e) => { e.target.style.display = 'none' }} />
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
-                <div className="product-info__swatches" role="radiogroup" aria-label={`Sélectionner ${groupLabel}`}>
-                  {groupVariants.filter(v => v.is_available !== false).map((v) => {
-                    const rawColor = v.color_hex || '';
-                    const useImage = rawColor.includes('|img_on');
-                    const hexOnly = rawColor.replace('|img_on', '').replace('|img_off', '');
-                    const imgUrl = useImage ? (v.image ? mediaUrl(v.image) : (hexOnly.startsWith('http') ? hexOnly : null)) : null;
-                    const isImg = !!imgUrl
-                    const code = v.name.split(' ')[0]
-                    const isSelected = chosen === v.id
-                    return (
-                      <button
-                        key={v.id}
-                        className={`swatch${isSelected ? ' swatch--active' : ''}`}
-                        style={{ background: isImg ? '#f0f0f0' : (hexOnly || '#cccccc') }}
-                        onClick={() => onChoiceSelect(groupLabel, v)}
-                        onMouseEnter={() => onChoiceSelect(groupLabel, v)}
-                        title={v.name}
-                        aria-label={v.name}
-                        aria-pressed={isSelected}
-                        id={`variant-${v.id}`}
-                      >
-                        {isImg && (
-                          <span className="swatch__code">
-                            <img src={imgUrl} alt={code} className="swatch__img" onError={(e) => { e.target.style.display = 'none' }} />
-                          </span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
+                {chosenVariant && (() => {
+                  const cRaw = chosenVariant.color_hex || '';
+                  const cUseImg = cRaw.includes('|img_on');
+                  const cHex = cRaw.replace('|img_on', '').replace('|img_off', '');
+                  const cImgUrl = cUseImg ? (chosenVariant.image ? mediaUrl(chosenVariant.image) : (cHex.startsWith('http') ? cHex : null)) : null;
+                  const cIsImg = !!cImgUrl;
+                  return (
+                    <div style={{ width: 44, height: 44, borderRadius: '50%', flexShrink: 0, background: cIsImg ? '#f0f0f0' : (cHex || '#cccccc'), border: '2px solid var(--color-black)', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                      {cIsImg && <img src={cImgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={chosenVariant.name} onError={e => e.target.style.display = 'none'} />}
+                    </div>
+                  )
+                })()}
               </div>
             )
           })}
@@ -225,7 +224,6 @@ const ProductInfo = memo(function ProductInfo({
                   className={`swatch${selectedVariant?.id === v.id ? ' swatch--active' : ''}`}
                   style={{ background: isImg ? '#f0f0f0' : (hexOnly || '#cccccc') }}
                   onClick={() => onVariantSelect(v)}
-                  onMouseEnter={() => onVariantSelect(v)}
                   title={v.name}
                   aria-label={v.name}
                   aria-pressed={selectedVariant?.id === v.id}

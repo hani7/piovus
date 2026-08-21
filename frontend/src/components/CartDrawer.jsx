@@ -48,20 +48,7 @@ export default function CartDrawer({ open, onClose }) {
                     </div>
                     <div className="cart-item__info">
                       <p className="cart-item__name">{item.product.name}</p>
-                      {item.variant && <p className="cart-item__variant">{item.variant.name}</p>}
-                      {item.collectionChoices && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
-                          {item.collectionChoices.map(v => (
-                            <span key={v.id} style={{
-                              fontSize: '0.72rem', background: '#f1f5f9',
-                              borderRadius: 4, padding: '2px 6px', color: '#475569',
-                              display: 'inline-flex', alignItems: 'center'
-                            }}>
-                              {v.name}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      {item.variant && !item.collectionChoices && <p className="cart-item__variant">{item.variant.name}</p>}
                       <p className="cart-item__price">{item.price.toLocaleString('fr-DZ')} DA</p>
                     </div>
                     <div className="cart-item__controls">

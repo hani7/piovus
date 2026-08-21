@@ -474,14 +474,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="checkout-summary__item-info">
                   <p className="checkout-summary__item-name">{i.product.name}</p>
-                  {i.variant && <p className="checkout-summary__item-variant">Teinte: {i.variant.name}</p>}
-                  {i.collectionChoices && (
-                    <div className="checkout-summary__item-variants" style={{fontSize: '0.75rem', color: 'var(--color-gray-500)', marginTop: 4}}>
-                      {i.collectionChoices.map((v, idx) => (
-                        <span key={v.id}>{v.name}{idx < i.collectionChoices.length - 1 ? ', ' : ''}</span>
-                      ))}
-                    </div>
-                  )}
+                  {i.variant && !i.collectionChoices && <p className="checkout-summary__item-variant">Teinte: {i.variant.name}</p>}
                 </div>
                 <p className="checkout-summary__item-price">{(i.price * i.quantity).toLocaleString('fr-DZ')} DA</p>
               </div>

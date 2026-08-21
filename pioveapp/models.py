@@ -166,7 +166,6 @@ class ProductVariant(models.Model):
         max_length=100, blank=True, default='',
         help_text="Groupe de choix pour les produits collection (ex: 'Choix 01'). Laisser vide si pas de collection."
     )
-    show_image_in_swatch = models.BooleanField(default=True, help_text="Afficher l'image dans le cercle de variation (si disponible)")
 
     def __str__(self):
         return f"{self.product.name} — {self.name}"

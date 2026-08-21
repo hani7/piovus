@@ -47,7 +47,7 @@ export default function AdminProducts() {
   const [perPage, setPerPage] = useState(10)
   const [showVariants, setShowVariants] = useState(false)
   const [variants, setVariants] = useState([])
-  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: true })
+  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: false })
   const [variantFile, setVariantFile] = useState(null)
   const [editVariantId, setEditVariantId] = useState(null)
 
@@ -208,7 +208,10 @@ export default function AdminProducts() {
 
   const openEditVariant = (v) => {
     setEditVariantId(v.id)
-    setNewVariant({ name: v.name, color_hex: v.color_hex || '#000000', stock: v.stock, price: v.price || '', is_available: v.is_available !== false, choice_group: v.choice_group || '', show_image_in_swatch: v.show_image_in_swatch !== false })
+    const rawColor = v.color_hex || '#000000'
+    const colorHex = rawColor.replace('|img_on', '').replace('|img_off', '')
+    const showImage = rawColor.includes('|img_on')
+    setNewVariant({ name: v.name, color_hex: colorHex, stock: v.stock, price: v.price || '', is_available: v.is_available !== false, choice_group: v.choice_group || '', show_image_in_swatch: showImage })
     setVariantFile(null)
     setTimeout(() => {
       if (variantFormRef.current) {
@@ -222,7 +225,7 @@ export default function AdminProducts() {
 
   const cancelEditVariant = () => {
     setEditVariantId(null)
-    setNewVariant({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: true })
+    setNewVariant({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: false })
     setVariantFile(null)
     if (variantFileRef.current) variantFileRef.current.value = ''
   }
@@ -235,11 +238,11 @@ export default function AdminProducts() {
       const fd = new FormData()
       fd.append('product', editId)
       fd.append('name', newVariant.name)
-      fd.append('color_hex', newVariant.color_hex)
+      const finalColorHex = newVariant.show_image_in_swatch ? `${newVariant.color_hex}|img_on` : newVariant.color_hex
+      fd.append('color_hex', finalColorHex)
       fd.append('stock', newVariant.stock)
       fd.append('is_available', newVariant.is_available)
       fd.append('choice_group', newVariant.choice_group || '')
-      fd.append('show_image_in_swatch', newVariant.show_image_in_swatch)
       if (newVariant.price !== '' && newVariant.price !== null) fd.append('price', newVariant.price)
       if (variantFile) fd.append('image', variantFile)
       
@@ -295,8 +298,10 @@ export default function AdminProducts() {
 
   return (
     <div>
-      <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 24 }}>
-        Produits
+      {!modal && (
+        <>
+          <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 24 }}>
+            Produits
         <span style={{ fontSize: '0.85rem', fontWeight: 400, color: 'var(--admin-text-muted)', marginLeft: 10 }}>
           {filtered.length} produit{filtered.length !== 1 ? 's' : ''}
         </span>
@@ -613,17 +618,22 @@ export default function AdminProducts() {
           </>
         )}
       </div>
+    </>
+  )}
 
-      {/* Modal */}
+      {/* Details Page (was Modal) */}
       {modal && (
-        <div className="admin-modal-overlay" onClick={e => e.target === e.currentTarget && setModal(null)}>
-          <div className="admin-modal">
-            <div className="admin-modal-header">
-              <span className="admin-modal-title">{modal === 'add' ? 'Ajouter un produit' : 'Modifier le produit'}</span>
-              <button type="button" className="admin-modal-close" onClick={() => setModal(null)}><X size={20}/></button>
-            </div>
-            <form onSubmit={handleSave}>
-              <div className="admin-modal-body">
+        <div className="admin-card" style={{ padding: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+            <h2 style={{ fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
+              {modal === 'add' ? 'Ajouter un produit' : 'Modifier le produit'}
+            </h2>
+            <button type="button" className="btn-secondary" onClick={() => setModal(null)}>
+              Retour à la liste
+            </button>
+          </div>
+          <form onSubmit={handleSave}>
+            <div className="admin-modal-body" style={{ padding: 0, maxHeight: 'none', overflowY: 'visible' }}>
                 <div className="form-group">
                   <label>Image (thumbnail)</label>
                   {thumbPreview && <img src={thumbPreview} className="thumb-preview" alt="preview" />}
@@ -926,12 +936,17 @@ export default function AdminProducts() {
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label>Image de la variation</label>
-                              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                                <input type="file" accept="image/*" className="form-control" style={{ padding: '8px', flex: 1 }} ref={variantFileRef} onChange={e => setVariantFile(e.target.files[0])} />
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
-                                  <input type="checkbox" id="show-img-swatch" checked={newVariant.show_image_in_swatch} onChange={e => setNewVariant({ ...newVariant, show_image_in_swatch: e.target.checked })} style={{ cursor: 'pointer', width: 16, height: 16 }} />
-                                  <label htmlFor="show-img-swatch" style={{ cursor: 'pointer', fontSize: '0.8rem', color: 'var(--admin-text)', marginBottom: 0 }}>Image en cercle</label>
-                                </div>
+                              <input type="file" accept="image/*" className="form-control" style={{ padding: '8px' }} ref={variantFileRef} onChange={e => setVariantFile(e.target.files[0])} />
+                              <div style={{ marginTop: '10px' }}>
+                                <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.8rem', color: 'var(--admin-text)', marginBottom: 0 }}>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={newVariant.show_image_in_swatch} 
+                                    onChange={e => setNewVariant({ ...newVariant, show_image_in_swatch: e.target.checked })} 
+                                  />
+                                  <span className="checkbox-custom"></span>
+                                  Utiliser l'image comme couleur (|img_on)
+                                </label>
                               </div>
                             </div>
                           </div>
@@ -1138,14 +1153,13 @@ export default function AdminProducts() {
                   </div>
                 )}
               </div>
-              <div className="admin-modal-footer">
+              <div className="admin-modal-footer" style={{ borderTop: '1px solid var(--admin-border)', paddingTop: 20, marginTop: 20, background: 'transparent' }}>
                 <button type="button" className="btn-secondary" onClick={() => setModal(null)}>Annuler</button>
                 <button type="submit" className="btn-primary" disabled={saving}>
                   {saving ? 'Enregistrement...' : 'Enregistrer'}
                 </button>
               </div>
             </form>
-          </div>
         </div>
       )}
     </div>

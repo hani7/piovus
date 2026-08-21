@@ -74,40 +74,14 @@ export default function CartPage() {
                 {/* Desktop: name shown inside product col */}
                 <div className="cart-row__info-block">
                   <Link to={`/produit/${item.product.slug}`} className="cart-row__name">{item.product.name}</Link>
-                  {item.variant && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
-                  {item.collectionChoices && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
-                      {item.collectionChoices.map(v => (
-                        <span key={v.id} style={{
-                          fontSize: '0.72rem', background: '#f1f5f9',
-                          borderRadius: 4, padding: '2px 6px', color: '#475569',
-                          display: 'inline-flex', alignItems: 'center'
-                        }}>
-                          {v.name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  {item.variant && !item.collectionChoices && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
                 </div>
               </div>
 
               {/* Col 2 row 1 — Mobile: name + price (hidden on desktop via CSS) */}
               <div className="cart-row__info-standalone">
                 <Link to={`/produit/${item.product.slug}`} className="cart-row__name">{item.product.name}</Link>
-                {item.variant && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
-                {item.collectionChoices && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
-                    {item.collectionChoices.map(v => (
-                      <span key={v.id} style={{
-                        fontSize: '0.72rem', background: '#f1f5f9',
-                        borderRadius: 4, padding: '2px 6px', color: '#475569',
-                        display: 'inline-flex', alignItems: 'center'
-                      }}>
-                        {v.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                {item.variant && !item.collectionChoices && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
                 <p style={{ fontWeight: 600, marginTop: 6, fontSize: '0.95rem' }}>{item.price.toLocaleString('fr-DZ')} DA</p>
               </div>
 

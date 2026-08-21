@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { X, Edit, Trash2, LayoutList, LayoutGrid, Eye, Save } from 'lucide-react'
+import { X, Edit, Trash2, LayoutList, LayoutGrid, Eye, Save, Plus } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 import mediaUrl from '../../api/mediaUrl'
 
@@ -47,9 +47,10 @@ export default function AdminProducts() {
   const [perPage, setPerPage] = useState(10)
   const [showVariants, setShowVariants] = useState(false)
   const [variants, setVariants] = useState([])
-  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: false })
+  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: false, image: null })
   const [variantFile, setVariantFile] = useState(null)
   const [editVariantId, setEditVariantId] = useState(null)
+  const [showVariantModal, setShowVariantModal] = useState(false)
 
   const [showGallery, setShowGallery] = useState(false)
   const [gallery, setGallery] = useState([])
@@ -211,22 +212,16 @@ export default function AdminProducts() {
     const rawColor = v.color_hex || '#000000'
     const colorHex = rawColor.replace('|img_on', '').replace('|img_off', '')
     const showImage = rawColor.includes('|img_on')
-    setNewVariant({ name: v.name, color_hex: colorHex, stock: v.stock, price: v.price || '', is_available: v.is_available !== false, choice_group: v.choice_group || '', show_image_in_swatch: showImage })
+    setNewVariant({ name: v.name, color_hex: colorHex, stock: v.stock, price: v.price || '', is_available: v.is_available !== false, choice_group: v.choice_group || '', show_image_in_swatch: showImage, image: v.image })
     setVariantFile(null)
-    setTimeout(() => {
-      if (variantFormRef.current) {
-        variantFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-        // Optionally focus the name input
-        const input = variantFormRef.current.querySelector('input')
-        if (input) input.focus()
-      }
-    }, 50)
+    setShowVariantModal(true)
   }
 
   const cancelEditVariant = () => {
     setEditVariantId(null)
-    setNewVariant({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: false })
+    setNewVariant({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: false, image: null })
     setVariantFile(null)
+    setShowVariantModal(false)
     if (variantFileRef.current) variantFileRef.current.value = ''
   }
 
@@ -246,6 +241,7 @@ export default function AdminProducts() {
       if (newVariant.price !== '' && newVariant.price !== null) fd.append('price', newVariant.price)
       if (variantFile) fd.append('image', variantFile)
       
+      setShowVariantModal(false)
       if (editVariantId) {
         const res = await adminClient.patch(`/admin/variants/${editVariantId}/`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
         setVariants(variants.map(v => v.id === editVariantId ? res.data : v))
@@ -775,8 +771,12 @@ export default function AdminProducts() {
                                   <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)' }}>Prix: {v.price || 'Par défaut'} {form.is_collection && v.group_name ? ` | Groupe: ${v.group_name}` : ''}</div>
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                  <button type="button" className="btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => openEditVariant(v)}>Modifier</button>
-                                  <button type="button" className="btn-danger" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => handleDeleteVariant(v.id)}>Supprimer</button>
+                                  <button type="button" style={{ padding: '6px', fontSize: '0.8rem', background: 'black', color: 'white', borderRadius: '50px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px' }} title="Modifier" onClick={() => openEditVariant(v)}>
+                                    <Edit size={16} />
+                                  </button>
+                                  <button type="button" style={{ padding: '6px', fontSize: '0.8rem', background: 'var(--admin-danger, #dc2626)', color: 'white', borderRadius: '50px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px' }} title="Supprimer" onClick={() => handleDeleteVariant(v.id)}>
+                                    <Trash2 size={16} />
+                                  </button>
                                 </div>
                               </div>
                             ))}
@@ -809,7 +809,14 @@ export default function AdminProducts() {
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                   <label>Image de variation</label>
-                                  <input type="file" accept="image/*" className="form-control" style={{ padding: '8px' }} ref={variantFileRef} onChange={e => setVariantFile(e.target.files[0])} />
+                                  <div style={{ display: 'flex', gap: '10px' }}>
+                                    {(variantFile || newVariant.image) && (
+                                      <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--admin-border)' }}>
+                                        <img src={variantFile ? URL.createObjectURL(variantFile) : mediaUrl(newVariant.image)} alt="prev" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                      </div>
+                                    )}
+                                    <input type="file" accept="image/*" className="form-control" style={{ padding: '8px', flex: 1 }} ref={variantFileRef} onChange={e => setVariantFile(e.target.files[0])} />
+                                  </div>
                                 </div>
                               </div>
                               <div style={{ marginTop: '15px' }}>
@@ -839,7 +846,8 @@ export default function AdminProducts() {
                               </div>
                               <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
                                 <button type="button" className="btn-primary" onClick={handleSaveVariant} disabled={!newVariant.name || saving}>
-                                  {saving ? 'Enregistrement...' : (editVariantId ? 'Mettre à jour' : 'Ajouter')}
+                                  {!saving && (editVariantId ? <Save size={16} /> : <Plus size={16} />)}
+                                    {saving ? 'Enregistrement...' : (editVariantId ? 'Mettre à jour' : 'Ajouter')}
                                 </button>
                                 {editVariantId && (
                                   <button type="button" className="btn-secondary" onClick={cancelEditVariant}>Annuler modification</button>

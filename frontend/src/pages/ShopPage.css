@@ -174,13 +174,14 @@
 .shop-pagination {
   display: flex;
   align-items: center;
-  justify-content: flex-end;   /* align�e � droite */
+  justify-content: center;
+  width: 100%;
   gap: 6px;
   margin-top: 36px;
   padding-bottom: 32px;
 }
 
-/* Bouton fl�che (pr�c�dent / suivant) */
+/* Bouton flche (prcdent / suivant) */
 .shop-pagination__arrow {
   width: 32px;
   height: 32px;

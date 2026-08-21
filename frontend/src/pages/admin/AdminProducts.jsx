@@ -454,10 +454,10 @@ export default function AdminProducts() {
                         <td><span className={`badge ${p.is_active ? 'badge-active' : 'badge-inactive'}`}>{p.is_active ? 'Actif' : 'Inactif'}</span></td>
                         <td>
                           <div style={{ display: 'flex', gap: 6 }}>
-                            <a href={`/produit/${p.slug}`} target="_blank" rel="noopener noreferrer" className="btn-action-icon" title="Voir le produit">
+                            <a href={`/produit/${p.slug}`} target="_blank" rel="noopener noreferrer" className="btn-action-icon" style={{ background: 'black' }} title="Voir le produit">
                               <Eye size={16} color="white" />
                             </a>
-                            <button className="btn-action-icon" onClick={() => openEdit(p)} title="Modifier">
+                            <button className="btn-action-icon" style={{ background: '#de0411' }} onClick={() => openEdit(p)} title="Modifier">
                               <Edit size={16} />
                             </button>
                             <button className="btn-action-icon" onClick={() => handleDelete(p.id)} title="Supprimer">
@@ -857,14 +857,14 @@ export default function AdminProducts() {
                                   <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>Disponible à la vente</span>
                                 </label>
                               </div>
-                              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                              <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
+                                <button type="button" className="btn-secondary" style={{ background: 'black', color: 'white', border: 'none' }} onClick={cancelEditVariant}>
+                                  <X size={16} /> Annuler
+                                </button>
                                 <button type="button" className="btn-primary" onClick={handleSaveVariant} disabled={!newVariant.name || saving}>
                                   {!saving && (editVariantId ? <Save size={16} /> : <Plus size={16} />)}
                                     {saving ? 'Enregistrement...' : (editVariantId ? 'Mettre à jour' : 'Ajouter')}
                                 </button>
-                                {editVariantId && (
-                                  <button type="button" className="btn-secondary" onClick={cancelEditVariant}>Annuler modification</button>
-                                )}
                               </div>
                             </div>
                           </div>

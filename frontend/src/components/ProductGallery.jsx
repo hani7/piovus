@@ -44,6 +44,7 @@ const ProductGallery = memo(function ProductGallery({
           <>
             {selectedImage === -1 && selectedVariant?.image ? (
               <img 
+                key={`variant-${selectedVariant.id}-${useFallback ? 'fallback' : 'main'}`}
                 src={useFallback ? mediaUrl(product.thumbnail) : mediaUrl(selectedVariant.image)} 
                 alt={selectedVariant.name} 
                 loading="lazy" 
@@ -63,6 +64,7 @@ const ProductGallery = memo(function ProductGallery({
               />
             ) : (
               <img
+                key={`gallery-${selectedImage}-${useFallback ? 'fallback' : 'main'}`}
                 src={useFallback ? mediaUrl(product.thumbnail) : (mediaUrl(images[selectedImage]?.image) || mediaUrl(product.thumbnail))}
                 alt={images[selectedImage]?.alt || product.name}
                 loading="eager"

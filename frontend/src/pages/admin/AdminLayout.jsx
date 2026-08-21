@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { NavLink, useNavigate, Outlet, Navigate, Link } from 'react-router-dom'
+import { NavLink, useNavigate, Outlet, Navigate, Link, useLocation } from 'react-router-dom'
 import { LayoutDashboard, Package, Tags, Image, ShoppingCart, Briefcase, BarChart2, Users, UserX, Mail, Truck, Banknote, Menu, LogOut, Bell, Ticket, Search, Settings, Film, Sun, Moon, Maximize2, Minimize2, History, Eye, Store } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 import './admin.css'
@@ -62,6 +62,7 @@ export const NAV_ITEMS = [
 
 export default function AdminLayout() {
   const navigate = useNavigate()
+  const location = useLocation()
   const user = JSON.parse(localStorage.getItem('admin_user') || 'null')
   const isMarketing = user?.groups?.includes('marketing')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -305,6 +306,12 @@ export default function AdminLayout() {
                   to={link.to}
                   end={link.end}
                   className={({ isActive }) => isActive ? 'active' : ''}
+                  onClick={(e) => {
+                    if (location.pathname === link.to) {
+                      e.preventDefault();
+                      window.location.href = link.to;
+                    }
+                  }}
                 >
                   {link.icon}
                   <span style={{ flex: 1 }}>{link.label}</span>

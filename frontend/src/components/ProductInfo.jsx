@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ProductShare } from './ProductReviews'
 import mediaUrl from '../api/mediaUrl'
@@ -40,6 +40,8 @@ const ProductInfo = memo(function ProductInfo({
 
   const groupLabels = useMemo(() =>
     Object.keys(choiceGroups).sort(), [choiceGroups])
+
+  const [isVariantLocked, setIsVariantLocked] = useState(false);
 
   return (
     <div className="product-info">
@@ -223,8 +225,8 @@ const ProductInfo = memo(function ProductInfo({
                   key={v.id}
                   className={`swatch${selectedVariant?.id === v.id ? ' swatch--active' : ''}`}
                   style={{ background: isImg ? '#f0f0f0' : (hexOnly || '#cccccc') }}
-                  onClick={() => onVariantSelect(v)}
-                  onMouseEnter={() => onVariantSelect(v)}
+                  onClick={() => { setIsVariantLocked(true); onVariantSelect(v); }}
+                  onMouseEnter={() => { if (!isVariantLocked) onVariantSelect(v); }}
                   title={v.name}
                   aria-label={v.name}
                   aria-pressed={selectedVariant?.id === v.id}

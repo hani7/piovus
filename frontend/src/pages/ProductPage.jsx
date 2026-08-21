@@ -96,13 +96,13 @@ export default function ProductPage() {
     : product?.thumbnail ? [{ image: product.thumbnail, alt: product.name }] : []
 
   useEffect(() => {
-    if (images.length > 1) {
+    if (images.length > 1 && (!product?.variants || product.variants.length === 0)) {
       const timer = setInterval(() => {
         setSelectedImage((prev) => prev === -1 ? 0 : prev < images.length - 1 ? prev + 1 : 0)
       }, 4000)
       return () => clearInterval(timer)
     }
-  }, [images.length])
+  }, [images.length, product?.variants?.length])
 
   // Handle collection choice selection
   const handleChoiceSelect = useCallback((groupLabel, variant) => {

@@ -781,9 +781,22 @@ export default function AdminProducts() {
                               </div>
                             ))}
 
-                            <div style={{ borderTop: '1px dashed var(--admin-border)', paddingTop: '20px', marginTop: '10px' }}>
-                              <h4 style={{ fontSize: '1rem', marginBottom: '15px' }}>{editVariantId ? 'Modifier la variation' : 'Ajouter une variation'}</h4>
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                            <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center' }}>
+                              <button type="button" className="btn-secondary" onClick={() => { cancelEditVariant(); setShowVariantModal(true); }}>
+                                <Plus size={16} /> Ajouter une variation
+                              </button>
+                            </div>
+
+                            {showVariantModal && (
+                              <div className="admin-modal-overlay" style={{ zIndex: 100 }}>
+                                <div className="admin-modal" style={{ maxWidth: '600px', padding: '24px' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '15px' }}>
+                                    <h4 style={{ fontSize: '1.2rem', margin: 0, fontWeight: 700 }}>{editVariantId ? 'Modifier la variation' : 'Ajouter une variation'}</h4>
+                                    <button type="button" onClick={() => { cancelEditVariant(); setShowVariantModal(false); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--admin-text-muted)' }}>
+                                      <X size={20} />
+                                    </button>
+                                  </div>
+                                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                   <label>Nom de la variation *</label>
                                   <input className="form-control" value={newVariant.name} onChange={e => setNewVariant({ ...newVariant, name: e.target.value })} placeholder="Ex: Rouge, S, etc." />
@@ -856,6 +869,8 @@ export default function AdminProducts() {
                             </div>
                           </div>
                         )}
+                      </div>
+                    )}
 
                         {/* Galerie */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>

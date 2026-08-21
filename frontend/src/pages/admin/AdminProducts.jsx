@@ -767,15 +767,15 @@ export default function AdminProducts() {
                             
                             {variants.map(v => (
                               <div key={v.id} style={{ background: 'var(--admin-surface)', padding: '15px', borderRadius: '6px', marginBottom: '10px', display: 'flex', gap: '15px', alignItems: 'center', border: '1px solid var(--admin-border)' }}>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--admin-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: v.color_hex?.includes('|img_on') ? '#f0f0f0' : (v.color_hex?.replace('|img_on','').replace('|img_off','') || '#fff') }}>
-                                  {v.color_hex?.includes('|img_on') && v.image ? <img src={mediaUrl(v.image)} alt="var" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (v.color_hex?.includes('|img_on') && v.color_hex?.replace('|img_on','').replace('|img_off','').startsWith('http') ? <img src={v.color_hex.replace('|img_on','').replace('|img_off','')} alt="var" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null)}
+                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--admin-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: v.color_hex?.includes('|img_on') ? '#f0f0f0' : ((v.color_hex || '').replace('|img_on','').replace('|img_off','') || '#fff') }}>
+                                  {v.color_hex?.includes('|img_on') && v.image ? <img src={mediaUrl(v.image)} alt="var" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (v.color_hex?.includes('|img_on') && (v.color_hex || '').replace('|img_on','').replace('|img_off','').startsWith('http') ? <img src={(v.color_hex || '').replace('|img_on','').replace('|img_off','')} alt="var" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null)}
                                 </div>
                                 <div style={{ flex: 1 }}>
                                   <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{v.name}</div>
                                   <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)' }}>Prix: {v.price || 'Par défaut'} {form.is_collection && v.group_name ? ` | Groupe: ${v.group_name}` : ''}</div>
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                  <button type="button" className="btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => startEditVariant(v)}>Modifier</button>
+                                  <button type="button" className="btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => openEditVariant(v)}>Modifier</button>
                                   <button type="button" className="btn-danger" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => handleDeleteVariant(v.id)}>Supprimer</button>
                                 </div>
                               </div>
@@ -786,24 +786,24 @@ export default function AdminProducts() {
                               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                   <label>Nom de la variation *</label>
-                                  <input className="form-control" value={variantForm.name} onChange={e => setVariantForm({ ...variantForm, name: e.target.value })} placeholder="Ex: Rouge, S, etc." />
+                                  <input className="form-control" value={newVariant.name} onChange={e => setNewVariant({ ...newVariant, name: e.target.value })} placeholder="Ex: Rouge, S, etc." />
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                   <label>Groupe (pour Collections)</label>
-                                  <input className="form-control" value={variantForm.group_name} onChange={e => setVariantForm({ ...variantForm, group_name: e.target.value })} placeholder="Ex: Choix 01" disabled={!form.is_collection} />
+                                  <input className="form-control" value={newVariant.group_name} onChange={e => setNewVariant({ ...newVariant, group_name: e.target.value })} placeholder="Ex: Choix 01" disabled={!form.is_collection} />
                                 </div>
                               </div>
                               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                   <label>Couleur (Code Hex)</label>
                                   <div style={{ display: 'flex', gap: '10px' }}>
-                                    <input type="color" style={{ width: '40px', height: '40px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer' }} value={variantForm.color_hex.replace('|img_on','').replace('|img_off','') || '#cccccc'} onChange={e => {
-                                      const suffix = variantForm.color_hex.includes('|img_on') ? '|img_on' : (variantForm.color_hex.includes('|img_off') ? '|img_off' : '');
-                                      setVariantForm({ ...variantForm, color_hex: e.target.value + suffix })
+                                    <input type="color" style={{ width: '40px', height: '40px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer' }} value={(newVariant.color_hex || '').replace('|img_on','').replace('|img_off','') || '#cccccc'} onChange={e => {
+                                      const suffix = (newVariant.color_hex || '').includes('|img_on') ? '|img_on' : ((newVariant.color_hex || '').includes('|img_off') ? '|img_off' : '');
+                                      setNewVariant({ ...newVariant, color_hex: e.target.value + suffix })
                                     }} />
-                                    <input className="form-control" value={variantForm.color_hex.replace('|img_on','').replace('|img_off','') || ''} onChange={e => {
-                                      const suffix = variantForm.color_hex.includes('|img_on') ? '|img_on' : (variantForm.color_hex.includes('|img_off') ? '|img_off' : '');
-                                      setVariantForm({ ...variantForm, color_hex: e.target.value + suffix })
+                                    <input className="form-control" value={(newVariant.color_hex || '').replace('|img_on','').replace('|img_off','') || ''} onChange={e => {
+                                      const suffix = (newVariant.color_hex || '').includes('|img_on') ? '|img_on' : ((newVariant.color_hex || '').includes('|img_off') ? '|img_off' : '');
+                                      setNewVariant({ ...newVariant, color_hex: e.target.value + suffix })
                                     }} placeholder="#RRGGBB ou URL Image" style={{ flex: 1 }} />
                                   </div>
                                 </div>
@@ -814,9 +814,9 @@ export default function AdminProducts() {
                               </div>
                               <div style={{ marginTop: '15px' }}>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
-                                  <input type="checkbox" checked={variantForm.color_hex.includes('|img_on')} onChange={e => {
-                                    const base = variantForm.color_hex.replace('|img_on','').replace('|img_off','');
-                                    setVariantForm({ ...variantForm, color_hex: base + (e.target.checked ? '|img_on' : '|img_off') });
+                                  <input type="checkbox" checked={(newVariant.color_hex || '').includes('|img_on')} onChange={e => {
+                                    const base = (newVariant.color_hex || '').replace('|img_on','').replace('|img_off','');
+                                    setNewVariant({ ...newVariant, color_hex: base + (e.target.checked ? '|img_on' : '|img_off') });
                                   }} style={{ width: '16px', height: '16px', accentColor: 'var(--color-primary)' }} />
                                   <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>Utiliser l'image comme vignette de couleur</span>
                                 </label>
@@ -824,21 +824,21 @@ export default function AdminProducts() {
                               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                   <label>Prix spécifique (Optionnel)</label>
-                                  <input className="form-control" type="number" step="0.01" value={variantForm.price} onChange={e => setVariantForm({ ...variantForm, price: e.target.value })} placeholder="Laissez vide pour le prix par défaut" />
+                                  <input className="form-control" type="number" step="0.01" value={newVariant.price} onChange={e => setNewVariant({ ...newVariant, price: e.target.value })} placeholder="Laissez vide pour le prix par défaut" />
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                   <label>Stock (Optionnel)</label>
-                                  <input className="form-control" type="number" value={variantForm.stock} onChange={e => setVariantForm({ ...variantForm, stock: e.target.value })} placeholder="Vide = stock global" />
+                                  <input className="form-control" type="number" value={newVariant.stock} onChange={e => setNewVariant({ ...newVariant, stock: e.target.value })} placeholder="Vide = stock global" />
                                 </div>
                               </div>
                               <div style={{ marginTop: '15px' }}>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
-                                  <input type="checkbox" checked={variantForm.is_available} onChange={e => setVariantForm({ ...variantForm, is_available: e.target.checked })} style={{ width: '16px', height: '16px', accentColor: 'var(--color-primary)' }} />
+                                  <input type="checkbox" checked={newVariant.is_available} onChange={e => setNewVariant({ ...newVariant, is_available: e.target.checked })} style={{ width: '16px', height: '16px', accentColor: 'var(--color-primary)' }} />
                                   <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>Disponible à la vente</span>
                                 </label>
                               </div>
                               <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                                <button type="button" className="btn-primary" onClick={handleSaveVariant} disabled={!variantForm.name || saving}>
+                                <button type="button" className="btn-primary" onClick={handleSaveVariant} disabled={!newVariant.name || saving}>
                                   {saving ? 'Enregistrement...' : (editVariantId ? 'Mettre à jour' : 'Ajouter')}
                                 </button>
                                 {editVariantId && (
@@ -1011,7 +1011,7 @@ export default function AdminProducts() {
                             </div>
                           </div>
                         )}
-                        <label className="btn-secondary" htmlFor="thumb-upload" style={{ display: 'flex', width: '100%', justifyContent: 'center', cursor: 'pointer' }}>
+                        <label className="btn-secondary" htmlFor="thumb-upload" style={{ display: 'flex', width: '100%', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ marginRight: '8px' }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                           {thumbPreview ? "Remplacer l'image" : 'Sélectionner une image'}
                         </label>
@@ -1038,10 +1038,10 @@ export default function AdminProducts() {
 
                 {/* STICKY ACTIONS BAR (Bottom Right) */}
                 <div style={{ position: 'sticky', bottom: '24px', display: 'flex', justifyContent: 'flex-end', gap: '15px', marginTop: '40px', padding: '20px 0', borderTop: '1px solid var(--admin-border)', background: 'var(--admin-bg)', zIndex: 50 }}>
-                  <button type="button" className="btn-secondary" onClick={() => setModal(null)} style={{ padding: '12px 24px', fontSize: '1rem', borderRadius: '8px', fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                  <button type="button" className="btn-secondary" onClick={() => setModal(null)} style={{ padding: '12px 24px', fontSize: '1rem', borderRadius: '50px', fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                     <X size={18} style={{ marginRight: '8px' }} /> Annuler
                   </button>
-                  <button type="submit" className="btn-primary" disabled={saving} style={{ padding: '12px 28px', fontSize: '1rem', borderRadius: '8px', fontWeight: 600, boxShadow: '0 4px 12px rgba(220, 38, 38, 0.25)' }}>
+                  <button type="submit" className="btn-primary" disabled={saving} style={{ padding: '12px 28px', fontSize: '1rem', borderRadius: '50px', fontWeight: 600, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)', background: '#000', color: '#fff' }}>
                     <Save size={18} style={{ marginRight: '8px' }} /> {saving ? 'Enregistrement...' : 'Enregistrer'}
                   </button>
                 </div>

@@ -185,7 +185,7 @@ const ProductInfo = memo(function ProductInfo({
                   const cImgUrl = cUseImg ? (chosenVariant.image ? mediaUrl(chosenVariant.image) : (cHex.startsWith('http') ? cHex : null)) : null;
                   const cIsImg = !!cImgUrl;
                   return (
-                    <div style={{ width: 44, height: 44, borderRadius: '50%', flexShrink: 0, background: cIsImg ? '#f0f0f0' : (cHex || '#cccccc'), border: '2px solid var(--color-black)', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                    <div style={{ width: 44, height: 44, borderRadius: '50%', flexShrink: 0, background: cIsImg ? '#f0f0f0' : (cHex || '#cccccc'), border: '2px solid white', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
                       {cIsImg && <img src={cImgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={chosenVariant.name} onError={e => e.target.style.display = 'none'} />}
                     </div>
                   )
@@ -224,6 +224,7 @@ const ProductInfo = memo(function ProductInfo({
                   className={`swatch${selectedVariant?.id === v.id ? ' swatch--active' : ''}`}
                   style={{ background: isImg ? '#f0f0f0' : (hexOnly || '#cccccc') }}
                   onClick={() => onVariantSelect(v)}
+                  onMouseEnter={() => onVariantSelect(v)}
                   title={v.name}
                   aria-label={v.name}
                   aria-pressed={selectedVariant?.id === v.id}

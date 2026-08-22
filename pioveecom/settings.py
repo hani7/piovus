@@ -30,9 +30,14 @@ ALLOWED_HOSTS = [
     'api.piovecosmetics.dz',
     'piovecosmetics.dz',
     'www.piovecosmetics.dz',
+    'app.piovecosmetics.dz',
+    'api.piovecosmetics.com',
+    'piovecosmetics.com',
+    'www.piovecosmetics.com',
+    'app.piovecosmetics.com',
     'localhost',
     '127.0.0.1',
-] + os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
+] + [h for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if h]
 
 
 # Frontend URL (used in SATIM callback redirect)
@@ -169,19 +174,30 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
     'https://piovecosmetics.dz',
     'https://www.piovecosmetics.dz',
     'https://app.piovecosmetics.dz',
+    'https://piovecosmetics.com',
+    'https://www.piovecosmetics.com',
+    'https://app.piovecosmetics.com',
 ]
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
     'https://piovecosmetics.dz',
     'https://www.piovecosmetics.dz',
     'https://app.piovecosmetics.dz',
     'https://api.piovecosmetics.dz',
+    'https://piovecosmetics.com',
+    'https://www.piovecosmetics.com',
+    'https://app.piovecosmetics.com',
+    'https://api.piovecosmetics.com',
 ]
 
 # ─── REST FRAMEWORK ──────────────────────────────────────────────────────────

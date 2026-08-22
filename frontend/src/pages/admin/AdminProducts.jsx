@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { X, Edit, Trash2, LayoutList, LayoutGrid, Eye, Save, Plus } from 'lucide-react'
+import { X, Edit, Trash2, LayoutList, LayoutGrid, Eye, Save, Plus, ArrowLeft } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 import mediaUrl from '../../api/mediaUrl'
 
@@ -621,12 +621,43 @@ export default function AdminProducts() {
       {modal && (
         <div className="admin-card" style={{ padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-            <h2 style={{ fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
-              {modal === 'add' ? 'Ajouter un produit' : 'Modifier le produit'}
-            </h2>
-            <button type="button" className="btn-secondary" onClick={() => setModal(null)}>
-              Retour à la liste
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setModal(null)}
+                title="Retour à la liste"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: '36px', height: '36px', borderRadius: '50%',
+                  background: 'rgba(0,0,0,0.05)', color: '#000', border: 'none',
+                  cursor: 'pointer', transition: 'background 0.2s', backdropFilter: 'blur(4px)'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.1)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
+                {modal === 'add' ? 'Ajouter un produit' : 'Modifier le produit'}
+              </h2>
+            </div>
+            {modal === 'edit' && editId && (
+              <a
+                href={`/produit/${products.find(p => p.id === editId)?.slug || ''}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '8px',
+                  background: '#000', color: '#fff', padding: '8px 16px',
+                  borderRadius: '24px', fontSize: '0.85rem', fontWeight: 600,
+                  textDecoration: 'none', transition: 'opacity 0.2s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+              >
+                <Eye size={16} /> Voir Produit
+              </a>
+            )}
           </div>
           <form onSubmit={handleSave}>
             <div className="admin-modal-body" style={{ padding: 0, maxHeight: 'none', overflowY: 'visible' }}>

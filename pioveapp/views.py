@@ -782,11 +782,11 @@ class AdminDashboardView(APIView):
         from django.db.models import Q
 
         # ÔöÇÔöÇ Statuses that represent real revenue ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
-        # COD: uniquement 'fulfilled' (livr├® + pay├® en main propre)
-        # CIB/Edahabia: payment_status = 'paid' (callback SATIM confirm├®)
+        # COD: uniquement 'fulfilled' (livré + payé en main propre)
+        # CIB/Edahabia/Yassir: payment_status = 'paid'
         REVENUE_Q = (
             Q(payment_method='cash', status='fulfilled', is_deleted=False) |
-            Q(payment_method='cib', payment_status='paid', is_deleted=False)
+            Q(payment_status='paid', is_deleted=False)
         )
 
         total_orders   = Order.objects.filter(is_deleted=False).count()

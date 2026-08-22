@@ -174,7 +174,7 @@
 .shop-pagination {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   width: 100%;
   gap: 6px;
   margin-top: 36px;

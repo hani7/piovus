@@ -1,4 +1,4 @@
-# restart: 2026-07-27T12:08
+# restart: 2026-09-14T07:09
 import os
 import sys
 import io
@@ -101,8 +101,11 @@ try:
         except Exception:
             pass
 
-    from django.core.wsgi import get_wsgi_application
-    application = get_wsgi_application()
+    # ⚠️ On n'utilise PAS get_wsgi_application() ici car elle appelle
+    # django.setup() une 2ème fois → RuntimeError: populate() isn't reentrant
+    # Django est déjà initialisé via django.setup() dans le bloc try ci-dessus.
+    from django.core.handlers.wsgi import WSGIHandler
+    application = WSGIHandler()
 
 except Exception:
     _STARTUP_ERROR = traceback.format_exc()  # Capture ici, dans le except

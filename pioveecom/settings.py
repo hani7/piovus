@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'django_filters',
-    'axes',
+    # 'axes',  # désactivé — non installé sur cPanel
     # Local
     'pioveapp',
 ]
@@ -73,7 +73,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'axes.middleware.AxesMiddleware',
+    # 'axes.middleware.AxesMiddleware',  # désactivé — non installé sur cPanel
 ]
 
 X_FRAME_OPTIONS = 'DENY'
@@ -99,12 +99,12 @@ if not DEBUG:
 
 # ─── AXES (Anti-Brute Force) ─────────────────────────────────────────────────
 AUTHENTICATION_BACKENDS = [
-    'axes.backends.AxesStandaloneBackend',
+    # 'axes.backends.AxesStandaloneBackend',  # désactivé — non installé sur cPanel
     'django.contrib.auth.backends.ModelBackend',
 ]
-AXES_FAILURE_LIMIT = 5
-AXES_COOLOFF_TIME = 1  # 1 hour cool-off
-AXES_RESET_ON_SUCCESS = True
+# AXES_FAILURE_LIMIT = 5
+# AXES_COOLOFF_TIME = 1
+# AXES_RESET_ON_SUCCESS = True
 
 ROOT_URLCONF = 'pioveecom.urls'
 

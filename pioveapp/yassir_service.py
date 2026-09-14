@@ -24,18 +24,18 @@ logger = logging.getLogger(__name__)
 # ─── Credentials ─────────────────────────────────────────────────────────────
 # Lus depuis les variables d'environnement cPanel (Applications Web → Env Vars)
 
-YASSIR_CLIENT_ID       = os.environ.get('YASSIR_CLIENT_ID', 'EXT_PIOVE_SHOP.EXT_PIOVE_SHOP.01M07X5FPQWRV1HJTWR06SBH2G')
-YASSIR_CLIENT_SECRET   = os.environ.get('YASSIR_CLIENT_SECRET', 'e4f3ad4ff8cdd772d7445d279653d3a265048f1f796b71606a185e80c40f67dad0f122d253d88ac4913e4ea2555732bdb8ab1eea99fb3d823464111161a5bf0b')
+YASSIR_CLIENT_ID       = os.environ.get('YASSIR_CLIENT_ID', 'EXT_PIOVE_SHOP.EXT_PIOVE_SHOP.01M1K4JP12ZP6TGYGQH1E55Z4D')
+YASSIR_CLIENT_SECRET   = os.environ.get('YASSIR_CLIENT_SECRET', '0894622cb0fa37636e047d2699c5f8ec74d1af86183917c577703adaa3b5fe8d9aad49e0d37c6cca2805aace20a7f1a77417667fd72d3d791e3fcd2517dd5ab7')
 YASSIR_SERVICE_CODE    = os.environ.get('YASSIR_SERVICE_CODE', 'EXT_PIOVE_SHOP')
-YASSIR_PUBLISHABLE_KEY = os.environ.get('YASSIR_PUBLISHABLE_KEY', 'pk_yassir_909a0bc0b5d71024e9131d766bdbc895')
+YASSIR_PUBLISHABLE_KEY = os.environ.get('YASSIR_PUBLISHABLE_KEY', '')
 
-# ⚠️ La doc distingue 2 environnements :
+# ⚠️ Environnements Yassir :
 #   Staging (sandbox) : https://stg-api.payment.yassir.io
 #   Production        : https://api.payment.yassir.io
-_raw_url = os.environ.get('YASSIR_BASE_URL', 'https://stg-api.payment.yassir.io').rstrip('/')
-# Auto-correction : api.yassir.io (ancienne URL incorrecte) → staging
+_raw_url = os.environ.get('YASSIR_BASE_URL', 'https://api.payment.yassir.io').rstrip('/')
+# Auto-correction : ancienne URL incorrecte → production
 if 'payment.yassir.io' not in _raw_url:
-    _raw_url = 'https://stg-api.payment.yassir.io'
+    _raw_url = 'https://api.payment.yassir.io'
 YASSIR_BASE_URL = _raw_url
 
 COUNTRY_CODE = 'DZA'

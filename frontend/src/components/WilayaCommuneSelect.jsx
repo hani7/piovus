@@ -179,7 +179,12 @@ export default function WilayaCommuneSelect({
   errors = {},
 }) {
   // Wilayas suspendues temporairement
-  const suspendedWilayas = ['Chlef', 'Tissemsilt', 'Ain Defla', 'Khenchela', 'Skikda', 'Biskra', 'Tiaret']
+  const suspendedWilayas = [
+    'Chlef', 'Tissemsilt', 'Ain Defla', 'Khenchela', 'Skikda', 'Biskra', 'Tiaret',
+    'Ouargla', 'El Bayadh', 'El Oued', 'Touggourt', "El M'ghair", 'El Menia',
+    'Ouled Djellal', 'Bechar', 'Tamanrasset', 'Adrar', 'Illizi', 'Tindouf', 'Naama',
+    'Bordj Baji Mokhtar', 'Timimoun', 'Djanet', 'In Salah', 'In Guezzam', 'Béni Abbès'
+  ]
 
   // Options wilayas
   const wilayaOptions = useMemo(() =>

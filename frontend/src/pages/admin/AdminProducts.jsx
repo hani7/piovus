@@ -4,7 +4,7 @@ import adminClient from '../../api/adminClient'
 import mediaUrl from '../../api/mediaUrl'
 
 const EMPTY_FORM = {
-  name: '', category_ids: [], description: '', short_description: '', price: '',
+  name: '', sku: '', category_ids: [], description: '', short_description: '', price: '',
   promo_price: '', b2b_price: '', b2b_price_box: '', b2b_promo_price_box: '', b2b_price_carton: '', b2b_promo_price_carton: '', b2b_min_stock: 1, weight_box: '', weight_carton: '', contenance: '', contenance_unit: 'g', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true,
 }
 
@@ -47,7 +47,7 @@ export default function AdminProducts() {
   const [perPage, setPerPage] = useState(10)
   const [showVariants, setShowVariants] = useState(false)
   const [variants, setVariants] = useState([])
-  const [newVariant, setNewVariant] = useState({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: false, image: null })
+  const [newVariant, setNewVariant] = useState({ name: '', sku: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: false, image: null })
   const [variantFile, setVariantFile] = useState(null)
   const [editVariantId, setEditVariantId] = useState(null)
   const [showVariantModal, setShowVariantModal] = useState(false)
@@ -115,7 +115,7 @@ export default function AdminProducts() {
 
   const openEdit = (p) => {
     setForm({
-      name: p.name, category_ids: p.category_ids || [],
+      name: p.name, sku: p.sku || '', category_ids: p.category_ids || [],
       description: p.description || '',
       short_description: p.short_description || '',
       price: p.price, promo_price: p.promo_price || '', b2b_price: p.b2b_price || '',
@@ -152,7 +152,7 @@ export default function AdminProducts() {
       Object.entries(form).forEach(([k, v]) => {
         if (k === 'category_ids') {
           v.forEach(val => fd.append('category_ids', val))
-        } else if (v === '' && ['promo_price', 'b2b_price', 'b2b_price_box', 'b2b_promo_price_box', 'b2b_price_carton', 'b2b_promo_price_carton', 'description'].includes(k)) {
+        } else if (v === '' && ['sku', 'promo_price', 'b2b_price', 'b2b_price_box', 'b2b_promo_price_box', 'b2b_price_carton', 'b2b_promo_price_carton', 'description'].includes(k)) {
           fd.append(k, '')
         } else if (v !== '' && v !== null && v !== undefined) {
           fd.append(k, v)
@@ -212,14 +212,14 @@ export default function AdminProducts() {
     const rawColor = v.color_hex || '#000000'
     const colorHex = rawColor.replace('|img_on', '').replace('|img_off', '')
     const showImage = rawColor.includes('|img_on')
-    setNewVariant({ name: v.name, color_hex: colorHex, stock: v.stock, price: v.price || '', is_available: v.is_available !== false, choice_group: v.choice_group || '', show_image_in_swatch: showImage, image: v.image })
+    setNewVariant({ name: v.name, sku: v.sku || '', color_hex: colorHex, stock: v.stock, price: v.price || '', is_available: v.is_available !== false, choice_group: v.choice_group || '', show_image_in_swatch: showImage, image: v.image })
     setVariantFile(null)
     setShowVariantModal(true)
   }
 
   const cancelEditVariant = () => {
     setEditVariantId(null)
-    setNewVariant({ name: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: false, image: null })
+    setNewVariant({ name: '', sku: '', color_hex: '#000000', stock: 10, price: '', is_available: true, choice_group: '', show_image_in_swatch: false, image: null })
     setVariantFile(null)
     setShowVariantModal(false)
     if (variantFileRef.current) variantFileRef.current.value = ''
@@ -233,6 +233,7 @@ export default function AdminProducts() {
       const fd = new FormData()
       fd.append('product', editId)
       fd.append('name', newVariant.name)
+      fd.append('sku', newVariant.sku || '')
       const finalColorHex = newVariant.show_image_in_swatch ? `${newVariant.color_hex}|img_on` : newVariant.color_hex
       fd.append('color_hex', finalColorHex)
       fd.append('stock', newVariant.stock)
@@ -669,9 +670,15 @@ export default function AdminProducts() {
                     {/* Informations Générales */}
                     <div className="admin-card" style={{ padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
                       <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '10px' }}>Informations Générales</h3>
-                      <div className="form-group">
-                        <label>Nom du produit *</label>
-                        <input className="form-control" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Ex: Brume Corporelle" />
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label>Nom du produit *</label>
+                          <input className="form-control" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Ex: Brume Corporelle" />
+                        </div>
+                        <div className="form-group">
+                          <label>Code Produit (SKU)</label>
+                          <input className="form-control" value={form.sku} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))} placeholder="Ex: CE339" />
+                        </div>
                       </div>
                       <div className="form-group">
                         <label>Petite description <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>(affichée sous la contenance)</span></label>
@@ -798,7 +805,7 @@ export default function AdminProducts() {
                                   {v.color_hex?.includes('|img_on') && v.image ? <img src={mediaUrl(v.image)} alt="var" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (v.color_hex?.includes('|img_on') && (v.color_hex || '').replace('|img_on','').replace('|img_off','').startsWith('http') ? <img src={(v.color_hex || '').replace('|img_on','').replace('|img_off','')} alt="var" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null)}
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                  <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{v.name}</div>
+                                  <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{v.name} {v.sku && <span style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)', fontWeight: 'normal' }}>({v.sku})</span>}</div>
                                   <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)' }}>Prix: {v.price || 'Par défaut'} {form.is_collection && v.group_name ? ` | Groupe: ${v.group_name}` : ''}</div>
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -833,11 +840,15 @@ export default function AdminProducts() {
                                   <input className="form-control" value={newVariant.name} onChange={e => setNewVariant({ ...newVariant, name: e.target.value })} placeholder="Ex: Rouge, S, etc." />
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
-                                  <label>Groupe (pour Collections)</label>
-                                  <input className="form-control" value={newVariant.group_name} onChange={e => setNewVariant({ ...newVariant, group_name: e.target.value })} placeholder="Ex: Choix 01" disabled={!form.is_collection} />
+                                  <label>Code (SKU) (Optionnel)</label>
+                                  <input className="form-control" value={newVariant.sku} onChange={e => setNewVariant({ ...newVariant, sku: e.target.value })} placeholder="Ex: CE339" />
                                 </div>
                               </div>
                               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                  <label>Groupe (pour Collections)</label>
+                                  <input className="form-control" value={newVariant.group_name} onChange={e => setNewVariant({ ...newVariant, group_name: e.target.value })} placeholder="Ex: Choix 01" disabled={!form.is_collection} />
+                                </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                   <label>Couleur (Code Hex)</label>
                                   <div style={{ display: 'flex', gap: '10px' }}>

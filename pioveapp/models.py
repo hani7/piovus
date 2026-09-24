@@ -90,6 +90,7 @@ class Product(models.Model):
     categories = models.ManyToManyField(Category, related_name='multi_products', blank=True)
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True, max_length=250)
+    sku = models.CharField(max_length=100, blank=True, verbose_name="Code Produit (SKU)")
     description = models.TextField(blank=True)
     short_description = models.CharField(max_length=300, blank=True, help_text="Courte description affichée sous la contenance sur la page produit")
     price = models.DecimalField(max_digits=10, decimal_places=2)

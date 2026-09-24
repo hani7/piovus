@@ -178,13 +178,18 @@ export default function WilayaCommuneSelect({
   onChange,
   errors = {},
 }) {
+  // Wilayas suspendues temporairement
+  const suspendedWilayas = ['Chlef', 'Tissemsilt', 'Ain Defla', 'Khenchela', 'Skikda', 'Biskra', 'Tiaret']
+
   // Options wilayas
   const wilayaOptions = useMemo(() =>
-    wilayasData.map(w => ({
-      value: w.name,
-      label: w.name,
-      prefix: w.code,
-    }))
+    wilayasData
+      .filter(w => !suspendedWilayas.includes(w.name))
+      .map(w => ({
+        value: w.name,
+        label: w.name,
+        prefix: w.code,
+      }))
   , [])
 
   // Wilaya sélectionnée

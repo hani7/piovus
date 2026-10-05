@@ -486,8 +486,9 @@ class AdminOrderSerializer(serializers.ModelSerializer):
             'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status',
             'is_deleted', 'deleted_at', 'deleted_by_name',
             'boutique', 'boutique_status', 'boutique_transferred_at', 'boutique_name',
+            'discount_amount', 'coupon_code',
         ]
-        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted', 'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status', 'is_deleted', 'deleted_at', 'deleted_by_name', 'boutique_name', 'boutique_transferred_at']
+        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted', 'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status', 'is_deleted', 'deleted_at', 'deleted_by_name', 'boutique_name', 'boutique_transferred_at', 'discount_amount', 'coupon_code']
 
     def get_customer_name(self, obj):
         if obj.user:

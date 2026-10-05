@@ -1260,9 +1260,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                     order.save(update_fields=real_fields)
 
 
-            # Recalculate total after any item changes
-            if items_data or new_items_data:
-                order.recalculate_total()
+            # (Total is recalculated on fresh_order below to avoid prefetch cache issues)
 
             try:
                 UserActivityLog.objects.create(
@@ -1279,6 +1277,11 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             fresh_order = OrderModel.objects.select_related('user', 'customer').prefetch_related(
                 'items__product__images', 'items__variant', 'history'
             ).get(pk=order.pk)
+            
+            # Recalculate total after any item changes using fresh prefetched items
+            if items_data or new_items_data:
+                fresh_order.recalculate_total()
+
             from .serializers import AdminOrderSerializer as Ser
             return Response(Ser(fresh_order, context={'request': request}).data)
 

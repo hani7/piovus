@@ -319,31 +319,33 @@ const ProductInfo = memo(function ProductInfo({
       </div>
 
       {/* Delivery info */}
-      <div className="product-info__delivery">
-        <div className="delivery-row">
-          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-            <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-          </svg>
-          <span>Livraison dans toute l'Algérie</span>
+      {!isB2B && (
+        <div className="product-info__delivery">
+          <div className="delivery-row">
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+            <span>Livraison dans toute l'Algérie</span>
+          </div>
+          <div className="delivery-row">
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+            <span>Paiement à la livraison (COD)</span>
+          </div>
+          <div className="delivery-row">
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4M14 15h4" strokeLinecap="round"/>
+            </svg>
+            <span>Paiement en ligne — Edahabia / CIB</span>
+            <span className="delivery-badges" aria-hidden="true">
+              <span className="delivery-badge delivery-badge--edahabia">EDAHABIA</span>
+              <span className="delivery-badge delivery-badge--cib">CIB</span>
+            </span>
+          </div>
         </div>
-        <div className="delivery-row">
-          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-          </svg>
-          <span>Paiement à la livraison (COD)</span>
-        </div>
-        <div className="delivery-row">
-          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4M14 15h4" strokeLinecap="round"/>
-          </svg>
-          <span>Paiement en ligne — Edahabia / CIB</span>
-          <span className="delivery-badges" aria-hidden="true">
-            <span className="delivery-badge delivery-badge--edahabia">EDAHABIA</span>
-            <span className="delivery-badge delivery-badge--cib">CIB</span>
-          </span>
-        </div>
-      </div>
+      )}
     </div>
   )
 })

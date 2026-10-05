@@ -249,13 +249,11 @@ export default function AccountPage() {
           onClick={() => setActiveTab('register')}
           id="tab-register"
         >Inscription Client</button>
-        {/* B2B tab hidden for now */}
         <button
           className={`auth-tab-pill ${activeTab === 'b2b' ? 'active' : ''}`}
           onClick={() => setActiveTab('b2b')}
           id="tab-b2b"
-          style={{ display: 'none' }}
-        >Inscription B2B</button>
+        >Espace B2B</button>
       </div>
 
       {error && <div className="auth-error container" style={{ maxWidth: 520, margin: '0 auto 16px' }}>{error}</div>}
@@ -275,6 +273,9 @@ export default function AccountPage() {
             <button type="submit" className="btn btn-black auth-submit" disabled={isLoading} id="btn-login">
               {isLoading ? 'Connexion...' : 'Se connecter'}
             </button>
+            <div style={{ textAlign: 'center', marginTop: 16, fontSize: '0.9rem' }}>
+              Vous êtes un professionnel ? <span style={{ color: 'var(--color-primary)', cursor: 'pointer', fontWeight: 600 }} onClick={() => setActiveTab('b2b')}>Rejoignez l'Espace B2B</span>
+            </div>
             {SocialButtons()}
           </form>
         </div>
@@ -385,6 +386,9 @@ export default function AccountPage() {
               <button type="submit" className="btn btn-black auth-submit" disabled={isLoading} id="btn-register-b2b">
                 {isLoading ? 'Envoi...' : "Demander un compte Pro"}
               </button>
+              <div style={{ textAlign: 'center', marginTop: 16, fontSize: '0.9rem' }}>
+                Vous avez déjà un compte Pro ? <span style={{ color: 'var(--color-primary)', cursor: 'pointer', fontWeight: 600 }} onClick={() => setActiveTab('login')}>Connectez-vous</span>
+              </div>
             </form>
         </div>
       )}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
+import { useAuthStore } from '../store/authStore'
 import client from '../api/client'
 import mediaUrl from '../api/mediaUrl'
 import './CartPage.css'
@@ -10,6 +11,9 @@ export default function CartPage() {
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
   const [couponCode, setCouponCode] = useState('')
   const [couponError, setCouponError] = useState('')
+  const { user } = useAuthStore()
+  const isB2B = user?.profile?.is_b2b || false
+  const minOrderAmount = isB2B ? 20000 : 1500
   const [isApplying, setIsApplying] = useState(false)
 
   const handleApplyCoupon = async (e) => {
@@ -159,14 +163,14 @@ export default function CartPage() {
             <span>{coupon ? coupon.new_total.toLocaleString('fr-DZ') : total.toLocaleString('fr-DZ')} DA</span>
           </div>
 
-          {total < 1500 && (
+          {total < minOrderAmount && (
             <div style={{ padding: '10px', background: 'rgba(255,0,0,0.1)', color: 'var(--admin-danger)', borderRadius: '8px', marginBottom: '10px', fontSize: '0.85rem', textAlign: 'center', fontWeight: 'bold' }}>
-              Le montant minimum de commande est de 1 500 DA.<br/>
-              Il vous manque {(1500 - total).toLocaleString('fr-DZ')} DA.
+              Le montant minimum de commande est de {minOrderAmount.toLocaleString('fr-DZ')} DA.<br/>
+              Il vous manque {(minOrderAmount - total).toLocaleString('fr-DZ')} DA.
             </div>
           )}
 
-          {total < 1500 ? (
+          {total < minOrderAmount ? (
             <button className="btn btn-accent cart-summary__btn" disabled style={{ width: '100%' }}>Commander</button>
           ) : (
             <Link to="/checkout" className="btn btn-accent cart-summary__btn" id="cart-page-checkout">Commander</Link>

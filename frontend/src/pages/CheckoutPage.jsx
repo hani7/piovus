@@ -42,6 +42,7 @@ export default function CheckoutPage() {
 
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
   const isB2B = user?.profile?.is_b2b || false
+  const minOrderAmount = isB2B ? 20000 : 1500
   const totalWeight = items.reduce((s, i) => s + (i.weight || 0) * i.quantity, 0)
 
   const [form, setForm] = useState({
@@ -447,14 +448,14 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {total < 1500 && (
+            {total < minOrderAmount && (
               <div style={{ padding: '10px', background: 'rgba(255,0,0,0.1)', color: 'var(--admin-danger)', borderRadius: '8px', marginBottom: '16px', fontSize: '0.9rem', textAlign: 'center', fontWeight: 'bold' }}>
-                Le montant minimum de commande est de 1 500 DA.<br/>
-                Il vous manque {(1500 - total).toLocaleString('fr-DZ')} DA.
+                Le montant minimum de commande est de {minOrderAmount.toLocaleString('fr-DZ')} DA.<br/>
+                Il vous manque {(minOrderAmount - total).toLocaleString('fr-DZ')} DA.
               </div>
             )}
 
-            <button type="submit" className="btn btn-accent checkout-submit-btn" disabled={loading || total < 1500} id="submit-order-btn" style={{ fontSize: 'clamp(0.75rem, 3vw, 1rem)', letterSpacing: '0.03em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <button type="submit" className="btn btn-accent checkout-submit-btn" disabled={loading || total < minOrderAmount} id="submit-order-btn" style={{ fontSize: 'clamp(0.75rem, 3vw, 1rem)', letterSpacing: '0.03em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {loading ? 'Traitement...' : `Confirmer la commande — ${(form.payment_method === 'cib' || form.payment_method === 'yassir') ? (coupon ? coupon.new_total : total).toLocaleString('fr-DZ') : ((coupon ? coupon.new_total : total) + deliveryCost).toLocaleString('fr-DZ')} DA`}
             </button>
           </form>

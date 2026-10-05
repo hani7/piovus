@@ -156,7 +156,7 @@ export default function CheckoutPage() {
     if (!form.guest_phone.trim()) errs.guest_phone = 'Champ obligatoire'
     if (!form.wilaya) errs.wilaya = 'Champ obligatoire'
     if (!form.city) errs.city = 'Champ obligatoire'
-    if (!form.delivery_company_id) errs.delivery = 'Veuillez sélectionner un transporteur'
+    if (!isB2B && !form.delivery_company_id) errs.delivery = 'Veuillez sélectionner un transporteur'
     return errs
 
   }
@@ -341,7 +341,7 @@ export default function CheckoutPage() {
             {errors.submit && <p className="field-error" style={{marginBottom:'16px'}}>{errors.submit}</p>}
 
             {/* Delivery Methods */}
-            {form.wilaya && companies.length > 0 && (
+            {!isB2B && form.wilaya && companies.length > 0 && (
               <div className="checkout-section">
                 <h3>Mode de livraison</h3>
                 {companies.filter(c => c.rates.some(r => r.wilaya_name === form.wilaya)).length === 0 ? (
@@ -397,56 +397,58 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            <div className="checkout-section">
-              <h3>Mode de paiement</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
-                  <input 
-                    type="radio" 
-                    name="payment_method" 
-                    value="cash" 
-                    checked={form.payment_method === 'cash'}
-                    onChange={handleChange}
-                  />
-                  <div>
-                    <div style={{ marginBottom: 4 }}>Paiement à la livraison</div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Payez en espèces à la réception de votre commande.</div>
-                  </div>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
-                  <input 
-                    type="radio" 
-                    name="payment_method" 
-                    value="cib" 
-                    checked={form.payment_method === 'cib'}
-                    onChange={handleChange}
-                  />
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>CIB ou Edahabia</span>
-                      <img src="/cib-edahabia.jpg" alt="CIB Edahabia" style={{ height: 24, objectFit: 'contain' }} />
+            {!isB2B && (
+              <div className="checkout-section">
+                <h3>Mode de paiement</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
+                    <input 
+                      type="radio" 
+                      name="payment_method" 
+                      value="cash" 
+                      checked={form.payment_method === 'cash'}
+                      onChange={handleChange}
+                    />
+                    <div>
+                      <div style={{ marginBottom: 4 }}>Paiement à la livraison</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Payez en espèces à la réception de votre commande.</div>
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Paiement sécurisé en ligne (les frais de livraison seront réglés à la réception).</div>
-                  </div>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: `1px solid ${form.payment_method === 'yassir' ? '#6C2BD9' : 'var(--color-gray-200)'}`, borderRadius: 'var(--radius-md)', padding: 16, transition: 'border-color 0.2s' }}>
-                  <input 
-                    type="radio" 
-                    name="payment_method" 
-                    value="yassir" 
-                    checked={form.payment_method === 'yassir'}
-                    onChange={handleChange}
-                  />
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>Yassir Cash</span>
-                      <img src="/yassir-logo.png" alt="Yassir Cash" style={{ height: 40, objectFit: 'contain' }} />
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: 16 }}>
+                    <input 
+                      type="radio" 
+                      name="payment_method" 
+                      value="cib" 
+                      checked={form.payment_method === 'cib'}
+                      onChange={handleChange}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>CIB ou Edahabia</span>
+                        <img src="/cib-edahabia.jpg" alt="CIB Edahabia" style={{ height: 24, objectFit: 'contain' }} />
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Paiement sécurisé en ligne (les frais de livraison seront réglés à la réception).</div>
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Payez via votre portefeuille Yassir. Les frais de livraison seront payés à la livraison.</div>
-                  </div>
-                </label>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontWeight: 600, border: `1px solid ${form.payment_method === 'yassir' ? '#6C2BD9' : 'var(--color-gray-200)'}`, borderRadius: 'var(--radius-md)', padding: 16, transition: 'border-color 0.2s' }}>
+                    <input 
+                      type="radio" 
+                      name="payment_method" 
+                      value="yassir" 
+                      checked={form.payment_method === 'yassir'}
+                      onChange={handleChange}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Yassir Cash</span>
+                        <img src="/yassir-logo.png" alt="Yassir Cash" style={{ height: 40, objectFit: 'contain' }} />
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', fontWeight: 400 }}>Payez via votre portefeuille Yassir. Les frais de livraison seront payés à la livraison.</div>
+                    </div>
+                  </label>
+                </div>
               </div>
-            </div>
+            )}
 
             {total < minOrderAmount && (
               <div style={{ padding: '10px', background: 'rgba(255,0,0,0.1)', color: 'var(--admin-danger)', borderRadius: '8px', marginBottom: '16px', fontSize: '0.9rem', textAlign: 'center', fontWeight: 'bold' }}>
@@ -492,10 +494,12 @@ export default function CheckoutPage() {
                 <span>-{coupon.discount_amount.toLocaleString('fr-DZ')} DA</span>
               </div>
             )}
-            <div className="checkout-summary__row">
-              <span>Livraison {form.wilaya ? `(${form.wilaya})` : ''}</span>
-              <span className="checkout-summary__shipping">{deliveryCost > 0 ? `${deliveryCost.toLocaleString('fr-DZ')} DA` : 'Calculée à la commande'}</span>
-            </div>
+            {!isB2B && (
+              <div className="checkout-summary__row">
+                <span>Livraison {form.wilaya ? `(${form.wilaya})` : ''}</span>
+                <span className="checkout-summary__shipping">{deliveryCost > 0 ? `${deliveryCost.toLocaleString('fr-DZ')} DA` : 'Calculée à la commande'}</span>
+              </div>
+            )}
             <div className="checkout-summary__row checkout-summary__row--total" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: (form.payment_method === 'cib' || form.payment_method === 'yassir') ? 8 : 0 }}>
                 <span>Total estimé {(form.payment_method === 'cib' || form.payment_method === 'yassir') && '(en ligne)'}</span>

@@ -474,6 +474,7 @@ class AdminOrderSerializer(serializers.ModelSerializer):
     source = serializers.SerializerMethodField()
     deleted_by_name = serializers.SerializerMethodField()
     boutique_name = serializers.SerializerMethodField()
+    coupon_code = serializers.CharField(source='coupon.code', read_only=True, allow_null=True)
 
     class Meta:
         model = Order

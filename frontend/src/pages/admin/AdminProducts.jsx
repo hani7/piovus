@@ -5,7 +5,7 @@ import mediaUrl from '../../api/mediaUrl'
 
 const EMPTY_FORM = {
   name: '', sku: '', category_ids: [], description: '', short_description: '', price: '',
-  promo_price: '', b2b_price: '', b2b_price_box: '', b2b_promo_price_box: '', b2b_price_carton: '', b2b_promo_price_carton: '', b2b_min_stock: 1, weight_box: '', weight_carton: '', contenance: '', contenance_unit: 'g', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true,
+  promo_price: '', b2b_price: '', b2b_price_box: '', b2b_promo_price_box: '', b2b_price_carton: '', b2b_promo_price_carton: '', qty_per_box: 1, qty_per_carton: 1, b2b_min_stock: 1, weight_box: '', weight_carton: '', contenance: '', contenance_unit: 'g', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true,
 }
 
 function Pagination({ page, totalPages, onPage }) {
@@ -121,6 +121,7 @@ export default function AdminProducts() {
       price: p.price, promo_price: p.promo_price || '', b2b_price: p.b2b_price || '',
       b2b_price_box: p.b2b_price_box || '', b2b_promo_price_box: p.b2b_promo_price_box || '',
       b2b_price_carton: p.b2b_price_carton || '', b2b_promo_price_carton: p.b2b_promo_price_carton || '',
+      qty_per_box: p.qty_per_box || 1, qty_per_carton: p.qty_per_carton || 1,
       b2b_min_stock: p.b2b_min_stock || 1,
       weight_box: p.weight_box || '', weight_carton: p.weight_carton || '',
       contenance: p.contenance || '', contenance_unit: p.contenance_unit || 'g',
@@ -734,6 +735,16 @@ export default function AdminProducts() {
                         <div className="form-group">
                           <label>Promo Carton (DA)</label>
                           <input className="form-control" type="number" min="0" step="0.01" value={form.b2b_promo_price_carton} onChange={e => setForm(f => ({ ...f, b2b_promo_price_carton: e.target.value }))} placeholder="0.00" />
+                        </div>
+                      </div>
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label>Quantité par Boîte</label>
+                          <input className="form-control" type="number" min="1" value={form.qty_per_box} onChange={e => setForm(f => ({ ...f, qty_per_box: parseInt(e.target.value) || 1 }))} />
+                        </div>
+                        <div className="form-group">
+                          <label>Quantité par Carton</label>
+                          <input className="form-control" type="number" min="1" value={form.qty_per_carton} onChange={e => setForm(f => ({ ...f, qty_per_carton: parseInt(e.target.value) || 1 }))} />
                         </div>
                       </div>
                     </div>

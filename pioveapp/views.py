@@ -1021,6 +1021,54 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
     search_fields = ['guest_name', 'guest_phone', 'user__username', 'user__first_name', 'id']
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        date_from = self.request.query_params.get('date_from')
+        date_to = self.request.query_params.get('date_to')
+        if date_from:
+            qs = qs.filter(created_at__date__gte=date_from)
+        if date_to:
+            qs = qs.filter(created_at__date__lte=date_to)
+        return qs
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        
+        from django.db.models import Sum, Count, Q
+        
+        active_qs = queryset.exclude(status__in=['cancelled', 'returned', 'payment_failed'])
+        revenue_agg = active_qs.aggregate(
+            total_revenue=Sum('total'),
+            total_delivery=Sum('delivery_cost')
+        )
+        t_rev = revenue_agg['total_revenue'] or 0
+        t_del = revenue_agg['total_delivery'] or 0
+        revenue = float(t_rev - t_del)
+        active_count = active_qs.count()
+        avg_basket = revenue / active_count if active_count > 0 else 0
+
+        stats = {
+            'total': queryset.count(),
+            'revenue': revenue,
+            'pending': queryset.filter(status__in=['pending', 'en_cours', 'boutique']).count(),
+            'payment_failed': queryset.filter(status='payment_failed').count(),
+            'confirmed': queryset.filter(status='confirmed').count(),
+            'shipped': queryset.filter(status='shipped').count(),
+            'fulfilled': queryset.filter(status='fulfilled').count(),
+            'cancelled': queryset.filter(status__in=['cancelled', 'returned']).count(),
+            'avgBasket': avg_basket,
+        }
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+            response.data['stats'] = stats
+            return response
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({'results': serializer.data, 'stats': stats})
+
     def get_serializer_class(self):
         if self.action == 'partial_update':
             return AdminOrderStatusSerializer

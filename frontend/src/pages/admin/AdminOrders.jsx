@@ -89,6 +89,8 @@ export default function AdminOrders({ isB2B = false }) {
   const [paymentFilter, setPaymentFilter] = useState('')
   const [deliveryFilter, setDeliveryFilter] = useState('')
   const [search, setSearch] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [detail, setDetail] = useState(null)
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(25)
@@ -96,6 +98,11 @@ export default function AdminOrders({ isB2B = false }) {
   const [mylerzFilter, setMylerzFilter] = useState('')   // 'with' | 'without' | or mylerz_status value
   const [mylerzShipping, setMylerzShipping] = useState(false)
   const [mylerzSyncing, setMylerzSyncing] = useState(false)
+  
+  const [stats, setStats] = useState({
+    total: 0, revenue: 0, pending: 0, payment_failed: 0,
+    confirmed: 0, shipped: 0, fulfilled: 0, cancelled: 0, avgBasket: 0
+  })
 
   const handleModalShip = async (orderId) => {
     if (!window.confirm('Expédier cette commande via Mylerz ?')) return
@@ -141,10 +148,15 @@ export default function AdminOrders({ isB2B = false }) {
     if (paymentFilter) params.append('payment_status', paymentFilter)
     if (deliveryFilter) params.append('delivery_type', deliveryFilter)
     if (search) params.append('search', search)
+    if (dateFrom) params.append('date_from', dateFrom)
+    if (dateTo) params.append('date_to', dateTo)
     if (isB2B) params.append('customer__is_b2b', 'true')
     params.append('page_size', 500)
     adminClient.get(`/admin/orders/?${params}`)
-      .then(r => setOrders(r.data.results || r.data))
+      .then(r => {
+        setOrders(r.data.results || r.data)
+        if (r.data.stats) setStats(r.data.stats)
+      })
       .catch(err => {
         console.error('Erreur chargement commandes:', err?.response?.data || err)
         setOrders([])
@@ -184,6 +196,11 @@ export default function AdminOrders({ isB2B = false }) {
     setPage(1)
     load() 
   }, [filter, paymentFilter, deliveryFilter, search, isB2B])
+
+  const applyDateFilter = () => {
+    setPage(1)
+    load()
+  }
 
   useEffect(() => {
     // Mark these orders as viewed
@@ -372,23 +389,6 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
   })()
   const visibleOrders = filteredOrders.slice((page - 1) * perPage, page * perPage)
   const allVisibleSelected = visibleOrders.length > 0 && visibleOrders.every(o => selectedIds.includes(o.id))
-
-  const activeOrders = orders.filter(o =>
-    o.status !== 'cancelled' && o.status !== 'returned' && o.status !== 'payment_failed'
-  )
-  const stats = {
-    total:          orders.length,
-    revenue:        activeOrders.reduce((acc, o) => acc + Number(o.total) - Number(o.delivery_cost || 0), 0),
-    pending:        orders.filter(o => o.status === 'pending' || o.status === 'en_cours').length,
-    payment_failed: orders.filter(o => o.status === 'payment_failed').length,
-    confirmed:      orders.filter(o => o.status === 'confirmed').length,
-    shipped:        orders.filter(o => o.status === 'shipped').length,
-    fulfilled:      orders.filter(o => o.status === 'fulfilled').length,
-    cancelled:      orders.filter(o => o.status === 'cancelled' || o.status === 'returned').length,
-    avgBasket: activeOrders.length > 0
-      ? Math.round(activeOrders.reduce((acc, o) => acc + Number(o.total) - Number(o.delivery_cost || 0), 0) / activeOrders.length)
-      : 0,
-  }
 
   // Mylerz stats — count orders per Mylerz status
   const mylerzOrdersTotal = orders.filter(o => o.mylerz_barcode).length
@@ -594,6 +594,14 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                 <option value={100}>100</option>
               </select>
               par page
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--admin-text-muted)' }}>Date de</span>
+              <input type="date" className="form-control" style={{ padding: '4px 8px', fontSize: '0.85rem', height: '32px', width: 'auto' }} value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+              <span style={{ fontSize: '0.85rem', color: 'var(--admin-text-muted)' }}>à</span>
+              <input type="date" className="form-control" style={{ padding: '4px 8px', fontSize: '0.85rem', height: '32px', width: 'auto' }} value={dateTo} onChange={e => setDateTo(e.target.value)} />
+              <button className="btn" style={{ background: '#3b82f6', color: 'white', border: 'none', height: '32px', padding: '0 12px', fontSize: '0.85rem', borderRadius: '4px' }} onClick={applyDateFilter}>OK</button>
             </div>
           </div>
           <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>

@@ -438,7 +438,7 @@ class AdminProductSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug', 'sku', 'categories', 'category_ids',
             'description', 'short_description', 'price', 'promo_price', 'b2b_price', 'b2b_price_box', 'b2b_price_carton', 'b2b_promo_price_box', 'b2b_promo_price_carton', 'effective_price', 'is_promo',
-            'units_per_carton', 'b2b_min_stock', 'stock', 'min_stock_alert', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'is_active',
+            'qty_per_box', 'qty_per_carton', 'units_per_carton', 'b2b_min_stock', 'stock', 'min_stock_alert', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'is_active',
             'thumbnail', 'weight_box', 'weight_carton', 'contenance', 'contenance_unit', 'created_at', 'updated_at', 'variants', 'images', 'related_products', 'related_product_ids'
         ]
         read_only_fields = ['slug', 'created_at', 'updated_at']

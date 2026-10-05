@@ -100,6 +100,8 @@ class Product(models.Model):
     b2b_promo_price_box = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     b2b_price_carton = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     b2b_promo_price_carton = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    qty_per_box = models.PositiveIntegerField(default=1, verbose_name="Quantité par boîte")
+    qty_per_carton = models.PositiveIntegerField(default=1, verbose_name="Quantité par carton")
     units_per_carton = models.PositiveIntegerField(default=1)
     weight_box = models.DecimalField(max_digits=6, decimal_places=2, default=0.00, help_text="Poids par boîte (kg)")
     weight_carton = models.DecimalField(max_digits=6, decimal_places=2, default=0.00, help_text="Poids par carton (kg)")

@@ -269,7 +269,7 @@ const ProductInfo = memo(function ProductInfo({
 
       {/* Qty + Add to cart + Wishlist */}
       <div className="product-info__actions">
-        {!isCollection && (
+        {(!isCollection || isB2B) && (
           <div className="product-info__qty" role="group" aria-label="Quantité">
             <button
               onClick={() => onQuantityChange(Math.max(isB2B && product.b2b_min_stock ? product.b2b_min_stock : 1, quantity - 1))}

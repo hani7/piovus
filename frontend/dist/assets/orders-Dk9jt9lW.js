@@ -1,0 +1,1 @@
+import{t as e}from"./client-DeR17bSj.js";var t=t=>e.post(`/orders/`,t),n=()=>e.get(`/orders/`),r=t=>e.post(`/yassir/initiate/`,{order_id:t});export{n,r,t};

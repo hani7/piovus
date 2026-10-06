@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from decimal import Decimal
+import os
+import uuid
 
 
 class SiteSettings(models.Model):
@@ -192,6 +194,11 @@ class Boutique(models.Model):
         return self.name
 
 
+def safe_banner_upload(instance, filename):
+    ext = filename.split('.')[-1]
+    new_filename = f"{uuid.uuid4().hex}.{ext}"
+    return os.path.join('banners', new_filename)
+
 class Banner(models.Model):
     PLACEMENT_CHOICES = [
         ('hero', 'Hero Slider (Accueil)'),
@@ -205,7 +212,7 @@ class Banner(models.Model):
     ]
     title = models.CharField(max_length=200, blank=True, null=True)
     subtitle = models.CharField(max_length=300, blank=True)
-    image = models.FileField(upload_to='banners/', blank=True, null=True)
+    image = models.FileField(upload_to=safe_banner_upload, blank=True, null=True)
     cta_label = models.CharField(max_length=100, default='Découvrir')
     cta_url = models.CharField(max_length=200, default='/shop')
     promo_code = models.CharField(max_length=50, blank=True)

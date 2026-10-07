@@ -1,7 +1,15 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { getCategories } from '../api/products'
 import './Footer.css'
 
 export default function Footer() {
+  const [categories, setCategories] = useState([])
+
+  useEffect(() => {
+    getCategories().then((r) => setCategories(r.data.results || r.data)).catch(() => {})
+  }, [])
+
   return (
     <footer className="footer">
       <div className="footer__container">
@@ -31,31 +39,27 @@ export default function Footer() {
 
           {/* Links Cols */}
           <div className="footer__links-col">
-            <h4>SHOP</h4>
-            <Link to="/makeup">Makeup</Link>
-            <Link to="/face">Face</Link>
-            <Link to="/eyes">Eyes</Link>
-            <Link to="/lips">Lips</Link>
-            <Link to="/nails">Nails</Link>
-            <Link to="/tools">Tools</Link>
-            <Link to="/shop">Shop All</Link>
+            <h4>NOS CATÉGORIES</h4>
+            <Link to="/shop">Tous les Produits</Link>
+            {(categories || []).filter(c => c.slug !== 'offres-speciales').slice(0, 5).map(c => (
+              <Link key={c.slug} to={`/${c.slug}`}>{c.name}</Link>
+            ))}
           </div>
 
           <div className="footer__links-col">
-            <h4>ABOUT PIOVÉ</h4>
-            <Link to="/about">Our Story</Link>
-            <Link to="/values">Our Values</Link>
-            <Link to="/sustainability">Sustainability</Link>
-            <Link to="/careers">Careers</Link>
-            <Link to="/press">Press</Link>
-          </div>
-
-          <div className="footer__links-col">
-            <h4>CUSTOMER CARE</h4>
+            <h4>INFORMATIONS</h4>
+            <Link to="/about">À Propos</Link>
+            <Link to="/contact">Contactez-nous</Link>
             <Link to="/faq">FAQ</Link>
-            <Link to="/shipping">Shipping & Delivery</Link>
-            <Link to="/returns">Returns & Refunds</Link>
-            <Link to="/contact">Contact Us</Link>
+          </div>
+
+          <div className="footer__links-col">
+            <h4>SERVICE CLIENT</h4>
+            <Link to="/compte">Mon Compte</Link>
+            <Link to="/suivi">Suivre ma Commande</Link>
+            <Link to="/livraison">Livraison & Retour</Link>
+            <Link to="/confidentialite">Politique de Confidentialité</Link>
+            <Link to="/conditions">Conditions d'Utilisation</Link>
           </div>
 
           {/* Newsletter Col */}
@@ -75,11 +79,9 @@ export default function Footer() {
             © {new Date().getFullYear()} Piové Cosmetics. All rights reserved.
           </div>
           <div className="footer__legal">
-            <Link to="/terms">Terms & Conditions</Link>
+            <Link to="/conditions">Terms & Conditions</Link>
             <span className="separator">|</span>
-            <Link to="/privacy">Privacy Policy</Link>
-            <span className="separator">|</span>
-            <Link to="/cookies">Cookies</Link>
+            <Link to="/confidentialite">Privacy Policy</Link>
           </div>
         </div>
       </div>

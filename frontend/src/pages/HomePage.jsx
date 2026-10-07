@@ -42,16 +42,7 @@ export default function HomePage() {
     }
   }, [nextSlide, heroBanners.length])
 
-  // Hardcoded sub-labels for collections based on design
-  const subLabels = {
-    'makeup': 'FACE / EYES / LIPS',
-    'face': 'PRIMERS / FOUNDATIONS / POWDERS',
-    'eyes': 'MASCARA / LINERS / SHADOWS',
-    'lips': 'LIPSTICK / GLOSS / LINER',
-    'nails': 'NAIL POLISH / TREATMENTS',
-    'tools': 'BRUSHES / ACCESSORIES'
-  }
-  const orderedSlugs = ['makeup', 'face', 'eyes', 'lips', 'nails', 'tools']
+  // Removing hardcoded subLabels and orderedSlugs
 
   return (
     <main className="homepage page-enter">
@@ -94,8 +85,8 @@ export default function HomePage() {
               <p className="hero__eyebrow">PIOVÉ COSMETICS</p>
               <h1 className="hero__title">{heroBanners[slide].title || 'MAKE YOUR STATEMENT.'}</h1>
               <p className="hero__desc">{heroBanners[slide].subtitle || 'Bold colors. Flawless finishes. Makeup that empowers you.'}</p>
-              <Link to={heroBanners[slide].cta_url || '/makeup'} className="hero__btn">
-                {heroBanners[slide].cta_label || 'SHOP MAKEUP'} &rarr;
+              <Link to={heroBanners[slide].cta_url || '/shop'} className="hero__btn">
+                {heroBanners[slide].cta_label || 'SHOP ALL'} &rarr;
               </Link>
             </div>
             
@@ -122,7 +113,7 @@ export default function HomePage() {
               <p className="hero__eyebrow">PIOVÉ COSMETICS</p>
               <h1 className="hero__title">MAKE YOUR<br/>STATEMENT.</h1>
               <p className="hero__desc">Bold colors. Flawless finishes.<br/>Makeup that empowers you.</p>
-              <Link to="/makeup" className="hero__btn">SHOP MAKEUP &rarr;</Link>
+              <Link to="/shop" className="hero__btn">SHOP ALL &rarr;</Link>
             </div>
           </div>
         </section>
@@ -135,9 +126,7 @@ export default function HomePage() {
            <h2 className="collections-title">BEAUTY IN EVERY DETAIL</h2>
         </div>
         <div className="collections-grid">
-          {orderedSlugs.map((catSlug) => {
-             const cat = categories.find(c => c.slug === catSlug) || { name: catSlug, slug: catSlug };
-             return (
+          {(categories || []).filter(c => c.slug !== 'offres-speciales').slice(0, 6).map((cat) => (
                <Link key={cat.slug} to={`/${cat.slug}`} className="collection-card">
                   <div className="collection-img-wrap">
                     {cat.image ? (
@@ -150,12 +139,11 @@ export default function HomePage() {
                   </div>
                   <div className="collection-info">
                      <h3>{cat.name.toUpperCase()}</h3>
-                     <p>{subLabels[cat.slug] || 'EXPLORE COLLECTION'}</p>
+                     <p>EXPLORE COLLECTION</p>
                      <span className="collection-arrow">&rarr;</span>
                   </div>
                </Link>
-             )
-          })}
+          ))}
         </div>
       </section>
 

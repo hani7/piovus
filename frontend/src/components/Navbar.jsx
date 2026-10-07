@@ -180,13 +180,10 @@ export default function Navbar() {
 
         {/* Links Navigation */}
         <nav className="navbar__bottom-links" aria-label="Catégories de produits">
-          <Link to="/makeup" className="active">MAKEUP</Link>
-          <Link to="/face">FACE</Link>
-          <Link to="/eyes">EYES</Link>
-          <Link to="/lips">LIPS</Link>
-          <Link to="/nails">NAILS</Link>
-          <Link to="/tools">TOOLS</Link>
-          <Link to="/shop">SHOP ALL</Link>
+          <Link to="/shop" className="active">SHOP ALL</Link>
+          {(categories || []).filter(c => c.slug !== 'offres-speciales').slice(0, 6).map((c) => (
+            <Link key={c.slug} to={`/${c.slug}`}>{c.name.toUpperCase()}</Link>
+          ))}
         </nav>
       </header>
 

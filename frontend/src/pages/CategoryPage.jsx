@@ -53,24 +53,11 @@ export default function CategoryPage() {
         description={`Découvrez notre collection ${category?.name || ''} chez Piové Cosmetics. Maquillage et soins de qualité — livraison dans toute l'Algérie.`}
         url={`/${slug}`}
       />
-      {/* Hero Banner (admin-managed) */}
-      <div
-        className="category-page__hero"
-        style={{
-          backgroundImage: categoryBanners.length > 0 ? `url(${mediaUrl(categoryBanners[0].image)})` : 'none',
-        }}
-      >
-        <div className="category-page__hero-overlay" />
-        <div className="category-page__hero-content">
-          <h1 className="category-page__title">{category?.name || slug}</h1>
-        </div>
-      </div>
-
-      {/* Banners supp (2e, 3e...) en dessous si plusieurs */}
-      {categoryBanners.length > 1 && (
+      {/* Banners supp (1e, 2e...) en dessous si plusieurs */}
+      {categoryBanners.length > 0 && (
         <div className="container">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '24px' }}>
-            {categoryBanners.slice(1).map(banner => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '40px' }}>
+            {categoryBanners.map(banner => (
               <a key={banner.id} href={banner.cta_url || '#'} style={{ display: 'block', borderRadius: '12px', overflow: 'hidden' }}>
                 <img src={mediaUrl(banner.image)} alt={banner.title} style={{ width: '100%', height: 'auto', maxHeight: '300px', objectFit: 'cover', display: 'block' }} />
               </a>
@@ -79,7 +66,10 @@ export default function CategoryPage() {
         </div>
       )}
 
-      <div className="container" style={{padding: categoryBanners.length > 0 ? '40px var(--gutter) 80px' : '40px var(--gutter) 80px', position: 'relative'}}>
+      <div className="container" style={{padding: '40px var(--gutter) 80px', position: 'relative'}}>
+        <h1 style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '2.5rem', marginBottom: '30px', textTransform: 'uppercase', color: '#000' }}>
+          {category?.name || slug}
+        </h1>
 
         {loading ? (
           <div className="products-grid">

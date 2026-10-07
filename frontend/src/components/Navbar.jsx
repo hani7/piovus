@@ -74,7 +74,7 @@ export default function Navbar() {
     <>
       <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
         <div className="navbar__top-banner">
-          FREE DELIVERY ON ORDERS OVER 50€ <span className="navbar__top-banner-separator">|</span> DISCOVER OUR LATEST COLLECTION &rarr;
+          LIVRAISON EXPRESS PARTOUT EN ALGÉRIE <span className="navbar__top-banner-separator">|</span> DÉCOUVREZ NOTRE NOUVELLE COLLECTION &rarr;
         </div>
         <div className="navbar__inner navbar__inner--wide">
           {/* Left: Search */}
@@ -145,8 +145,7 @@ export default function Navbar() {
 
           {/* Center: Logo */}
           <Link to="/" className="navbar__logo">
-            <h1 className="navbar__logo-text">PIOVÉ</h1>
-            <span className="navbar__logo-subtext">COSMETICS</span>
+            <img src="/logo.png" alt="Piové Cosmetics" className="navbar__logo-img" />
           </Link>
 
           {/* Right: Icons */}
@@ -180,7 +179,7 @@ export default function Navbar() {
 
         {/* Links Navigation */}
         <nav className="navbar__bottom-links" aria-label="Catégories de produits">
-          <Link to="/shop" className="active">SHOP ALL</Link>
+          <Link to="/shop" className="active">NOS PRODUITS</Link>
           {(categories || []).filter(c => c.slug !== 'offres-speciales').slice(0, 6).map((c) => (
             <Link key={c.slug} to={`/${c.slug}`}>{c.name.toUpperCase()}</Link>
           ))}

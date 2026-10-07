@@ -209,6 +209,7 @@ class Banner(models.Model):
         ('category_banner', 'Bandeau Page Catégorie'),
         ('side_left', 'Bannière Flottante Gauche'),
         ('side_right', 'Bannière Flottante Droite'),
+        ('horizontal_new_banner', 'Horizontal New Banner (Accueil)'),
     ]
     title = models.CharField(max_length=200, blank=True, null=True)
     subtitle = models.CharField(max_length=300, blank=True)

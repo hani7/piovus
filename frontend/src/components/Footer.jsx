@@ -64,10 +64,10 @@ export default function Footer() {
 
           {/* Newsletter Col */}
           <div className="footer__newsletter-col">
-            <h4>STAY IN THE PIOVÉ WORLD</h4>
-            <p>Join our newsletter for exclusive updates, new launches and beauty tips.</p>
+            <h4>RESTEZ DANS L'UNIVERS PIOVÉ</h4>
+            <p>Rejoignez notre newsletter pour des mises à jour exclusives, de nouveaux lancements et des conseils beauté.</p>
             <form className="footer__newsletter-form">
-              <input type="email" placeholder="Your email address" required />
+              <input type="email" placeholder="Votre adresse e-mail" required />
               <button type="submit" aria-label="Subscribe">&rarr;</button>
             </form>
             <div className="footer__cursive-text">Makeup is a form of self-love.</div>
@@ -76,12 +76,12 @@ export default function Footer() {
 
         <div className="footer__bottom">
           <div className="footer__copyright">
-            © {new Date().getFullYear()} Piové Cosmetics. All rights reserved.
+            © {new Date().getFullYear()} Piové Cosmetics. Tous droits réservés.
           </div>
           <div className="footer__legal">
-            <Link to="/conditions">Terms & Conditions</Link>
+            <Link to="/conditions">Conditions d'Utilisation</Link>
             <span className="separator">|</span>
-            <Link to="/confidentialite">Privacy Policy</Link>
+            <Link to="/confidentialite">Politique de Confidentialité</Link>
           </div>
         </div>
       </div>

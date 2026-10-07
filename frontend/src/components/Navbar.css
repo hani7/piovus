@@ -42,7 +42,28 @@
 
 @media (max-width: 768px) {
   .navbar__inner {
-    padding: 15px 20px;
+    padding: 8px 15px;
+  }
+  .navbar__top-banner {
+    font-size: 0.5rem;
+    padding: 4px 10px;
+    letter-spacing: 0.05em;
+  }
+  .navbar__logo-img {
+    height: 25px;
+  }
+}
+@media (max-width: 480px) {
+  .navbar__top-banner {
+    font-size: 0.4rem;
+    padding: 3px 5px;
+    letter-spacing: 0.02em;
+  }
+  .navbar__logo-img {
+    height: 20px;
+  }
+  .navbar__inner {
+    padding: 6px 12px;
   }
 }
 
@@ -125,20 +146,10 @@
   align-items: center;
   text-decoration: none;
 }
-.navbar__logo-text {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 2.2rem;
-  letter-spacing: 0.15em;
-  color: #000;
-  margin: 0;
-  font-weight: normal;
-}
-.navbar__logo-subtext {
-  font-size: 0.6rem;
-  letter-spacing: 0.4em;
-  color: #333;
-  text-transform: uppercase;
-  margin-top: -2px;
+.navbar__logo-img {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
 }
 
 /* Right actions */

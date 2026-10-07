@@ -5,11 +5,13 @@ import mediaUrl from '../api/mediaUrl'
 import ProductCarousel from '../components/ProductCarousel'
 import ProductCard from '../components/ProductCard'
 import CategoryCarouselSection from '../components/CategoryCarouselSection'
+import CuratedSection from '../components/CuratedSection'
 import './HomePage.css'
 
 export default function HomePage() {
   const [categories, setCategories] = useState([])
   const [heroBanners, setHeroBanners] = useState([])
+  const [horizontalBanner, setHorizontalBanner] = useState(null)
   const [slide, setSlide] = useState(0)
   const [loading, setLoading] = useState(true)
 
@@ -23,7 +25,9 @@ export default function HomePage() {
         
         const allBanners = bans.data.results || bans.data
         const heroes = allBanners.filter(b => b.placement === 'hero' && b.is_active !== false)
+        const horiz = allBanners.find(b => b.placement === 'horizontal_new_banner' && b.is_active !== false)
         setHeroBanners(heroes)
+        setHorizontalBanner(horiz)
       })
       .finally(() => setLoading(false))
   }, [])
@@ -81,14 +85,6 @@ export default function HomePage() {
           )}
 
           <div className="hero__content-wrapper">
-            <div className="hero__text">
-              <p className="hero__eyebrow">PIOVÉ COSMETICS</p>
-              <h1 className="hero__title">{heroBanners[slide].title || 'MAKE YOUR STATEMENT.'}</h1>
-              <p className="hero__desc">{heroBanners[slide].subtitle || 'Bold colors. Flawless finishes. Makeup that empowers you.'}</p>
-              <Link to={heroBanners[slide].cta_url || '/shop'} className="hero__btn">
-                {heroBanners[slide].cta_label || 'SHOP ALL'} &rarr;
-              </Link>
-            </div>
             
             {heroBanners.length > 1 && (
               <div className="hero__pagination">
@@ -109,12 +105,6 @@ export default function HomePage() {
         <section className="hero" aria-label="Bannière principale">
           <div className="hero__bg-img hero__bg-placeholder" />
           <div className="hero__content-wrapper">
-            <div className="hero__text">
-              <p className="hero__eyebrow">PIOVÉ COSMETICS</p>
-              <h1 className="hero__title">MAKE YOUR<br/>STATEMENT.</h1>
-              <p className="hero__desc">Bold colors. Flawless finishes.<br/>Makeup that empowers you.</p>
-              <Link to="/shop" className="hero__btn">SHOP ALL &rarr;</Link>
-            </div>
           </div>
         </section>
       )}
@@ -122,11 +112,11 @@ export default function HomePage() {
       {/* Collections Section */}
       <section className="collections-section">
         <div className="collections-header">
-           <p className="collections-eyebrow">EXPLORE OUR COLLECTIONS</p>
-           <h2 className="collections-title">BEAUTY IN EVERY DETAIL</h2>
+           <p className="collections-eyebrow">Nos collections</p>
+           <h2 className="collections-title">EXPLORER NOS CATÉGORIES</h2>
         </div>
         <div className="collections-grid">
-          {(categories || []).filter(c => c.slug !== 'offres-speciales').slice(0, 6).map((cat) => (
+          {(categories || []).filter(c => c.slug !== 'offres-speciales').slice(0, 5).map((cat) => (
                <Link key={cat.slug} to={`/${cat.slug}`} className="collection-card">
                   <div className="collection-img-wrap">
                     {cat.image ? (
@@ -139,7 +129,6 @@ export default function HomePage() {
                   </div>
                   <div className="collection-info">
                      <h3>{cat.name.toUpperCase()}</h3>
-                     <p>EXPLORE COLLECTION</p>
                      <span className="collection-arrow">&rarr;</span>
                   </div>
                </Link>
@@ -147,25 +136,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Philosophy Section */}
-      <section className="philosophy-section">
-         <div className="philosophy-left">
-            <div className="philosophy-image-large"></div>
-         </div>
-         <div className="philosophy-right">
-            <div className="philosophy-text-content">
-              <p className="philosophy-eyebrow">THE PIOVÉ PHILOSOPHY</p>
-              <h2 className="philosophy-title">YOUR FACE.<br/>YOUR RULES.</h2>
-              <p className="philosophy-desc">
-                Whether you're going for a natural glow<br/>or a bold statement, Piové gives you the tools<br/>to express every side of you.
-              </p>
-              <Link to="/shop" className="philosophy-btn">EXPLORE THE COLLECTION &rarr;</Link>
+      {/* Curated Products Section (replaces philosophy) */}
+      <CuratedSection />
+
+      {/* Horizontal Banner Section */}
+      {horizontalBanner && (
+        <section className="horizontal-banner" style={{position: 'relative', width: '100%', minHeight: '350px', background: '#000', overflow: 'hidden'}}>
+          {horizontalBanner.image && (
+            <img src={mediaUrl(horizontalBanner.image)} alt={horizontalBanner.title} style={{width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0}} />
+          )}
+          <div style={{position: 'relative', zIndex: 2, height: '100%', minHeight: '350px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '40px 10%'}}>
+            <div style={{maxWidth: '450px', color: '#fff'}}>
+              {horizontalBanner.subtitle && <p style={{fontSize: '0.8rem', letterSpacing: '0.2em', marginBottom: '10px', textTransform: 'uppercase'}}>{horizontalBanner.subtitle}</p>}
+              {horizontalBanner.title && <h2 style={{fontFamily: '"Times New Roman", Times, serif', fontSize: '3.5rem', marginBottom: '20px', lineHeight: '1.1'}}>{horizontalBanner.title}</h2>}
+              {horizontalBanner.cta_label && (
+                <Link to={horizontalBanner.cta_url || '/shop'} style={{display: 'inline-block', background: '#fff', color: '#000', padding: '12px 24px', fontSize: '0.8rem', fontWeight: 'bold', textDecoration: 'none', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '10px'}}>{horizontalBanner.cta_label} &rarr;</Link>
+              )}
             </div>
-            <div className="philosophy-image-small-wrap">
-              <div className="philosophy-image-small"></div>
-            </div>
-         </div>
-      </section>
+          </div>
+        </section>
+      )}
 
     </main>
   )

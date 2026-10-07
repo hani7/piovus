@@ -1,4 +1,4 @@
-﻿/* PIOVÉ COSMETICS — Design System */
+/* PIOVÉ COSMETICS — Design System */
 
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -227,13 +227,13 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 /* Grid */
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 20px;
   align-items: stretch;
 }
 @media (max-width: 1200px) {
   .products-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 18px;
   }
 }

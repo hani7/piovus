@@ -1,0 +1,168 @@
+.curated-section {
+  display: flex;
+  flex-direction: column;
+  background: #fdfdfd;
+}
+
+.curated-layout {
+  display: flex;
+  width: 100%;
+}
+
+.curated-sidebar {
+  width: 25%;
+  background: #1a1a1a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.curated-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.curated-sidebar li {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.curated-sidebar li:hover {
+  color: #ddd;
+}
+
+.curated-sidebar li.active {
+  color: #fff;
+}
+
+.curated-sidebar li.active::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 2px;
+  background: var(--color-accent, #c41e3a);
+}
+
+.curated-content {
+  width: 75%;
+  padding: 60px 40px;
+}
+
+.curated-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+}
+
+.curated-title {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 2.5rem;
+  color: #000;
+  margin: 0 0 10px 0;
+  letter-spacing: 0.05em;
+}
+
+.curated-subtitle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.curated-subtitle-line {
+  width: 30px;
+  height: 2px;
+  background: var(--color-accent, #c41e3a);
+}
+
+.curated-subtitle {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: #666;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.curated-view-all {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #000;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.curated-view-all:hover {
+  color: var(--color-accent, #c41e3a);
+}
+
+.curated-carousel-wrap {
+  position: relative;
+  min-height: 400px;
+}
+
+.curated-mobile-tabs {
+  display: none;
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  overflow-x: auto;
+  white-space: nowrap;
+  background: #fdfdfd;
+}
+
+.curated-tab {
+  background: transparent;
+  border: none;
+  padding: 15px 20px;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  color: #888;
+  cursor: pointer;
+  position: relative;
+}
+
+.curated-tab.active {
+  color: #000;
+  font-weight: bold;
+}
+
+.curated-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--color-accent, #c41e3a);
+}
+
+@media (max-width: 900px) {
+  .curated-sidebar {
+    display: none;
+  }
+  .curated-mobile-tabs {
+    display: flex;
+  }
+  .curated-layout {
+    flex-direction: column;
+  }
+  .curated-content {
+    width: 100%;
+    padding: 40px 20px;
+  }
+}

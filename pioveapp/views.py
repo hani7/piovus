@@ -2355,11 +2355,27 @@ class AdminNewsletterSendView(APIView):
         if not subject or not message_html:
             return Response({'error': 'Le sujet et le message sont requis.'}, status=status.HTTP_400_BAD_REQUEST)
             
-        customers = Customer.objects.exclude(email='').exclude(email__isnull=True)
-        emails = list(set([c.email for c in customers if c.email and '@' in c.email]))
+        emails_set = set()
+        
+        # 1. Customers
+        for c in Customer.objects.exclude(email='').exclude(email__isnull=True):
+            if c.email and '@' in c.email:
+                emails_set.add(c.email.strip().lower())
+                
+        # 2. Users
+        for u in User.objects.exclude(email='').exclude(email__isnull=True):
+            if u.email and '@' in u.email:
+                emails_set.add(u.email.strip().lower())
+                
+        # 3. Orders
+        for o in Order.objects.exclude(guest_email='').exclude(guest_email__isnull=True):
+            if o.guest_email and '@' in o.guest_email:
+                emails_set.add(o.guest_email.strip().lower())
+
+        emails = list(emails_set)
         
         if not emails:
-            return Response({'error': 'Aucun client avec une adresse email valide trouv├®.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Aucun client avec une adresse email valide trouvé.'}, status=status.HTTP_400_BAD_REQUEST)
 
         attachment = request.FILES.get('attachment')
         attachment_name, attachment_content, attachment_mimetype = None, None, None

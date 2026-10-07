@@ -11,7 +11,6 @@ import './HomePage.css'
 export default function HomePage() {
   const [categories, setCategories] = useState([])
   const [heroBanners, setHeroBanners] = useState([])
-  const [horizontalBanner, setHorizontalBanner] = useState(null)
   const [slide, setSlide] = useState(0)
   const [loading, setLoading] = useState(true)
 
@@ -25,9 +24,7 @@ export default function HomePage() {
         
         const allBanners = bans.data.results || bans.data
         const heroes = allBanners.filter(b => b.placement === 'hero' && b.is_active !== false)
-        const horiz = allBanners.find(b => b.placement === 'horizontal_new_banner' && b.is_active !== false)
         setHeroBanners(heroes)
-        setHorizontalBanner(horiz)
       })
       .finally(() => setLoading(false))
   }, [])
@@ -138,24 +135,6 @@ export default function HomePage() {
 
       {/* Curated Products Section (replaces philosophy) */}
       <CuratedSection />
-
-      {/* Horizontal Banner Section */}
-      {horizontalBanner && (
-        <section className="horizontal-banner" style={{position: 'relative', width: '100%', minHeight: '350px', background: '#000', overflow: 'hidden'}}>
-          {horizontalBanner.image && (
-            <img src={mediaUrl(horizontalBanner.image)} alt={horizontalBanner.title} style={{width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0}} />
-          )}
-          <div style={{position: 'relative', zIndex: 2, height: '100%', minHeight: '350px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '40px 10%'}}>
-            <div style={{maxWidth: '450px', color: '#fff'}}>
-              {horizontalBanner.subtitle && <p style={{fontSize: '0.8rem', letterSpacing: '0.2em', marginBottom: '10px', textTransform: 'uppercase'}}>{horizontalBanner.subtitle}</p>}
-              {horizontalBanner.title && <h2 style={{fontFamily: '"Times New Roman", Times, serif', fontSize: '3.5rem', marginBottom: '20px', lineHeight: '1.1'}}>{horizontalBanner.title}</h2>}
-              {horizontalBanner.cta_label && (
-                <Link to={horizontalBanner.cta_url || '/shop'} style={{display: 'inline-block', background: '#fff', color: '#000', padding: '12px 24px', fontSize: '0.8rem', fontWeight: 'bold', textDecoration: 'none', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '10px'}}>{horizontalBanner.cta_label} &rarr;</Link>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
 
     </main>
   )

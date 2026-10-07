@@ -23,7 +23,8 @@ const WishlistPage = lazy(() => import('./pages/WishlistPage'))
 import PromoBanner from './components/PromoBanner'
 import PromoPopup from './components/PromoPopup'
 import SideBanners from './components/SideBanners'
-const MaintenancePage = lazy(() => import('./pages/MaintenancePage'))
+import HorizontalBanner from './components/HorizontalBanner'
+import MaintenancePage from './pages/MaintenancePage'
 const PaymentResultPage = lazy(() => import('./pages/PaymentResultPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
@@ -267,6 +268,7 @@ export default function App() {
         </Routes>
       </Suspense>
       {!isAdmin && <MobileBottomNav />}
+      {!isAdmin && <HorizontalBanner />}
       {!isAdmin && <Footer />}
       {!isAdmin && pathname === '/' && <PromoPopup />}
     </>

@@ -14,9 +14,9 @@ export default function CuratedSection() {
   const [loading, setLoading] = useState(true)
 
   const tabs = [
-    { id: 'bestseller', label: 'BEST SELLERS', subtitle: 'THE ICONS YOU LOVE', query: { is_bestseller: true, page_size: 10 }, link: '/shop?bestseller=true' },
-    { id: 'promo', label: 'PROMO', subtitle: 'LIMITED OFFERS', query: { is_promotion: true, page_size: 10 }, link: '/shop?promo=true' },
-    { id: 'special', label: 'OFFRE SPÉCIALE', subtitle: 'SPECIAL DEALS', query: { categories__slug: 'offres-speciales', page_size: 10 }, link: '/offres-speciales' }
+    { id: 'bestseller', label: 'BEST SELLER', subtitle: 'LES INCONTOURNABLES', query: { is_bestseller: true, page_size: 10 }, link: '/shop?bestseller=true' },
+    { id: 'promo', label: 'PROMO', subtitle: 'OFFRES LIMITÉES', query: { is_promotion: true, page_size: 10 }, link: '/shop?promo=true' },
+    { id: 'special', label: 'OFFRE SPÉCIALE', subtitle: 'BONS PLANS', query: { categories__slug: 'offres-speciales', page_size: 10 }, link: '/offres-speciales' }
   ]
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function CuratedSection() {
                 <p className="curated-subtitle">{activeTabData.subtitle}</p>
               </div>
             </div>
-            <Link to={activeTabData.link} className="curated-view-all">View all &rarr;</Link>
+            <Link to={activeTabData.link} className="curated-view-all">Voir plus &rarr;</Link>
           </div>
           <div className="curated-carousel-wrap">
             {loading ? (

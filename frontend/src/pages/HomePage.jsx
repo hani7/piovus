@@ -8,9 +8,6 @@ import CategoryCarouselSection from '../components/CategoryCarouselSection'
 import './HomePage.css'
 
 export default function HomePage() {
-  const [featured, setFeatured] = useState([])
-  const [newArrivals, setNewArrivals] = useState([])
-  const [promotions, setPromotions] = useState([])
   const [categories, setCategories] = useState([])
   const [heroBanners, setHeroBanners] = useState([])
   const [slide, setSlide] = useState(0)
@@ -18,16 +15,10 @@ export default function HomePage() {
 
   useEffect(() => {
     Promise.all([
-      getFeaturedProducts(),
-      getNewArrivals(),
-      getPromotions(),
       getCategories(),
       getBanners()
     ])
-      .then(([feat, newArr, promos, cats, bans]) => {
-        setFeatured(feat.data.results || feat.data)
-        setNewArrivals(newArr.data.results || newArr.data)
-        setPromotions(promos.data.results || promos.data)
+      .then(([cats, bans]) => {
         setCategories(cats.data.results || cats.data)
         
         const allBanners = bans.data.results || bans.data
@@ -43,12 +34,6 @@ export default function HomePage() {
       setSlide((s) => (s + 1) % heroBanners.length)
     }
   }, [heroBanners])
-  
-  const prevSlide = useCallback(() => {
-    if (heroBanners.length > 0) {
-      setSlide((s) => (s - 1 + heroBanners.length) % heroBanners.length)
-    }
-  }, [heroBanners])
 
   useEffect(() => {
     if (heroBanners.length > 1) {
@@ -57,20 +42,27 @@ export default function HomePage() {
     }
   }, [nextSlide, heroBanners.length])
 
+  // Hardcoded sub-labels for collections based on design
+  const subLabels = {
+    'makeup': 'FACE / EYES / LIPS',
+    'face': 'PRIMERS / FOUNDATIONS / POWDERS',
+    'eyes': 'MASCARA / LINERS / SHADOWS',
+    'lips': 'LIPSTICK / GLOSS / LINER',
+    'nails': 'NAIL POLISH / TREATMENTS',
+    'tools': 'BRUSHES / ACCESSORIES'
+  }
+  const orderedSlugs = ['makeup', 'face', 'eyes', 'lips', 'nails', 'tools']
+
   return (
     <main className="homepage page-enter">
       {/* Hero Slider */}
       {loading ? (
-        /* Skeleton hero pendant le chargement */
-        <section className="hero hero-skeleton" aria-hidden="true" style={{ background: '#f1f5f9', minHeight: '80vh' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
-        </section>
+        <section className="hero hero-skeleton" aria-hidden="true"></section>
       ) : heroBanners.length > 0 ? (
         <section 
-          className={`hero hero--${(slide % 3) + 1}`}
+          className="hero"
           aria-label="Bannière principale"
         >
-          {/* Image ou Vidéo hero — visible complètement sur mobile */}
           {heroBanners[slide].image ? (
             heroBanners[slide].image.match(/\.(mp4|webm|mov)$/i) ? (
               <video
@@ -93,103 +85,99 @@ export default function HomePage() {
                 fetchPriority="high"
               />
             )
-          ) : null}
-        <div className="hero__content container">
-          <div className="hero__text">
-            <p className="hero__eyebrow">{heroBanners[slide].subtitle}</p>
-            <h1 className="hero__title">{heroBanners[slide].title}</h1>
-          </div>
-        </div>
-
-        {/* Button above dots */}
-        <div className="hero__bottom">
-          {(heroBanners[slide].cta_label || heroBanners[slide].cta_url) && (
-            <Link to={heroBanners[slide].cta_url || '/shop'} className="btn btn-accent hero__cta">
-              {heroBanners[slide].cta_label || 'Découvrir'}
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginLeft: '8px' }}>
-                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-              </svg>
-            </Link>
+          ) : (
+            <div className="hero__bg-img hero__bg-placeholder" />
           )}
 
-          {heroBanners.length > 1 && (
-            <div className="hero__dots">
-              {heroBanners.map((_, i) => (
-                <button
-                  key={i}
-                  className={`hero__dot ${i === slide ? 'hero__dot--active' : ''}`}
-                  onClick={() => setSlide(i)}
-                  aria-label={`Slide ${i + 1}`}
-                  id={`hero-dot-${i}`}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {heroBanners.length > 1 && (
-          <>
-            <button className="hero__prev" onClick={prevSlide} aria-label="Précédent" id="hero-prev">
-              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <polyline points="15 18 9 12 15 6"/>
-              </svg>
-            </button>
-            <button className="hero__next" onClick={nextSlide} aria-label="Suivant" id="hero-next">
-              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            </button>
-          </>
-        )}
-      </section>
-      ) : null}
-
-
-      {/* Best Sellers Block */}
-      <ProductCarousel title="Nos Best Sellers" products={featured} isLoading={loading} />
-
-      {/* Nouveautés */}
-      <ProductCarousel title="Nouveautés" products={newArrivals} isLoading={loading} className="promo-carousel-theme" />
-
-      {/* Categories */}
-      <section className="section" id="categories-section" style={{ paddingTop: '20px' }}>
-        <div className="container">
-          <p className="section-subtitle">Nos Collections</p>
-          <h2 className="section-title">Explorez par Catégorie</h2>
-          <div className="section-line" />
-          <div className="categories-grid">
-            {(categories || []).map((cat) => (
-              <Link key={cat.slug} to={`/${cat.slug}`} className="cat-card" id={`cat-${cat.slug}`}>
-                <div className="cat-card__img">
-                  {cat.image ? (
-                    <img src={mediaUrl(cat.image)} alt={cat.name} />
-                  ) : (
-                    <div className="cat-card__placeholder" />
-                  )}
-                </div>
-                <div className="cat-card__overlay">
-                  <p className="cat-card__name">{cat.name}</p>
-                  <p className="cat-card__count">{cat.product_count} produits</p>
-                </div>
+          <div className="hero__content-wrapper">
+            <div className="hero__text">
+              <p className="hero__eyebrow">PIOVÉ COSMETICS</p>
+              <h1 className="hero__title">{heroBanners[slide].title || 'MAKE YOUR STATEMENT.'}</h1>
+              <p className="hero__desc">{heroBanners[slide].subtitle || 'Bold colors. Flawless finishes. Makeup that empowers you.'}</p>
+              <Link to={heroBanners[slide].cta_url || '/makeup'} className="hero__btn">
+                {heroBanners[slide].cta_label || 'SHOP MAKEUP'} &rarr;
               </Link>
-            ))}
+            </div>
+            
+            {heroBanners.length > 1 && (
+              <div className="hero__pagination">
+                {heroBanners.map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`hero__pag-dot ${i === slide ? 'active' : ''}`} 
+                    onClick={() => setSlide(i)}
+                  >
+                    0{i + 1}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+        </section>
+      ) : (
+        <section className="hero" aria-label="Bannière principale">
+          <div className="hero__bg-img hero__bg-placeholder" />
+          <div className="hero__content-wrapper">
+            <div className="hero__text">
+              <p className="hero__eyebrow">PIOVÉ COSMETICS</p>
+              <h1 className="hero__title">MAKE YOUR<br/>STATEMENT.</h1>
+              <p className="hero__desc">Bold colors. Flawless finishes.<br/>Makeup that empowers you.</p>
+              <Link to="/makeup" className="hero__btn">SHOP MAKEUP &rarr;</Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Collections Section */}
+      <section className="collections-section">
+        <div className="collections-header">
+           <p className="collections-eyebrow">EXPLORE OUR COLLECTIONS</p>
+           <h2 className="collections-title">BEAUTY IN EVERY DETAIL</h2>
+        </div>
+        <div className="collections-grid">
+          {orderedSlugs.map((catSlug) => {
+             const cat = categories.find(c => c.slug === catSlug) || { name: catSlug, slug: catSlug };
+             return (
+               <Link key={cat.slug} to={`/${cat.slug}`} className="collection-card">
+                  <div className="collection-img-wrap">
+                    {cat.image ? (
+                      <img src={mediaUrl(cat.image)} alt={cat.name} />
+                    ) : (
+                      <div className="collection-placeholder">
+                         <span>{cat.name.toUpperCase()}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="collection-info">
+                     <h3>{cat.name.toUpperCase()}</h3>
+                     <p>{subLabels[cat.slug] || 'EXPLORE COLLECTION'}</p>
+                     <span className="collection-arrow">&rarr;</span>
+                  </div>
+               </Link>
+             )
+          })}
         </div>
       </section>
 
-      {/* Offres Spéciales */}
-      <ProductCarousel title="Offres Spéciales" products={promotions} isLoading={loading} className="promo-carousel-theme" />
-
-
-      {/* Category Carousels */}
-      {(categories || [])
-        .filter(cat => cat.slug !== 'offres-speciales')
-        .map(cat => (
-          <CategoryCarouselSection key={cat.slug} category={cat} />
-      ))}
-
-
-
+      {/* Philosophy Section */}
+      <section className="philosophy-section">
+         <div className="philosophy-left">
+            <div className="philosophy-image-large"></div>
+         </div>
+         <div className="philosophy-right">
+            <div className="philosophy-text-content">
+              <p className="philosophy-eyebrow">THE PIOVÉ PHILOSOPHY</p>
+              <h2 className="philosophy-title">YOUR FACE.<br/>YOUR RULES.</h2>
+              <p className="philosophy-desc">
+                Whether you're going for a natural glow<br/>or a bold statement, Piové gives you the tools<br/>to express every side of you.
+              </p>
+              <Link to="/shop" className="philosophy-btn">EXPLORE THE COLLECTION &rarr;</Link>
+            </div>
+            <div className="philosophy-image-small-wrap">
+              <div className="philosophy-image-small"></div>
+            </div>
+         </div>
+      </section>
 
     </main>
   )

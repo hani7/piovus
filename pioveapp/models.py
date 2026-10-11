@@ -54,6 +54,17 @@ class NewsletterHistory(models.Model):
         return f"{self.subject} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
 
+class NewsletterSubscriber(models.Model):
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.email
+
+
 class UserActivityLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activity_logs')
     action = models.CharField(max_length=255)

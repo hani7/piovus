@@ -381,8 +381,9 @@ class OrderCreateSerializer(serializers.Serializer):
 
 # ─── Admin Serializers ────────────────────────────────────────────────────────
 
-class AdminCategorySerializer(serializers.ModelSerializer):
+class AdminCategorySerializer(AbsoluteImageMixin, serializers.ModelSerializer):
     product_count = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Category
@@ -391,6 +392,18 @@ class AdminCategorySerializer(serializers.ModelSerializer):
 
     def get_product_count(self, obj):
         return obj.multi_products.count()
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['image'] = self._abs(instance.image.url if instance.image else None)
+        return rep
+
+    def update(self, instance, validated_data):
+        # Only update image if a new file was actually uploaded
+        request = self.context.get('request')
+        if request and 'image' not in request.FILES:
+            validated_data.pop('image', None)
+        return super().update(instance, validated_data)
 
 
 class AdminProductVariantSerializer(AbsoluteImageMixin, serializers.ModelSerializer):

@@ -2372,8 +2372,14 @@ class AdminNewsletterSendView(APIView):
             if o.guest_email and '@' in o.guest_email:
                 emails_set.add(o.guest_email.strip().lower())
 
+        # 4. Newsletter subscribers (footer form)
+        from .models import NewsletterSubscriber
+        for s in NewsletterSubscriber.objects.all():
+            if s.email and '@' in s.email:
+                emails_set.add(s.email.strip().lower())
+
         emails = list(emails_set)
-        
+
         if not emails:
             return Response({'error': 'Aucun client avec une adresse email valide trouvé.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -2384,11 +2390,14 @@ class AdminNewsletterSendView(APIView):
             attachment_content = attachment.read()
             attachment_mimetype = attachment.content_type
 
+        import logging
+        logger = logging.getLogger(__name__)
+
         def send_newsletter(subject, html_content, recipient_list, att_name=None, att_content=None, att_mime=None):
             try:
                 from django.template.loader import render_to_string
                 rendered_html = render_to_string('emails/newsletter.html', {'message': html_content})
-                
+
                 msg = EmailMultiAlternatives(
                     subject=subject,
                     body="Veuillez utiliser un client email compatible HTML pour lire ce message.",
@@ -2396,20 +2405,20 @@ class AdminNewsletterSendView(APIView):
                     bcc=recipient_list
                 )
                 msg.attach_alternative(rendered_html, "text/html")
-                
+
                 if att_name and att_content and att_mime:
                     msg.attach(att_name, att_content, att_mime)
-                    
-                msg.send(fail_silently=True)
+
+                msg.send(fail_silently=False)
             except Exception as e:
-                pass
-                
+                logger.error(f"Newsletter send error: {e}")
+
         threading.Thread(target=send_newsletter, args=(subject, message_html, emails, attachment_name, attachment_content, attachment_mimetype)).start()
-        
+
         from .models import NewsletterHistory
         NewsletterHistory.objects.create(subject=subject, message=message_html, sent_count=len(emails))
 
-        return Response({'message': f'Newsletter envoy├®e ├á {len(emails)} clients avec succ├¿s.'})
+        return Response({'message': f'Newsletter envoyée à {len(emails)} contacts avec succès.'})
 
 
 class AdminNewsletterUploadImageView(APIView):
@@ -2426,11 +2435,33 @@ class AdminNewsletterUploadImageView(APIView):
         filename = f"newsletter/{uuid.uuid4().hex}.{ext}"
         saved_path = default_storage.save(filename, image)
         
-        url = request.build_absolute_uri(settings.MEDIA_URL + saved_path)
+        api_base = getattr(settings, 'API_URL', '').rstrip('/')
+        media_url = settings.MEDIA_URL.rstrip('/')
+        if api_base:
+            url = f"{api_base}{media_url}/{saved_path}"
+        else:
+            url = request.build_absolute_uri(settings.MEDIA_URL + saved_path)
         return Response({'url': url})
 
 
+class NewsletterSubscribeView(APIView):
+    """Public endpoint — footer newsletter form."""
+    permission_classes = []
+    authentication_classes = []
+
+    def post(self, request):
+        from .models import NewsletterSubscriber
+        email = (request.data.get('email') or '').strip().lower()
+        if not email or '@' not in email:
+            return Response({'error': 'Adresse email invalide.'}, status=status.HTTP_400_BAD_REQUEST)
+        _, created = NewsletterSubscriber.objects.get_or_create(email=email)
+        if created:
+            return Response({'message': 'Merci ! Vous êtes maintenant inscrit à notre newsletter.'})
+        return Response({'message': 'Vous êtes déjà inscrit à notre newsletter.'})
+
+
 class AdminReportView(APIView):
+
     permission_classes = [IsAdminUser]
 
     def get(self, request):

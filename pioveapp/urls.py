@@ -18,6 +18,7 @@ from .views import (
     AdminBoutiqueViewSet, BoutiqueOrderViewSet, BoutiqueLoginView,
     yassir_initiate, yassir_callback, yassir_webhook, yassir_verify,
     meta_product_feed,
+    NewsletterSubscribeView,
 )
 from django.core.management import call_command
 from django.http import JsonResponse
@@ -83,6 +84,7 @@ urlpatterns = [
     path('track/', TrackOrderView.as_view(), name='track-order'),
     path('satim/callback/', satim_callback, name='satim-callback'),
     path('satim/test/', satim_test_view, name='satim-test'),
+    path('newsletter/subscribe/', NewsletterSubscribeView.as_view(), name='newsletter-subscribe'),
     path('run-migrations-secret/', run_migrations_view),
     path('run-reports-secret-weekly/', run_reports_weekly_view),
     path('run-reports-secret-monthly/', run_reports_monthly_view),

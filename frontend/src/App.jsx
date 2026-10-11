@@ -209,6 +209,7 @@ export default function App() {
           <Route path="/" element={isB2B ? <B2BHomePage /> : <HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/produit/:slug" element={<ProductPage />} />
+          <Route path="/product/:slug" element={<ProductPage />} />
           <Route path="/category/:slug" element={<CategoryRedirect />} />
           <Route path="/:slug" element={<CategoryPage />} />
           <Route path="/cart" element={<CartPage />} />

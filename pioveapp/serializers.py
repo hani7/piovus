@@ -484,6 +484,7 @@ class AdminOrderSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     customer_name = serializers.SerializerMethodField()
     is_blacklisted = serializers.SerializerMethodField()
+    is_b2b = serializers.SerializerMethodField()
     source = serializers.SerializerMethodField()
     deleted_by_name = serializers.SerializerMethodField()
     boutique_name = serializers.SerializerMethodField()
@@ -496,13 +497,13 @@ class AdminOrderSerializer(serializers.ModelSerializer):
             'shipping_address', 'wilaya', 'city',
             'delivery_company_name', 'delivery_type', 'delivery_cost',
             'status', 'status_display', 'payment_status', 'payment_method', 'total', 'notes', 'source',
-            'items', 'history', 'created_at', 'updated_at', 'is_blacklisted', 'customer',
+            'items', 'history', 'created_at', 'updated_at', 'is_blacklisted', 'is_b2b', 'customer',
             'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status',
             'is_deleted', 'deleted_at', 'deleted_by_name',
             'boutique', 'boutique_status', 'boutique_transferred_at', 'boutique_name',
             'discount_amount', 'coupon_code',
         ]
-        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted', 'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status', 'is_deleted', 'deleted_at', 'deleted_by_name', 'boutique_name', 'boutique_transferred_at', 'discount_amount', 'coupon_code']
+        read_only_fields = ['user', 'total', 'created_at', 'updated_at', 'items', 'history', 'delivery_cost', 'delivery_company_name', 'is_blacklisted', 'is_b2b', 'mylerz_barcode', 'mylerz_pickup_code', 'mylerz_status', 'is_deleted', 'deleted_at', 'deleted_by_name', 'boutique_name', 'boutique_transferred_at', 'discount_amount', 'coupon_code']
 
     def get_customer_name(self, obj):
         if obj.user:
@@ -512,6 +513,13 @@ class AdminOrderSerializer(serializers.ModelSerializer):
     def get_is_blacklisted(self, obj):
         if obj.customer:
             return obj.customer.is_blacklisted
+        return False
+
+    def get_is_b2b(self, obj):
+        if obj.customer and obj.customer.is_b2b:
+            return True
+        if obj.user and hasattr(obj.user, 'profile') and obj.user.profile.is_b2b:
+            return True
         return False
 
     def get_deleted_by_name(self, obj):

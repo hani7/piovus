@@ -550,19 +550,27 @@ class OrderViewSet(viewsets.ModelViewSet):
             phone = request.user.profile.phone if hasattr(request.user, 'profile') else phone
             
         customer_obj = None
+        is_b2b_user = bool(
+            request.user and request.user.is_authenticated and hasattr(request.user, 'profile') and request.user.profile.is_b2b
+        )
         if phone:
             customer_name = data.get('guest_name', '')
             if request.user and request.user.is_authenticated:
                 customer_name = request.user.get_full_name() or request.user.username
             customer_obj, created = Customer.objects.get_or_create(
                 phone=phone,
-                defaults={'name': customer_name, 'email': data.get('guest_email', '')}
+                defaults={'name': customer_name, 'email': data.get('guest_email', ''), 'is_b2b': is_b2b_user}
             )
-            # Update name/email if empty
-            if not created:
-                if not customer_obj.name and customer_name:
-                    customer_obj.name = customer_name
-                    customer_obj.save(update_fields=['name'])
+            # Update name/email/is_b2b
+            changed_fields = []
+            if not customer_obj.name and customer_name:
+                customer_obj.name = customer_name
+                changed_fields.append('name')
+            if is_b2b_user and not customer_obj.is_b2b:
+                customer_obj.is_b2b = True
+                changed_fields.append('is_b2b')
+            if changed_fields:
+                customer_obj.save(update_fields=changed_fields)
 
         # Create order
         order = Order.objects.create(
@@ -1017,7 +1025,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.filter(is_deleted=False).select_related('user', 'customer').prefetch_related('items__product__images', 'items__variant').order_by('-created_at')
     permission_classes = [IsAdminUser]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['status', 'payment_status', 'delivery_type', 'customer__is_b2b']
+    filterset_fields = ['status', 'payment_status', 'delivery_type']
     search_fields = ['guest_name', 'guest_phone', 'user__username', 'user__first_name', 'id']
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
@@ -1029,6 +1037,17 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             qs = qs.filter(created_at__date__gte=date_from)
         if date_to:
             qs = qs.filter(created_at__date__lte=date_to)
+
+        from django.db.models import Q
+        b2b_param = self.request.query_params.get('customer__is_b2b')
+        if b2b_param is None:
+            b2b_param = self.request.query_params.get('is_b2b')
+        if b2b_param is not None:
+            if str(b2b_param).lower() in ['true', '1']:
+                qs = qs.filter(Q(customer__is_b2b=True) | Q(user__profile__is_b2b=True))
+            elif str(b2b_param).lower() in ['false', '0']:
+                qs = qs.exclude(customer__is_b2b=True).exclude(user__profile__is_b2b=True)
+
         return qs
 
     def list(self, request, *args, **kwargs):
@@ -1733,9 +1752,11 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def unviewed_counts(self, request):
-        unviewed_orders = Order.objects.filter(is_viewed=False)
-        normal_count = unviewed_orders.exclude(customer__is_b2b=True).count()
-        b2b_count = unviewed_orders.filter(customer__is_b2b=True).count()
+        from django.db.models import Q
+        unviewed_orders = Order.objects.filter(is_viewed=False, is_deleted=False)
+        b2b_q = Q(customer__is_b2b=True) | Q(user__profile__is_b2b=True)
+        normal_count = unviewed_orders.exclude(b2b_q).count()
+        b2b_count = unviewed_orders.filter(b2b_q).count()
         return Response({
             'normal': normal_count,
             'b2b': b2b_count
@@ -1743,12 +1764,14 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def mark_viewed(self, request):
+        from django.db.models import Q
         order_type = request.data.get('type')
-        qs = Order.objects.filter(is_viewed=False)
+        qs = Order.objects.filter(is_viewed=False, is_deleted=False)
+        b2b_q = Q(customer__is_b2b=True) | Q(user__profile__is_b2b=True)
         if order_type == 'b2b':
-            qs = qs.filter(customer__is_b2b=True)
+            qs = qs.filter(b2b_q)
         else:
-            qs = qs.exclude(customer__is_b2b=True)
+            qs = qs.exclude(b2b_q)
         updated = qs.update(is_viewed=True)
         return Response({'success': True, 'updated': updated})
 
@@ -2071,9 +2094,12 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
                 pass
         
         # 3. Create Order
-        is_b2b = data.get('is_b2b', False)
+        is_b2b = bool(data.get('is_b2b', False))
         if customer_obj and customer_obj.is_b2b:
             is_b2b = True
+        elif is_b2b and customer_obj and not customer_obj.is_b2b:
+            customer_obj.is_b2b = True
+            customer_obj.save(update_fields=['is_b2b'])
 
         order = Order.objects.create(
             user=user_obj,
@@ -2778,6 +2804,13 @@ class AdminB2BRequestViewSet(viewsets.ReadOnlyModelViewSet):
         user.profile.is_b2b = True
         user.profile.save()
         
+        # Synchroniser l'objet Customer correspondant pour que ses commandes soient bien identifiees B2B
+        from .models import Customer
+        if user.profile.phone:
+            Customer.objects.filter(phone=user.profile.phone).update(is_b2b=True)
+        if user.email:
+            Customer.objects.filter(email__iexact=user.email).update(is_b2b=True)
+        
         from .models import UserActivityLog
         UserActivityLog.objects.create(
             user=request.user,
@@ -3099,8 +3132,21 @@ class AdminOrderHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAdminUser]
     serializer_class = AdminOrderSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['status', 'payment_status', 'is_deleted', 'payment_method', 'customer__is_b2b']
+    filterset_fields = ['status', 'payment_status', 'is_deleted', 'payment_method']
     search_fields = ['guest_name', 'guest_phone', 'user__username', 'user__first_name', 'id']
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        from django.db.models import Q
+        b2b_param = self.request.query_params.get('customer__is_b2b')
+        if b2b_param is None:
+            b2b_param = self.request.query_params.get('is_b2b')
+        if b2b_param is not None:
+            if str(b2b_param).lower() in ['true', '1']:
+                qs = qs.filter(Q(customer__is_b2b=True) | Q(user__profile__is_b2b=True))
+            elif str(b2b_param).lower() in ['false', '0']:
+                qs = qs.exclude(customer__is_b2b=True).exclude(user__profile__is_b2b=True)
+        return qs
 
 
 # ─── Public Order Tracking ────────────────────────────────────────────────────

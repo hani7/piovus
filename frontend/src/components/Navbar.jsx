@@ -63,7 +63,7 @@ export default function Navbar() {
   }
 
   const goToProduct = (slug) => {
-    navigate(`/product/${slug}`)
+    navigate(`/produit/${slug}`)
     setQuery('')
     setSuggestions([])
   }
@@ -119,7 +119,11 @@ export default function Navbar() {
                       key={p.id}
                       type="button"
                       className="search-sug-item"
-                      onMouseDown={() => goToProduct(p.slug)}
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        goToProduct(p.slug)
+                      }}
+                      onClick={() => goToProduct(p.slug)}
                     >
                       <div className="search-sug-img">
                         {p.thumbnail
@@ -134,7 +138,15 @@ export default function Navbar() {
                     </button>
                   ))}
                   {!sugLoading && suggestions.length > 0 && (
-                    <button type="button" className="search-sug-all" onMouseDown={handleSearch}>
+                    <button
+                      type="button"
+                      className="search-sug-all"
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        handleSearch(e)
+                      }}
+                      onClick={handleSearch}
+                    >
                       Voir tous les résultats pour « {query} »
                     </button>
                   )}

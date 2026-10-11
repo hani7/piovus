@@ -49,6 +49,7 @@ export default function AdminOrderHistory({ isB2B = false }) {
   const [filter, setFilter] = useState('')
   const [paymentFilter, setPaymentFilter] = useState('')
   const [deletedFilter, setDeletedFilter] = useState('')
+  const [b2bFilter, setB2bFilter] = useState(isB2B ? 'true' : '')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(25)
@@ -60,8 +61,8 @@ export default function AdminOrderHistory({ isB2B = false }) {
     if (paymentFilter) params.append('payment_status', paymentFilter)
     if (deletedFilter) params.append('is_deleted', deletedFilter)
     if (search) params.append('search', search)
-    if (isB2B) params.append('customer__is_b2b', 'true')
-    else params.append('customer__is_b2b', 'false')
+    if (isB2B || b2bFilter === 'true') params.append('customer__is_b2b', 'true')
+    else if (b2bFilter === 'false') params.append('customer__is_b2b', 'false')
     params.append('page', page)
     params.append('page_size', perPage)
     
@@ -77,7 +78,7 @@ export default function AdminOrderHistory({ isB2B = false }) {
   useEffect(() => { 
     setPage(1)
     load() 
-  }, [filter, paymentFilter, deletedFilter, search, isB2B])
+  }, [filter, paymentFilter, deletedFilter, search, isB2B, b2bFilter])
   
   useEffect(() => { 
     if (page !== 1) load() 
@@ -144,6 +145,17 @@ export default function AdminOrderHistory({ isB2B = false }) {
               <option value="false">Actives seulement</option>
               <option value="true">Supprimées (Corbeille)</option>
             </select>
+            {!isB2B && (
+              <select
+                className="admin-filter-select"
+                value={b2bFilter}
+                onChange={e => setB2bFilter(e.target.value)}
+              >
+                <option value="">Type: Tous (B2C & B2B)</option>
+                <option value="false">Détail (B2C)</option>
+                <option value="true">B2B (Professionnels)</option>
+              </select>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
               Afficher
               <select 
@@ -181,6 +193,7 @@ export default function AdminOrderHistory({ isB2B = false }) {
                     </td>
                     <td style={{ fontWeight: 500 }}>
                       {o.customer_name}
+                      {o.is_b2b && <span className="badge" style={{marginLeft: 8, background: '#4f46e5', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: 4, fontWeight: 700}}>B2B</span>}
                       {o.is_deleted && <div style={{ fontSize: '0.65rem', color: '#dc2626', marginTop: 2, fontWeight: 700 }}>SUPPRIMÉE</div>}
                     </td>
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem' }}>

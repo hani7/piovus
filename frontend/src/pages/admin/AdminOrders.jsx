@@ -640,6 +640,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>#{o.id}</td>
                     <td style={{ fontWeight: 500 }}>
                       {o.customer_name}
+                      {o.is_b2b && <span className="badge" style={{marginLeft: 8, background: '#4f46e5', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: 4, fontWeight: 700}}>B2B</span>}
                       {o.is_blacklisted && <span className="badge badge-danger" style={{marginLeft: 8, fontSize: '0.65rem', padding: '2px 4px'}}>BLACKLIST</span>}
                     </td>
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem' }}>

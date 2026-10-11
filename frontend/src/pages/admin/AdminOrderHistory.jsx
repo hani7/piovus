@@ -61,6 +61,7 @@ export default function AdminOrderHistory({ isB2B = false }) {
     if (deletedFilter) params.append('is_deleted', deletedFilter)
     if (search) params.append('search', search)
     if (isB2B) params.append('customer__is_b2b', 'true')
+    else params.append('customer__is_b2b', 'false')
     params.append('page', page)
     params.append('page_size', perPage)
     

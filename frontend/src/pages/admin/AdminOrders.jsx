@@ -151,6 +151,7 @@ export default function AdminOrders({ isB2B = false }) {
     if (dateFrom) params.append('date_from', dateFrom)
     if (dateTo) params.append('date_to', dateTo)
     if (isB2B) params.append('customer__is_b2b', 'true')
+    else params.append('customer__is_b2b', 'false')
     params.append('page_size', 500)
     adminClient.get(`/admin/orders/?${params}`)
       .then(r => {

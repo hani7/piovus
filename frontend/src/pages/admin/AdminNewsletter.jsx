@@ -83,7 +83,7 @@ export default function AdminNewsletter() {
         
         {/* FORMULAIRE */}
         <div className="admin-card" style={{ flex: '1 1 500px', margin: 0 }}>
-          <p style={{ marginBottom: 24, color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5 }}>
+          <p style={{ marginBottom: 24, color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5, padding: '12px 16px' }}>
             Composez votre message promotionnel ci-dessous. En cliquant sur "Envoyer", un email sera expédié à tous les clients de votre base de données.
           </p>
 

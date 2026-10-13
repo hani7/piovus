@@ -19,6 +19,29 @@ def run_migration_view(request):
         return HttpResponse(f"Migration FAILED:<br><pre>{traceback.format_exc()}</pre>")
 
 
+def diagnostic_view(request):
+    import traceback
+    try:
+        from pioveapp.models import Customer, NewsletterSubscriber
+        from django.db import connection
+        cols = []
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("PRAGMA table_info(pioveapp_customer)")
+                cols = cursor.fetchall()
+        except Exception as e_pragma:
+            cols = [str(e_pragma)]
+        
+        email = request.GET.get('email', 'diag_test@piove.dz')
+        sub, _ = NewsletterSubscriber.objects.get_or_create(email=email)
+        cust = Customer.objects.filter(email__iexact=email).first()
+        if not cust:
+            cust = Customer.objects.create(email=email, name='Diag Test', phone=None, is_newsletter=True)
+        return HttpResponse(f"COLS: {cols}<br>CUST: {cust.id}, {cust.email}")
+    except Exception:
+        return HttpResponse(f"ERROR:<pre>{traceback.format_exc()}</pre>")
+
+
 def setup_view(request):
     """
     One-shot setup: fixes M2M table via raw SQL + runs migrations + seeds categories.
@@ -405,6 +428,7 @@ urlpatterns = [
     #path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('piove-secure-gate-2026/', admin.site.urls),
     path('api/run-migrations-secret-key-998877/', run_migration_view),
+    path('api/diagnostic-newsletter-998877/', diagnostic_view),
     path('api/setup-staff-998877/', setup_staff_accounts_view),
     path('api/fix-yassir-998877/', fix_yassir_view),
     path('api/test-yassir-998877/', yassir_test_view),

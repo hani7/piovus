@@ -43,24 +43,17 @@ def restart_passenger_view(request):
 
 
 def diagnostic_view(request):
-    import traceback
+    import traceback, subprocess
     try:
-        from pioveapp.models import Customer, NewsletterSubscriber
-        from django.db import connection
-        cols = []
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute("PRAGMA table_info(pioveapp_customer)")
-                cols = cursor.fetchall()
-        except Exception as e_pragma:
-            cols = [str(e_pragma)]
+        import pioveapp.models
+        from pioveapp.models import Customer
+        fields = [f.name for f in Customer._meta.get_fields()]
+        models_file = pioveapp.models.__file__
         
-        email = request.GET.get('email', 'diag_test@piove.dz')
-        sub, _ = NewsletterSubscriber.objects.get_or_create(email=email)
-        cust = Customer.objects.filter(email__iexact=email).first()
-        if not cust:
-            cust = Customer.objects.create(email=email, name='Diag Test', phone=None, is_newsletter=True)
-        return HttpResponse(f"COLS: {cols}<br>CUST: {cust.id}, {cust.email}")
+        git_head = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, cwd=str(settings.BASE_DIR)).stdout.strip()
+        git_status = subprocess.run(['git', 'status', '-s'], capture_output=True, text=True, cwd=str(settings.BASE_DIR)).stdout.strip()
+
+        return HttpResponse(f"HEAD: {git_head}<br>STATUS: {git_status}<br>FILE: {models_file}<br>FIELDS: {fields}")
     except Exception:
         return HttpResponse(f"ERROR:<pre>{traceback.format_exc()}</pre>")
 

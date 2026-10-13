@@ -171,6 +171,11 @@ export default function AdminCustomers() {
           style={{ padding: '6px 12px', fontSize: '0.85rem', borderColor: segment === 'blacklisted' ? '' : '#dc2626', color: segment === 'blacklisted' ? '#fff' : '#dc2626', background: segment === 'blacklisted' ? '#dc2626' : 'transparent' }}
           onClick={() => setSegment('blacklisted')}
         >🚫 Blacklisté</button>
+        <button 
+          className={`btn ${segment === 'newsletter' ? 'btn-primary' : 'btn-outline'}`} 
+          style={{ padding: '6px 12px', fontSize: '0.85rem', borderColor: segment === 'newsletter' ? '' : '#ec4899', color: segment === 'newsletter' ? '#fff' : '#ec4899', background: segment === 'newsletter' ? '#ec4899' : 'transparent' }}
+          onClick={() => setSegment('newsletter')}
+        >📬 Abonnés Newsletter</button>
       </div>
 
       <div className="admin-table-wrap">
@@ -197,7 +202,7 @@ export default function AdminCustomers() {
           </thead>
           <tbody>
             {customers.length === 0 ? (
-              <tr><td colSpan="8" className="text-center">Aucun client trouvé.</td></tr>
+              <tr><td colSpan="9" className="text-center">Aucun client trouvé.</td></tr>
             ) : (
               customers.map(c => (
                 <tr key={c.id}>
@@ -211,18 +216,23 @@ export default function AdminCustomers() {
                   </td>
                   <td>{c.id}</td>
                   <td><strong>{c.name || 'Client Anonyme'}</strong></td>
-                  <td>{c.phone}</td>
+                  <td>{c.phone || <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>-</span>}</td>
                   <td>{c.email || '-'}</td>
                   <td>{c.total_orders}</td>
                   <td style={{ fontWeight: 600, color: 'var(--admin-success)' }}>{Number(c.total_spent).toLocaleString('fr-DZ')} DA</td>
                   <td>
-                    {c.is_blacklisted ? (
-                      <span className="badge badge-danger">Blacklisté</span>
-                    ) : c.is_b2b ? (
-                      <span className="badge badge-info" style={{ background: 'var(--admin-gold)', color: '#fff' }}>B2B (Grossiste)</span>
-                    ) : (
-                      <span className="badge badge-success">Actif</span>
-                    )}
+                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center' }}>
+                      {c.is_blacklisted ? (
+                        <span className="badge badge-danger">Blacklisté</span>
+                      ) : c.is_b2b ? (
+                        <span className="badge badge-info" style={{ background: 'var(--admin-gold)', color: '#fff' }}>B2B (Grossiste)</span>
+                      ) : (
+                        <span className="badge badge-success">Actif</span>
+                      )}
+                      {c.is_newsletter && (
+                        <span className="badge" style={{ background: '#ec4899', color: '#fff', fontWeight: 600 }}>Newsletter</span>
+                      )}
+                    </div>
                   </td>
                   <td className="text-right">
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>

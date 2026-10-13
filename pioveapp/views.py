@@ -2299,7 +2299,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ['name', 'phone', 'email']
-    filterset_fields = ['is_blacklisted', 'is_b2b']
+    filterset_fields = ['is_blacklisted', 'is_b2b', 'is_newsletter']
 
     def get_queryset(self):
         from decimal import Decimal
@@ -2307,6 +2307,11 @@ class CustomerViewSet(viewsets.ModelViewSet):
         from django.db.models.functions import Coalesce
         from django.utils import timezone
         from datetime import timedelta
+
+        # Synchroniser les abonnés newsletter vers Customer si de nouveaux abonnés existent
+        from .models import NewsletterSubscriber
+        if Customer.objects.filter(is_newsletter=True).count() < NewsletterSubscriber.objects.count():
+            sync_newsletter_subscribers_to_customers()
 
         qs = Customer.objects.annotate(
             total_orders=Count('orders'),
@@ -2325,6 +2330,8 @@ class CustomerViewSet(viewsets.ModelViewSet):
             qs = qs.filter(Q(last_order_date__lt=thirty_days_ago) | Q(last_order_date__isnull=True))
         elif segment == 'blacklisted':
             qs = qs.filter(is_blacklisted=True)
+        elif segment == 'newsletter':
+            qs = qs.filter(is_newsletter=True)
 
         return qs.order_by('-created_at')
 
@@ -2365,14 +2372,79 @@ class CustomerViewSet(viewsets.ModelViewSet):
         return Response({'status': 'deleted'})
 
 
+def sync_newsletter_subscribers_to_customers():
+    """Synchronise les abonnés newsletter vers la table Customer."""
+    from .models import NewsletterSubscriber, Customer
+    for sub in NewsletterSubscriber.objects.all():
+        if sub.email and '@' in sub.email:
+            email_clean = sub.email.strip().lower()
+            existing = Customer.objects.filter(email__iexact=email_clean).first()
+            if existing:
+                if not existing.is_newsletter:
+                    existing.is_newsletter = True
+                    existing.save(update_fields=['is_newsletter'])
+            else:
+                Customer.objects.create(
+                    email=email_clean,
+                    name=email_clean.split('@')[0],
+                    phone=None,
+                    is_newsletter=True
+                )
+
+
 class AdminNewsletterSendView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        from .models import NewsletterHistory
+        from .models import NewsletterHistory, NewsletterSubscriber, Customer, Order
+        from django.contrib.auth.models import User
+
+        # Assurer la synchronisation automatique
+        sync_newsletter_subscribers_to_customers()
+
         history = NewsletterHistory.objects.all()[:100]  # Last 100
-        data = [{'id': h.id, 'subject': h.subject, 'sent_count': h.sent_count, 'created_at': h.created_at.isoformat()} for h in history]
-        return Response(data)
+        history_data = [{'id': h.id, 'subject': h.subject, 'sent_count': h.sent_count, 'created_at': h.created_at.isoformat()} for h in history]
+
+        subscribers = NewsletterSubscriber.objects.all()
+        subscribers_data = [{'id': s.id, 'email': s.email, 'created_at': s.created_at.isoformat()} for s in subscribers]
+
+        # Calculer l'audience totale unique
+        emails_set = set()
+        for c in Customer.objects.exclude(email='').exclude(email__isnull=True):
+            if c.email and '@' in c.email:
+                emails_set.add(c.email.strip().lower())
+        for u in User.objects.exclude(email='').exclude(email__isnull=True):
+            if u.email and '@' in u.email:
+                emails_set.add(u.email.strip().lower())
+        for o in Order.objects.exclude(guest_email='').exclude(guest_email__isnull=True):
+            if o.guest_email and '@' in o.guest_email:
+                emails_set.add(o.guest_email.strip().lower())
+        for s in subscribers:
+            if s.email and '@' in s.email:
+                emails_set.add(s.email.strip().lower())
+
+        return Response({
+            'history': history_data,
+            'subscribers': subscribers_data,
+            'stats': {
+                'total_recipients': len(emails_set),
+                'total_subscribers': subscribers.count(),
+                'total_customers_with_email': Customer.objects.exclude(email='').exclude(email__isnull=True).count(),
+            }
+        })
+
+    def delete(self, request):
+        from .models import NewsletterSubscriber, Customer
+        subscriber_id = request.data.get('id') or request.query_params.get('id')
+        if not subscriber_id:
+            return Response({'error': 'ID requis.'}, status=status.HTTP_400_BAD_REQUEST)
+        sub = NewsletterSubscriber.objects.filter(id=subscriber_id).first()
+        if sub:
+            email = sub.email
+            sub.delete()
+            Customer.objects.filter(email__iexact=email).update(is_newsletter=False)
+            return Response({'message': 'Abonné retiré avec succès.'})
+        return Response({'error': 'Abonné introuvable.'}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
         subject = request.data.get('subject')
@@ -2476,11 +2548,27 @@ class NewsletterSubscribeView(APIView):
     authentication_classes = []
 
     def post(self, request):
-        from .models import NewsletterSubscriber
+        from .models import NewsletterSubscriber, Customer
         email = (request.data.get('email') or '').strip().lower()
         if not email or '@' not in email:
             return Response({'error': 'Adresse email invalide.'}, status=status.HTTP_400_BAD_REQUEST)
+        
         _, created = NewsletterSubscriber.objects.get_or_create(email=email)
+        
+        # Synchroniser directement dans la table Customer
+        cust = Customer.objects.filter(email__iexact=email).first()
+        if cust:
+            if not cust.is_newsletter:
+                cust.is_newsletter = True
+                cust.save(update_fields=['is_newsletter'])
+        else:
+            Customer.objects.create(
+                email=email,
+                name=email.split('@')[0],
+                phone=None,
+                is_newsletter=True
+            )
+
         if created:
             return Response({'message': 'Merci ! Vous êtes maintenant inscrit à notre newsletter.'})
         return Response({'message': 'Vous êtes déjà inscrit à notre newsletter.'})

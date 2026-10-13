@@ -1,0 +1,1 @@
+import{t as e}from"./client-F92tdpDr.js";var t=t=>e.post(`/orders/`,t),n=()=>e.get(`/orders/`),r=t=>e.post(`/yassir/initiate/`,{order_id:t});export{n,r,t};

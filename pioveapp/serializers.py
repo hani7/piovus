@@ -609,4 +609,4 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = ['id', 'name', 'phone', 'email', 'is_blacklisted', 'is_b2b', 'total_orders', 'total_spent', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'phone', 'email', 'is_blacklisted', 'is_b2b', 'is_newsletter', 'total_orders', 'total_spent', 'created_at', 'updated_at']

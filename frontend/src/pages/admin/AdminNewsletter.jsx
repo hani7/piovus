@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import adminClient from '../../api/adminClient'
-import { Send, Mail, X, History } from 'lucide-react'
+import { Send, Mail, X, History, Users, Trash2, Search, CheckCircle2 } from 'lucide-react'
 import './admin.css'
 
 export default function AdminNewsletter() {
@@ -11,15 +11,26 @@ export default function AdminNewsletter() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const [history, setHistory] = useState([])
+  const [subscribers, setSubscribers] = useState([])
+  const [stats, setStats] = useState({ total_recipients: 0, total_subscribers: 0, total_customers_with_email: 0 })
+  const [subscriberSearch, setSubscriberSearch] = useState('')
 
-  const fetchHistory = () => {
+  const fetchData = () => {
     adminClient.get('/admin/newsletter/send/')
-      .then(r => setHistory(r.data))
-      .catch(e => console.error("Erreur historique newsletter", e))
+      .then(r => {
+        if (Array.isArray(r.data)) {
+          setHistory(r.data)
+        } else {
+          setHistory(r.data.history || [])
+          setSubscribers(r.data.subscribers || [])
+          setStats(r.data.stats || { total_recipients: 0, total_subscribers: 0, total_customers_with_email: 0 })
+        }
+      })
+      .catch(e => console.error("Erreur chargement newsletter", e))
   }
 
   useEffect(() => {
-    fetchHistory()
+    fetchData()
   }, [])
 
   const handleInsertImage = async (e) => {
@@ -46,7 +57,8 @@ export default function AdminNewsletter() {
 
   const handleSend = async (e) => {
     e.preventDefault()
-    if (!window.confirm('Êtes-vous sûr de vouloir envoyer cette newsletter à tous vos clients ?')) return
+    const confirmMsg = `Êtes-vous sûr de vouloir envoyer cette newsletter aux ${stats.total_recipients || 'tous les'} contacts enregistrés ?`
+    if (!window.confirm(confirmMsg)) return
     
     setSending(true)
     setFeedback(null)
@@ -65,7 +77,7 @@ export default function AdminNewsletter() {
       setSubject('')
       setMessage('')
       setAttachment(null)
-      fetchHistory()
+      fetchData()
     } catch (err) {
       setFeedback({ type: 'error', text: err.response?.data?.error || "Erreur lors de l'envoi" })
     } finally {
@@ -73,23 +85,88 @@ export default function AdminNewsletter() {
     }
   }
 
+  const handleDeleteSubscriber = async (id, email) => {
+    if (!window.confirm(`Désabonner l'adresse ${email} ?`)) return
+    try {
+      await adminClient.delete('/admin/newsletter/send/', { data: { id } })
+      fetchData()
+    } catch (err) {
+      alert("Erreur lors du désabonnement.")
+    }
+  }
+
+  const filteredSubscribers = subscribers.filter(s => 
+    s.email.toLowerCase().includes(subscriberSearch.toLowerCase())
+  )
+
   return (
     <div className="admin-page">
       <div className="admin-page-header">
         <h2><Mail size={24} style={{marginRight: 10, verticalAlign: 'middle'}}/> Newsletter & Alertes</h2>
       </div>
 
+      {/* STATS D'AUDIENCE */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+        <div className="admin-card" style={{ margin: 0, padding: '16px 20px', borderLeft: '4px solid #ec4899' }}>
+          <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>
+            Audience Totale
+          </div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0f172a' }}>
+            {stats.total_recipients}
+          </div>
+          <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
+            Contacts uniques prêts à recevoir
+          </div>
+        </div>
+
+        <div className="admin-card" style={{ margin: 0, padding: '16px 20px', borderLeft: '4px solid #8b5cf6' }}>
+          <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>
+            Abonnés Newsletter
+          </div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#8b5cf6' }}>
+            {stats.total_subscribers}
+          </div>
+          <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
+            Inscrits via le formulaire du site
+          </div>
+        </div>
+
+        <div className="admin-card" style={{ margin: 0, padding: '16px 20px', borderLeft: '4px solid #10b981' }}>
+          <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>
+            Clients E-commerce
+          </div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#10b981' }}>
+            {stats.total_customers_with_email}
+          </div>
+          <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
+            Comptes clients & acheteurs
+          </div>
+        </div>
+
+        <div className="admin-card" style={{ margin: 0, padding: '16px 20px', borderLeft: '4px solid #3b82f6' }}>
+          <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>
+            Campagnes Envoyées
+          </div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#3b82f6' }}>
+            {history.length}
+          </div>
+          <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
+            Historique des diffusions
+          </div>
+        </div>
+      </div>
+
       <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-start' }}>
         
         {/* FORMULAIRE */}
         <div className="admin-card" style={{ flex: '1 1 500px', margin: 0 }}>
-          <p style={{ marginBottom: 24, color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5, padding: '12px 16px' }}>
-            Composez votre message promotionnel ci-dessous. En cliquant sur "Envoyer", un email sera expédié à tous les clients de votre base de données.
+          <p style={{ marginBottom: 20, color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5 }}>
+            Composez votre message promotionnel ci-dessous. En cliquant sur "Envoyer", un email sera expédié à l'ensemble de votre base ({stats.total_recipients} destinataires uniques).
           </p>
 
           {feedback && (
             <div style={{ marginBottom: 20, padding: 16, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10, backgroundColor: feedback.type === 'success' ? '#ecfdf5' : '#fef2f2', color: feedback.type === 'success' ? '#059669' : '#dc2626', border: `1px solid ${feedback.type === 'success' ? '#a7f3d0' : '#fecaca'}` }}>
-              {feedback.type === 'success' ? <Send size={20}/> : <X size={20}/>}
+              {feedback.type === 'success' ? <CheckCircle2 size={20}/> : <X size={20}/>}
               <span style={{ fontWeight: 500 }}>{feedback.text}</span>
             </div>
           )}
@@ -147,7 +224,7 @@ export default function AdminNewsletter() {
 
             <div className="admin-modal-actions" style={{ justifyContent: 'flex-start', margin: 0 }}>
               <button type="submit" className="btn" disabled={sending || !subject || !message} style={{display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1rem', background: '#0f172a', color: 'white', borderRadius: 50, border: 'none', width: '100%', justifyContent: 'center', fontWeight: 600}}>
-                {sending ? 'Envoi en cours...' : <><Send size={18} /> Envoyer à tous les clients</>}
+                {sending ? 'Envoi en cours...' : <><Send size={18} /> Envoyer à tous ({stats.total_recipients} destinataires)</>}
               </button>
             </div>
           </form>
@@ -179,6 +256,67 @@ export default function AdminNewsletter() {
         </div>
       </div>
 
+      {/* LISTE DES ABONNES NEWSLETTER */}
+      <div className="admin-card" style={{ marginTop: 24 }}>
+        <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
+            <Users size={18} /> Abonnés au formulaire Newsletter ({subscribers.length})
+          </h3>
+          <div style={{ position: 'relative', width: 260 }}>
+            <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#94a3b8' }} />
+            <input 
+              type="text" 
+              placeholder="Rechercher un email..." 
+              value={subscriberSearch}
+              onChange={e => setSubscriberSearch(e.target.value)}
+              style={{ width: '100%', padding: '6px 10px 6px 34px', fontSize: '0.85rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+            />
+          </div>
+        </div>
+        <div className="admin-table-container">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Adresse Email</th>
+                <th>Date d'inscription</th>
+                <th className="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSubscribers.map((s, idx) => (
+                <tr key={s.id}>
+                  <td style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{idx + 1}</td>
+                  <td>
+                    <strong style={{ color: '#0f172a' }}>{s.email}</strong>
+                  </td>
+                  <td>
+                    {new Date(s.created_at).toLocaleDateString('fr-DZ', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </td>
+                  <td className="text-right">
+                    <button 
+                      className="btn-icon" 
+                      style={{ padding: '4px 8px', background: '#fef2f2', borderRadius: 4, color: '#dc2626', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.8rem' }} 
+                      onClick={() => handleDeleteSubscriber(s.id, s.email)} 
+                      title="Désabonner"
+                    >
+                      <Trash2 size={14} /> Désabonner
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {filteredSubscribers.length === 0 && (
+                <tr>
+                  <td colSpan={4} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                    {subscriberSearch ? 'Aucun abonné ne correspond à votre recherche.' : "Aucun abonné enregistré via le formulaire pour le moment."}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* HISTORIQUE */}
       <div className="admin-card" style={{ marginTop: 24 }}>
         <div className="admin-card-header">
@@ -192,7 +330,7 @@ export default function AdminNewsletter() {
               <tr>
                 <th>Date d'envoi</th>
                 <th>Sujet</th>
-                <th>Clients atteints</th>
+                <th>Contacts atteints</th>
               </tr>
             </thead>
             <tbody>
@@ -202,7 +340,7 @@ export default function AdminNewsletter() {
                   <td style={{ fontWeight: 500 }}>{h.subject}</td>
                   <td>
                     <span style={{ background: '#f1f5f9', color: '#0f172a', padding: '2px 8px', borderRadius: 20, fontSize: '0.8rem', fontWeight: 600 }}>
-                      {h.sent_count} clients
+                      {h.sent_count} contacts
                     </span>
                   </td>
                 </tr>

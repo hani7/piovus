@@ -19,6 +19,29 @@ def run_migration_view(request):
         return HttpResponse(f"Migration FAILED:<br><pre>{traceback.format_exc()}</pre>")
 
 
+def restart_passenger_view(request):
+    import os, sys, threading, time
+    base_dir = settings.BASE_DIR
+    restart_txt = os.path.join(str(base_dir), 'tmp', 'restart.txt')
+    try:
+        os.makedirs(os.path.dirname(restart_txt), exist_ok=True)
+        with open(restart_txt, 'w') as f:
+            f.write(str(time.time()))
+    except Exception:
+        pass
+    wsgi_path = os.path.join(str(base_dir), 'passenger_wsgi.py')
+    if os.path.exists(wsgi_path):
+        try:
+            os.utime(wsgi_path, None)
+        except Exception:
+            pass
+    def do_exit():
+        time.sleep(0.3)
+        os._exit(0)
+    threading.Thread(target=do_exit).start()
+    return HttpResponse("Worker restarting... Refresh in 3 seconds!")
+
+
 def diagnostic_view(request):
     import traceback
     try:
@@ -428,6 +451,7 @@ urlpatterns = [
     #path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('piove-secure-gate-2026/', admin.site.urls),
     path('api/run-migrations-secret-key-998877/', run_migration_view),
+    path('api/restart-passenger-998877/', restart_passenger_view),
     path('api/diagnostic-newsletter-998877/', diagnostic_view),
     path('api/setup-staff-998877/', setup_staff_accounts_view),
     path('api/fix-yassir-998877/', fix_yassir_view),

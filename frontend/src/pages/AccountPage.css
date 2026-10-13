@@ -1,5 +1,5 @@
 .account-page {
-  --account-top-offset: 200px;
+  --account-top-offset: 240px;
   padding-top: var(--account-top-offset);
   padding-bottom: 80px;
   min-height: 80vh;
@@ -7,13 +7,13 @@
 
 @media (max-width: 900px) {
   .account-page {
-    --account-top-offset: 160px;
+    --account-top-offset: 180px;
   }
 }
 
 @media (max-width: 768px) {
   .account-page {
-    --account-top-offset: 120px;
+    --account-top-offset: 140px;
   }
 }
 

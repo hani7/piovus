@@ -1,4 +1,19 @@
-.shop-page { padding-top: calc(var(--navbar-height) + 16px); min-height: 80vh; }
+.shop-page {
+  padding-top: 200px;
+  min-height: 80vh;
+}
+
+@media (max-width: 900px) {
+  .shop-page {
+    padding-top: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .shop-page {
+    padding-top: 120px;
+  }
+}
 
 /* Shop page layout */
 .shop-page__body {

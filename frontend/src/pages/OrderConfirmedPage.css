@@ -1,0 +1,15 @@
+.order-confirmed-page {
+  padding: 200px 20px 48px;
+}
+
+@media (max-width: 900px) {
+  .order-confirmed-page {
+    padding-top: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .order-confirmed-page {
+    padding: 120px 16px 32px;
+  }
+}

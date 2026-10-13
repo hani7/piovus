@@ -205,7 +205,7 @@ CSRF_TRUSTED_ORIGINS = [
 # ─── REST FRAMEWORK ──────────────────────────────────────────────────────────
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'pioveapp.authentication.ApprovedAccountJWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
@@ -232,6 +232,7 @@ REST_FRAMEWORK = {
 
 # ─── JWT ─────────────────────────────────────────────────────────────────────
 SIMPLE_JWT = {
+    'TOKEN_REFRESH_SERIALIZER': 'pioveapp.authentication.ApprovedAccountTokenRefreshSerializer',
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,

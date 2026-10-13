@@ -73,9 +73,6 @@ export default function Navbar() {
   return (
     <>
       <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
-        <div className="navbar__top-banner">
-          LIVRAISON EXPRESS PARTOUT EN ALGÉRIE <span className="navbar__top-banner-separator">|</span> DÉCOUVREZ NOTRE NOUVELLE COLLECTION &rarr;
-        </div>
         <div className="navbar__inner navbar__inner--wide">
           {/* Left: Search */}
           <div className="navbar__left">
@@ -99,7 +96,7 @@ export default function Navbar() {
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search for your next favorite..."
+                  placeholder="Rechercher un produit..."
                   id="search-input"
                   aria-label="Rechercher un produit"
                   autoComplete="off"

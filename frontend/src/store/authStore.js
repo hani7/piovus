@@ -33,7 +33,7 @@ export const useAuthStore = create(
         } catch (err) {
           const msg = err.response?.data?.error || 'Identifiants invalides'
           set({ isLoading: false, error: msg })
-          return { success: false, error: msg }
+          return { success: false, error: msg, code: err.response?.data?.code }
         }
       },
 
@@ -82,15 +82,15 @@ export const useAuthStore = create(
         set({ isLoading: true, error: null })
         try {
           const res = await apiRegisterB2B(data)
-          localStorage.setItem('access_token', res.data.access)
-          localStorage.setItem('refresh_token', res.data.refresh)
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('refresh_token')
           set({
-            user: res.data.user,
-            accessToken: res.data.access,
-            refreshToken: res.data.refresh,
+            user: null,
+            accessToken: null,
+            refreshToken: null,
             isLoading: false,
           })
-          return { success: true, message: res.data.message }
+          return { success: true, code: res.data.code, message: res.data.message }
         } catch (err) {
           const errors = err.response?.data || {}
           const msg = Object.values(errors).flat().join(' ')
@@ -125,7 +125,7 @@ export const useAuthStore = create(
         } catch (err) {
           const msg = err.response?.data?.error || `Erreur de connexion via ${provider}`
           set({ isLoading: false, error: msg })
-          return { success: false, error: msg }
+          return { success: false, error: msg, code: err.response?.data?.code }
         }
       },
 

@@ -6,6 +6,9 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from django.db import transaction
+from .authentication import ensure_b2b_approved
+from .b2b_email import send_b2b_approval_email
 from django.db.models import Sum, Count, F
 from django.db.models.functions import TruncDate, TruncWeek, TruncMonth
 from decimal import Decimal
@@ -166,12 +169,10 @@ class B2BRegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        refresh = RefreshToken.for_user(user)
         return Response({
-            'user': UserSerializer(user).data,
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-            'message': 'Compte B2B cr├®├® avec succ├¿s. En attente de validation.'
+            'code': 'b2b_pending',
+            'message': 'Votre compte B2B est en attente de vérification. '
+                       'Vous recevrez un email après validation par notre équipe.'
         }, status=status.HTTP_201_CREATED)
 
 
@@ -189,8 +190,7 @@ class LoginView(APIView):
             if user.groups.filter(name='boutique').exists():
                 return Response({'error': 'Accès interdit. Veuillez utiliser le portail Boutique (/boutique/login).'}, status=status.HTTP_403_FORBIDDEN)
 
-            if hasattr(user, 'profile') and user.profile.is_b2b_pending:
-                return Response({'error': 'Votre compte B2B est en cours de validation par nos ├®quipes. Vous serez notifi├® par email une fois valid├®.'}, status=status.HTTP_403_FORBIDDEN)
+            ensure_b2b_approved(user)
 
             # if user.is_staff or user.is_superuser:
             #     otp = get_random_string(6, allowed_chars='0123456789')
@@ -242,6 +242,7 @@ class VerifyOTPView(APIView):
             
         try:
             user = User.objects.get(id=user_id)
+            ensure_b2b_approved(user)
             cache.delete(f'mfa_otp_{user_id}')
             refresh = RefreshToken.for_user(user)
             
@@ -307,6 +308,7 @@ def handle_social_login(email, first_name, last_name):
             email=email,
             defaults={'name': f"{first_name} {last_name}".strip(), 'phone': f"0000{get_random_string(6, '0123456789')}"}
         )
+    ensure_b2b_approved(user)
     refresh = RefreshToken.for_user(user)
     return {
         'user': UserSerializer(user).data,
@@ -2895,8 +2897,13 @@ class AdminB2BRequestViewSet(viewsets.ReadOnlyModelViewSet):
         return User.objects.filter(profile__is_b2b_pending=True).select_related('profile')
 
     @action(detail=True, methods=['post'])
+    @transaction.atomic
     def validate(self, request, pk=None):
         user = self.get_object()
+        profile = UserProfile.objects.select_for_update().get(user=user)
+        if not profile.is_b2b_pending:
+            return Response({'status': 'validated'})
+        user.profile = profile
         user.profile.is_b2b_pending = False
         user.profile.is_b2b = True
         user.profile.save()
@@ -2915,6 +2922,7 @@ class AdminB2BRequestViewSet(viewsets.ReadOnlyModelViewSet):
             ip_address=request.META.get('REMOTE_ADDR'),
             user_agent=request.META.get('HTTP_USER_AGENT')
         )
+        send_b2b_approval_email(user)
         return Response({'status': 'validated'})
 
     @action(detail=True, methods=['post'])
@@ -2922,6 +2930,8 @@ class AdminB2BRequestViewSet(viewsets.ReadOnlyModelViewSet):
         user = self.get_object()
         user.profile.is_b2b_pending = False
         user.profile.save()
+        user.is_active = False
+        user.save(update_fields=['is_active'])
         
         from .models import UserActivityLog
         UserActivityLog.objects.create(

@@ -26,6 +26,15 @@ client.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config
+    if (error.response?.data?.code === 'b2b_pending') {
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('piove-auth')
+      if (window.location.pathname !== '/compte/en-attente') {
+        window.location.href = '/compte/en-attente'
+      }
+      return Promise.reject(error)
+    }
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true
       try {
@@ -35,10 +44,13 @@ client.interceptors.response.use(
         localStorage.setItem('access_token', res.data.access)
         original.headers.Authorization = `Bearer ${res.data.access}`
         return client(original)
-      } catch {
+      } catch (refreshError) {
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
-        window.location.href = '/compte'
+        localStorage.removeItem('piove-auth')
+        window.location.href = refreshError.response?.data?.code === 'b2b_pending'
+          ? '/compte/en-attente'
+          : '/compte'
       }
     }
     return Promise.reject(error)

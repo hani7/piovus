@@ -25,7 +25,7 @@ export default function AccountLayout() {
   ]
 
   return (
-    <main className="account-page page-enter" style={{ paddingTop: '80px' }}>
+    <main className="account-page page-enter">
       <div className="container">
 
         {/* Mobile tab bar */}

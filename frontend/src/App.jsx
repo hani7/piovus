@@ -14,6 +14,7 @@ const CartPage = lazy(() => import('./pages/CartPage'))
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'))
 const OrderConfirmedPage = lazy(() => import('./pages/OrderConfirmedPage'))
 const AccountPage = lazy(() => import('./pages/AccountPage'))
+const B2BPendingPage = lazy(() => import('./pages/B2BPendingPage'))
 const AccountLayout = lazy(() => import('./pages/AccountLayout'))
 const OrdersPage = lazy(() => import('./pages/OrdersPage'))
 const AddressesPage = lazy(() => import('./pages/AddressesPage'))
@@ -216,6 +217,7 @@ export default function App() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-confirmed" element={<OrderConfirmedPage />} />
           <Route path="/compte" element={<AccountPage />} />
+          <Route path="/compte/en-attente" element={<B2BPendingPage />} />
           <Route element={<AccountLayout />}>
             <Route path="/compte/commandes" element={<OrdersPage />} />
             <Route path="/compte/adresses" element={<AddressesPage />} />

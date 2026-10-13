@@ -180,6 +180,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['phone', 'address', 'wilaya', 'is_b2b', 'company_name', 'nrc', 'nif', 'nrc_file', 'is_b2b_pending', 'loyalty_points']
+        read_only_fields = ['is_b2b', 'is_b2b_pending']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -235,6 +236,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class B2BRegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True, allow_blank=False)
     password = serializers.CharField(write_only=True, min_length=6)
     password2 = serializers.CharField(write_only=True)
     phone = serializers.CharField(write_only=True, required=True)

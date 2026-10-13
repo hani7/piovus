@@ -49,7 +49,7 @@ export default function AccountPage() {
       { to: '/compte/parametres', label: 'Paramètres',      icon: <Settings size={18} /> },
     ]
     return (
-      <main className="account-page page-enter" style={{ paddingTop: '80px' }}>
+      <main className="account-page page-enter">
         <div className="container">
 
           {/* Mobile tab bar */}
@@ -167,6 +167,7 @@ export default function AccountPage() {
   const handleLogin = async (e) => {
     e.preventDefault()
     const res = await login(loginForm.username, loginForm.password)
+    if (res.code === 'b2b_pending') navigate('/compte/en-attente')
     if (res.success) navigate('/compte')
   }
 
@@ -199,20 +200,19 @@ export default function AccountPage() {
     })
 
     const res = await registerB2B(formData)
-    if (res.success) {
-      alert(res.message || 'Demande B2B envoyée avec succès.')
-      navigate('/compte')
-    }
+    if (res.success) navigate('/compte/en-attente', { replace: true })
   }
 
   const handleGoogleSuccess = async (credentialResponse) => {
     const res = await socialLoginAction('google', credentialResponse.credential)
+    if (res.code === 'b2b_pending') navigate('/compte/en-attente')
     if (res.success) navigate('/compte')
   }
 
   const handleFacebookCallback = async (response) => {
     if (response.accessToken) {
       const res = await socialLoginAction('facebook', response.accessToken)
+      if (res.code === 'b2b_pending') navigate('/compte/en-attente')
       if (res.success) navigate('/compte')
     }
   }
@@ -235,7 +235,7 @@ export default function AccountPage() {
   )
 
   return (
-    <main className="account-page page-enter" style={{ paddingTop: '120px' }}>
+    <main className="account-page account-auth-page page-enter">
 
       {/* Tabs */}
       <div className="auth-tabs-row">

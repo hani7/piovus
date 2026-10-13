@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import PageSEO from '../components/PageSEO'
+import './OrderConfirmedPage.css'
 
 export default function OrderConfirmedPage() {
   const location = useLocation()
@@ -69,7 +70,7 @@ export default function OrderConfirmedPage() {
   if (!orderId) return null
 
   return (
-    <main style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-cream, #faf9f7)' }}>
+    <main className="order-confirmed-page" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-cream, #faf9f7)' }}>
       <PageSEO
         title="Commande confirmée — Piové Cosmetics"
         description="Votre commande a bien été enregistrée. Merci pour votre achat !"
@@ -83,7 +84,7 @@ export default function OrderConfirmedPage() {
         background: '#fff',
         borderRadius: 20,
         boxShadow: '0 8px 40px rgba(0,0,0,0.08)',
-        margin: '60px auto 40px',
+        margin: '0 auto',
       }}>
         {/* Icône succès animée */}
         <div style={{

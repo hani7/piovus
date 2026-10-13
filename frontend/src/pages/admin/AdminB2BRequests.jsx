@@ -31,7 +31,7 @@ export default function AdminB2BRequests() {
       await adminClient.post(`/admin/b2b-requests/${id}/validate/`)
       fetchRequests()
     } catch (err) {
-      alert("Erreur lors de la validation.")
+      alert(err.response?.data?.detail || "Erreur lors de la validation.")
     }
   }
 

@@ -43,17 +43,14 @@ def restart_passenger_view(request):
 
 
 def diagnostic_view(request):
-    import traceback, subprocess
+    import traceback
     try:
-        import pioveapp.models
-        from pioveapp.models import Customer
-        fields = [f.name for f in Customer._meta.get_fields()]
-        models_file = pioveapp.models.__file__
-        
-        git_head = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, cwd=str(settings.BASE_DIR)).stdout.strip()
-        git_status = subprocess.run(['git', 'status', '-s'], capture_output=True, text=True, cwd=str(settings.BASE_DIR)).stdout.strip()
-
-        return HttpResponse(f"HEAD: {git_head}<br>STATUS: {git_status}<br>FILE: {models_file}<br>FIELDS: {fields}")
+        from pioveapp.views import sync_newsletter_subscribers_to_customers
+        from pioveapp.models import Customer, NewsletterSubscriber
+        sync_newsletter_subscribers_to_customers()
+        subs = list(NewsletterSubscriber.objects.values_list('email', flat=True))
+        custs = list(Customer.objects.filter(is_newsletter=True).values('id', 'name', 'email', 'is_newsletter'))
+        return HttpResponse(f"<b>Subscribers ({len(subs)}):</b> {subs}<br><br><b>Customers Newsletter ({len(custs)}):</b> {custs}")
     except Exception:
         return HttpResponse(f"ERROR:<pre>{traceback.format_exc()}</pre>")
 

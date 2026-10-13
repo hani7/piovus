@@ -42,19 +42,6 @@ def restart_passenger_view(request):
     return HttpResponse("Worker restarting... Refresh in 3 seconds!")
 
 
-def diagnostic_view(request):
-    import traceback
-    try:
-        from pioveapp.views import sync_newsletter_subscribers_to_customers
-        from pioveapp.models import Customer, NewsletterSubscriber
-        sync_newsletter_subscribers_to_customers()
-        subs = list(NewsletterSubscriber.objects.values_list('email', flat=True))
-        custs = list(Customer.objects.filter(is_newsletter=True).values('id', 'name', 'email', 'is_newsletter'))
-        return HttpResponse(f"<b>Subscribers ({len(subs)}):</b> {subs}<br><br><b>Customers Newsletter ({len(custs)}):</b> {custs}")
-    except Exception:
-        return HttpResponse(f"ERROR:<pre>{traceback.format_exc()}</pre>")
-
-
 def setup_view(request):
     """
     One-shot setup: fixes M2M table via raw SQL + runs migrations + seeds categories.
@@ -451,7 +438,6 @@ urlpatterns = [
     path('piove-secure-gate-2026/', admin.site.urls),
     path('api/run-migrations-secret-key-998877/', run_migration_view),
     path('api/restart-passenger-998877/', restart_passenger_view),
-    path('api/diagnostic-newsletter-998877/', diagnostic_view),
     path('api/setup-staff-998877/', setup_staff_accounts_view),
     path('api/fix-yassir-998877/', fix_yassir_view),
     path('api/test-yassir-998877/', yassir_test_view),

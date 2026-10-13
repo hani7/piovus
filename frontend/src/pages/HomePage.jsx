@@ -113,7 +113,7 @@ export default function HomePage() {
            <h2 className="collections-title">EXPLORER NOS CATÉGORIES</h2>
         </div>
         <div className="collections-grid">
-          {(categories || []).filter(c => c.slug !== 'offres-speciales').slice(0, 5).map((cat) => (
+          {(categories || []).filter(c => c.slug !== 'offres-speciales').slice(0, 6).map((cat) => (
                <Link key={cat.slug} to={`/${cat.slug}`} className="collection-card">
                   <div className="collection-img-wrap">
                     {cat.image ? (

@@ -167,12 +167,14 @@ export default function AdminProducts() {
         }
       }
 
-      const cfg = { headers: { 'Content-Type': 'multipart/form-data' } }
-      if (modal === 'add') await adminClient.post('/admin/products/', fd, cfg)
-      else await adminClient.patch(`/admin/products/${editId}/`, fd, cfg)
+      if (modal === 'add') await adminClient.post('/admin/products/', fd)
+      else await adminClient.patch(`/admin/products/${editId}/`, fd)
       setModal(null); load()
     } catch (err) {
-      alert('Erreur: ' + JSON.stringify(err.response?.data || err.message))
+      const errMsg = err.response?.data
+        ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data))
+        : err.message
+      alert('Erreur: ' + errMsg)
     } finally { setSaving(false) }
   }
 
@@ -245,16 +247,19 @@ export default function AdminProducts() {
       
       setShowVariantModal(false)
       if (editVariantId) {
-        const res = await adminClient.patch(`/admin/variants/${editVariantId}/`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+        const res = await adminClient.patch(`/admin/variants/${editVariantId}/`, fd)
         setVariants(variants.map(v => v.id === editVariantId ? res.data : v))
       } else {
-        const res = await adminClient.post('/admin/variants/', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+        const res = await adminClient.post('/admin/variants/', fd)
         setVariants([...variants, res.data])
       }
       cancelEditVariant()
       load()
     } catch (err) {
-      alert('Erreur: ' + JSON.stringify(err.response?.data || err.message))
+      const errMsg = err.response?.data
+        ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data))
+        : err.message
+      alert('Erreur: ' + errMsg)
     } finally { setSaving(false) }
   }
 
@@ -274,7 +279,7 @@ export default function AdminProducts() {
       if (galleryImageFile) fd.append('image', galleryImageFile)
       if (galleryVideoFile) fd.append('video', galleryVideoFile)
       
-      const res = await adminClient.post('/admin/images/', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      const res = await adminClient.post('/admin/images/', fd)
       setGallery([...gallery, res.data])
       
       setGalleryImageFile(null)
@@ -283,7 +288,10 @@ export default function AdminProducts() {
       if (galleryVideoRef.current) galleryVideoRef.current.value = ''
       load()
     } catch (err) {
-      alert('Erreur: ' + JSON.stringify(err.response?.data || err.message))
+      const errMsg = err.response?.data
+        ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data))
+        : err.message
+      alert('Erreur: ' + errMsg)
     } finally { setSaving(false) }
   }
 

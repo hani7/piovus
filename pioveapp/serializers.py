@@ -379,11 +379,31 @@ class OrderCreateSerializer(serializers.Serializer):
     items = OrderItemCreateSerializer(many=True)
 
 
+class SafeAbsoluteImageField(serializers.ImageField):
+    """
+    ImageField sécurisé qui utilise settings.API_URL au lieu de
+    request.build_absolute_uri() pour éviter les erreurs de reverse proxy / DisallowedHost.
+    """
+    def to_representation(self, value):
+        if not value:
+            return None
+        try:
+            url = value.url
+        except AttributeError:
+            return None
+        if url.startswith('http://') or url.startswith('https://'):
+            return url
+        api_base = getattr(settings, 'API_URL', 'https://api.piovecosmetics.dz').rstrip('/')
+        if api_base:
+            return f"{api_base}{url if url.startswith('/') else '/' + url}"
+        return url
+
+
 # ─── Admin Serializers ────────────────────────────────────────────────────────
 
 class AdminCategorySerializer(AbsoluteImageMixin, serializers.ModelSerializer):
     product_count = serializers.SerializerMethodField()
-    image = serializers.ImageField(required=False, allow_null=True)
+    image = SafeAbsoluteImageField(required=False, allow_null=True)
 
     class Meta:
         model = Category
@@ -391,11 +411,28 @@ class AdminCategorySerializer(AbsoluteImageMixin, serializers.ModelSerializer):
         read_only_fields = ['slug']
 
     def get_product_count(self, obj):
-        return obj.multi_products.count()
+        try:
+            return obj.multi_products.count()
+        except Exception:
+            return 0
 
     def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep['image'] = self._abs(instance.image.url if instance.image else None)
+        try:
+            rep = super().to_representation(instance)
+        except Exception:
+            rep = {
+                'id': instance.id,
+                'name': instance.name,
+                'slug': instance.slug,
+                'order': instance.order,
+                'is_active': instance.is_active,
+                'product_count': self.get_product_count(instance),
+            }
+        try:
+            image_url = instance.image.url if instance.image else None
+        except Exception:
+            image_url = None
+        rep['image'] = self._abs(image_url)
         return rep
 
     def update(self, instance, validated_data):

@@ -77,13 +77,15 @@ export default function AdminBanners() {
       })
       if (imgFile) fd.append('image', imgFile)
       
-      const cfg = { headers: { 'Content-Type': 'multipart/form-data' } }
-      if (modal === 'add') await adminClient.post('/admin/banners/', fd, cfg)
-      else await adminClient.patch(`/admin/banners/${editId}/`, fd, cfg)
+      if (modal === 'add') await adminClient.post('/admin/banners/', fd)
+      else await adminClient.patch(`/admin/banners/${editId}/`, fd)
       
       setModal(null); load()
     } catch (err) {
-      alert('Erreur: ' + JSON.stringify(err.response?.data || err.message))
+      const errMsg = err.response?.data
+        ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data))
+        : err.message
+      alert('Erreur: ' + errMsg)
     } finally { setSaving(false) }
   }
 

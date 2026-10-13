@@ -82,6 +82,8 @@ X_FRAME_OPTIONS = 'DENY'
 if not DEBUG:
     SECURE_SSL_REDIRECT = False  # cPanel handles SSL at proxy level
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_X_FORWARDED_HOST = True
+    USE_X_FORWARDED_PORT = True
     
     # Secure Cookies
     SESSION_COOKIE_SECURE = True

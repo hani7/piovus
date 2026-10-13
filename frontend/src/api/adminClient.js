@@ -5,11 +5,18 @@ const adminClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Attach JWT token on every request
 adminClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('admin_access_token')
   if (token && token !== 'null' && token !== 'undefined') {
     config.headers.Authorization = `Bearer ${token}`
+  }
+  if (config.data instanceof FormData && config.headers) {
+    delete config.headers['Content-Type']
+    delete config.headers['content-type']
+    if (typeof config.headers.delete === 'function') {
+      config.headers.delete('Content-Type')
+      config.headers.delete('content-type')
+    }
   }
   return config
 })

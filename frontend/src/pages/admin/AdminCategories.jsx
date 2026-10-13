@@ -44,15 +44,22 @@ export default function AdminCategories() {
     e.preventDefault()
     setSaving(true)
     try {
-      const fd = new FormData()
-      Object.entries(form).forEach(([k, v]) => fd.append(k, v))
-      if (imgFile) fd.append('image', imgFile)
-      const cfg = { headers: { 'Content-Type': 'multipart/form-data' } }
-      if (modal === 'add') await adminClient.post('/admin/categories/', fd, cfg)
-      else await adminClient.patch(`/admin/categories/${editId}/`, fd, cfg)
+      if (imgFile) {
+        const fd = new FormData()
+        Object.entries(form).forEach(([k, v]) => fd.append(k, v))
+        fd.append('image', imgFile)
+        if (modal === 'add') await adminClient.post('/admin/categories/', fd)
+        else await adminClient.patch(`/admin/categories/${editId}/`, fd)
+      } else {
+        if (modal === 'add') await adminClient.post('/admin/categories/', form)
+        else await adminClient.patch(`/admin/categories/${editId}/`, form)
+      }
       setModal(null); load()
     } catch (err) {
-      alert('Erreur: ' + JSON.stringify(err.response?.data || err.message))
+      const errMsg = err.response?.data
+        ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data))
+        : err.message
+      alert('Erreur: ' + errMsg)
     } finally { setSaving(false) }
   }
 

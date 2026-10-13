@@ -749,38 +749,47 @@ class OrderViewSet(viewsets.ModelViewSet):
 class ActivityLogMixin:
     def perform_create(self, serializer):
         instance = serializer.save()
-        if hasattr(self.request, 'user') and self.request.user.is_authenticated:
-            model_name = instance.__class__._meta.verbose_name or instance.__class__.__name__
-            from .models import UserActivityLog
-            UserActivityLog.objects.create(
-                user=self.request.user,
-                action=f"Cr├®ation : {model_name} (ID: {instance.pk})",
-                ip_address=self.request.META.get('REMOTE_ADDR'),
-                user_agent=self.request.META.get('HTTP_USER_AGENT')
-            )
+        try:
+            if hasattr(self.request, 'user') and self.request.user.is_authenticated:
+                model_name = instance.__class__._meta.verbose_name or instance.__class__.__name__
+                from .models import UserActivityLog
+                UserActivityLog.objects.create(
+                    user=self.request.user,
+                    action=f"Création : {model_name} (ID: {instance.pk})",
+                    ip_address=self.request.META.get('REMOTE_ADDR'),
+                    user_agent=self.request.META.get('HTTP_USER_AGENT')
+                )
+        except Exception:
+            pass
 
     def perform_update(self, serializer):
         instance = serializer.save()
-        if hasattr(self.request, 'user') and self.request.user.is_authenticated:
-            model_name = instance.__class__._meta.verbose_name or instance.__class__.__name__
-            from .models import UserActivityLog
-            UserActivityLog.objects.create(
-                user=self.request.user,
-                action=f"Modification : {model_name} (ID: {instance.pk})",
-                ip_address=self.request.META.get('REMOTE_ADDR'),
-                user_agent=self.request.META.get('HTTP_USER_AGENT')
-            )
+        try:
+            if hasattr(self.request, 'user') and self.request.user.is_authenticated:
+                model_name = instance.__class__._meta.verbose_name or instance.__class__.__name__
+                from .models import UserActivityLog
+                UserActivityLog.objects.create(
+                    user=self.request.user,
+                    action=f"Modification : {model_name} (ID: {instance.pk})",
+                    ip_address=self.request.META.get('REMOTE_ADDR'),
+                    user_agent=self.request.META.get('HTTP_USER_AGENT')
+                )
+        except Exception:
+            pass
 
     def perform_destroy(self, instance):
-        if hasattr(self.request, 'user') and self.request.user.is_authenticated:
-            model_name = instance.__class__._meta.verbose_name or instance.__class__.__name__
-            from .models import UserActivityLog
-            UserActivityLog.objects.create(
-                user=self.request.user,
-                action=f"Suppression : {model_name} (ID: {instance.pk})",
-                ip_address=self.request.META.get('REMOTE_ADDR'),
-                user_agent=self.request.META.get('HTTP_USER_AGENT')
-            )
+        try:
+            if hasattr(self.request, 'user') and self.request.user.is_authenticated:
+                model_name = instance.__class__._meta.verbose_name or instance.__class__.__name__
+                from .models import UserActivityLog
+                UserActivityLog.objects.create(
+                    user=self.request.user,
+                    action=f"Suppression : {model_name} (ID: {instance.pk})",
+                    ip_address=self.request.META.get('REMOTE_ADDR'),
+                    user_agent=self.request.META.get('HTTP_USER_AGENT')
+                )
+        except Exception:
+            pass
         instance.delete()
 
 class AdminDashboardView(APIView):

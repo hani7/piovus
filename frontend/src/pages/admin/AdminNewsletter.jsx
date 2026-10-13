@@ -41,9 +41,7 @@ export default function AdminNewsletter() {
     try {
       const formData = new FormData();
       formData.append('image', file);
-      const res = await adminClient.post('/admin/newsletter/upload-image/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await adminClient.post('/admin/newsletter/upload-image/', formData);
       const imageUrl = res.data.url;
       const imgTag = `\n<img src="${imageUrl}" style="max-width: 100%; border-radius: 8px; margin: 15px 0;" alt="Image" />\n`;
       setMessage(prev => prev + imgTag);
@@ -70,9 +68,7 @@ export default function AdminNewsletter() {
         formData.append('attachment', attachment)
       }
 
-      const res = await adminClient.post('/admin/newsletter/send/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      const res = await adminClient.post('/admin/newsletter/send/', formData)
       setFeedback({ type: 'success', text: res.data.message })
       setSubject('')
       setMessage('')

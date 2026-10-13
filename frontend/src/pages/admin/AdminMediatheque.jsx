@@ -52,9 +52,7 @@ export default function AdminMediatheque() {
       const fd = new FormData()
       fd.append('file', file)
       try {
-        await adminClient.post('/admin/media/', fd, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
+        await adminClient.post('/admin/media/', fd)
       } catch (err) {
         const msg = err?.response?.data?.error || `Erreur: ${file.name}`
         errors.push(msg)

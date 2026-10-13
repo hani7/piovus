@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
 import { useWishlistStore } from '../store/wishlistStore'
@@ -188,9 +188,11 @@ export default function Navbar() {
 
         {/* Links Navigation */}
         <nav className="navbar__bottom-links" aria-label="Catégories de produits">
-          <Link to="/shop" className="active">NOS PRODUITS</Link>
+          <NavLink to="/shop" end className={({ isActive }) => isActive ? 'active' : undefined}>NOS PRODUITS</NavLink>
           {(categories || []).filter(c => c.slug !== 'offres-speciales').slice(0, 6).map((c) => (
-            <Link key={c.slug} to={`/${c.slug}`}>{c.name.toUpperCase()}</Link>
+            <NavLink key={c.slug} to={`/${c.slug}`} end className={({ isActive }) => isActive ? 'active' : undefined}>
+              {c.name.toUpperCase()}
+            </NavLink>
           ))}
         </nav>
       </header>
@@ -232,4 +234,3 @@ export default function Navbar() {
     </>
   )
 }
-

@@ -24,21 +24,15 @@
   max-width: 250px;
 }
 .footer__logo {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 2rem;
-  letter-spacing: 0.1em;
-  margin: 0 0 10px 0;
-  font-weight: normal;
-  color: #fff;
+  display: inline-block;
+  margin-bottom: 10px;
 }
-.footer__logo-sub {
-  font-family: sans-serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: #999;
+.footer__logo-img {
   display: block;
-  margin-top: 2px;
+  width: 140px;
+  max-width: 100%;
+  height: auto;
+  filter: brightness(0) invert(1);
 }
 .footer__tagline {
   font-size: 0.65rem;

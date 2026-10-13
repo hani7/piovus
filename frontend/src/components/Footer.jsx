@@ -34,7 +34,9 @@ export default function Footer() {
       <div className="footer__container">
         <div className="footer__top">
           <div className="footer__brand-col">
-            <h2 className="footer__logo">PIOVE<br/><span className="footer__logo-sub">COSMETICS</span></h2>
+            <Link to="/" className="footer__logo">
+              <img src="/logo.png" alt="Piové Cosmetics" className="footer__logo-img" />
+            </Link>
             <p className="footer__tagline">BE BOLD. BE PIOVE.</p>
             <div className="footer__socials">
               <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">

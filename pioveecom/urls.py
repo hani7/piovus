@@ -270,14 +270,23 @@ def fix_yassir_view(request):
     except Exception:
         log.append(f'❌ Fix orders FAILED:<br><pre>{traceback.format_exc()}</pre>')
 
-    # Step 3: Restart app via touch passenger_wsgi.py
+    # Step 3: Restart app via touch passenger_wsgi.py & tmp/restart.txt + recycle worker
     try:
+        restart_txt = os.path.join(str(base_dir), 'tmp', 'restart.txt')
+        os.makedirs(os.path.dirname(restart_txt), exist_ok=True)
+        with open(restart_txt, 'w') as f:
+            f.write(str(os.getpid()))
         wsgi_path = os.path.join(str(base_dir), 'passenger_wsgi.py')
         if os.path.exists(wsgi_path):
             os.utime(wsgi_path, None)
-            log.append('✅ App redémarrée (passenger_wsgi.py touched)')
+            log.append('✅ App redémarrée (passenger_wsgi.py & tmp/restart.txt touched)')
         else:
             log.append('⚠️ passenger_wsgi.py introuvable')
+        import threading, time
+        def do_exit():
+            time.sleep(0.5)
+            os._exit(0)
+        threading.Thread(target=do_exit).start()
     except Exception as e:
         log.append(f'⚠️ Restart: {e}')
 

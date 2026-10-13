@@ -5,6 +5,8 @@ import { useWishlistStore } from '../store/wishlistStore'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { LayoutDashboard, Package, MapPin, Settings, LogOut, ChevronRight, Gift, Heart } from 'lucide-react'
 import client from '../api/client'
+import AccountLayout from './AccountLayout'
+import B2BAccountDashboard from '../components/B2BAccountDashboard'
 import './AccountPage.css'
 
 const GOOGLE_CLIENT_ID = "746718168962-ff9ui2vodk8emeioidd6ka5ai1p9qjos.apps.googleusercontent.com"
@@ -15,6 +17,7 @@ export default function AccountPage() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('login')
   const { items: wishlistItems } = useWishlistStore()
+  const isB2B = user?.profile?.is_b2b && !user?.profile?.is_b2b_pending
 
   const [loginForm, setLoginForm] = useState({ username: '', password: '' })
   const [registerForm, setRegisterForm] = useState({
@@ -27,7 +30,7 @@ export default function AccountPage() {
   // KPI stats
   const [kpi, setKpi] = useState({ ordersCount: null, lastOrder: null })
   useEffect(() => {
-    if (user) {
+    if (user && !isB2B) {
       client.get('/orders/').then(res => {
         const orders = Array.isArray(res.data) ? res.data : (res.data.results || [])
         const last = orders[0]
@@ -37,7 +40,15 @@ export default function AccountPage() {
         })
       }).catch(() => {})
     }
-  }, [user])
+  }, [user, isB2B])
+
+  if (isB2B) {
+    return (
+      <AccountLayout>
+        <B2BAccountDashboard user={user} wishlistCount={wishlistItems.length} />
+      </AccountLayout>
+    )
+  }
 
   if (user) {
     const navItems = [
@@ -164,11 +175,21 @@ export default function AccountPage() {
     )
   }
 
+  const redirectAfterLogin = (result) => {
+    if (result.code === 'b2b_pending') {
+      navigate('/compte/en-attente', { replace: true })
+      return
+    }
+    if (!result.success || result.mfa_required) return
+    const profile = useAuthStore.getState().user?.profile
+    const destination = profile?.is_b2b && !profile?.is_b2b_pending ? '/' : '/compte'
+    navigate(destination, { replace: true })
+  }
+
   const handleLogin = async (e) => {
     e.preventDefault()
     const res = await login(loginForm.username, loginForm.password)
-    if (res.code === 'b2b_pending') navigate('/compte/en-attente')
-    if (res.success) navigate('/compte')
+    redirectAfterLogin(res)
   }
 
   const handleRegister = async (e) => {
@@ -205,15 +226,13 @@ export default function AccountPage() {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     const res = await socialLoginAction('google', credentialResponse.credential)
-    if (res.code === 'b2b_pending') navigate('/compte/en-attente')
-    if (res.success) navigate('/compte')
+    redirectAfterLogin(res)
   }
 
   const handleFacebookCallback = async (response) => {
     if (response.accessToken) {
       const res = await socialLoginAction('facebook', response.accessToken)
-      if (res.code === 'b2b_pending') navigate('/compte/en-attente')
-      if (res.success) navigate('/compte')
+      redirectAfterLogin(res)
     }
   }
 

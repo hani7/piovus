@@ -74,7 +74,7 @@ const ProductInfo = memo(function ProductInfo({
             <label className={`b2b-option${packaging === 'boite' ? ' b2b-option--active' : ''}`}>
               <input type="radio" name="packaging" value="boite" checked={packaging === 'boite'} onChange={() => onPackagingChange('boite')} />
               <div className="b2b-option__body">
-                <span className="b2b-option__label">Par boîte (Unité)</span>
+                <span className="b2b-option__label">Par boîte ({product.qty_per_box || 1} unité{(product.qty_per_box || 1) > 1 ? 's' : ''})</span>
                 <div className="b2b-option__price">
                   {product.b2b_promo_price_box ? (
                     <>
@@ -90,7 +90,7 @@ const ProductInfo = memo(function ProductInfo({
             <label className={`b2b-option${packaging === 'carton' ? ' b2b-option--active' : ''}`}>
               <input type="radio" name="packaging" value="carton" checked={packaging === 'carton'} onChange={() => onPackagingChange('carton')} />
               <div className="b2b-option__body">
-                <span className="b2b-option__label">Par carton ({product.units_per_carton || 1} pcs)</span>
+                <span className="b2b-option__label">Par carton ({product.qty_per_carton || 1} boîte{(product.qty_per_carton || 1) > 1 ? 's' : ''})</span>
                 <div className="b2b-option__price">
                   {product.b2b_promo_price_carton ? (
                     <>

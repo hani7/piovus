@@ -42,6 +42,8 @@ from .serializers import (
     DeliveryCompanySerializer, DeliveryRateSerializer, CustomerSerializer, CouponSerializer
 )
 
+B2B_MINIMUM_ORDER_AMOUNT = Decimal('20000')
+
 
 # ÔöÇÔöÇÔöÇ Categories ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 from django.utils.decorators import method_decorator
@@ -529,6 +531,58 @@ class OrderViewSet(viewsets.ModelViewSet):
         coupon_id = data.pop('coupon_id', None)
         discount_amount = data.pop('discount_amount', 0)
 
+        is_b2b_user = bool(
+            request.user and request.user.is_authenticated
+            and hasattr(request.user, 'profile') and request.user.profile.is_b2b
+        )
+        priced_items = []
+        total = 0
+        for item_data in items_data:
+            try:
+                product = Product.objects.get(pk=item_data['product_id'], is_active=True)
+            except Product.DoesNotExist:
+                return Response(
+                    {'error': f"Produit {item_data['product_id']} introuvable."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            variant = None
+            if item_data.get('variant_id'):
+                try:
+                    variant = ProductVariant.objects.get(pk=item_data['variant_id'], product=product)
+                except ProductVariant.DoesNotExist:
+                    pass
+
+            if is_b2b_user:
+                packaging = item_data.get('packaging', 'boite')
+                if packaging == 'carton':
+                    base_price = product.b2b_promo_price_carton or product.b2b_price_carton or product.b2b_price or (product.effective_price * (product.units_per_carton or 1))
+                else:
+                    base_price = product.b2b_promo_price_box or product.b2b_price_box or product.b2b_price or product.effective_price
+            else:
+                base_price = product.effective_price
+
+            if variant and variant.choice_group:
+                num_groups = product.variants.exclude(choice_group='').values('choice_group').distinct().count()
+                if num_groups > 0:
+                    price = float(base_price) / float(num_groups)
+                else:
+                    price = float(base_price)
+            elif not is_b2b_user and variant and variant.price and not (product.is_promo and product.promo_price):
+                price = float(variant.price)
+            else:
+                price = float(base_price)
+
+            qty = item_data['quantity']
+            total += price * qty
+            priced_items.append((product, variant, price, qty))
+
+        if is_b2b_user and total < B2B_MINIMUM_ORDER_AMOUNT:
+            return Response({
+                'error': 'Le montant minimum de commande pour les comptes B2B est de 20 000 DA.',
+                'minimum_order_amount': B2B_MINIMUM_ORDER_AMOUNT,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         # Calculate delivery cost
         delivery_company_id = data.pop('delivery_company_id', None)
         delivery_cost = 0
@@ -552,9 +606,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             phone = request.user.profile.phone if hasattr(request.user, 'profile') else phone
             
         customer_obj = None
-        is_b2b_user = bool(
-            request.user and request.user.is_authenticated and hasattr(request.user, 'profile') and request.user.profile.is_b2b
-        )
         if phone:
             customer_name = data.get('guest_name', '')
             if request.user and request.user.is_authenticated:
@@ -595,48 +646,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 pass
 
         # Create items
-        total = 0
-        for item_data in items_data:
-            from .models import Product as ProductModel, ProductVariant
-            try:
-                product = ProductModel.objects.get(pk=item_data['product_id'], is_active=True)
-            except ProductModel.DoesNotExist:
-                order.delete()
-                return Response({'error': f"Produit {item_data['product_id']} introuvable."}, status=status.HTTP_400_BAD_REQUEST)
-
-            variant = None
-            if item_data.get('variant_id'):
-                try:
-                    variant = ProductVariant.objects.get(pk=item_data['variant_id'], product=product)
-                except ProductVariant.DoesNotExist:
-                    pass
-
-            is_b2b = request.user.is_authenticated and hasattr(request.user, 'profile') and request.user.profile.is_b2b
-            if is_b2b:
-                packaging = item_data.get('packaging', 'boite')
-                if packaging == 'carton':
-                    base_price = product.b2b_promo_price_carton or product.b2b_price_carton or product.b2b_price or (product.effective_price * (product.units_per_carton or 1))
-                else:
-                    base_price = product.b2b_promo_price_box or product.b2b_price_box or product.b2b_price or product.effective_price
-            else:
-                base_price = product.effective_price
-                
-            # Calcul du prix final selon s'il s'agit d'une collection ou d'une variante spécifique
-            if variant and variant.choice_group:
-                # C'est un élément d'une collection : on divise le prix global par le nombre de groupes
-                num_groups = product.variants.exclude(choice_group='').values('choice_group').distinct().count()
-                if num_groups > 0:
-                    price = float(base_price) / float(num_groups)
-                else:
-                    price = float(base_price)
-            elif not is_b2b and variant and variant.price and not (product.is_promo and product.promo_price):
-                # Variante avec un prix spécifique (et pas de promo globale sur le produit)
-                price = float(variant.price)
-            else:
-                price = float(base_price)
-
-            qty = item_data['quantity']
-
+        for product, variant, price, qty in priced_items:
             OrderItem.objects.create(
                 order=order,
                 product=product,
@@ -646,8 +656,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                 quantity=qty,
                 price_at_purchase=price,
             )
-            total += price * qty
-
         # Statut initial selon le mode de paiement
         # Cash      → 'en_cours'  (En cours de traitement, paiement à la livraison)
         # CIB/SATIM → 'pending'   (En attente de confirmation bancaire)

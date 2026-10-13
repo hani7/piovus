@@ -1,14 +1,17 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
+import { useAuthStore } from '../store/authStore'
 import './CartDrawer.css'
 
 
 
 export default function CartDrawer({ open, onClose }) {
   const { items, removeItem, updateQuantity } = useCartStore()
+  const { user } = useAuthStore()
   const navigate = useNavigate()
 
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
+  const minOrderAmount = user?.profile?.is_b2b ? 20000 : 1500
 
   const handleCheckout = () => {
     onClose()
@@ -76,14 +79,14 @@ export default function CartDrawer({ open, onClose }) {
               </div>
               <p className="cart-drawer__shipping">+ Frais de livraison calculés à la commande</p>
 
-              {total < 1500 && (
+              {total < minOrderAmount && (
                 <div style={{ padding: '10px', background: 'rgba(255,0,0,0.1)', color: 'var(--admin-danger)', borderRadius: '8px', marginBottom: '10px', fontSize: '0.85rem', textAlign: 'center', fontWeight: 'bold' }}>
-                  Le montant minimum de commande est de 1 500 DA.<br/>
-                  Il vous manque {(1500 - total).toLocaleString('fr-DZ')} DA.
+                  Le montant minimum de commande est de {minOrderAmount.toLocaleString('fr-DZ')} DA.<br/>
+                  Il vous manque {(minOrderAmount - total).toLocaleString('fr-DZ')} DA.
                 </div>
               )}
 
-              <button className="btn btn-accent" style={{width:'100%', marginBottom:'10px'}} onClick={handleCheckout} disabled={total < 1500} id="checkout-btn">
+              <button className="btn btn-accent" style={{width:'100%', marginBottom:'10px'}} onClick={handleCheckout} disabled={total < minOrderAmount} id="checkout-btn">
                 Commander maintenant
               </button>
               <Link to="/cart" onClick={onClose} className="btn btn-outline" style={{width:'100%'}} id="view-cart-btn">

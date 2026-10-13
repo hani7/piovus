@@ -1,4 +1,4 @@
-﻿.category-page { padding-top: var(--navbar-height); }
+.category-page { padding-top: calc(var(--navbar-height) + 24px); }
 
 /* Hero Banner */
 .category-page__hero {
@@ -121,4 +121,3 @@
   color: var(--color-gray-400, #9ca3af);
   line-height: 32px;
 }
-

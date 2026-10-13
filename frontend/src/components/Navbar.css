@@ -20,7 +20,7 @@
 
 .navbar__inner {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   padding: 20px 40px;
 }
@@ -29,14 +29,8 @@
   .navbar__inner {
     padding: 8px 15px;
   }
-  .navbar__logo-img {
-    height: 25px;
-  }
 }
 @media (max-width: 480px) {
-  .navbar__logo-img {
-    height: 20px;
-  }
   .navbar__inner {
     padding: 6px 12px;
   }
@@ -116,6 +110,7 @@
 
 /* Logo */
 .navbar__logo {
+  justify-self: center;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -344,5 +339,34 @@
   width: 100%; padding: 12px; background: #f9f9f9; border: none; font-size: 0.8rem; font-weight: bold; cursor: pointer; color: var(--navbar-accent);
 }
 .search-sug-loading, .search-sug-empty { padding: 15px; font-size: 0.85rem; color: #666; text-align: center; }
+
+@media (max-width: 768px) {
+  .navbar__inner {
+    min-height: 64px;
+  }
+  .navbar__logo-img {
+    height: 40px;
+  }
+  .navbar__left,
+  .navbar__actions {
+    min-width: 0;
+  }
+  .navbar__actions {
+    justify-self: end;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar__logo-img {
+    height: 36px;
+  }
+  .navbar__actions {
+    gap: 2px;
+  }
+  .navbar__icon-btn {
+    padding: 4px;
+  }
+}
 
 

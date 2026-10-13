@@ -134,6 +134,29 @@
 }
 
 @media (max-width: 768px) {
+  .b2b-categories-scroll {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px 8px;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+  .b2b-cat-item {
+    min-width: 0;
+  }
+  .b2b-cat-item--offer {
+    display: none;
+  }
+  .b2b-cat-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 8px;
+  }
+  .b2b-cat-name {
+    font-size: 0.7rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
   .b2b-hero h1 {
     font-size: 1.5rem;
   }

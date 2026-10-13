@@ -1,6 +1,6 @@
 ﻿/* Checkout Page */
 .checkout-page {
-  padding-top: calc(var(--navbar-height) + 24px);
+  padding-top: calc(var(--navbar-height) + 48px);
   padding-bottom: 80px;
   background: var(--color-gray-100);
   min-height: 100vh;

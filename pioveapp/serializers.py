@@ -113,7 +113,7 @@ class ProductListSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug', 'sku', 'categories',
             'price', 'promo_price', 'b2b_price', 'b2b_price_box', 'b2b_price_carton', 'b2b_promo_price_box', 'b2b_promo_price_carton', 'effective_price', 'is_promo',
-            'units_per_carton', 'b2b_min_stock', 'stock', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'thumbnail',
+            'qty_per_box', 'qty_per_carton', 'units_per_carton', 'b2b_min_stock', 'stock', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'thumbnail',
             'weight_box', 'weight_carton', 'contenance', 'contenance_unit', 'short_description',
             'avg_rating', 'created_at',
         ]
@@ -333,6 +333,7 @@ class OrderItemCreateSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
     variant_id = serializers.IntegerField(required=False, allow_null=True)
     quantity = serializers.IntegerField(min_value=1, default=1)
+    packaging = serializers.ChoiceField(choices=['boite', 'carton'], default='boite')
 
 
 class OrderStatusHistorySerializer(serializers.ModelSerializer):

@@ -96,9 +96,6 @@ const ProductCard = memo(function ProductCard({ product }) {
               <span className="product-card__price" style={{ color: 'var(--admin-gold)' }}>
                 {b2bPrice.toLocaleString('fr-DZ')} DA
               </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginTop: 2 }}>
-                Le carton ({product.units_per_carton || 1} pcs)
-              </span>
             </div>
           ) : isPromo ? (
             <>

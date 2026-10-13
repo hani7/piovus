@@ -132,9 +132,15 @@ class ProductTests(TestCase):
             self.assertLessEqual(float(p['price']), 2000)
 
     def test_product_detail_by_slug(self):
+        self.p1.qty_per_box = 10
+        self.p1.qty_per_carton = 20
+        self.p1.save(update_fields=['qty_per_box', 'qty_per_carton'])
+
         r = self.client.get(f'/api/products/{self.p1.slug}/')
         self.assertEqual(r.status_code, status.HTTP_200_OK)
         self.assertEqual(r.data['name'], 'Crème A')
+        self.assertEqual(r.data['qty_per_box'], 10)
+        self.assertEqual(r.data['qty_per_carton'], 20)
 
 
 # ---------------------------------------------------------------------------
@@ -166,6 +172,38 @@ class OrderTests(TestCase):
         r = self.client.post('/api/orders/', self._order_payload(self.product.id), format='json')
         self.assertEqual(r.status_code, status.HTTP_201_CREATED)
         self.assertEqual(r.data['status'], 'pending')
+
+    def test_b2b_order_below_minimum_is_rejected(self):
+        self.user.profile.is_b2b = True
+        self.user.profile.save(update_fields=['is_b2b'])
+
+        r = self.client.post('/api/orders/', self._order_payload(self.product.id), format='json')
+
+        self.assertEqual(r.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(r.data['minimum_order_amount'], Decimal('20000'))
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_b2b_order_at_minimum_is_accepted(self):
+        self.user.profile.is_b2b = True
+        self.user.profile.save(update_fields=['is_b2b'])
+
+        r = self.client.post('/api/orders/', self._order_payload(self.product.id, qty=10), format='json')
+
+        self.assertEqual(r.status_code, status.HTTP_201_CREATED, r.data)
+        self.assertEqual(Decimal(str(r.data['total'])), Decimal('20000'))
+
+    def test_b2b_carton_price_counts_toward_minimum(self):
+        self.user.profile.is_b2b = True
+        self.user.profile.save(update_fields=['is_b2b'])
+        self.product.b2b_price_carton = Decimal('20000')
+        self.product.save(update_fields=['b2b_price_carton'])
+        payload = self._order_payload(self.product.id)
+        payload['items'][0]['packaging'] = 'carton'
+
+        r = self.client.post('/api/orders/', payload, format='json')
+
+        self.assertEqual(r.status_code, status.HTTP_201_CREATED, r.data)
+        self.assertEqual(Decimal(str(r.data['total'])), Decimal('20000'))
 
     def test_order_list_only_own_orders(self):
         self.client.post('/api/orders/', self._order_payload(self.product.id), format='json')

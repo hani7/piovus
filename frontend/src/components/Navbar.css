@@ -125,7 +125,7 @@
     width: 100%;
     margin-top: 0;
   }
-  .navbar__hide-mobile {
+  .navbar__actions .navbar__hide-mobile {
     display: none;
   }
   .navbar__mobile-search-btn {

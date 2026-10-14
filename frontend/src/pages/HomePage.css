@@ -401,14 +401,7 @@
     flex: 0 0 calc(55.556% - 0.75rem);
   }
   .new-arrivals-carousel .product-carousel-btn {
-    display: flex;
-    width: 40px;
-    height: 60px;
-    border-width: 3px;
-  }
-  .new-arrivals-carousel .product-carousel-btn svg {
-    width: 30px !important;
-    height: 30px !important;
+    display: none;
   }
   .collections-section {
     padding: 40px 20px;

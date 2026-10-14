@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import ProductCard from './ProductCard'
 import './ProductCarousel.css'
 
-export default function ProductCarousel({ title, products, isLoading, className = "" }) {
+export default function ProductCarousel({ title, products, isLoading, className = "", autoPlay = false }) {
   const scrollRef = useRef(null)
   const [activeDot, setActiveDot] = useState(0)
   const [dotsCount, setDotsCount] = useState(1)
@@ -47,6 +47,27 @@ export default function ProductCarousel({ title, products, isLoading, className 
       scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
     }
   }
+
+  useEffect(() => {
+    if (!autoPlay || !products?.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const intervalId = window.setInterval(() => {
+      const track = scrollRef.current
+      if (!track) return
+
+      const isAtEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2
+      if (isAtEnd) {
+        track.scrollTo({ left: 0, behavior: 'smooth' })
+        return
+      }
+
+      const item = track.querySelector('.carousel-item')
+      const gap = parseFloat(window.getComputedStyle(track).columnGap) || 0
+      track.scrollBy({ left: (item?.getBoundingClientRect().width || track.clientWidth) + gap, behavior: 'smooth' })
+    }, 4000)
+
+    return () => window.clearInterval(intervalId)
+  }, [autoPlay, products])
 
   if (isLoading) {
     return (

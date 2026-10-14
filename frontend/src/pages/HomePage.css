@@ -126,6 +126,9 @@
 }
 
 /* New arrivals carousel */
+.new-arrivals-carousel {
+  margin-top: 48px;
+}
 .new-arrivals-carousel .carousel-header {
   background: transparent;
   color: var(--color-black);
@@ -137,7 +140,23 @@
   letter-spacing: 0.05em;
 }
 .new-arrivals-carousel .product-carousel-btn {
-  display: none;
+  position: relative;
+  z-index: 1;
+  width: 66px;
+  height: 88px;
+  justify-content: center;
+  border: 4px solid #f00;
+  background: #fff;
+  opacity: 1;
+}
+.new-arrivals-carousel .product-carousel-btn:hover {
+  transform: none;
+}
+.new-arrivals-carousel .product-carousel-btn svg {
+  width: 44px !important;
+  height: 44px !important;
+  stroke: #111;
+  stroke-width: 2.5;
 }
 .new-arrivals-carousel .carousel-item {
   flex: 0 0 calc(20.833% - 1.5rem);
@@ -333,6 +352,9 @@
 }
 
 @media (max-width: 900px) {
+  .homepage {
+    padding-top: 90px;
+  }
   .hero__title {
     font-size: 3rem;
   }
@@ -363,6 +385,9 @@
 }
 
 @media (max-width: 600px) {
+  .new-arrivals-carousel {
+    margin-top: 32px;
+  }
   .new-arrivals-carousel .carousel-header {
     margin-bottom: 1rem;
   }
@@ -374,6 +399,16 @@
   }
   .new-arrivals-carousel .carousel-item {
     flex: 0 0 calc(55.556% - 0.75rem);
+  }
+  .new-arrivals-carousel .product-carousel-btn {
+    display: flex;
+    width: 40px;
+    height: 60px;
+    border-width: 3px;
+  }
+  .new-arrivals-carousel .product-carousel-btn svg {
+    width: 30px !important;
+    height: 30px !important;
   }
   .collections-section {
     padding: 40px 20px;
@@ -397,7 +432,7 @@
 
 @media (max-width: 768px) {
   .homepage {
-    padding-top: 100px;
+    padding-top: 64px;
   }
   .collections-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -405,7 +440,5 @@
 }
 
 @media (max-width: 480px) {
-  .homepage {
-    padding-top: 90px;
-  }
+  .homepage { padding-top: 64px; }
 }

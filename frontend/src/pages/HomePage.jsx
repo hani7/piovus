@@ -118,6 +118,7 @@ export default function HomePage() {
         products={newArrivals}
         isLoading={newArrivalsLoading}
         className="new-arrivals-carousel"
+        autoPlay
       />
 
       {/* Collections Section */}

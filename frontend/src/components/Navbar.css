@@ -106,6 +106,31 @@
   .navbar__search-wrapper {
     display: none;
   }
+  .navbar__search-wrapper--mobile-open {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    width: 100%;
+    padding: 12px 16px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  .navbar__search-wrapper--mobile-open .navbar__search-form {
+    width: 100%;
+    padding: 8px 0;
+  }
+  .navbar__search-wrapper--mobile-open .search-suggestions {
+    width: 100%;
+    margin-top: 0;
+  }
+  .navbar__hide-mobile {
+    display: none;
+  }
+  .navbar__mobile-search-btn {
+    display: flex !important;
+  }
 }
 
 /* Logo */
@@ -141,6 +166,9 @@
   cursor: pointer;
   padding: 5px;
   transition: color 0.2s;
+}
+.navbar__mobile-search-btn {
+  display: none;
 }
 .navbar__icon-btn:hover {
   color: var(--navbar-accent);
@@ -257,6 +285,7 @@
   font-family: var(--font-sans);
   font-size: 1.5rem;
   letter-spacing: 0.1em;
+  color: #000;
   margin: 0;
 }
 .sidebar__close {
@@ -368,4 +397,3 @@
     padding: 4px;
   }
 }
-

@@ -10,6 +10,7 @@ import './Navbar.css'
 export default function Navbar() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [query, setQuery] = useState('')
   const [suggestions, setSuggestions] = useState([])
@@ -21,6 +22,10 @@ export default function Navbar() {
   const cartCount = useCartStore((s) => s.items.reduce((n, i) => n + i.quantity, 0))
   const { user, logout } = useAuthStore()
   const wishlistCount = useWishlistStore(s => s.items.length)
+
+  useEffect(() => {
+    if (mobileSearchOpen) searchRef.current?.focus()
+  }, [mobileSearchOpen])
 
   useEffect(() => {
     getCategories().then((r) => setCategories(r.data.results || r.data))
@@ -59,6 +64,7 @@ export default function Navbar() {
       navigate(`/shop?search=${encodeURIComponent(query.trim())}`)
       setQuery('')
       setSuggestions([])
+      setMobileSearchOpen(false)
     }
   }
 
@@ -66,6 +72,7 @@ export default function Navbar() {
     navigate(`/produit/${slug}`)
     setQuery('')
     setSuggestions([])
+    setMobileSearchOpen(false)
   }
 
   const closeSidebar = () => setSidebarOpen(false)
@@ -84,7 +91,7 @@ export default function Navbar() {
             >
               <span /><span /><span />
             </button>
-            <div className="navbar__search-wrapper" ref={searchWrapRef}>
+            <div className={`navbar__search-wrapper${mobileSearchOpen ? ' navbar__search-wrapper--mobile-open' : ''}`} ref={searchWrapRef}>
               <form onSubmit={handleSearch} className="navbar__search-form">
                 <button type="submit" aria-label="Rechercher" className="navbar__search-icon">
                   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -171,6 +178,24 @@ export default function Navbar() {
               </svg>
               {wishlistCount > 0 && <span className="navbar__wishlist-count">{wishlistCount}</span>}
             </Link>
+            <button
+              type="button"
+              className="navbar__icon-btn navbar__mobile-search-btn"
+              onClick={() => setMobileSearchOpen(open => !open)}
+              aria-label={mobileSearchOpen ? 'Fermer la recherche' : 'Ouvrir la recherche'}
+              aria-expanded={mobileSearchOpen}
+              id="mobile-search-btn"
+            >
+              {mobileSearchOpen ? (
+                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 6 12 12M18 6 6 18" />
+                </svg>
+              ) : (
+                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+              )}
+            </button>
             <button
               className="navbar__icon-btn navbar__cart-btn"
               onClick={() => setCartOpen(true)}

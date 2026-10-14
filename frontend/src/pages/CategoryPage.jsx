@@ -67,7 +67,7 @@ export default function CategoryPage() {
       )}
 
       <div className="container" style={{padding: '40px var(--gutter) 80px', position: 'relative'}}>
-        <h1 style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '2.5rem', marginBottom: '30px', textTransform: 'uppercase', color: '#000' }}>
+        <h1 style={{ fontFamily: 'var(--font-sans)', fontSize: '2.5rem', marginBottom: '30px', textTransform: 'uppercase', color: '#000' }}>
           {category?.name || slug}
         </h1>
 

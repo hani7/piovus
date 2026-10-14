@@ -254,7 +254,7 @@
   border-bottom: 1px solid #eee;
 }
 .sidebar__logo {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-sans);
   font-size: 1.5rem;
   letter-spacing: 0.1em;
   margin: 0;
@@ -368,5 +368,4 @@
     padding: 4px;
   }
 }
-
 

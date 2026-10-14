@@ -42,17 +42,24 @@ export default function AdminCategories() {
 
   const handleSave = async (e) => {
     e.preventDefault()
+    const name = e.currentTarget.elements.namedItem('name')?.value.trim()
+    if (!name) {
+      alert('Veuillez saisir le nom de la catégorie.')
+      return
+    }
+
+    const payload = { ...form, name }
     setSaving(true)
     try {
       if (imgFile) {
         const fd = new FormData()
-        Object.entries(form).forEach(([k, v]) => fd.append(k, v))
+        Object.entries(payload).forEach(([k, v]) => fd.append(k, v))
         fd.append('image', imgFile)
         if (modal === 'add') await adminClient.post('/admin/categories/', fd)
         else await adminClient.patch(`/admin/categories/${editId}/`, fd)
       } else {
-        if (modal === 'add') await adminClient.post('/admin/categories/', form)
-        else await adminClient.patch(`/admin/categories/${editId}/`, form)
+        if (modal === 'add') await adminClient.post('/admin/categories/', payload)
+        else await adminClient.patch(`/admin/categories/${editId}/`, payload)
       }
       setModal(null); load()
     } catch (err) {
@@ -150,7 +157,7 @@ export default function AdminCategories() {
                 </div>
                 <div className="form-group">
                   <label>Nom *</label>
-                  <input className="form-control" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nom de la catégorie" />
+                  <input className="form-control" name="name" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nom de la catégorie" />
                 </div>
                 <div className="form-group">
                   <label>Ordre d'affichage</label>

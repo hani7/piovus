@@ -29,7 +29,7 @@
 }
 
 .curated-sidebar li {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-sans);
   font-size: 1.5rem;
   letter-spacing: 0.1em;
   color: #888;
@@ -72,7 +72,7 @@
 }
 
 .curated-title {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-sans);
   font-size: 2.5rem;
   color: #000;
   margin: 0 0 10px 0;
@@ -129,7 +129,7 @@
   background: transparent;
   border: none;
   padding: 15px 20px;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-sans);
   font-size: 1rem;
   color: #888;
   cursor: pointer;

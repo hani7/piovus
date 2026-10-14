@@ -11,7 +11,8 @@ export default function CartDrawer({ open, onClose }) {
   const navigate = useNavigate()
 
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
-  const minOrderAmount = user?.profile?.is_b2b ? 20000 : 1500
+  const isB2B = Boolean(user?.profile?.is_b2b)
+  const minOrderAmount = isB2B ? 20000 : 1500
 
   const handleCheckout = () => {
     onClose()
@@ -77,7 +78,9 @@ export default function CartDrawer({ open, onClose }) {
                 <span>Sous-total</span>
                 <span className="cart-drawer__total-price">{total.toLocaleString('fr-DZ')} DA</span>
               </div>
-              <p className="cart-drawer__shipping">+ Frais de livraison calculés à la commande</p>
+              {!isB2B && (
+                <p className="cart-drawer__shipping">+ Frais de livraison calculés à la commande</p>
+              )}
 
               {total < minOrderAmount && (
                 <div style={{ padding: '10px', background: 'rgba(255,0,0,0.1)', color: 'var(--admin-danger)', borderRadius: '8px', marginBottom: '10px', fontSize: '0.85rem', textAlign: 'center', fontWeight: 'bold' }}>

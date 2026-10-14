@@ -314,6 +314,7 @@
   flex: 1;
   padding: 14px;
   font-size: 0.85rem;
+  border-radius: 0;
 }
 .product-info__add-btn.added {
   background: #4caf50;

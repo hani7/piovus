@@ -24,7 +24,7 @@ export default function HorizontalBanner() {
       <div style={{position: 'relative', zIndex: 2, height: '100%', minHeight: '350px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '40px 10%'}}>
         <div style={{maxWidth: '450px', color: '#fff'}}>
           {horizontalBanner.subtitle && <p style={{fontSize: '0.8rem', letterSpacing: '0.2em', marginBottom: '10px', textTransform: 'uppercase'}}>{horizontalBanner.subtitle}</p>}
-          {horizontalBanner.title && <h2 style={{fontFamily: '"Times New Roman", Times, serif', fontSize: '3.5rem', marginBottom: '20px', lineHeight: '1.1'}}>{horizontalBanner.title}</h2>}
+          {horizontalBanner.title && <h2 style={{fontFamily: 'var(--font-sans)', fontSize: '3.5rem', marginBottom: '20px', lineHeight: '1.1'}}>{horizontalBanner.title}</h2>}
           {horizontalBanner.cta_label && (
             <Link to={horizontalBanner.cta_url || '/shop'} style={{display: 'inline-block', background: '#fff', color: '#000', padding: '12px 24px', fontSize: '0.8rem', fontWeight: 'bold', textDecoration: 'none', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '10px'}}>{horizontalBanner.cta_label} &rarr;</Link>
           )}

@@ -64,7 +64,7 @@
 }
 
 .hero__title {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-sans);
   font-size: 4rem;
   line-height: 1.1;
   font-weight: normal;
@@ -125,6 +125,24 @@
   background: #fff;
 }
 
+/* New arrivals carousel */
+.new-arrivals-carousel .carousel-header {
+  background: transparent;
+  color: var(--color-black);
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+.new-arrivals-carousel .carousel-title {
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+}
+.new-arrivals-carousel .product-carousel-btn {
+  display: none;
+}
+.new-arrivals-carousel .carousel-item {
+  flex: 0 0 calc(20.833% - 1.5rem);
+}
+
 /* Collections Section */
 .collections-section {
   padding: 80px 40px;
@@ -143,7 +161,7 @@
   text-transform: uppercase;
 }
 .collections-title {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-sans);
   font-size: 2.5rem;
   font-weight: normal;
   color: #000;
@@ -192,7 +210,7 @@
 }
 
 .collection-info h3 {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-sans);
   font-size: 1.1rem;
   margin: 0 0 5px 0;
   color: #000;
@@ -263,7 +281,7 @@
 }
 
 .philosophy-title {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--font-sans);
   font-size: 3rem;
   line-height: 1.1;
   font-weight: normal;
@@ -345,6 +363,18 @@
 }
 
 @media (max-width: 600px) {
+  .new-arrivals-carousel .carousel-header {
+    margin-bottom: 1rem;
+  }
+  .new-arrivals-carousel .carousel-title {
+    font-size: 1.5rem;
+  }
+  .new-arrivals-carousel .carousel-track {
+    gap: 0.75rem;
+  }
+  .new-arrivals-carousel .carousel-item {
+    flex: 0 0 calc(55.556% - 0.75rem);
+  }
   .collections-section {
     padding: 40px 20px;
   }
@@ -379,4 +409,3 @@
     padding-top: 90px;
   }
 }
-

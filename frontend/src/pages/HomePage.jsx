@@ -1,18 +1,25 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { getFeaturedProducts, getNewArrivals, getCategories, getBanners, getPromotions } from '../api/products'
+import { getNewArrivals, getCategories, getBanners } from '../api/products'
 import mediaUrl from '../api/mediaUrl'
 import ProductCarousel from '../components/ProductCarousel'
-import ProductCard from '../components/ProductCard'
-import CategoryCarouselSection from '../components/CategoryCarouselSection'
 import CuratedSection from '../components/CuratedSection'
 import './HomePage.css'
 
 export default function HomePage() {
   const [categories, setCategories] = useState([])
   const [heroBanners, setHeroBanners] = useState([])
+  const [newArrivals, setNewArrivals] = useState([])
+  const [newArrivalsLoading, setNewArrivalsLoading] = useState(true)
   const [slide, setSlide] = useState(0)
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getNewArrivals()
+      .then(res => setNewArrivals(res.data.results || res.data))
+      .catch(error => console.error('Failed to load new arrivals:', error))
+      .finally(() => setNewArrivalsLoading(false))
+  }, [])
 
   useEffect(() => {
     Promise.all([
@@ -105,6 +112,13 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      <ProductCarousel
+        title="Nouveautés"
+        products={newArrivals}
+        isLoading={newArrivalsLoading}
+        className="new-arrivals-carousel"
+      />
 
       {/* Collections Section */}
       <section className="collections-section">

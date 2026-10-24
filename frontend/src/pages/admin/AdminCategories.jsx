@@ -55,8 +55,12 @@ export default function AdminCategories() {
         const fd = new FormData()
         Object.entries(payload).forEach(([k, v]) => fd.append(k, v))
         fd.append('image', imgFile)
-        if (modal === 'add') await adminClient.post('/admin/categories/', fd)
-        else await adminClient.patch(`/admin/categories/${editId}/`, fd)
+        if (modal === 'add') {
+          await adminClient.post('/admin/categories/', fd)
+        } else {
+          // PUT is more reliable than multipart PATCH on cPanel/proxy setups.
+          await adminClient.put(`/admin/categories/${editId}/`, fd)
+        }
       } else {
         if (modal === 'add') await adminClient.post('/admin/categories/', payload)
         else await adminClient.patch(`/admin/categories/${editId}/`, payload)

@@ -5,9 +5,8 @@ import ProductCarousel from './ProductCarousel'
 import './CuratedSection.css'
 
 export default function CuratedSection() {
-  const [activeTab, setActiveTab] = useState('bestseller')
+  const [activeTab, setActiveTab] = useState('new')
   const [products, setProducts] = useState({
-    bestseller: [],
     new: [],
     promo: [],
     special: []
@@ -16,7 +15,6 @@ export default function CuratedSection() {
   const [tabBackgrounds, setTabBackgrounds] = useState({})
 
   const tabs = [
-    { id: 'bestseller', label: 'BEST SELLER', subtitle: 'LES INCONTOURNABLES', query: { is_bestseller: true, page_size: 10 }, link: '/shop?bestseller=true' },
     { id: 'new', label: 'NOUVEAUTÉS', subtitle: 'LES DERNIÈRES NOUVEAUTÉS', query: { is_new: true, page_size: 10 }, link: '/shop?new=true' },
     { id: 'promo', label: 'PROMO', subtitle: 'OFFRES LIMITÉES', query: { is_promotion: true, page_size: 10 }, link: '/shop?promo=true' },
     { id: 'special', label: 'OFFRE SPÉCIALE', subtitle: 'BONS PLANS', query: { categories__slug: 'offres-speciales', page_size: 10 }, link: '/offres-speciales' }

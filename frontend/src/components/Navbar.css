@@ -248,7 +248,7 @@
 
 /* Bottom Links */
 .navbar__bottom-links {
-  display: flex;
+  display: none !important;
   justify-content: center;
   gap: 40px;
   padding-bottom: 20px;
@@ -303,6 +303,13 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+  }
+  .navbar__actions {
+    position: absolute;
+    top: 50%;
+    right: 40px;
+    transform: translateY(-50%);
+    z-index: 2;
   }
   .navbar > .navbar__bottom-links {
     display: none !important;

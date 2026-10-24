@@ -10,7 +10,7 @@
 }
 
 .curated-sidebar {
-  width: 40%;
+  width: 30%;
   box-sizing: border-box;
   aspect-ratio: 1 / 1;
   height: auto;
@@ -88,7 +88,7 @@
 }
 
 .curated-content {
-  width: 60%;
+  width: 70%;
   box-sizing: border-box;
   padding: 60px 40px;
 }

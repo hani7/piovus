@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { getNewArrivals, getCategories, getBanners } from '../api/products'
+import { getProducts, getCategories, getBanners } from '../api/products'
 import mediaUrl from '../api/mediaUrl'
 import ProductCarousel from '../components/ProductCarousel'
 import CuratedSection from '../components/CuratedSection'
@@ -9,16 +9,16 @@ import './HomePage.css'
 export default function HomePage() {
   const [categories, setCategories] = useState([])
   const [heroBanners, setHeroBanners] = useState([])
-  const [newArrivals, setNewArrivals] = useState([])
-  const [newArrivalsLoading, setNewArrivalsLoading] = useState(true)
+  const [bestSellers, setBestSellers] = useState([])
+  const [bestSellersLoading, setBestSellersLoading] = useState(true)
   const [slide, setSlide] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getNewArrivals()
-      .then(res => setNewArrivals(res.data.results || res.data))
-      .catch(error => console.error('Failed to load new arrivals:', error))
-      .finally(() => setNewArrivalsLoading(false))
+    getProducts({ is_bestseller: true, page_size: 10 })
+      .then(res => setBestSellers(res.data.results || res.data))
+      .catch(error => console.error('Failed to load best sellers:', error))
+      .finally(() => setBestSellersLoading(false))
   }, [])
 
   useEffect(() => {
@@ -114,10 +114,10 @@ export default function HomePage() {
       )}
 
       <ProductCarousel
-        title="Nouveautés"
-        products={newArrivals}
-        isLoading={newArrivalsLoading}
-        className="new-arrivals-carousel"
+        title="BEST SELLER"
+        products={bestSellers}
+        isLoading={bestSellersLoading}
+        className="new-arrivals-carousel best-sellers-carousel"
         autoPlay
       />
 

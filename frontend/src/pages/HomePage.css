@@ -163,10 +163,13 @@
 .new-arrivals-carousel .carousel-item {
   flex: 0 0 calc(20.833% - 1.5rem);
 }
+.new-arrivals-carousel {
+  margin-bottom: 0;
+}
 
 /* Collections Section */
 .collections-section {
-  padding: 80px 40px;
+  padding: 0 40px 80px;
   background: #fdfdfd;
   text-align: center;
 }
@@ -406,7 +409,7 @@
     display: none;
   }
   .collections-section {
-    padding: 40px 20px;
+    padding: 0 20px 40px;
   }
   .collections-title {
     font-size: 1.8rem;

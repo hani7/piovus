@@ -1,7 +1,7 @@
 ﻿.product-card {
   position: relative;
   background: var(--color-white);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
   display: flex;

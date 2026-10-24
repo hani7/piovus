@@ -73,7 +73,7 @@
 
 /* Carousel items */
 .carousel-item {
-  flex: 0 0 calc(20% - 1.2rem); /* 5 items */
+  flex: 0 0 calc(25% - 1.125rem); /* 4 items on desktop */
   scroll-snap-align: start;
 }
 @media (max-width: 1200px) { .carousel-item { flex: 0 0 calc(25% - 1.125rem); } }

@@ -91,6 +91,14 @@ export default function Navbar() {
             >
               <span /><span /><span />
             </button>
+            <nav className="navbar__menu" aria-label="Catégories de produits">
+              <NavLink to="/shop" end className={({ isActive }) => isActive ? 'active' : undefined}>NOS PRODUITS</NavLink>
+              {(categories || []).filter(c => c.slug !== 'offres-speciales').slice(0, 6).map((c) => (
+                <NavLink key={c.slug} to={`/${c.slug}`} end className={({ isActive }) => isActive ? 'active' : undefined}>
+                  {c.name.toUpperCase()}
+                </NavLink>
+              ))}
+            </nav>
             <div className={`navbar__search-wrapper${mobileSearchOpen ? ' navbar__search-wrapper--mobile-open' : ''}`} ref={searchWrapRef}>
               <form onSubmit={handleSearch} className="navbar__search-form">
                 <button type="submit" aria-label="Rechercher" className="navbar__search-icon">
@@ -180,7 +188,7 @@ export default function Navbar() {
             </Link>
             <button
               type="button"
-              className="navbar__icon-btn navbar__mobile-search-btn"
+              className="navbar__icon-btn navbar__mobile-search-btn navbar__search-toggle"
               onClick={() => setMobileSearchOpen(open => !open)}
               aria-label={mobileSearchOpen ? 'Fermer la recherche' : 'Ouvrir la recherche'}
               aria-expanded={mobileSearchOpen}
@@ -228,7 +236,7 @@ export default function Navbar() {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''}`}>
         <div className="sidebar__header">
-          <h2 className="sidebar__logo">PIOVÉ</h2>
+        <img src="/logo.png" alt="Piové Cosmetics" className="sidebar__logo" />
           <button onClick={closeSidebar} className="sidebar__close" id="sidebar-close-btn">✕</button>
         </div>
         <nav className="sidebar__nav">

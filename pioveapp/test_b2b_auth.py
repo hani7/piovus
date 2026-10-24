@@ -41,7 +41,7 @@ class B2BApprovalTests(APITestCase):
             'username': 'newprofessional', 'email': 'new@example.com',
             'password': 'testpass123', 'password2': 'testpass123',
             'company_name': 'Test company', 'phone': '0555000001',
-            'nrc': 'RC123', 'nif': '123456',
+            'nrc': 'RC123',
             'nrc_file': SimpleUploadedFile('rc.pdf', b'%PDF-1.4 test', 'application/pdf'),
         }, format='multipart')
         self.assertEqual(response.status_code, 201, response.data)
@@ -51,6 +51,9 @@ class B2BApprovalTests(APITestCase):
         profile = User.objects.get(username='newprofessional').profile
         self.assertTrue(profile.is_b2b_pending)
         self.assertFalse(profile.is_b2b)
+        self.assertEqual(profile.nif, '')
+        self.assertEqual(profile.user.first_name, '')
+        self.assertEqual(profile.user.last_name, '')
 
     def test_email_required_for_b2b_registration(self):
         response = self.client.post('/api/auth/register-b2b/', {})

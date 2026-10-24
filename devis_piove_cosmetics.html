@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devis Professionnel — Piové Cosmetics | Refonte Complète du Site Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════════
+           DESIGN SYSTEM — PIOVÉ COSMETICS PROPOSAL
+           ═══════════════════════════════════════════════ */
+        :root {
+            --piove-black: #0a0a0a;
+            --piove-charcoal: #1a1a2e;
+            --piove-rose: #c9485b;
+            --piove-rose-dark: #a8374a;
+            --piove-rose-light: #fdf2f4;
+            --piove-gold: #d4a853;
+            --piove-gold-light: #f9f3e3;
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a5a;
+            --text-muted: #6b7280;
+            --bg-page: #ffffff;
+            --bg-section: #fafbfc;
+            --border-light: #e5e7eb;
+            --border-subtle: #f0f1f3;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --font-heading: 'Playfair Display', Georgia, serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--text-primary);
+            background: #e8e8e8;
+            line-height: 1.7;
+            font-size: 10.5pt;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ═══════════════════════════════════════════════
+           PAGE CONTAINER — A4
+           ═══════════════════════════════════════════════ */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 30px auto;
+            background: var(--bg-page);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media print {
+            body { background: white; }
+            .page {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+            }
+            .page:last-child { page-break-after: auto; }
+        }
+
+        /* ═══════════════════════════════════════════════
+           PAGE 1 — COVER
+           ═══════════════════════════════════════════════ */
+        .cover {
+            height: 297mm;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--piove-black);
+            color: #ffffff;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 45%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--piove-rose) 0%, var(--piove-rose-dark) 100%);
+            clip-path: polygon(25% 0, 100% 0, 100% 100%, 0% 100%);
+            opacity: 0.95;
+        }
+
+        .cover::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--piove-gold) 0%, var(--piove-rose) 50%, var(--piove-gold) 100%);
+        }
+
+        .cover-content {
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 50px;
+        }
+
+        .cover-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(201, 72, 91, 0.2);
+            border: 1px solid rgba(201, 72, 91, 0.4);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 9pt;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #f9a8b5;
+            margin-bottom: 30px;
+            width: fit-content;
+        }
+
+        .cover-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--piove-rose);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .cover-title {
+            font-family: var(--font-heading);
+            font-size: 38pt;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 10px;
+            max-width: 55%;
+        }
+
+        .cover-title span {
+            color: var(--piove-gold);
+        }
+
+        .cover-subtitle {
+            font-size: 14pt;
+            font-weight: 300;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 40px;
+            max-width: 50%;
+            line-height: 1.6;
+        }
+
+        .cover-meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 50%;
+        }
+
+        .cover-meta-item {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .cover-meta-label {
+            font-size: 7.5pt;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.45);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .cover-meta-value {
+            font-size: 10pt;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .cover-footer {
+            position: relative;
+            z-index: 2;
+            padding: 25px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .cover-logo {
+            font-family: var(--font-heading);
+            font-size: 14pt;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        .cover-ref {
+            font-family: var(--font-mono);
+            font-size: 8.5pt;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ═══════════════════════════════════════════════
+           INNER PAGES COMMON
+           ═══════════════════════════════════════════════ */
+        .inner-page {
+            padding: 22mm 22mm 30mm 22mm;
+            position: relative;
+        }
+
+        .inner-page::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--piove-rose) 0%, var(--piove-gold) 100%);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--piove-black);
+        }
+
+        .page-header-logo {
+            font-family: var(--font-heading);
+            font-size: 13pt;
+            font-weight: 700;
+            color: var(--piove-black);
+            letter-spacing: 2px;
+        }
+
+        .page-header-label {
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .page-footer {
+            position: absolute;
+            bottom: 15mm;
+            left: 22mm;
+            right: 22mm;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-light);
+            font-size: 7.5pt;
+            color: var(--text-muted);
+        }
+
+        .page-number {
+            background: var(--piove-black);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8pt;
+            font-weight: 600;
+        }
+
+        /* Section Titles */
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--piove-rose);
+            color: white;
+            border-radius: 8px;
+            font-size: 11pt;
+            font-weight: 700;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            font-family: var(--font-heading);
+            font-size: 18pt;
+            font-weight: 700;
+            color: var(--piove-charcoal);
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            font-size: 10pt;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            padding-left: 44px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-section);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .card-danger {
+            background: #fef2f2;
+            border-color: #fecaca;
+            border-left: 4px solid var(--danger);
+        }
+
+        .card-success {
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+            border-left: 4px solid var(--success);
+        }
+
+        .card-warning {
+            background: #fffbeb;
+            border-color: #fde68a;
+            border-left: 4px solid var(--warning);
+        }
+
+        .card-gold {
+            background: var(--piove-gold-light);
+            border-color: #e8d5a0;
+            border-left: 4px solid var(--piove-gold);
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 10.5pt;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title .icon {
+            font-size: 14pt;
+        }
+
+        .card-text {
+            font-size: 9.5pt;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Lists */
+        .check-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .check-list li {
+            padding: 6px 0 6px 28px;
+            position: relative;
+            font-size: 9.5pt;
+            color: var(--text-secondary);
+        }
+
+        .check-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 20px;
+            height: 20px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9pt;
+            font-weight: 700;
+            line-height: 20px;
+            text-align: center;
+        }
+
+        .cross-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .cross-list li {
+            padding: 6px 0 6px 28px;
+            position: relative;
+            font-size: 9.5pt;
+            color: var(--text-secondary);
+        }
+
+        .cross-list li::before {
+            content: '✗';
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9pt;
+            font-weight: 700;
+            line-height: 20px;
+            text-align: center;
+        }
+
+        /* Browser Mockup */
+        .browser-mockup {
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+
+        .browser-toolbar {
+            background: #2d2d3a;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .browser-dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .browser-dots span:nth-child(1) { background: #ff5f57; }
+        .browser-dots span:nth-child(2) { background: #febc2e; }
+        .browser-dots span:nth-child(3) { background: #28c840; }
+
+        .browser-url {
+            flex: 1;
+            background: #1e1e28;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-family: var(--font-mono);
+            font-size: 8.5pt;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .browser-url .lock {
+            color: #4ade80;
+            font-size: 9pt;
+        }
+
+        .browser-body {
+            background: #f9fafb;
+            padding: 50px 40px;
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .browser-error-box {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 25px 35px;
+            max-width: 520px;
+            width: 100%;
+        }
+
+        .browser-error-box h3 {
+            font-family: var(--font-body);
+            font-size: 13pt;
+            font-weight: 400;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+        }
+
+        /* Pricing Table */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .pricing-card {
+            border-radius: 14px;
+            padding: 28px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-standard {
+            background: white;
+            border: 2px solid var(--border-light);
+        }
+
+        .pricing-premium {
+            background: var(--piove-charcoal);
+            color: white;
+            border: 2px solid var(--piove-rose);
+        }
+
+        .pricing-premium::before {
+            content: '★ RECOMMANDÉ';
+            position: absolute;
+            top: 14px;
+            right: -30px;
+            background: var(--piove-rose);
+            color: white;
+            font-size: 7pt;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 4px 35px;
+            transform: rotate(45deg);
+        }
+
+        .pricing-label {
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .pricing-standard .pricing-label { color: var(--piove-rose); }
+        .pricing-premium .pricing-label { color: var(--piove-gold); }
+
+        .pricing-name {
+            font-family: var(--font-heading);
+            font-size: 16pt;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .pricing-price {
+            font-size: 28pt;
+            font-weight: 800;
+            margin-bottom: 4px;
+            line-height: 1;
+        }
+
+        .pricing-price .currency {
+            font-size: 12pt;
+            font-weight: 600;
+            vertical-align: super;
+        }
+
+        .pricing-note {
+            font-size: 8pt;
+            margin-bottom: 18px;
+        }
+
+        .pricing-standard .pricing-note { color: var(--text-muted); }
+        .pricing-premium .pricing-note { color: rgba(255,255,255,0.5); }
+
+        .pricing-divider {
+            height: 1px;
+            margin: 15px 0;
+        }
+
+        .pricing-standard .pricing-divider { background: var(--border-light); }
+        .pricing-premium .pricing-divider { background: rgba(255,255,255,0.15); }
+
+        .pricing-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pricing-features li {
+            padding: 5px 0 5px 22px;
+            position: relative;
+            font-size: 8.5pt;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+        }
+
+        .pricing-standard .pricing-features li { color: var(--text-secondary); }
+        .pricing-standard .pricing-features li::before { color: var(--success); }
+        .pricing-premium .pricing-features li { color: rgba(255,255,255,0.85); }
+        .pricing-premium .pricing-features li::before { color: var(--piove-gold); }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+            margin: 15px 0;
+        }
+
+        .comparison-table thead th {
+            background: var(--piove-charcoal);
+            color: white;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .comparison-table thead th:first-child {
+            border-radius: 8px 0 0 0;
+        }
+
+        .comparison-table thead th:last-child {
+            border-radius: 0 8px 0 0;
+        }
+
+        .comparison-table tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        .comparison-table tbody tr:nth-child(even) {
+            background: var(--bg-section);
+        }
+
+        .comparison-table tbody tr:last-child td:first-child {
+            border-radius: 0 0 0 8px;
+        }
+
+        .comparison-table tbody tr:last-child td:last-child {
+            border-radius: 0 0 8px 0;
+        }
+
+        .status-bad { color: var(--danger); font-weight: 600; }
+        .status-good { color: var(--success); font-weight: 600; }
+
+        /* Brands Grid */
+        .brands-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .brand-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: var(--bg-section);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .brand-rank {
+            width: 28px;
+            height: 28px;
+            background: var(--piove-charcoal);
+            color: white;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9pt;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .brand-rank.gold { background: linear-gradient(135deg, #d4a853, #c49b38); }
+        .brand-rank.silver { background: linear-gradient(135deg, #94a3b8, #64748b); }
+        .brand-rank.bronze { background: linear-gradient(135deg, #d97706, #b45309); }
+
+        .brand-info h4 {
+            font-size: 9.5pt;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .brand-info .brand-country {
+            font-size: 7.5pt;
+            color: var(--piove-rose);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .brand-info .brand-desc {
+            font-size: 8pt;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Signature Area */
+        .signature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 25px;
+        }
+
+        .signature-box {
+            border: 1px dashed var(--border-light);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .signature-box h4 {
+            font-size: 9pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .signature-box p {
+            font-size: 8pt;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid var(--piove-black);
+            margin: 0 20px;
+            padding-top: 40px;
+        }
+
+        .signature-date {
+            font-size: 8pt;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: linear-gradient(135deg, var(--piove-charcoal) 0%, #2a2a4a 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 22px 24px;
+            margin: 20px 0;
+        }
+
+        .highlight-box h4 {
+            font-family: var(--font-heading);
+            font-size: 12pt;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--piove-gold);
+        }
+
+        .highlight-box p {
+            font-size: 9pt;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.6;
+        }
+
+        /* Small Text */
+        .small-text {
+            font-size: 8pt;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Stamp */
+        .stamp-confidential {
+            position: absolute;
+            top: 22mm;
+            right: 22mm;
+            border: 3px solid var(--piove-rose);
+            color: var(--piove-rose);
+            padding: 4px 14px;
+            font-size: 7.5pt;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-radius: 5px;
+            transform: rotate(0deg);
+            opacity: 0.6;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 5px;
+            bottom: 5px;
+            width: 2px;
+            background: linear-gradient(180deg, var(--piove-rose) 0%, var(--piove-gold) 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 18px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -21px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: var(--piove-rose);
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--piove-rose);
+        }
+
+        .timeline-item h4 {
+            font-size: 10pt;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+
+        .timeline-item p {
+            font-size: 8.5pt;
+            color: var(--text-muted);
+        }
+
+        .timeline-item .timeline-duration {
+            font-family: var(--font-mono);
+            font-size: 7.5pt;
+            color: var(--piove-rose);
+            font-weight: 600;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            bottom: 40mm;
+            right: 15mm;
+            font-family: var(--font-heading);
+            font-size: 72pt;
+            color: rgba(0,0,0,0.02);
+            font-weight: 900;
+            letter-spacing: 5px;
+            transform: rotate(-15deg);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Gap helper */
+        .gap-sm { height: 10px; }
+        .gap-md { height: 18px; }
+        .gap-lg { height: 25px; }
+
+        /* Two column */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        strong { font-weight: 700; }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 7.5pt;
+            font-weight: 600;
+        }
+
+        .tag-danger { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+        .tag-success { background: #ecfdf5; color: var(--success); border: 1px solid #a7f3d0; }
+        .tag-warning { background: #fffbeb; color: var(--warning); border: 1px solid #fde68a; }
+
+        /* Screenshot image */
+        .screenshot-img {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 1 — COVER
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+    <div class="cover">
+        <div class="cover-content">
+            <div class="cover-badge">Proposition Commerciale</div>
+            <h1 class="cover-title">
+                Refonte <span>Complète</span> du Site Web
+            </h1>
+            <p class="cover-subtitle">
+                Migration de WordPress vers une solution sur-mesure, performante et sécurisée — Conçue pour l'excellence de la marque Piové Cosmetics.
+            </p>
+            <div class="cover-meta-grid">
+                <div class="cover-meta-item">
+                    <div class="cover-meta-label">Client</div>
+                    <div class="cover-meta-value">Piové Cosmetics</div>
+                </div>
+                <div class="cover-meta-item">
+                    <div class="cover-meta-label">Date</div>
+                    <div class="cover-meta-value">15 Octobre 2026</div>
+                </div>
+                <div class="cover-meta-item">
+                    <div class="cover-meta-label">Référence</div>
+                    <div class="cover-meta-value">DEV-2026-PV-042</div>
+                </div>
+                <div class="cover-meta-item">
+                    <div class="cover-meta-label">Validité</div>
+                    <div class="cover-meta-value">30 Jours</div>
+                </div>
+            </div>
+        </div>
+        <div class="cover-footer">
+            <div class="cover-logo">PIOVÉ</div>
+            <div class="cover-ref">piovecosmetics.com &nbsp;•&nbsp; Confidentiel</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 2 — CONSTAT & PROBLÉMATIQUE
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+    <div class="inner-page">
+        <div class="stamp-confidential">Confidentiel</div>
+        <div class="watermark">PIOVÉ</div>
+
+        <div class="page-header">
+            <div class="page-header-logo">PIOVÉ COSMETICS</div>
+            <div class="page-header-label">Proposition Commerciale</div>
+        </div>
+
+        <div class="section-title">
+            <span class="section-number">1</span>
+            Constat — Situation Actuelle
+        </div>
+        <p class="section-subtitle">Analyse des problèmes critiques identifiés sur le site existant piovecosmetics.com</p>
+
+        <!-- Card: Website Down -->
+        <div class="card card-danger">
+            <div class="card-title">
+                <span class="icon">🔴</span> Site Web Hors Service — État Critique
+            </div>
+            <p class="card-text">
+                Le site actuel <strong>piovecosmetics.com</strong> est <strong>totalement inaccessible</strong>. Le serveur WordPress 
+                retourne une erreur fatale de connexion à la base de données, rendant le site invisible pour les clients 
+                et les moteurs de recherche. Cette situation cause une <strong>perte directe de chiffre d'affaires</strong> et 
+                endommage sérieusement la crédibilité de la marque.
+            </p>
+        </div>
+
+        <!-- Browser Screenshot Real -->
+        <div class="browser-mockup">
+            <div class="browser-toolbar">
+                <div class="browser-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <div class="browser-url">
+                    <span class="lock">🔒</span> https://piovecosmetics.com/
+                </div>
+            </div>
+            <div style="background: #f0f0f0; padding: 0; line-height: 0; max-height: 220px; overflow: hidden;">
+                <img src="capture_erreur_site.png" alt="Capture d'écran de l'erreur WordPress sur piovecosmetics.com" style="width: 100%; height: auto; display: block;" />
+            </div>
+        </div>
+        <p class="small-text" style="text-align: center; margin-top: 5px; margin-bottom: 20px;">
+            ▲ Capture d'écran réelle de l'incident sur piovecosmetics.com — Panne critique de la base de données WordPress
+        </p>
+
+        <!-- Problems List -->
+        <div class="section-title" style="font-size: 13pt; margin-top: 5px;">
+            <span class="section-number" style="width: 26px; height: 26px; font-size: 9pt;">!</span>
+            Problèmes Identifiés
+        </div>
+
+        <div class="two-col" style="margin-top: 12px;">
+            <div>
+                <div class="card card-danger" style="margin-bottom: 10px;">
+                    <div class="card-title" style="font-size: 9.5pt;">
+                        <span class="tag tag-danger">CRITIQUE</span> Hébergement
+                    </div>
+                    <ul class="cross-list">
+                        <li>Serveur instable, pannes fréquentes</li>
+                        <li>Base de données corrompue</li>
+                        <li>Temps de chargement excessif (+8s)</li>
+                        <li>Aucune sauvegarde automatique</li>
+                    </ul>
+                </div>
+                <div class="card card-warning" style="margin-bottom: 10px;">
+                    <div class="card-title" style="font-size: 9.5pt;">
+                        <span class="tag tag-warning">MAJEUR</span> WordPress
+                    </div>
+                    <ul class="cross-list">
+                        <li>Version obsolète et vulnérable</li>
+                        <li>Plugins incompatibles / non mis à jour</li>
+                        <li>Thème non optimisé, code lourd</li>
+                        <li>Aucun système de cache efficace</li>
+                    </ul>
+                </div>
+            </div>
+            <div>
+                <div class="card card-danger" style="margin-bottom: 10px;">
+                    <div class="card-title" style="font-size: 9.5pt;">
+                        <span class="tag tag-danger">CRITIQUE</span> Sécurité
+                    </div>
+                    <ul class="cross-list">
+                        <li>Vulnérabilités connues non corrigées</li>
+                        <li>Risque d'injection SQL élevé</li>
+                        <li>Certificat SSL instable</li>
+                        <li>Données clients non protégées</li>
+                    </ul>
+                </div>
+                <div class="card card-warning" style="margin-bottom: 10px;">
+                    <div class="card-title" style="font-size: 9.5pt;">
+                        <span class="tag tag-warning">MAJEUR</span> Performance
+                    </div>
+                    <ul class="cross-list">
+                        <li>Score Google PageSpeed &lt; 25/100</li>
+                        <li>Non adapté au mobile (responsive)</li>
+                        <li>SEO catastrophique</li>
+                        <li>Perte de positions Google</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <span>Piové Cosmetics — Proposition Commerciale Confidentielle</span>
+            <span class="page-number">2</span>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 3 — SOLUTION PROPOSÉE
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+    <div class="inner-page">
+        <div class="watermark">PIOVÉ</div>
+
+        <div class="page-header">
+            <div class="page-header-logo">PIOVÉ COSMETICS</div>
+            <div class="page-header-label">Solution Proposée</div>
+        </div>
+
+        <div class="section-title">
+            <span class="section-number">2</span>
+            Solution — Refonte Sur-Mesure
+        </div>
+        <p class="section-subtitle">Abandon de WordPress au profit d'un développement professionnel codé à la main</p>
+
+        <!-- Comparison Table -->
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Critère</th>
+                    <th style="width: 35%;">❌ Ancien Site (WordPress)</th>
+                    <th style="width: 35%;">✅ Nouveau Site (Sur-Mesure)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Disponibilité</strong></td>
+                    <td class="status-bad">Hors service / Erreurs fréquentes</td>
+                    <td class="status-good">99.9% uptime garanti</td>
+                </tr>
+                <tr>
+                    <td><strong>Temps de chargement</strong></td>
+                    <td class="status-bad">> 8 secondes</td>
+                    <td class="status-good">< 1.5 seconde</td>
+                </tr>
+                <tr>
+                    <td><strong>Sécurité</strong></td>
+                    <td class="status-bad">Vulnérabilités WordPress / Plugins</td>
+                    <td class="status-good">Code sécurisé, HTTPS, protection DDoS</td>
+                </tr>
+                <tr>
+                    <td><strong>Design</strong></td>
+                    <td class="status-bad">Thème générique WordPress</td>
+                    <td class="status-good">Design premium exclusif à la marque</td>
+                </tr>
+                <tr>
+                    <td><strong>SEO</strong></td>
+                    <td class="status-bad">Non optimisé, invisible sur Google</td>
+                    <td class="status-good">SEO avancé, structure sémantique</td>
+                </tr>
+                <tr>
+                    <td><strong>Mobile</strong></td>
+                    <td class="status-bad">Partiellement responsive</td>
+                    <td class="status-good">100% responsive, mobile-first</td>
+                </tr>
+                <tr>
+                    <td><strong>Maintenance</strong></td>
+                    <td class="status-bad">Mises à jour constantes nécessaires</td>
+                    <td class="status-good">Maintenance minimale, code propre</td>
+                </tr>
+                <tr>
+                    <td><strong>Coût annuel caché</strong></td>
+                    <td class="status-bad">Plugins premium + Hébergement WP</td>
+                    <td class="status-good">Hébergement léger, pas de licences</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="gap-md"></div>
+
+        <div class="section-title" style="font-size: 13pt;">
+            <span class="section-number" style="width: 26px; height: 26px; font-size: 9pt;">⚡</span>
+            Technologies Utilisées
+        </div>
+
+        <div class="two-col" style="margin-top: 12px;">
+            <div class="card card-success">
+                <div class="card-title" style="font-size: 9.5pt;">🎨 Frontend</div>
+                <ul class="check-list">
+                    <li>HTML5 sémantique & CSS3 moderne</li>
+                    <li>JavaScript / React.js (interface dynamique)</li>
+                    <li>Design responsive mobile-first</li>
+                    <li>Animations fluides & micro-interactions</li>
+                    <li>Optimisation des images (WebP, lazy loading)</li>
+                </ul>
+            </div>
+            <div class="card card-success">
+                <div class="card-title" style="font-size: 9.5pt;">⚙️ Backend</div>
+                <ul class="check-list">
+                    <li>Python Django (framework sécurisé)</li>
+                    <li>API REST performante</li>
+                    <li>Base de données PostgreSQL</li>
+                    <li>Panel d'administration sur-mesure</li>
+                    <li>Système de gestion des commandes</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <h4>💎 Pourquoi le code sur-mesure ?</h4>
+            <p>
+                Les plus grandes marques cosmétiques mondiales (L'Oréal, Estée Lauder, Shiseido...) n'utilisent <strong>jamais</strong> WordPress. 
+                Elles investissent dans des sites codés sur-mesure car la performance, la sécurité et l'image de marque sont des 
+                priorités absolues. Avec notre solution, <strong>Piové Cosmetics</strong> rejoint ce standard d'excellence.
+            </p>
+        </div>
+
+        <div class="page-footer">
+            <span>Piové Cosmetics — Proposition Commerciale Confidentielle</span>
+            <span class="page-number">3</span>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 4 — TARIFICATION
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+    <div class="inner-page">
+        <div class="watermark">PIOVÉ</div>
+
+        <div class="page-header">
+            <div class="page-header-logo">PIOVÉ COSMETICS</div>
+            <div class="page-header-label">Offres & Tarifs</div>
+        </div>
+
+        <div class="section-title">
+            <span class="section-number">3</span>
+            Offres Commerciales
+        </div>
+        <p class="section-subtitle">Deux formules adaptées à vos besoins et à votre budget</p>
+
+        <!-- Pricing Cards -->
+        <div class="pricing-grid">
+            <!-- Standard -->
+            <div class="pricing-card pricing-standard">
+                <div class="pricing-label">Formule Essentielle</div>
+                <div class="pricing-name">One Page</div>
+                <div class="pricing-price">60 000 <span class="currency">DA</span></div>
+                <div class="pricing-note">Paiement unique — Pas d'abonnement</div>
+                <div class="pricing-divider"></div>
+                <ul class="pricing-features">
+                    <li>Site vitrine one-page professionnel</li>
+                    <li>Design premium responsive</li>
+                    <li>Section Hero avec animation</li>
+                    <li>Présentation produits (galerie photo)</li>
+                    <li>Section "À propos" de la marque</li>
+                    <li>Formulaire de contact</li>
+                    <li>Intégration réseaux sociaux</li>
+                    <li>Optimisation SEO de base</li>
+                    <li>Certificat SSL (HTTPS)</li>
+                    <li>Compatible mobile & tablette</li>
+                    <li>Livraison en 7-10 jours</li>
+                </ul>
+            </div>
+            <!-- Premium -->
+            <div class="pricing-card pricing-premium">
+                <div class="pricing-label">Formule Premium</div>
+                <div class="pricing-name">Site Complet Pro</div>
+                <div class="pricing-price">150 000 <span class="currency">DA</span></div>
+                <div class="pricing-note">Investissement pour une présence digitale complète</div>
+                <div class="pricing-divider"></div>
+                <ul class="pricing-features">
+                    <li><strong>Tout de la Formule Essentielle +</strong></li>
+                    <li>Site multi-pages complet (5-8 pages)</li>
+                    <li>Catalogue produits avancé avec filtres</li>
+                    <li>Tableau de bord & statistiques</li>
+                    <li>Blog / Actualités intégré</li>
+                    <li>SEO avancé (Google My Business)</li>
+                    <li>Formation utilisation du panel</li>
+                    <li>Support technique 3 mois inclus</li>
+                    <li>Livraison en 21-30 jours</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="gap-sm"></div>
+
+        <!-- Timeline -->
+        <div class="section-title" style="font-size: 13pt;">
+            <span class="section-number" style="width: 26px; height: 26px; font-size: 9pt;">📅</span>
+            Calendrier de Réalisation (Formule Premium)
+        </div>
+
+        <div class="timeline" style="margin-top: 15px;">
+            <div class="timeline-item">
+                <div class="timeline-duration">Semaine 1</div>
+                <h4>Phase de Conception</h4>
+                <p>Analyse des besoins, maquettes UI/UX, validation du design</p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-duration">Semaines 2-3</div>
+                <h4>Phase de Développement</h4>
+                <p>Codage frontend & backend, intégration des fonctionnalités</p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-duration">Semaine 4</div>
+                <h4>Tests & Lancement</h4>
+                <p>Tests qualité, optimisation performance, mise en ligne & formation</p>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <span>Piové Cosmetics — Proposition Commerciale Confidentielle</span>
+            <span class="page-number">4</span>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 5 — RÉFÉRENCES MONDIALES & SIGNATURE
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+    <div class="inner-page">
+        <div class="watermark">PIOVÉ</div>
+
+        <div class="page-header">
+            <div class="page-header-logo">PIOVÉ COSMETICS</div>
+            <div class="page-header-label">Références & Validation</div>
+        </div>
+
+        <div class="section-title">
+            <span class="section-number">4</span>
+            Références — Leaders Mondiaux
+        </div>
+        <p class="section-subtitle">Les plus grandes marques cosmétiques au monde utilisent des sites codés sur-mesure</p>
+
+        <div class="brands-grid">
+            <div class="brand-card">
+                <div class="brand-rank gold">1</div>
+                <div class="brand-info">
+                    <div class="brand-country">🇫🇷 France</div>
+                    <h4>L'Oréal Group</h4>
+                    <div class="brand-desc">N°1 mondial. L'Oréal Paris, Lancôme, Maybelline, Garnier, YSL Beauty, Kiehl's</div>
+                </div>
+            </div>
+            <div class="brand-card">
+                <div class="brand-rank silver">2</div>
+                <div class="brand-info">
+                    <div class="brand-country">🇺🇸 États-Unis</div>
+                    <h4>Estée Lauder Companies</h4>
+                    <div class="brand-desc">MAC, Clinique, La Mer, Bobbi Brown, Tom Ford Beauty, Jo Malone</div>
+                </div>
+            </div>
+            <div class="brand-card">
+                <div class="brand-rank bronze">3</div>
+                <div class="brand-info">
+                    <div class="brand-country">🇬🇧 Royaume-Uni</div>
+                    <h4>Unilever</h4>
+                    <div class="brand-desc">Dove, TRESemmé, Hourglass, Dermalogica, Paula's Choice</div>
+                </div>
+            </div>
+            <div class="brand-card">
+                <div class="brand-rank">4</div>
+                <div class="brand-info">
+                    <div class="brand-country">🇺🇸 États-Unis</div>
+                    <h4>Procter & Gamble</h4>
+                    <div class="brand-desc">SK-II, Olay, Pantene, Head & Shoulders, Old Spice</div>
+                </div>
+            </div>
+            <div class="brand-card">
+                <div class="brand-rank">5</div>
+                <div class="brand-info">
+                    <div class="brand-country">🇯🇵 Japon</div>
+                    <h4>Shiseido</h4>
+                    <div class="brand-desc">Clé de Peau Beauté, NARS, Drunk Elephant, Laura Mercier</div>
+                </div>
+            </div>
+            <div class="brand-card">
+                <div class="brand-rank">6</div>
+                <div class="brand-info">
+                    <div class="brand-country">🇩🇪 Allemagne</div>
+                    <h4>Beiersdorf</h4>
+                    <div class="brand-desc">Nivea, Eucerin, La Prairie, Aquaphor, Chantecaille</div>
+                </div>
+            </div>
+            <div class="brand-card">
+                <div class="brand-rank">7</div>
+                <div class="brand-info">
+                    <div class="brand-country">🇺🇸 États-Unis</div>
+                    <h4>Coty, Inc.</h4>
+                    <div class="brand-desc">CoverGirl, Rimmel, Max Factor, Kylie Cosmetics</div>
+                </div>
+            </div>
+            <div class="brand-card">
+                <div class="brand-rank">8</div>
+                <div class="brand-info">
+                    <div class="brand-country">🇯🇵 Japon</div>
+                    <h4>Kao Corporation</h4>
+                    <div class="brand-desc">Bioré, Curél, Molton Brown, Kanebo, Sensai</div>
+                </div>
+            </div>
+            <div class="brand-card">
+                <div class="brand-rank">9</div>
+                <div class="brand-info">
+                    <div class="brand-country">🇧🇷 Brésil</div>
+                    <h4>Natura & Co</h4>
+                    <div class="brand-desc">Natura, Avon, The Body Shop — Leader Amérique Latine</div>
+                </div>
+            </div>
+            <div class="brand-card">
+                <div class="brand-rank">10</div>
+                <div class="brand-info">
+                    <div class="brand-country">🇺🇸 États-Unis</div>
+                    <h4>e.l.f. Beauty</h4>
+                    <div class="brand-desc">e.l.f. Cosmetics, e.l.f. Skin, Well People, Keys Soulcare</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="margin-top: 15px;">
+            <h4>🏆 Le Point Commun de ces Géants</h4>
+            <p>
+                <strong>Aucune</strong> de ces marques n'utilise WordPress ou un CMS générique. 
+                Elles investissent toutes dans des solutions <strong>codées sur-mesure</strong> pour garantir 
+                une performance optimale, une sécurité maximale et une expérience utilisateur premium. 
+                En choisissant notre solution, <strong>Piové Cosmetics</strong> adopte les mêmes standards 
+                que les leaders mondiaux de l'industrie cosmétique.
+            </p>
+        </div>
+
+        <div class="page-footer">
+            <span>Piové Cosmetics — Proposition Commerciale Confidentielle</span>
+            <span class="page-number">5</span>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 6 — CONDITIONS & SIGNATURE
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+    <div class="inner-page">
+        <div class="watermark">PIOVÉ</div>
+
+        <div class="page-header">
+            <div class="page-header-logo">PIOVÉ COSMETICS</div>
+            <div class="page-header-label">Conditions & Acceptation</div>
+        </div>
+
+        <div class="section-title">
+            <span class="section-number">5</span>
+            Conditions Générales
+        </div>
+        <p class="section-subtitle">Modalités de paiement, garanties et engagement contractuel</p>
+
+        <div class="two-col">
+            <div class="card card-gold">
+                <div class="card-title" style="font-size: 9.5pt;">💳 Modalités de Paiement</div>
+                <ul class="check-list">
+                    <li><strong>50%</strong> à la signature du devis (acompte)</li>
+                    <li><strong>25%</strong> à la validation du design</li>
+                    <li><strong>25%</strong> à la livraison finale</li>
+                    <li>Paiement par virement ou CCP</li>
+                </ul>
+            </div>
+            <div class="card card-gold">
+                <div class="card-title" style="font-size: 9.5pt;">🛡️ Garanties Incluses</div>
+                <ul class="check-list">
+                    <li>Garantie de fonctionnement 6 mois</li>
+                    <li>Correction de bugs gratuite</li>
+                    <li>Code source livré au client</li>
+                    <li>Documentation technique fournie</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="gap-md"></div>
+
+        <div class="card" style="background: var(--piove-rose-light); border-color: #f5c6cb;">
+            <div class="card-title" style="font-size: 9.5pt;">
+                <span class="icon">📋</span> Ce qui est inclus dans les deux formules
+            </div>
+            <div class="two-col" style="margin-top: 10px;">
+                <ul class="check-list">
+                    <li>Nom de domaine (1ère année offerte)</li>
+                    <li>Hébergement (1ère année offerte)</li>
+                    <li>Certificat SSL gratuit (HTTPS)</li>
+                    <li>Configuration email professionnel</li>
+                </ul>
+                <ul class="check-list">
+                    <li>Optimisation Google PageSpeed</li>
+                    <li>Intégration Google Analytics</li>
+                    <li>Responsive design (mobile, tablette)</li>
+                    <li>Formation d'utilisation basique</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="gap-md"></div>
+
+        <div class="card" style="background: #f8fafc; border-color: #e2e8f0;">
+            <div class="card-title" style="font-size: 9.5pt;">
+                <span class="icon">⚖️</span> Conditions Particulières
+            </div>
+            <p class="card-text" style="font-size: 8.5pt;">
+                • Ce devis est valable <strong>30 jours</strong> à compter de la date d'émission.<br>
+                • Tout travail supplémentaire non prévu dans ce devis fera l'objet d'un avenant.<br>
+                • Le client s'engage à fournir les contenus (textes, images, logo HD) dans un délai de 5 jours ouvrables.<br>
+                • Les délais de livraison commencent après réception de l'acompte et des contenus.<br>
+                • Le transfert de propriété du site est effectif après le paiement intégral.
+            </p>
+        </div>
+
+        <div class="gap-lg"></div>
+
+        <!-- Acceptance -->
+        <div style="background: linear-gradient(135deg, #fafbfc, #f0f1f3); border: 2px solid var(--piove-charcoal); border-radius: 14px; padding: 25px; text-align: center;">
+            <h3 style="font-family: var(--font-heading); font-size: 14pt; margin-bottom: 6px;">✅ Acceptation du Devis</h3>
+            <p style="font-size: 9pt; color: var(--text-muted); margin-bottom: 20px;">
+                En signant ce document, le client accepte les termes et conditions décrits dans cette proposition.
+            </p>
+
+            <div class="signature-grid">
+                <div class="signature-box">
+                    <h4>Le Prestataire</h4>
+                    <p>Développeur Web Professionnel</p>
+                    <div class="signature-line"></div>
+                    <div class="signature-date">Date : _____ / _____ / 2026</div>
+                </div>
+                <div class="signature-box">
+                    <h4>Le Client</h4>
+                    <p>Piové Cosmetics</p>
+                    <div class="signature-line"></div>
+                    <div class="signature-date">Date : _____ / _____ / 2026</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gap-md"></div>
+
+        <p style="text-align: center; font-size: 8pt; color: var(--text-muted);">
+            <em>Mention « Lu et approuvé, bon pour accord » suivie de la signature</em>
+        </p>
+
+        <div class="page-footer">
+            <span>Piové Cosmetics — Proposition Commerciale Confidentielle &nbsp;•&nbsp; Réf: DEV-2026-PV-042</span>
+            <span class="page-number">6</span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

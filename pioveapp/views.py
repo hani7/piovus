@@ -499,23 +499,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated:
             return Order.objects.none()
 
-        from django.db.models import Q
-        # Match by user account OR by guest phone/email matching the user's profile
-        q = Q(user=user)
-
-        # Also match guest orders by phone
-        try:
-            phone = user.profile.phone
-            if phone:
-                q |= Q(guest_phone=phone) | Q(customer__phone=phone)
-        except Exception:
-            pass
-
-        # Also match guest orders by email
-        if user.email:
-            q |= Q(guest_email__iexact=user.email)
-
-        return Order.objects.filter(q, is_deleted=False).prefetch_related('items').distinct().order_by('-created_at')
+        # Contact details are editable and do not prove ownership of an order.
+        # Guest orders must be explicitly linked after ownership is verified.
+        return Order.objects.filter(user=user, is_deleted=False).prefetch_related('items').order_by('-created_at')
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -553,8 +539,8 @@ class OrderViewSet(viewsets.ModelViewSet):
                 except ProductVariant.DoesNotExist:
                     pass
 
+            packaging = item_data.get('packaging', 'boite') if is_b2b_user else ''
             if is_b2b_user:
-                packaging = item_data.get('packaging', 'boite')
                 if packaging == 'carton':
                     base_price = product.b2b_promo_price_carton or product.b2b_price_carton or product.b2b_price or (product.effective_price * (product.units_per_carton or 1))
                 else:
@@ -575,7 +561,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             qty = item_data['quantity']
             total += price * qty
-            priced_items.append((product, variant, price, qty))
+            priced_items.append((product, variant, price, qty, packaging))
 
         if is_b2b_user and total < B2B_MINIMUM_ORDER_AMOUNT:
             return Response({
@@ -646,13 +632,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                 pass
 
         # Create items
-        for product, variant, price, qty in priced_items:
+        for product, variant, price, qty, packaging in priced_items:
             OrderItem.objects.create(
                 order=order,
                 product=product,
                 variant=variant,
                 product_name=product.name,
                 variant_name=variant.name if variant else '',
+                packaging=packaging,
                 quantity=qty,
                 price_at_purchase=price,
             )

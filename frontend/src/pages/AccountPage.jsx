@@ -24,7 +24,7 @@ export default function AccountPage() {
     first_name: '', last_name: '', username: '', email: '', phone: '', password: '', password2: ''
   })
   const [b2bForm, setB2bForm] = useState({
-    company_name: '', nrc: '', nif: '', first_name: '', last_name: '', username: '', email: '', phone: '', password: '', password2: '', nrc_file: null
+    company_name: '', nrc: '', username: '', email: '', phone: '', password: '', password2: '', nrc_file: null
   })
 
   // KPI stats
@@ -354,25 +354,9 @@ export default function AccountPage() {
                 <label className="form-label" htmlFor="company_name">Nom de l'entreprise *</label>
                 <input className="form-input" id="company_name" value={b2bForm.company_name} onChange={(e) => setB2bForm({...b2bForm, company_name: e.target.value})} required />
               </div>
-              <div className="checkout-grid-2">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="nrc">Registre de Commerce (RC)</label>
-                  <input className="form-input" id="nrc" value={b2bForm.nrc} onChange={(e) => setB2bForm({...b2bForm, nrc: e.target.value})} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="nif">NIF *</label>
-                  <input className="form-input" id="nif" value={b2bForm.nif} onChange={(e) => setB2bForm({...b2bForm, nif: e.target.value})} required />
-                </div>
-              </div>
-              <div className="checkout-grid-2">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="b2b_first_name">Prénom *</label>
-                  <input className="form-input" id="b2b_first_name" value={b2bForm.first_name} onChange={(e) => setB2bForm({...b2bForm, first_name: e.target.value})} required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="b2b_last_name">Nom *</label>
-                  <input className="form-input" id="b2b_last_name" value={b2bForm.last_name} onChange={(e) => setB2bForm({...b2bForm, last_name: e.target.value})} required />
-                </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="nrc">Registre de Commerce (RC)</label>
+                <input className="form-input" id="nrc" value={b2bForm.nrc} onChange={(e) => setB2bForm({...b2bForm, nrc: e.target.value})} />
               </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="b2b_username">Nom d'utilisateur *</label>

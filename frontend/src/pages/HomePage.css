@@ -142,15 +142,17 @@
 .new-arrivals-carousel .product-carousel-btn {
   position: relative;
   z-index: 1;
-  width: 66px;
-  height: 88px;
+  width: 50px;
+  height: 60px;
   justify-content: center;
-  border: 4px solid #f00;
-  background: #fff;
-  opacity: 1;
+  border: none;
+  background: transparent;
+  opacity: 0.85;
+  transition: opacity 0.2s, transform 0.2s;
 }
 .new-arrivals-carousel .product-carousel-btn:hover {
-  transform: none;
+  opacity: 1;
+  transform: scale(1.1);
 }
 .new-arrivals-carousel .product-carousel-btn svg {
   width: 44px !important;

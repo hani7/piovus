@@ -221,6 +221,9 @@ class Banner(models.Model):
         ('side_left', 'Bannière Flottante Gauche'),
         ('side_right', 'Bannière Flottante Droite'),
         ('horizontal_new_banner', 'Horizontal New Banner (Accueil)'),
+        ('curated_bestseller', 'Fond Best Seller (Accueil)'),
+        ('curated_promo', 'Fond Promo (Accueil)'),
+        ('curated_special', 'Fond Offre Spéciale (Accueil)'),
     ]
     title = models.CharField(max_length=200, blank=True, null=True)
     subtitle = models.CharField(max_length=300, blank=True)
@@ -437,6 +440,12 @@ class OrderItem(models.Model):
     variant = models.ForeignKey(ProductVariant, on_delete=models.SET_NULL, null=True, blank=True)
     product_name = models.CharField(max_length=200)   # snapshot
     variant_name = models.CharField(max_length=100, blank=True)  # snapshot
+    packaging = models.CharField(
+        max_length=10,
+        choices=[('boite', 'Boîte'), ('carton', 'Carton')],
+        blank=True,
+        default='',
+    )
     quantity = models.PositiveIntegerField(default=1)
     price_at_purchase = models.DecimalField(max_digits=10, decimal_places=2)
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getProducts } from '../api/products'
+import { getBanners, getProducts } from '../api/products'
 import ProductCarousel from './ProductCarousel'
 import './CuratedSection.css'
 
@@ -12,6 +12,7 @@ export default function CuratedSection() {
     special: []
   })
   const [loading, setLoading] = useState(true)
+  const [tabBackgrounds, setTabBackgrounds] = useState({})
 
   const tabs = [
     { id: 'bestseller', label: 'BEST SELLER', subtitle: 'LES INCONTOURNABLES', query: { is_bestseller: true, page_size: 10 }, link: '/shop?bestseller=true' },
@@ -33,6 +34,19 @@ export default function CuratedSection() {
     }
   }, [activeTab])
 
+  useEffect(() => {
+    getBanners().then(res => {
+      const banners = res.data.results || res.data || []
+      const backgrounds = {}
+      banners.forEach(banner => {
+        if (banner.placement === 'curated_bestseller') backgrounds.bestseller = banner.image
+        if (banner.placement === 'curated_promo') backgrounds.promo = banner.image
+        if (banner.placement === 'curated_special') backgrounds.special = banner.image
+      })
+      setTabBackgrounds(backgrounds)
+    }).catch(() => {})
+  }, [])
+
   const activeTabData = tabs.find(t => t.id === activeTab)
 
   return (
@@ -52,7 +66,10 @@ export default function CuratedSection() {
 
       <div className="curated-layout">
         {/* Desktop Vertical Menu */}
-        <div className="curated-sidebar">
+        <div
+          className={`curated-sidebar curated-sidebar--${activeTab}`}
+          style={tabBackgrounds[activeTab] ? { '--curated-bg-image': `url("${tabBackgrounds[activeTab]}")` } : undefined}
+        >
           <ul>
             {tabs.map(tab => (
               <li 

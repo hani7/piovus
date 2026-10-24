@@ -530,6 +530,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               <thead style={{ background: '#f8fafc' }}>
                 <tr>
                   <th colSpan="2" style={{ paddingLeft: 20 }}>Article</th>
+                  {detail.is_b2b && <th style={{ textAlign: 'center' }}>Type</th>}
                   <th style={{ textAlign: 'right' }}>Prix Unitaire</th>
                   <th style={{ textAlign: 'center' }}>Qté</th>
                   <th style={{ textAlign: 'right', paddingRight: 20 }}>Total</th>
@@ -551,6 +552,11 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                       <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.95rem' }}>{item.product_name}</div>
                       {item.variant_name && <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 2 }}>Variante: {item.variant_name}</div>}
                     </td>
+                    {detail.is_b2b && (
+                      <td style={{ textAlign: 'center', whiteSpace: 'nowrap', fontSize: '0.85rem', color: '#475569' }}>
+                        {{ boite: 'Boîte', carton: 'Carton' }[item.packaging] || 'Non renseigné'}
+                      </td>
+                    )}
                     <td style={{ textAlign: 'right', color: '#475569', fontSize: '0.9rem' }}>{Number(item.price_at_purchase).toLocaleString('fr-DZ')} DA</td>
                     <td style={{ textAlign: 'center', fontWeight: 500 }}>× {item.quantity}</td>
                     <td style={{ textAlign: 'right', fontWeight: 600, color: '#0f172a', paddingRight: 20 }}>{Number(item.subtotal).toLocaleString('fr-DZ')} DA</td>

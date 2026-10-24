@@ -17,6 +17,31 @@
   align-items: center;
   justify-content: center;
   padding: 40px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.curated-sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.9;
+  background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)),
+    var(--curated-bg-image, linear-gradient(145deg, #191919 0%, #050505 100%));
+  background-size: cover;
+  background-position: center;
+}
+
+.curated-sidebar--promo::before {
+  background-image: linear-gradient(rgba(100,0,15,0.4), rgba(40,0,8,0.6)),
+    var(--curated-bg-image, linear-gradient(145deg, #b5122d 0%, #4f0613 100%));
+}
+
+.curated-sidebar--special::before {
+  background-image: linear-gradient(rgba(70,40,10,0.35), rgba(30,18,8,0.62)),
+    var(--curated-bg-image, linear-gradient(145deg, #80613d 0%, #2c1d13 100%));
 }
 
 .curated-sidebar ul {

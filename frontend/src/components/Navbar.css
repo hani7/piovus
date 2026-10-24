@@ -43,6 +43,25 @@
   gap: 20px;
 }
 
+/* The category menu now occupies the former search-bar position. */
+.navbar__menu {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  white-space: nowrap;
+}
+.navbar__menu a {
+  color: var(--navbar-text);
+  text-decoration: none;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+}
+.navbar__menu a:hover,
+.navbar__menu a.active {
+  color: var(--navbar-accent);
+}
+
 .navbar__hamburger {
   display: none;
   flex-direction: column;
@@ -60,6 +79,9 @@
 }
 
 @media (max-width: 900px) {
+  .navbar__menu {
+    display: none;
+  }
   .navbar__hamburger {
     display: flex;
   }
@@ -69,6 +91,28 @@
   position: relative;
   display: flex;
   align-items: center;
+}
+
+@media (min-width: 901px) {
+  .navbar__left .navbar__search-wrapper {
+    display: none;
+  }
+  .navbar__search-toggle {
+    display: flex !important;
+  }
+  .navbar__left .navbar__search-wrapper--mobile-open {
+    display: flex;
+    position: fixed;
+    top: 82px;
+    right: 40px;
+    z-index: 20;
+    padding: 12px 16px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  .navbar > .navbar__bottom-links {
+    display: none;
+  }
 }
 
 .navbar__search-form {
@@ -282,11 +326,10 @@
   border-bottom: 1px solid #eee;
 }
 .sidebar__logo {
-  font-family: var(--font-sans);
-  font-size: 1.5rem;
-  letter-spacing: 0.1em;
-  color: #000;
-  margin: 0;
+  display: block;
+  width: 96px;
+  height: 42px;
+  object-fit: contain;
 }
 .sidebar__close {
   font-size: 1.5rem;

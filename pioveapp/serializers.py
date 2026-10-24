@@ -242,7 +242,7 @@ class B2BRegisterSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(write_only=True, required=True)
     company_name = serializers.CharField(write_only=True, required=True)
     nrc = serializers.CharField(write_only=True, required=True)
-    nif = serializers.CharField(write_only=True, required=True)
+    nif = serializers.CharField(write_only=True, required=False, allow_blank=True)
     nrc_file = serializers.FileField(write_only=True, required=True)
 
     class Meta:
@@ -258,7 +258,7 @@ class B2BRegisterSerializer(serializers.ModelSerializer):
         phone = validated_data.pop('phone')
         company_name = validated_data.pop('company_name')
         nrc = validated_data.pop('nrc')
-        nif = validated_data.pop('nif')
+        nif = validated_data.pop('nif', '')
         nrc_file = validated_data.pop('nrc_file', None)
         validated_data.pop('password2')
         
@@ -286,7 +286,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = [
             'id', 'product', 'variant', 'product_name', 'variant_name', 'variant_color',
-            'quantity', 'price_at_purchase', 'subtotal', 'product_image'
+            'packaging', 'quantity', 'price_at_purchase', 'subtotal', 'product_image'
         ]
         
     def get_product_image(self, obj):

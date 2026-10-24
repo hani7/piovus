@@ -1,0 +1,16 @@
+# Piové Cosmetics
+
+> Piové Cosmetics is an online beauty and makeup store serving customers across Algeria.
+
+## Key Pages
+- [Homepage](https://piovecosmetics.com/): Discover Piové Cosmetics and its beauty collections.
+- [Shop](https://piovecosmetics.com/shop): Browse makeup, skincare, and beauty products.
+- [Delivery](https://piovecosmetics.com/livraison): Learn about delivery across Algeria.
+- [FAQ](https://piovecosmetics.com/faq): Find answers to common customer questions.
+- [About](https://piovecosmetics.com/about): Learn more about Piové Cosmetics.
+- [Contact](https://piovecosmetics.com/contact): Contact the Piové Cosmetics team.
+- [Terms and conditions](https://piovecosmetics.com/conditions): Review the terms for using the store.
+- [Privacy policy](https://piovecosmetics.com/confidentialite): Read the privacy policy.
+
+## Discovery
+- [XML sitemap](https://piovecosmetics.com/sitemap.xml): Public website URLs for discovery.

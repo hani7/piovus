@@ -15,6 +15,7 @@ const ProductCard = memo(function ProductCard({ product }) {
   const [imgError, setImgError] = useState(false)
 
   const hasVariants = product.variants?.length > 0
+  const visibleVariants = (product.variants || []).slice(0, 4)
   const isPromo = product.is_promo || product.is_promotion
   const isNew = product.is_new
   const isBestSeller = product.is_bestseller
@@ -90,6 +91,25 @@ const ProductCard = memo(function ProductCard({ product }) {
         <h3 className="product-card__name">
           <Link to={`/produit/${product.slug}`} state={{ initialProduct: product }}>{product.name}</Link>
         </h3>
+        {hasVariants && (
+          <div className="product-card__variants" aria-label="Variantes disponibles">
+            {visibleVariants.map((variant) => {
+              const color = (variant.color_hex || '').split('|')[0]
+              const image = variant.image ? mediaUrl(variant.image) : null
+              return (
+                <span
+                  key={variant.id}
+                  className="product-card__variant-dot"
+                  title={variant.name}
+                  style={image
+                    ? { backgroundImage: `url(${image})` }
+                    : { backgroundColor: color || '#e5e5e5' }}
+                />
+              )
+            })}
+            {product.variants.length > 4 && <span className="product-card__variant-more">...</span>}
+          </div>
+        )}
         <div className="product-card__pricing">
           {isB2B ? (
             <div style={{ display: 'flex', flexDirection: 'column' }}>

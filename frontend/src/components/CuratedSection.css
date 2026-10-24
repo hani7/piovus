@@ -10,7 +10,10 @@
 }
 
 .curated-sidebar {
-  width: 25%;
+  width: 40%;
+  box-sizing: border-box;
+  aspect-ratio: 1 / 1;
+  height: auto;
   background: #1a1a1a;
   color: #fff;
   display: flex;
@@ -20,6 +23,8 @@
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  margin: 60px 0;
+  align-self: center;
 }
 
 .curated-sidebar::before {
@@ -55,7 +60,7 @@
 
 .curated-sidebar li {
   font-family: var(--font-sans);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   letter-spacing: 0.1em;
   color: #888;
   cursor: pointer;
@@ -83,7 +88,8 @@
 }
 
 .curated-content {
-  width: 75%;
+  width: 60%;
+  box-sizing: border-box;
   padding: 60px 40px;
 }
 
@@ -98,7 +104,7 @@
 
 .curated-title {
   font-family: var(--font-sans);
-  font-size: 2.5rem;
+  font-size: 2.9rem;
   color: #000;
   margin: 0 0 10px 0;
   letter-spacing: 0.05em;
@@ -117,7 +123,7 @@
 }
 
 .curated-subtitle {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   letter-spacing: 0.2em;
   color: #666;
   text-transform: uppercase;
@@ -125,7 +131,7 @@
 }
 
 .curated-view-all {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: bold;
   color: #000;
   text-decoration: none;
@@ -139,6 +145,23 @@
 .curated-carousel-wrap {
   position: relative;
   min-height: 400px;
+}
+
+.curated-section .product-card__category {
+  font-size: 0.72rem;
+}
+
+.curated-section .product-card__name {
+  font-size: 1rem;
+}
+
+.curated-section .product-card__price {
+  font-size: 1.15rem;
+}
+
+/* Keep only the forward carousel control in this section. */
+.curated-section .product-carousel-btn.left {
+  display: none;
 }
 
 .curated-mobile-tabs {

@@ -141,7 +141,6 @@ export default function HomePage() {
                   </div>
                   <div className="collection-info">
                      <h3>{cat.name.toUpperCase()}</h3>
-                     <span className="collection-arrow">&rarr;</span>
                   </div>
                </Link>
           ))}

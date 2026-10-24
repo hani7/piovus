@@ -288,6 +288,27 @@
   }
 }
 
+/* Desktop header: logo left, category menu centered, actions right. */
+@media (min-width: 901px) {
+  .navbar__inner {
+    min-height: 70px;
+    padding: 8px 40px;
+  }
+  .navbar__logo {
+    position: absolute;
+    left: 40px;
+    justify-self: initial;
+  }
+  .navbar__menu {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .navbar > .navbar__bottom-links {
+    display: none !important;
+  }
+}
+
 /* Sidebar overlay */
 .sidebar-overlay {
   position: fixed;

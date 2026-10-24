@@ -103,6 +103,7 @@ class CategoryCompactSerializer(AbsoluteImageMixin, serializers.ModelSerializer)
 # ─── Product (list - compact) ─────────────────────────────────────────────────
 class ProductListSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
     categories = CategoryCompactSerializer(many=True, read_only=True)
+    variants = ProductVariantSerializer(many=True, read_only=True)
     is_promo = serializers.BooleanField(read_only=True)
     effective_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     avg_rating = serializers.SerializerMethodField()
@@ -115,7 +116,7 @@ class ProductListSerializer(AbsoluteImageMixin, serializers.ModelSerializer):
             'price', 'promo_price', 'b2b_price', 'b2b_price_box', 'b2b_price_carton', 'b2b_promo_price_box', 'b2b_promo_price_carton', 'effective_price', 'is_promo',
             'qty_per_box', 'qty_per_carton', 'units_per_carton', 'b2b_min_stock', 'stock', 'is_featured', 'is_new', 'is_bestseller', 'is_promotion', 'thumbnail',
             'weight_box', 'weight_carton', 'contenance', 'contenance_unit', 'short_description',
-            'avg_rating', 'created_at',
+            'avg_rating', 'created_at', 'variants',
         ]
 
     def get_avg_rating(self, obj):

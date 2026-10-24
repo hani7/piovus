@@ -139,9 +139,9 @@
 }
 
 .product-card__variant-dot {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
   border: 1px solid rgba(0, 0, 0, 0.18);
   border-radius: 50%;
   background-position: center;
@@ -151,7 +151,7 @@
 
 .product-card__variant-more {
   color: var(--color-gray-500);
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   line-height: 1;
   letter-spacing: 1px;
 }

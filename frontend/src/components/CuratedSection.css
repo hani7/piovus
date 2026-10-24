@@ -12,7 +12,7 @@
 .curated-sidebar {
   width: 30%;
   box-sizing: border-box;
-  height: auto;
+  height: 560px;
   background: #1a1a1a;
   color: #fff;
   display: flex;
@@ -23,7 +23,7 @@
   overflow: hidden;
   isolation: isolate;
   margin: 0;
-  align-self: stretch;
+  align-self: center;
 }
 
 .curated-sidebar::before {

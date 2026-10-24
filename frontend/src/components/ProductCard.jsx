@@ -91,25 +91,6 @@ const ProductCard = memo(function ProductCard({ product }) {
         <h3 className="product-card__name">
           <Link to={`/produit/${product.slug}`} state={{ initialProduct: product }}>{product.name}</Link>
         </h3>
-        {hasVariants && (
-          <div className="product-card__variants" aria-label="Variantes disponibles">
-            {visibleVariants.map((variant) => {
-              const color = (variant.color_hex || '').split('|')[0]
-              const image = variant.image ? mediaUrl(variant.image) : null
-              return (
-                <span
-                  key={variant.id}
-                  className="product-card__variant-dot"
-                  title={variant.name}
-                  style={image
-                    ? { backgroundImage: `url(${image})` }
-                    : { backgroundColor: color || '#e5e5e5' }}
-                />
-              )
-            })}
-            {product.variants.length > 4 && <span className="product-card__variant-more">...</span>}
-          </div>
-        )}
         <div className="product-card__pricing">
           {isB2B ? (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -132,6 +113,22 @@ const ProductCard = memo(function ProductCard({ product }) {
             </span>
           )}
         </div>
+        {hasVariants && (
+          <div className="product-card__variants" aria-label="Variantes disponibles">
+            {visibleVariants.map((variant) => {
+              const color = (variant.color_hex || '').split('|')[0]
+              return (
+                <span
+                  key={variant.id}
+                  className="product-card__variant-dot"
+                  title={variant.name}
+                  style={{ backgroundColor: color || '#e5e5e5' }}
+                />
+              )
+            })}
+            {product.variants.length > 4 && <span className="product-card__variant-more">...</span>}
+          </div>
+        )}
         {product.avg_rating && (
           <div className="product-card__rating">
             {[1,2,3,4,5].map(s => (

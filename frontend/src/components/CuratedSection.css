@@ -12,7 +12,6 @@
 .curated-sidebar {
   width: 30%;
   box-sizing: border-box;
-  aspect-ratio: 1 / 1;
   height: auto;
   background: #1a1a1a;
   color: #fff;
@@ -23,8 +22,8 @@
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  margin: 60px 0;
-  align-self: center;
+  margin: 0;
+  align-self: stretch;
 }
 
 .curated-sidebar::before {

@@ -239,7 +239,7 @@
   transition: var(--transition);
   cursor: pointer;
 }
-.swatch--active { border-color: var(--color-black); transform: scale(1.15); }
+.swatch--active { border-color: #fff; transform: scale(1.15); }
 .swatch:hover { transform: scale(1.1); }
 
 .product-info__actions {

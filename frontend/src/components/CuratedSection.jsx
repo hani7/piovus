@@ -55,7 +55,7 @@ export default function CuratedSection() {
     <section className="curated-section">
       {/* Mobile Tabs */}
       <div className="curated-mobile-tabs">
-        {tabs.map(tab => (
+        {tabs.filter(tab => tab.id !== 'bestseller').map(tab => (
           <button 
             key={tab.id} 
             className={`curated-tab ${activeTab === tab.id ? 'active' : ''}`}
@@ -73,7 +73,7 @@ export default function CuratedSection() {
           style={tabBackgrounds[activeTab] ? { '--curated-bg-image': `url("${tabBackgrounds[activeTab]}")` } : undefined}
         >
           <ul>
-            {tabs.map(tab => (
+            {tabs.filter(tab => tab.id !== 'bestseller').map(tab => (
               <li 
                 key={tab.id} 
                 className={activeTab === tab.id ? 'active' : ''}

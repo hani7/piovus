@@ -4,17 +4,17 @@
 <meta charset="utf-8">
 <title>Contrat de maintenance et de suivi — Piové Cosmetics</title>
 <style>
-@page { size:A4; margin:0; }
+@page { size:210mm 297mm; margin:0; }
 * { box-sizing:border-box; }
-body { margin:0; color:#202334; background:#e9e9ec; font-family:Arial, sans-serif; font-size:10pt; line-height:1.5; }
+body { margin:0; color:#202334; background:#e9e9ec; font-family:'Poppins', sans-serif; font-size:10pt; line-height:1.5; }
 .page { width:210mm; height:297mm; margin:8mm auto; background:white; position:relative; overflow:hidden; }
 .page::before { content:''; position:absolute; top:0; left:0; width:5px; height:100%; background:linear-gradient(#c9485b,#d4a853); }
 .inner-page { padding:17mm 19mm 24mm; min-height:297mm; position:relative; }
 .page-header { display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #202334; padding-bottom:11px; margin-bottom:22px; }
-.brand { font-family:Georgia,serif; font-size:14pt; letter-spacing:1.3px; font-weight:bold; }
+.brand-logo { width:39mm; height:auto; display:block; object-fit:contain; object-position:left center; }
 .eyebrow { font-size:7.5pt; text-transform:uppercase; letter-spacing:1.4px; color:#8b3543; }
-h1 { font-family:Georgia,serif; font-size:27pt; line-height:1.17; margin:0 0 12px; }
-h2 { font-family:Georgia,serif; font-size:19pt; margin:0 0 16px; }
+h1 { font-family:'Poppins', sans-serif; font-size:27pt; line-height:1.17; margin:0 0 12px; font-weight:700; }
+h2 { font-family:'Poppins', sans-serif; font-size:19pt; margin:0 0 16px; font-weight:700; }
 h3 { font-size:11pt; margin:16px 0 7px; color:#943448; }
 p { margin:6px 0 10px; }
 .muted { color:#656b77; }
@@ -42,12 +42,20 @@ li { margin:5px 0; }
 .signature strong { display:block; margin-bottom:6px; }
 .check { display:inline-block; width:10px; height:10px; border:1px solid #646977; margin-right:5px; }
 a { color:inherit; text-decoration:none; }
-@media print { body { background:white; print-color-adjust:exact; -webkit-print-color-adjust:exact; } .page { margin:0; break-after:page; } .page:last-child { break-after:auto; } }
+/* Version monochrome : tous les textes sont imprimés en noir. */
+body, .eyebrow, h1, h2, h3, p, .muted, .small, .lead, .field, .page-footer,
+.amount, .amount strong, .amount .caption, th, td, li, .signature, .notice { color:#000; }
+.amount { background:#f2f2f2; border:1px solid #000; }
+.amount strong { color:#000; }
+.amount .caption { color:#000; }
+th { background:#e8e8e8; color:#000; }
+.page-footer { color:#000; }
+@media print { body { width:210mm; background:white; print-color-adjust:exact; -webkit-print-color-adjust:exact; } .page { width:210mm; height:297mm; margin:0; break-after:page; page-break-after:always; } .page:last-child { break-after:auto; page-break-after:auto; } }
 </style>
 </head>
 <body>
 <section class="page"><div class="inner-page">
-  <header class="page-header"><span class="brand">PIOVÉ COSMETICS</span><span class="eyebrow">Contrat annuel · Maintenance</span></header>
+  <header class="page-header"><img class="brand-logo" src="frontend/public/logo.png" alt="Piové"><span class="eyebrow">Contrat annuel · Maintenance</span></header>
   <div class="eyebrow" style="margin-bottom:12px">Plateforme e-commerce · piovecosmetics.dz</div>
   <h1>Contrat de maintenance<br>et de suivi</h1>
   <p class="lead">Maintenance technique, assistance et suivi de la plateforme.</p>
@@ -66,7 +74,7 @@ a { color:inherit; text-decoration:none; }
 </div></section>
 
 <section class="page"><div class="inner-page">
-  <header class="page-header"><span class="brand">PIOVÉ COSMETICS</span><span class="eyebrow">Périmètre des prestations</span></header>
+  <header class="page-header"><img class="brand-logo" src="frontend/public/logo.png" alt="Piové"><span class="eyebrow">Périmètre des prestations</span></header>
   <h2>Un suivi régulier de la plateforme</h2>
   <h3>03 — Prestations incluses au forfait</h3>
   <table><thead><tr><th>Prestation</th><th>Contenu et fréquence proposés</th></tr></thead><tbody>
@@ -86,7 +94,7 @@ a { color:inherit; text-decoration:none; }
 </div></section>
 
 <section class="page"><div class="inner-page">
-  <header class="page-header"><span class="brand">PIOVÉ COSMETICS</span><span class="eyebrow">Assistance et engagements</span></header>
+  <header class="page-header"><img class="brand-logo" src="frontend/public/logo.png" alt="Piové"><span class="eyebrow">Assistance et engagements</span></header>
   <h2>Organisation des interventions</h2>
   <h3>05 — Signalement et prise en charge</h3>
   <p>Plage de service proposée : <b>du dimanche au jeudi, de 9 h à 17 h, heure d’Alger</b>, hors jours fériés en Algérie. Le Client transmet l’URL concernée, les étapes de reproduction et, si possible, une capture sans données sensibles.</p>
@@ -109,11 +117,11 @@ a { color:inherit; text-decoration:none; }
 </div></section>
 
 <section class="page"><div class="inner-page">
-  <header class="page-header"><span class="brand">PIOVÉ COSMETICS</span><span class="eyebrow">Conditions et signatures</span></header>
+  <header class="page-header"><img class="brand-logo" src="frontend/public/logo.png" alt="Piové"><span class="eyebrow">Conditions et signatures</span></header>
   <h2>Conditions financières et accord</h2>
   <h3>08 — Prix et règlement</h3>
   <p>Le <b>montant total à payer pour douze mois est fixé à 150 000 DA</b>, taxes applicables comprises le cas échéant. Le Prestataire précise sur sa facture le régime fiscal applicable et la ventilation éventuelle, sans augmenter ce total pour le périmètre convenu. L’équivalent de 12 500 DA par mois est indicatif.</p>
-  <p class="small"><b>Échéancier à choisir avant signature :</b><br><span class="check"></span> Un règlement annuel de 150 000 DA à la date de prise d’effet.<br><span class="check"></span> Quatre règlements de 37 500 DA au début de chaque trimestre contractuel.<br>Mode de paiement / coordonnées : <span class="line" style="width:270px"></span></p>
+  <p class="small"><b>Échéancier :</b><br><span class="check"></span> Deux règlements semestriels de 75 000 DA, au début de chaque semestre contractuel.<br>Mode de paiement / coordonnées : <span class="line" style="width:270px"></span></p>
   <p class="small">Les prestations déjà couvertes par une garantie de réalisation en cours ne sont pas facturées une seconde fois comme intervention corrective supplémentaire. Le suivi préventif et l’assistance du présent contrat restent distincts de cette garantie.</p>
   <h3>09 — Responsabilité et événements extérieurs</h3>
   <p class="small">Le Prestataire est tenu à une obligation de moyens et répond des fautes qui lui sont imputables, selon le droit applicable. Aucun engagement de disponibilité absolue ou d’absence totale de cyberattaque n’est donné. En cas de panne d’un tiers ou de force majeure, il informe le Client, limite les conséquences dans son périmètre et coordonne le rétablissement. Ces situations ne suppriment pas ses obligations propres de diligence et d’information.</p>

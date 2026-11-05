@@ -163,6 +163,9 @@
 .new-arrivals-carousel .carousel-item {
   flex: 0 0 calc(20.833% - 1.5rem);
 }
+.best-sellers-carousel .carousel-item {
+  flex: 0 0 calc(17.24% - 1.5rem);
+}
 .new-arrivals-carousel {
   margin-bottom: 0;
 }

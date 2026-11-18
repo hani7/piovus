@@ -4,6 +4,7 @@ import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
 import client from '../api/client'
 import mediaUrl from '../api/mediaUrl'
+import VariantColorSwatch from '../components/VariantColorSwatch'
 import './CartPage.css'
 
 export default function CartPage() {
@@ -78,14 +79,16 @@ export default function CartPage() {
                 {/* Desktop: name shown inside product col */}
                 <div className="cart-row__info-block">
                   <Link to={`/produit/${item.product.slug}`} className="cart-row__name">{item.product.name}</Link>
-                  {item.variant && !item.collectionChoices && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
+                  {item.variant && !item.collectionChoices && <p className="cart-row__variant"><VariantColorSwatch variant={item.variant} />Teinte: {item.variant.name}</p>}
+                  {item.collectionChoices?.length > 0 && <p className="cart-row__variant cart-row__variant--choices">{item.collectionChoices.map((variant) => <VariantColorSwatch key={variant.id} variant={variant} />)}</p>}
                 </div>
               </div>
 
               {/* Col 2 row 1 — Mobile: name + price (hidden on desktop via CSS) */}
               <div className="cart-row__info-standalone">
                 <Link to={`/produit/${item.product.slug}`} className="cart-row__name">{item.product.name}</Link>
-                {item.variant && !item.collectionChoices && <p className="cart-row__variant">Teinte: {item.variant.name}</p>}
+                {item.variant && !item.collectionChoices && <p className="cart-row__variant"><VariantColorSwatch variant={item.variant} />Teinte: {item.variant.name}</p>}
+                {item.collectionChoices?.length > 0 && <p className="cart-row__variant cart-row__variant--choices">{item.collectionChoices.map((variant) => <VariantColorSwatch key={variant.id} variant={variant} />)}</p>}
                 <p style={{ fontWeight: 600, marginTop: 6, fontSize: '0.95rem' }}>{item.price.toLocaleString('fr-DZ')} DA</p>
               </div>
 

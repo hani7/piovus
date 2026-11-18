@@ -91,7 +91,7 @@
   transform: translateY(-50%);
   width: 10px;
   height: 2px;
-  background: var(--color-accent, #c41e3a);
+  background: #cc0000;
 }
 
 .curated-content {
@@ -129,7 +129,7 @@
 .curated-subtitle-line {
   width: 30px;
   height: 2px;
-  background: var(--color-accent, #c41e3a);
+  background: #cc0000;
 }
 
 .curated-subtitle {
@@ -208,7 +208,7 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: var(--color-accent, #c41e3a);
+  background: #cc0000;
 }
 
 @media (max-width: 900px) {

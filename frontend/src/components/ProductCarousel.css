@@ -57,7 +57,12 @@
   opacity: 1;
   transition: transform 0.15s;
 }
-.product-carousel-btn:hover { transform: scale(1.15); }
+.product-carousel-btn:hover {
+  transform: scale(1.15);
+  background: transparent !important;
+  border: none;
+  color: #000 !important;
+}
 .product-carousel-btn.left  { justify-content: flex-start; }
 .product-carousel-btn.right { justify-content: flex-end; }
 

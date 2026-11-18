@@ -150,7 +150,7 @@ const ProductCard = memo(function ProductCard({ product }) {
         )}
         <div className="product-card__cart">
           <button type="button" className="product-card__cart-btn" onClick={handleAddToCart}>
-            <ShoppingBag size={15} />
+            <ShoppingBag size={17} strokeWidth={2.2} aria-hidden="true" />
             <span>Ajouter au panier</span>
           </button>
         </div>

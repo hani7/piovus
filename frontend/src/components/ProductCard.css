@@ -211,6 +211,10 @@
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
+.product-card__cart-btn svg {
+  flex: 0 0 auto;
+  display: block;
+}
 .product-card__cart-btn:hover,
 .product-card__cart-btn.added {
   background: var(--color-accent);

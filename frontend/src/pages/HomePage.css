@@ -442,6 +442,10 @@
 }
 
 @media (max-width: 600px) {
+  .hero {
+    height: 220px;
+    min-height: 220px;
+  }
   .new-arrivals-carousel {
     margin-top: 32px;
   }

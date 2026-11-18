@@ -22,7 +22,10 @@ const ProductCard = memo(function ProductCard({ product }) {
   const isNew = product.is_new
   const isBestSeller = product.is_bestseller
   const isB2B = user?.profile?.is_b2b
-  const b2bPrice = parseFloat(product.b2b_price || product.effective_price * (product.units_per_carton || 1))
+  const price = Number.parseFloat(product.price)
+  const promoPrice = Number.parseFloat(product.promo_price)
+  const b2bPrice = Number.parseFloat(product.b2b_price || product.effective_price * (product.units_per_carton || 1))
+  const hasPromoPrice = isPromo && Number.isFinite(promoPrice)
   const wishlisted = isWishlisted(product.id)
   const isLowStock = product.stock > 0 && product.stock <= 5
 
@@ -98,21 +101,21 @@ const ProductCard = memo(function ProductCard({ product }) {
           {isB2B ? (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span className="product-card__price" style={{ color: 'var(--admin-gold)' }}>
-                {b2bPrice.toLocaleString('fr-DZ')} DA
+                {Number.isFinite(b2bPrice) ? `${b2bPrice.toLocaleString('fr-DZ')} DA` : '—'}
               </span>
             </div>
-          ) : isPromo ? (
+          ) : hasPromoPrice ? (
             <>
               <span className="product-card__price product-card__price--promo">
-                {parseFloat(product.promo_price).toLocaleString('fr-DZ')} DA
+                {promoPrice.toLocaleString('fr-DZ')} DA
               </span>
               <span className="product-card__price product-card__price--original">
-                {parseFloat(product.price).toLocaleString('fr-DZ')} DA
+                {Number.isFinite(price) ? `${price.toLocaleString('fr-DZ')} DA` : '—'}
               </span>
             </>
           ) : (
             <span className="product-card__price">
-              {parseFloat(product.price).toLocaleString('fr-DZ')} DA
+              {Number.isFinite(price) ? `${price.toLocaleString('fr-DZ')} DA` : '—'}
             </span>
           )}
         </div>

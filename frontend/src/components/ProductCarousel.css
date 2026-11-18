@@ -63,6 +63,10 @@
   border: none;
   color: #000 !important;
 }
+.product-carousel-btn:focus-visible {
+  outline: none;
+  background: transparent !important;
+}
 .product-carousel-btn.left  { justify-content: flex-start; }
 .product-carousel-btn.right { justify-content: flex-end; }
 

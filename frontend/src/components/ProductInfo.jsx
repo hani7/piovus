@@ -283,14 +283,15 @@ const ProductInfo = memo(function ProductInfo({
             <button onClick={() => onQuantityChange(quantity + 1)} aria-label="Augmenter la quantité" id="qty-plus">+</button>
           </div>
         )}
-        {canAddToCart && <button
-          className={`btn btn-accent product-info__add-btn${added ? ' added' : ''} has-selection`}
+        <button
+          className={`btn btn-accent product-info__add-btn${added ? ' added' : ''}${canAddToCart ? ' has-selection' : ''}`}
           onClick={onAddToCart}
+          disabled={!canAddToCart}
           id="add-to-cart-btn"
           aria-label={added ? 'Produit ajouté au panier' : `Ajouter ${product.name} au panier`}
         >
           {added ? '✓ Ajouté au panier' : 'Ajouter au panier'}
-        </button>}
+        </button>
         <button
           className={`product-info__wishlist-btn${isWishlisted ? ' product-info__wishlist-btn--active' : ''}`}
           onClick={onToggleWishlist}

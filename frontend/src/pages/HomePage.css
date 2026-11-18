@@ -183,13 +183,13 @@
 
 /* Collections Section */
 .collections-section {
-  padding: 32px 0 80px;
+  padding: 52px 0 80px;
   background: #fdfdfd;
   text-align: center;
 }
 
 .collections-header {
-  margin-bottom: 50px;
+  margin-bottom: 18px;
 }
 .collections-eyebrow {
   font-size: 0.75rem;
@@ -216,7 +216,7 @@
 .collection-card {
   position: relative;
   min-width: 0;
-  height: 590px;
+  height: 520px;
   display: flex;
   flex-direction: column;
   text-decoration: none;
@@ -225,6 +225,19 @@
   overflow: hidden;
   border-right: 1px solid rgba(255,255,255,0.8);
   background: #111;
+}
+.collection-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: #cc0000;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+  z-index: 2;
 }
 .collection-img-wrap {
   width: 100%;
@@ -244,6 +257,9 @@
   transform: scale(1.05);
   filter: brightness(0.8);
 }
+.collection-card:hover .collection-info {
+  transform: translateY(-8px);
+}
 .collection-placeholder {
   width: 100%;
   height: 100%;
@@ -255,16 +271,6 @@
   font-size: 0.9rem;
   letter-spacing: 0.1em;
 }
-.collection-card__number {
-  position: absolute;
-  top: 22px;
-  left: 20px;
-  color: #fff;
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-  z-index: 1;
-}
-
 .collection-info h3 {
   font-family: var(--font-sans);
   font-size: 1.15rem;
@@ -279,7 +285,9 @@
   right: 12px;
   bottom: 28px;
   z-index: 1;
+  transition: transform 0.35s ease;
 }
+.collection-card:hover::after { transform: scaleX(1); }
 .collection-info p {
   font-size: 0.65rem;
   color: #888;
@@ -395,7 +403,7 @@
   .collections-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  .collection-card { height: 500px; }
+  .collection-card { height: 450px; }
 }
 
 @media (max-width: 900px) {
@@ -451,7 +459,7 @@
     display: none;
   }
   .collections-section {
-    padding: 24px 0 40px;
+    padding: 40px 0 40px;
   }
   .collections-title {
     font-size: 1.8rem;
@@ -477,13 +485,12 @@
   .collections-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .collection-card { height: 420px; }
+  .collection-card { height: 380px; }
 }
 
 @media (max-width: 480px) {
   .homepage { padding-top: 64px; }
-  .collection-card { height: 340px; }
-  .collection-card__number { top: 14px; left: 14px; }
+  .collection-card { height: 320px; }
   .collection-info { left: 14px; bottom: 18px; }
   .collection-info h3 { font-size: 0.85rem; }
 }

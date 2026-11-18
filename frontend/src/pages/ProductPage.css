@@ -239,8 +239,9 @@
   transition: var(--transition);
   cursor: pointer;
 }
-.swatch--active { border-color: #fff; transform: scale(1.15); }
+.swatch--active { border-color: #fff; transform: scale(1.28); z-index: 1; }
 .swatch:hover { transform: scale(1.1); }
+.swatch.swatch--active:hover { transform: scale(1.28); }
 
 .product-info__actions {
   display: flex;
@@ -318,6 +319,12 @@
 }
 .product-info__add-btn:hover:not(:disabled) {
   background: #cc0000;
+}
+.product-info__add-btn.has-selection {
+  background: #cc0000;
+}
+.product-info__add-btn.has-selection:hover:not(:disabled) {
+  background: #a80000;
 }
 .product-info__add-btn.added {
   background: #4caf50;

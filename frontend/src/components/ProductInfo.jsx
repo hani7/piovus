@@ -281,7 +281,7 @@ const ProductInfo = memo(function ProductInfo({
           </div>
         )}
         <button
-          className={`btn btn-accent product-info__add-btn${added ? ' added' : ''}`}
+          className={`btn btn-accent product-info__add-btn${added ? ' added' : ''}${((isCollection && allChoicesMade) || (!isCollection && selectedVariant)) ? ' has-selection' : ''}`}
           onClick={onAddToCart}
           disabled={
             (isCollection && !allChoicesMade) ||

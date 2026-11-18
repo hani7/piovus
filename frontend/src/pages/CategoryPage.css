@@ -5,6 +5,10 @@
 }
 
 @media (max-width: 768px) {
+  .category-page > .container {
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+  }
   .category-page .products-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

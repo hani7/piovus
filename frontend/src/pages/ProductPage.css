@@ -239,10 +239,18 @@
   transition: var(--transition);
   cursor: pointer;
 }
-.swatch--active { border-color: #fff; transform: scale(1.28); z-index: 1; }
+.swatch--active { border-color: #fff; transform: scale(1.35); z-index: 1; }
 .swatch:focus-visible { outline: none; }
 .swatch:hover { transform: scale(1.1); }
-.swatch.swatch--active:hover { transform: scale(1.28); }
+.swatch.swatch--active:hover { transform: scale(1.35); }
+
+.product-page.page-enter {
+  animation: productPageEnter 0.45s ease both;
+}
+@keyframes productPageEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 .product-info__actions {
   display: flex;

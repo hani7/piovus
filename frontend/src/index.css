@@ -34,7 +34,7 @@
   --transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 
   --navbar-height: 70px;
-  --max-width: 1400px;
+  --max-width: none;
   --gutter: 24px;
 }
 
@@ -82,6 +82,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 /* Utilities */
 .container {
   max-width: var(--max-width);
+  width: 100%;
   margin: 0 auto;
   padding: 0 var(--gutter);
 }

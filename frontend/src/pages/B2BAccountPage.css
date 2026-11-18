@@ -1,4 +1,4 @@
-.b2b-account-page > .container { max-width: 1400px; }
+.b2b-account-page > .container { max-width: none; }
 .b2b-account-page .account-dashboard-wrapper { max-width: none; gap: 32px; }
 .b2b-account-page .account-content { min-width: 0; }
 .b2b-account-page .account-sidebar { width: 260px; border-radius: 22px; }

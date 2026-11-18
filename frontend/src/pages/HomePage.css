@@ -127,7 +127,7 @@
 
 /* New arrivals carousel */
 .new-arrivals-carousel {
-  margin-top: 48px;
+  margin-top: 0;
 }
 .new-arrivals-carousel .carousel-track-wrapper {
   max-width: none;

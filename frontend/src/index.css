@@ -198,6 +198,13 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   justify-content: center;
 }
 
+/* Shared hover state for every interactive button. */
+button:not(:disabled):hover,
+.btn:not(:disabled):hover {
+  background: #cc0000 !important;
+  color: #fff !important;
+}
+
 /* Form Elements */
 .form-group {
   display: flex;

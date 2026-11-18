@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
+import VariantColorSwatch from './VariantColorSwatch'
 import './CartDrawer.css'
 
 
@@ -52,7 +53,16 @@ export default function CartDrawer({ open, onClose }) {
                     </div>
                     <div className="cart-item__info">
                       <p className="cart-item__name">{item.product.name}</p>
-                      {item.variant && !item.collectionChoices && <p className="cart-item__variant">{item.variant.name}</p>}
+                      {item.variant && !item.collectionChoices && (
+                        <p className="cart-item__variant">
+                          <VariantColorSwatch variant={item.variant} />{item.variant.name}
+                        </p>
+                      )}
+                      {item.collectionChoices?.length > 0 && (
+                        <p className="cart-item__variant cart-item__variant--choices">
+                          {item.collectionChoices.map((variant) => <VariantColorSwatch key={variant.id} variant={variant} />)}
+                        </p>
+                      )}
                       <p className="cart-item__price">{item.price.toLocaleString('fr-DZ')} DA</p>
                     </div>
                     <div className="cart-item__controls">

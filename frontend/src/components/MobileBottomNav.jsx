@@ -1,15 +1,27 @@
+import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useCartStore } from '../store/cartStore'
 import { useWishlistStore } from '../store/wishlistStore'
 import './MobileBottomNav.css'
 
+const isNightTime = () => {
+  const hour = new Date().getHours()
+  return hour >= 20 || hour < 6
+}
+
 export default function MobileBottomNav() {
   const location = useLocation()
+  const [isNight, setIsNight] = useState(isNightTime)
   const cartCount = useCartStore((s) => s.items.reduce((n, i) => n + i.quantity, 0))
   const wishlistCount = useWishlistStore(s => s.items.length)
 
+  useEffect(() => {
+    const timer = window.setInterval(() => setIsNight(isNightTime()), 60000)
+    return () => window.clearInterval(timer)
+  }, [])
+
   return (
-    <nav className="mobile-bottom-nav">
+    <nav className={`mobile-bottom-nav${isNight ? ' mobile-bottom-nav--night' : ''}`}>
       <Link to="/" className={`nav-item ${location.pathname === '/' ? 'active' : ''}`}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <span>Accueil</span>

@@ -129,6 +129,11 @@
 .new-arrivals-carousel {
   margin-top: 48px;
 }
+.new-arrivals-carousel .carousel-track-wrapper {
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+}
 .new-arrivals-carousel .carousel-header {
   background: transparent;
   color: var(--color-black);
@@ -145,7 +150,8 @@
   width: 50px;
   height: 60px;
   justify-content: center;
-  border: none;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0;
   background: transparent;
   opacity: 0.85;
   transition: opacity 0.2s, transform 0.2s;
@@ -204,30 +210,39 @@
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0;
+  width: 100%;
 }
 
 .collection-card {
+  position: relative;
+  min-width: 0;
+  height: 590px;
   display: flex;
   flex-direction: column;
   text-decoration: none;
   color: inherit;
   text-align: left;
+  overflow: hidden;
+  border-right: 1px solid rgba(255,255,255,0.8);
+  background: #111;
 }
 .collection-img-wrap {
   width: 100%;
-  aspect-ratio: 3/4;
-  background: #f0f0f0;
-  margin-bottom: 15px;
+  height: 100%;
+  background: #111;
+  margin-bottom: 0;
   overflow: hidden;
 }
 .collection-img-wrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  filter: brightness(0.65);
 }
 .collection-card:hover .collection-img-wrap img {
   transform: scale(1.05);
+  filter: brightness(0.8);
 }
 .collection-placeholder {
   width: 100%;
@@ -240,12 +255,30 @@
   font-size: 0.9rem;
   letter-spacing: 0.1em;
 }
+.collection-card__number {
+  position: absolute;
+  top: 22px;
+  left: 20px;
+  color: #fff;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  z-index: 1;
+}
 
 .collection-info h3 {
   font-family: var(--font-sans);
-  font-size: 1.1rem;
-  margin: 0 0 5px 0;
-  color: #000;
+  font-size: 1.15rem;
+  margin: 0;
+  color: #fff;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+.collection-info {
+  position: absolute;
+  left: 20px;
+  right: 12px;
+  bottom: 28px;
+  z-index: 1;
 }
 .collection-info p {
   font-size: 0.65rem;
@@ -362,6 +395,7 @@
   .collections-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+  .collection-card { height: 500px; }
 }
 
 @media (max-width: 900px) {
@@ -443,8 +477,13 @@
   .collections-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .collection-card { height: 420px; }
 }
 
 @media (max-width: 480px) {
   .homepage { padding-top: 64px; }
+  .collection-card { height: 340px; }
+  .collection-card__number { top: 14px; left: 14px; }
+  .collection-info { left: 14px; bottom: 18px; }
+  .collection-info h3 { font-size: 0.85rem; }
 }

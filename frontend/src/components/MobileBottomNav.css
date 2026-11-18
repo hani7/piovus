@@ -14,6 +14,11 @@
   border: 1px solid rgba(0,0,0,0.05);
 }
 
+.mobile-bottom-nav--night {
+  background: rgba(0, 0, 0, 0.95);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
 @media (max-width: 768px) {
   .mobile-bottom-nav {
     display: flex;
@@ -48,6 +53,14 @@
   color: var(--color-accent);
 }
 
+.mobile-bottom-nav--night .nav-item {
+  color: #aaa;
+}
+
+.mobile-bottom-nav--night .nav-item.active {
+  color: #fff;
+}
+
 .mobile-bottom-nav .nav-item-icon-wrap {
   position: relative;
 }
@@ -63,4 +76,9 @@
   padding: 2px 5px;
   border-radius: 10px;
   line-height: 1;
+}
+
+.mobile-bottom-nav--night .badge {
+  background: #fff;
+  color: #000;
 }

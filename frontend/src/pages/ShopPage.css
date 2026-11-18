@@ -52,7 +52,7 @@
   gap: 6px;
   padding: 8px 18px;
   border: 1.5px solid var(--color-gray-300);
-  border-radius: var(--radius-full);
+  border-radius: 0;
   font-size: 0.82rem;
   font-weight: 600;
   background: white;
@@ -242,8 +242,8 @@
   color: var(--color-accent, #c9485b);
 }
 .shop-pagination__page.active {
-  background: var(--color-accent, #c9485b);
-  border-color: var(--color-accent, #c9485b);
+  background: #cc0000;
+  border-color: #cc0000;
   color: #fff;
   font-weight: 700;
 }

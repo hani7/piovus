@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   background: #fdfdfd;
+  margin-bottom: 24px;
 }
 
 .curated-layout {
@@ -79,6 +80,7 @@
 
 .curated-sidebar li.active {
   color: #fff;
+  font-size: 2.1rem;
 }
 
 .curated-sidebar li.active::before {
@@ -96,8 +98,8 @@
   width: 70%;
   box-sizing: border-box;
   height: 100%;
-  padding: 60px 40px;
-  overflow: hidden;
+  padding: 40px 40px 70px;
+  overflow: visible;
 }
 
 .curated-header {
@@ -195,6 +197,7 @@
 .curated-tab.active {
   color: #000;
   font-weight: bold;
+  font-size: 1.05rem;
 }
 
 .curated-tab.active::after {
@@ -224,6 +227,7 @@
     font-size: 0.78rem;
     letter-spacing: 0.025em;
   }
+  .curated-tab.active { font-size: 0.9rem; }
   .curated-layout {
     flex-direction: column;
     height: auto;
@@ -268,6 +272,7 @@
     padding: 12px 10px;
     font-size: 0.7rem;
   }
+  .curated-tab.active { font-size: 0.8rem; }
   .curated-content {
     padding: 20px 12px 28px;
   }

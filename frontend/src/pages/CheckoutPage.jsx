@@ -6,6 +6,7 @@ import { useCartStore } from '../store/cartStore'
 import { createOrder, initiateYassir } from '../api/orders'
 import { useAuthStore } from '../store/authStore'
 import WilayaCommuneSelect from '../components/WilayaCommuneSelect'
+import VariantColorSwatch from '../components/VariantColorSwatch'
 import './CheckoutPage.css'
 
 
@@ -476,7 +477,16 @@ export default function CheckoutPage() {
                 </div>
                 <div className="checkout-summary__item-info">
                   <p className="checkout-summary__item-name">{i.product.name}</p>
-                  {i.variant && !i.collectionChoices && <p className="checkout-summary__item-variant">Teinte: {i.variant.name}</p>}
+                  {i.variant && !i.collectionChoices && (
+                    <p className="checkout-summary__item-variant">
+                      <VariantColorSwatch variant={i.variant} />Teinte: {i.variant.name}
+                    </p>
+                  )}
+                  {i.collectionChoices?.length > 0 && (
+                    <p className="checkout-summary__item-variant checkout-summary__item-variant--choices">
+                      {i.collectionChoices.map((variant) => <VariantColorSwatch key={variant.id} variant={variant} />)}
+                    </p>
+                  )}
                 </div>
                 <p className="checkout-summary__item-price">{(i.price * i.quantity).toLocaleString('fr-DZ')} DA</p>
               </div>

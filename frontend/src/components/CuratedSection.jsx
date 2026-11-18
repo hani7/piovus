@@ -93,7 +93,7 @@ export default function CuratedSection() {
                 <p className="curated-subtitle">{activeTabData.subtitle}</p>
               </div>
             </div>
-            <Link to={activeTabData.link} className="curated-view-all">Voir plus &rarr;</Link>
+            <Link to={activeTabData.link} className="curated-view-all">VOIR PLUS &rarr;</Link>
           </div>
           <div className="curated-carousel-wrap">
             {loading ? (

@@ -166,7 +166,7 @@
   width: 44px !important;
   height: 44px !important;
   stroke: #111;
-  stroke-width: 2.5;
+  stroke-width: 1.5;
 }
 .new-arrivals-carousel .carousel-item {
   flex: 0 0 calc(20.833% - 1.5rem);

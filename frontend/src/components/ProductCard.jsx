@@ -13,6 +13,8 @@ const ProductCard = memo(function ProductCard({ product }) {
   const user = useAuthStore((s) => s.user)
   const { toggle: toggleWishlist, isWishlisted } = useWishlistStore()
   const [imgError, setImgError] = useState(false)
+  const [selectedVariant, setSelectedVariant] = useState(null)
+  const [variantError, setVariantError] = useState(false)
 
   const hasVariants = product.variants?.length > 0
   const visibleVariants = (product.variants || []).slice(0, 4)
@@ -26,11 +28,12 @@ const ProductCard = memo(function ProductCard({ product }) {
 
   const handleAddToCart = (e) => {
     e.preventDefault()
-    if (hasVariants) {
-      navigate(`/produit/${product.slug}`, { state: { initialProduct: product } })
+    if (hasVariants && !selectedVariant) {
+      setVariantError(true)
       return
     }
-    addItem(product, null, 1)
+    addItem(product, selectedVariant, 1)
+    setVariantError(false)
     const btn = e.currentTarget
     btn.classList.add('added')
     setTimeout(() => btn.classList.remove('added'), 1200)
@@ -38,11 +41,11 @@ const ProductCard = memo(function ProductCard({ product }) {
 
   const handleBuyNow = (e) => {
     e.preventDefault()
-    if (hasVariants) {
-      navigate(`/produit/${product.slug}`, { state: { initialProduct: product } })
+    if (hasVariants && !selectedVariant) {
+      setVariantError(true)
       return
     }
-    addItem(product, null, 1)
+    addItem(product, selectedVariant, 1)
     navigate('/cart')
   }
 
@@ -118,17 +121,25 @@ const ProductCard = memo(function ProductCard({ product }) {
             {visibleVariants.map((variant) => {
               const color = (variant.color_hex || '').split('|')[0]
               return (
-                <span
+                <button
                   key={variant.id}
-                  className="product-card__variant-dot"
+                  type="button"
+                  className={`product-card__variant-dot${selectedVariant?.id === variant.id ? ' product-card__variant-dot--selected' : ''}`}
                   title={variant.name}
+                  aria-label={`Choisir ${variant.name}`}
+                  aria-pressed={selectedVariant?.id === variant.id}
                   style={{ backgroundColor: color || '#e5e5e5' }}
+                  onClick={() => {
+                    setSelectedVariant(variant)
+                    setVariantError(false)
+                  }}
                 />
               )
             })}
             {product.variants.length > 4 && <span className="product-card__variant-more">...</span>}
           </div>
         )}
+        {variantError && <p className="product-card__variant-error">Choisissez une couleur</p>}
         {product.avg_rating && (
           <div className="product-card__rating">
             {[1,2,3,4,5].map(s => (

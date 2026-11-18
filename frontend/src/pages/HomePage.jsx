@@ -15,8 +15,16 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getProducts({ is_bestseller: true, page_size: 10 })
-      .then(res => setBestSellers(res.data.results || res.data))
+    Promise.all([
+      getProducts({ is_bestseller: true, page_size: 10 }),
+      getProducts({ page_size: 10 })
+    ])
+      .then(([bestRes, allRes]) => {
+        const best = bestRes.data.results || bestRes.data
+        const all = allRes.data.results || allRes.data
+        const products = [...best, ...all.filter(product => !best.some(item => item.id === product.id))]
+        setBestSellers(products.slice(0, 6))
+      })
       .catch(error => console.error('Failed to load best sellers:', error))
       .finally(() => setBestSellersLoading(false))
   }, [])

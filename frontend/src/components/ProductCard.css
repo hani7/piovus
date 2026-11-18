@@ -139,6 +139,7 @@
 }
 
 .product-card__variant-dot {
+  padding: 0;
   width: 26px;
   height: 26px;
   flex: 0 0 26px;
@@ -147,6 +148,11 @@
   background-position: center;
   background-size: cover;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+.product-card__variant-dot--selected {
+  outline: 2px solid var(--color-black);
+  outline-offset: 2px;
 }
 
 .product-card__variant-more {
@@ -154,6 +160,12 @@
   font-size: 1.05rem;
   line-height: 1;
   letter-spacing: 1px;
+}
+
+.product-card__variant-error {
+  color: var(--color-accent);
+  font-size: 0.68rem;
+  margin: -4px 0 6px;
 }
 
 .product-card__pricing {

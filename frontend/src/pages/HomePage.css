@@ -141,8 +141,10 @@
   margin: 0 0 1.5rem;
 }
 .new-arrivals-carousel .carousel-title {
-  font-size: 2rem;
+  font-size: 2.5rem;
+  font-weight: normal;
   letter-spacing: 0.05em;
+  padding-top: 15px;
 }
 .new-arrivals-carousel .product-carousel-btn {
   position: relative;
@@ -183,7 +185,7 @@
 
 /* Collections Section */
 .collections-section {
-  padding: 52px 0 80px;
+  padding: 52px 0 0;
   background: #fdfdfd;
   text-align: center;
 }

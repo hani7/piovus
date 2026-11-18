@@ -240,6 +240,7 @@
   cursor: pointer;
 }
 .swatch--active { border-color: #fff; transform: scale(1.28); z-index: 1; }
+.swatch:focus-visible { outline: none; }
 .swatch:hover { transform: scale(1.1); }
 .swatch.swatch--active:hover { transform: scale(1.28); }
 
@@ -420,6 +421,13 @@
   }
 }
 @media (max-width: 768px) {
+  .product-related {
+    margin-left: -14px;
+    margin-right: -14px;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
   .related-products-grid {
     grid-template-columns: repeat(2, 1fr);
   }

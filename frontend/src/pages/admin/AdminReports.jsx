@@ -255,7 +255,7 @@ export default function AdminReports() {
               <tbody>
                 {orders.map((o) => (
                   <tr key={o.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ paddingLeft: '24px', color: '#1e293b' }}>#{o.id}</td>
+                    <td style={{ paddingLeft: '24px', color: '#1e293b' }}>#{o.order_number || o.id}</td>
                     <td style={{ color: '#475569', fontSize: '0.9rem' }}>{o.date}</td>
                     <td style={{ fontWeight: 500, color: '#1e293b', fontSize: '0.9rem' }}>{o.customer}</td>
                     <td style={{ color: '#475569', fontSize: '0.9rem' }}>{o.wilaya}</td>

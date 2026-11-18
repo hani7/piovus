@@ -404,6 +404,9 @@ class Order(models.Model):
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
+    # Separate customer-facing sequence for B2B orders; the primary key remains internal.
+    b2b_order_number = models.PositiveIntegerField(null=True, blank=True, unique=True)
+
     # ─── Yassir Cash ────────────────────────────────────────────────────────
     yassir_payment_id    = models.CharField(max_length=200, blank=True, default='', verbose_name='Yassir Payment ID')
     yassir_client_secret = models.CharField(max_length=500, blank=True, default='', verbose_name='Yassir Client Secret')
@@ -422,9 +425,17 @@ class Order(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+    @classmethod
+    def next_b2b_order_number(cls):
+        return (cls.objects.aggregate(max_number=models.Max('b2b_order_number'))['max_number'] or 0) + 1
+
+    @property
+    def order_number(self):
+        return f'B{self.b2b_order_number:04d}' if self.b2b_order_number else str(self.pk)
+
     def __str__(self):
         name = self.user.get_full_name() if self.user else self.guest_name
-        return f"Commande #{self.pk} — {name}"
+        return f"Commande #{self.order_number} — {name}"
 
     def recalculate_total(self):
         subtotal = sum(item.subtotal for item in self.items.all())

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compte B2B validé — Piové Cosmetics</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 24px 12px; background: #f2f2f2; color: #2d2d2d; font-family: Arial, Helvetica, sans-serif; }
+        .wrapper { max-width: 620px; margin: 0 auto; overflow: hidden; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+        .header { padding: 34px 32px 26px; background: #1a1a1a; text-align: center; }
+        .brand { color: #fff; font-size: 30px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; }
+        .tagline { margin-top: 6px; color: #999; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; }
+        .hero { padding: 28px 32px; background: linear-gradient(135deg, #d4af7a, #c49a5a); text-align: center; }
+        .hero-icon { margin-bottom: 10px; font-size: 34px; }
+        h1 { margin: 0 0 6px; color: #1a1a1a; font-size: 21px; }
+        .hero p { margin: 0; color: #5a4020; font-size: 13px; }
+        .content { padding: 34px 36px; }
+        .greeting { margin: 0 0 12px; color: #1a1a1a; font-size: 17px; font-weight: 600; }
+        .text { color: #555; font-size: 14px; line-height: 1.7; }
+        .account-box { margin: 24px 0; padding: 18px 20px; border: 1px solid #ebebeb; border-radius: 8px; background: #fafafa; }
+        .account-box strong { color: #1a1a1a; }
+        .button { display: inline-block; padding: 13px 24px; border-radius: 5px; background: #1a1a1a; color: #d4af7a !important; font-size: 13px; font-weight: 700; text-decoration: none; }
+        .footer { padding: 20px 30px; border-top: 1px solid #eee; background: #fafafa; color: #999; font-size: 12px; line-height: 1.6; text-align: center; }
+        @media (max-width: 480px) { .content { padding: 28px 22px; } .header, .hero { padding-left: 20px; padding-right: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="brand">Piové</div>
+            <div class="tagline">Cosmetics · Espace professionnel</div>
+        </div>
+        <div class="hero">
+            <div class="hero-icon">✓</div>
+            <h1>Votre compte B2B est validé</h1>
+            <p>Vous pouvez maintenant accéder à votre espace professionnel.</p>
+        </div>
+        <div class="content">
+            <p class="greeting">Bonjour {{ user.first_name|default:user.username }},</p>
+            <p class="text">Votre compte professionnel B2B Piové Cosmetics a été vérifié et validé par notre équipe.</p>
+            <div class="account-box text">
+                <strong>Accès professionnel activé</strong><br>
+                Connectez-vous avec vos identifiants pour consulter vos tarifs et passer vos commandes B2B.
+            </div>
+            <p style="margin: 0 0 24px; text-align: center;"><a class="button" href="{{ login_url }}">Accéder à mon compte</a></p>
+            <p class="text">Merci pour votre confiance.<br>L'équipe Piové Cosmetics</p>
+        </div>
+        <div class="footer">Piové Cosmetics · Cet email confirme l'activation de votre compte professionnel.</div>
+    </div>
+</body>
+</html>

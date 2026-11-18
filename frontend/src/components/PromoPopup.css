@@ -18,7 +18,7 @@
 
 .promo-popup-content {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
   position: relative;
   max-width: 500px;

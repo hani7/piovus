@@ -84,7 +84,7 @@ export default function B2BAccountDashboard({ user, wishlistCount }) {
             <ul className="b2b-account-orders">
               {summary.orders.map(order => (
                 <li key={order.id}>
-                  <div><strong>Commande #{order.id}</strong><time dateTime={order.created_at}>{formatDate(order.created_at)}</time></div>
+                  <div><strong>Commande #{order.order_number || order.id}</strong><time dateTime={order.created_at}>{formatDate(order.created_at)}</time></div>
                   <div className="b2b-account-order__summary">
                     <strong>{formatAmount(order.total)} DA</strong>
                     <span className={`b2b-account-status b2b-account-status--${order.status}`}>{orderStatuses[order.status] || order.status_display || 'En traitement'}</span>

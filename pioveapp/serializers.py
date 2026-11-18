@@ -348,12 +348,13 @@ class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     history = OrderStatusHistorySerializer(many=True, read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    order_number = serializers.CharField(read_only=True)
     shipping_address = serializers.CharField(allow_blank=True, required=False)
 
     class Meta:
         model = Order
         fields = [
-            'id', 'user', 'guest_name', 'guest_phone', 'guest_email',
+            'id', 'order_number', 'user', 'guest_name', 'guest_phone', 'guest_email',
             'shipping_address', 'wilaya', 'city',
             'delivery_company_name', 'delivery_type', 'delivery_cost',
             'status', 'status_display', 'payment_method', 'total', 'notes',
@@ -530,11 +531,12 @@ class AdminOrderSerializer(serializers.ModelSerializer):
     deleted_by_name = serializers.SerializerMethodField()
     boutique_name = serializers.SerializerMethodField()
     coupon_code = serializers.CharField(source='coupon.code', read_only=True, allow_null=True)
+    order_number = serializers.CharField(read_only=True)
 
     class Meta:
         model = Order
         fields = [
-            'id', 'customer_name', 'user', 'guest_name', 'guest_phone', 'guest_phone2', 'guest_email',
+            'id', 'order_number', 'customer_name', 'user', 'guest_name', 'guest_phone', 'guest_phone2', 'guest_email',
             'shipping_address', 'wilaya', 'city',
             'delivery_company_name', 'delivery_type', 'delivery_cost',
             'status', 'status_display', 'payment_status', 'payment_method', 'total', 'notes', 'source',
@@ -601,7 +603,7 @@ class BoutiqueOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            'id', 'guest_name', 'guest_phone', 'wilaya', 'city', 'shipping_address',
+            'id', 'order_number', 'guest_name', 'guest_phone', 'wilaya', 'city', 'shipping_address',
             'total', 'payment_method', 'status', 'boutique_status', 'boutique_status_display',
             'boutique_transferred_at', 'items', 'notes', 'created_at',
         ]

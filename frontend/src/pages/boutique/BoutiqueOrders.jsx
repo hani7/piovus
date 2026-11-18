@@ -158,7 +158,7 @@ export default function BoutiqueOrders() {
               <tr><td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Aucune commande trouvée.</td></tr>
             ) : filteredOrders.map(o => (
               <tr key={o.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                <td style={{ padding: '16px', fontWeight: 600 }}>#{o.id}</td>
+                <td style={{ padding: '16px', fontWeight: 600 }}>#{o.order_number || o.id}</td>
                 <td style={{ padding: '16px' }}>
                   <div style={{ fontWeight: 600, color: '#1e293b' }}>{o.guest_name}</div>
                   <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{o.guest_phone}</div>
@@ -198,7 +198,7 @@ export default function BoutiqueOrders() {
           <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 600, maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ margin: 0, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-                Commande #{selectedOrder.id}
+                Commande #{selectedOrder.order_number || selectedOrder.id}
                 <span style={{ fontSize: '0.8rem', padding: '4px 8px', borderRadius: 20, background: '#f1f5f9', color: '#64748b' }}>{new Date(selectedOrder.created_at).toLocaleString('fr-FR')}</span>
               </h2>
               <button onClick={() => setSelectedOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>&times;</button>
@@ -271,7 +271,7 @@ export default function BoutiqueOrders() {
               <CheckCircle size={32} />
             </div>
             <h3 style={{ margin: '0 0 12px 0', fontSize: '1.25rem' }}>Confirmer le retrait</h3>
-            <p style={{ margin: '0 0 24px 0', color: '#64748b' }}>Avez-vous bien remis la commande <strong>#{selectedOrder?.id}</strong> à <strong>{selectedOrder?.guest_name}</strong> ?</p>
+            <p style={{ margin: '0 0 24px 0', color: '#64748b' }}>Avez-vous bien remis la commande <strong>#{selectedOrder?.order_number || selectedOrder?.id}</strong> à <strong>{selectedOrder?.guest_name}</strong> ?</p>
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => setShowConfirmModal(false)} style={{ flex: 1, padding: '10px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Non, retour</button>
               <button onClick={handleConfirmPickup} disabled={actionLoading} style={{ flex: 1, padding: '10px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: actionLoading ? 'not-allowed' : 'pointer' }}>
@@ -290,7 +290,7 @@ export default function BoutiqueOrders() {
               <XCircle size={32} />
             </div>
             <h3 style={{ margin: '0 0 12px 0', fontSize: '1.25rem' }}>Annuler la commande</h3>
-            <p style={{ margin: '0 0 24px 0', color: '#64748b' }}>Êtes-vous sûr de vouloir annuler la commande <strong>#{selectedOrder?.id}</strong> ? Cette action est irréversible.</p>
+            <p style={{ margin: '0 0 24px 0', color: '#64748b' }}>Êtes-vous sûr de vouloir annuler la commande <strong>#{selectedOrder?.order_number || selectedOrder?.id}</strong> ? Cette action est irréversible.</p>
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => setShowCancelModal(false)} style={{ flex: 1, padding: '10px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Non, retour</button>
               <button onClick={handleCancel} disabled={actionLoading} style={{ flex: 1, padding: '10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: actionLoading ? 'not-allowed' : 'pointer' }}>

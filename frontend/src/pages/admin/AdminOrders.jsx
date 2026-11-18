@@ -81,6 +81,27 @@ const MYLERZ_STATUS_STYLE = (s = '') => {
   return { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa', icon: '📦' }
 }
 
+const MYLERZ_STATUS_LABELS = {
+  'data uploaded': 'Données envoyées',
+  'shipment created': 'Expédition créée',
+  'ready for pickup': 'Prêt pour enlèvement',
+  'in transit to destination hub': 'En transit vers le hub de destination',
+  'received at destination hub': 'Reçu au hub de destination',
+  'received in hub in shuttling': 'Reçu au hub, en acheminement',
+  'ready in forward delivery': 'Prêt pour livraison',
+  'out for delivery': 'En cours de livraison',
+  delivered: 'Livrée',
+  returned: 'Retournée',
+  cancelled: 'Annulée',
+  'cancelled on mylerz': 'Annulée sur Mylerz',
+}
+
+const MYLERZ_STATUS_LABEL = (status = '') => {
+  const normalized = status.trim().toLowerCase()
+  return MYLERZ_STATUS_LABELS[normalized] ||
+    Object.entries(MYLERZ_STATUS_LABELS).find(([key]) => normalized.includes(key))?.[1] || status
+}
+
 export default function AdminOrders({ isB2B = false }) {
   const navigate = useNavigate()
   const [orders, setOrders] = useState([])
@@ -197,6 +218,25 @@ export default function AdminOrders({ isB2B = false }) {
     setPage(1)
     load() 
   }, [filter, paymentFilter, deliveryFilter, search, isB2B])
+
+  useEffect(() => {
+    const timer = window.setInterval(async () => {
+      const visibleOrders = orders.slice((page - 1) * perPage, page * perPage).filter(order => order.mylerz_barcode)
+      await Promise.allSettled(visibleOrders.map(async order => {
+        const response = await adminClient.get(`/admin/orders/${order.id}/mylerz_track/`)
+        const newStatus = response.data?.mylerz_status
+        const newPioveStatus = response.data?.piove_status
+        if (newStatus || newPioveStatus) {
+          setOrders(previous => previous.map(item => item.id === order.id
+            ? { ...item, mylerz_status: newStatus || item.mylerz_status, status: newPioveStatus || item.status }
+            : item
+          ))
+        }
+      }))
+      load()
+    }, 30000)
+    return () => window.clearInterval(timer)
+  }, [filter, paymentFilter, deliveryFilter, search, dateFrom, dateTo, isB2B, orders, page, perPage])
 
   const applyDateFilter = () => {
     setPage(1)
@@ -480,7 +520,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
               >
                 <span style={{ fontSize: '0.75rem' }}>{ms.icon}</span>
                 <span style={{ fontSize: '0.65rem', fontWeight: 600, color: isActive ? 'white' : 'rgba(255,255,255,0.55)', whiteSpace: 'nowrap', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {status}
+                  {MYLERZ_STATUS_LABEL(status)}
                 </span>
                 <span style={{
                   background: isActive ? 'rgba(255,255,255,0.25)' : ms.color,
@@ -567,7 +607,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
               </optgroup>
               <optgroup label="── Statuts Mylerz ──">
                 {allMylerzStatuses.map(s => (
-                  <option key={s} value={`mylerz:${s}`}>📦 {s}</option>
+                  <option key={s} value={`mylerz:${s}`}>📦 {MYLERZ_STATUS_LABEL(s)}</option>
                 ))}
               </optgroup>
             </select>
@@ -637,7 +677,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                     <td style={{ textAlign: 'center' }}>
                       <input type="checkbox" checked={selectedIds.includes(o.id)} onChange={() => handleSelect(o.id)} style={{ cursor: 'pointer' }} />
                     </td>
-                    <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>#{o.id}</td>
+                    <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>#{o.order_number || o.id}</td>
                     <td style={{ fontWeight: 500 }}>
                       {o.customer_name}
                       {o.is_b2b && <span className="badge" style={{marginLeft: 8, background: '#4f46e5', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: 4, fontWeight: 700}}>B2B</span>}
@@ -671,7 +711,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                               fontSize: '0.65rem', padding: '3px 8px', borderRadius: 20,
                               fontWeight: 700, whiteSpace: 'nowrap', maxWidth: 180,
                             }}>
-                              {ms.icon} {o.mylerz_status || 'Shipment Created'}
+                              {ms.icon} {MYLERZ_STATUS_LABEL(o.mylerz_status || 'Shipment Created')}
                             </span>
                             <span style={{ fontSize: '0.6rem', color: '#94a3b8', fontFamily: 'monospace' }}>{o.mylerz_barcode}</span>
                           </div>
@@ -769,7 +809,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
         <div className="admin-modal-overlay" onClick={e => e.target === e.currentTarget && setDetail(null)}>
           <div className="admin-modal" style={{ maxWidth: 600 }}>
             <div className="admin-modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="admin-modal-title">Aperçu Commande #{detail.id}</span>
+              <span className="admin-modal-title">Aperçu Commande #{detail.order_number || detail.id}</span>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--admin-text-muted)', marginRight: 16, fontWeight: 500, background: '#f1f5f9', padding: '4px 10px', borderRadius: 20 }}>{detail.items?.length || 0} article{detail.items?.length > 1 ? 's' : ''}</span>
                 <button type="button" className="admin-modal-close" onClick={() => setDetail(null)}><X size={20}/></button>
@@ -829,7 +869,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                           Statut Mylerz
                         </div>
                         <div style={{ fontWeight: 800, fontSize: '0.95rem', color: ms.color }}>
-                          {detail.mylerz_status || 'Shipment Created'}
+                          {MYLERZ_STATUS_LABEL(detail.mylerz_status || 'Shipment Created')}
                         </div>
                       </div>
                     </div>
@@ -931,7 +971,7 @@ Réponse     : ${JSON.stringify(d.addorders_response || d.addorders_response_raw
                    </span>
                    {detail.mylerz_status && (
                      <span style={{ fontSize: '0.72rem', color: '#6b7280', fontStyle: 'italic', paddingRight: 8 }}>
-                       {detail.mylerz_status}
+                       {MYLERZ_STATUS_LABEL(detail.mylerz_status)}
                      </span>
                    )}
                  </div>

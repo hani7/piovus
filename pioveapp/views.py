@@ -628,6 +628,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             payment_method=payment_method,
             coupon_id=coupon_id,
             discount_amount=discount_amount,
+            b2b_order_number=Order.next_b2b_order_number() if is_b2b_user else None,
             **data
         )
 
@@ -2129,6 +2130,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             delivery_type=data.get('delivery_type', 'home'),
             payment_method=data.get('payment_method', 'cash'),
             discount_amount=data.get('discount_amount', 0),
+            b2b_order_number=Order.next_b2b_order_number() if is_b2b else None,
             status='confirmed', # Default status for admin created orders
         )
 
@@ -3367,6 +3369,7 @@ class TrackOrderView(APIView):
 
             results.append({
                 'id': order.id,
+                'order_number': order.order_number,
                 'created_at': order.created_at.strftime('%d/%m/%Y à %H:%M'),
                 'status': order.status,
                 'status_label': self.STATUS_LABELS.get(order.status, order.status),

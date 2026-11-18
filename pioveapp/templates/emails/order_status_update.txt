@@ -2,7 +2,7 @@ Piové Cosmetics
 
 Bonjour {{ order.guest_name|default:order.user.first_name|default:"Client" }},
 
-Le statut de votre commande #{{ order.id }} a été mis à jour.
+Le statut de votre commande #{{ order.order_number }} a été mis à jour.
 
 {% if status == 'confirmed' %}
 => Votre commande a été confirmée. Elle est actuellement en cours de préparation pour l'expédition.

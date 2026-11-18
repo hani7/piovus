@@ -156,7 +156,7 @@ export default function PaymentResultPage() {
             <div className="invoice-box">
               <div className="invoice-header">
                 <h3>Facture Piové Cosmetics</h3>
-                <span>Commande #{order.id}</span>
+                <span>Commande #{order.order_number || order.id}</span>
               </div>
               <div className="invoice-details">
                 <div>

@@ -56,7 +56,7 @@ export default function OrdersPage() {
             <div key={order.id} className="order-card">
               <div className="order-card__header">
                 <div>
-                  <p className="order-id">Commande #{order.id}</p>
+                  <p className="order-id">Commande #{order.order_number || order.id}</p>
                   <p className="order-date">
                     Passée le {new Date(order.created_at).toLocaleDateString('fr-DZ', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </p>

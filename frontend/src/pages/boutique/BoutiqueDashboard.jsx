@@ -93,7 +93,7 @@ export default function BoutiqueDashboard() {
                 <tr><td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Aucune commande récente.</td></tr>
               ) : recentOrders.map(o => (
                 <tr key={o.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '12px 16px', fontWeight: 600 }}>#{o.id}</td>
+                  <td style={{ padding: '12px 16px', fontWeight: 600 }}>#{o.order_number || o.id}</td>
                   <td style={{ padding: '12px 16px' }}>{o.guest_name}<br/><span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{o.guest_phone}</span></td>
                   <td style={{ padding: '12px 16px', fontWeight: 600 }}>{Number(o.total)} DA</td>
                   <td style={{ padding: '12px 16px' }}>

@@ -176,7 +176,7 @@ export default function CommandMenu({ isOpen, setIsOpen }) {
                     >
                       <ShoppingCart size={16} />
                       <div className="command-menu-item-text">
-                        <span>Commande #{o.id}</span>
+                        <span>Commande #{o.order_number || o.id}</span>
                         <span className="command-menu-item-muted">{o.customer_name || o.customer_phone}</span>
                       </div>
                     </div>

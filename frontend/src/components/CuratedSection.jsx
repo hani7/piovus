@@ -88,7 +88,6 @@ export default function CuratedSection() {
         <div className="curated-content">
           <div className="curated-header">
             <div>
-              <h2 className="curated-title">{activeTabData.label}</h2>
               <div className="curated-subtitle-wrap">
                 <span className="curated-subtitle-line"></span>
                 <p className="curated-subtitle">{activeTabData.subtitle}</p>

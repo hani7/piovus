@@ -328,7 +328,7 @@ export default function AdminCustomers() {
                           {profileData.order_history?.map(o => (
                             <tr key={o.id}>
                               <td>{new Date(o.created_at).toLocaleDateString('fr-DZ')}</td>
-                              <td>#{o.id}</td>
+                              <td>#{o.order_number || o.id}</td>
                               <td style={{ fontWeight: 600 }}>{Number(o.total).toLocaleString('fr-DZ')} DA</td>
                               <td>{o.status_display}</td>
                             </tr>

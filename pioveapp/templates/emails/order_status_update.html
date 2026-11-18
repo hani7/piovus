@@ -23,7 +23,7 @@
         </div>
         <div class="content">
             <h2>Bonjour {{ order.guest_name|default:order.user.first_name|default:"Client" }},</h2>
-            <p>Le statut de votre commande <strong>#{{ order.id }}</strong> a été mis à jour.</p>
+            <p>Le statut de votre commande <strong>#{{ order.order_number }}</strong> a été mis à jour.</p>
             
             {% if status == 'confirmed' %}
             <div class="status-box confirmed">

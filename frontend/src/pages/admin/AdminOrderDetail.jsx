@@ -49,6 +49,27 @@ const MYLERZ_STATUS_STYLE = (s = '') => {
   return { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa', icon: '📦' }
 }
 
+const MYLERZ_STATUS_LABELS = {
+  'data uploaded': 'Données envoyées',
+  'shipment created': 'Expédition créée',
+  'ready for pickup': 'Prêt pour enlèvement',
+  'in transit to destination hub': 'En transit vers le hub de destination',
+  'received at destination hub': 'Reçu au hub de destination',
+  'received in hub in shuttling': 'Reçu au hub, en acheminement',
+  'ready in forward delivery': 'Prêt pour livraison',
+  'out for delivery': 'En cours de livraison',
+  delivered: 'Livrée',
+  returned: 'Retournée',
+  cancelled: 'Annulée',
+  'cancelled on mylerz': 'Annulée sur Mylerz',
+}
+
+const MYLERZ_STATUS_LABEL = (status = '') => {
+  const normalized = status.trim().toLowerCase()
+  return MYLERZ_STATUS_LABELS[normalized] ||
+    Object.entries(MYLERZ_STATUS_LABELS).find(([key]) => normalized.includes(key))?.[1] || status
+}
+
 export default function AdminOrderDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -324,7 +345,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
               background: '#cc0000', color: '#fff', borderRadius: 50,
               padding: '3px 16px', fontSize: '1.1rem', fontWeight: 800,
               letterSpacing: '0.5px', display: 'inline-flex', alignItems: 'center'
-            }}>#{detail.id}</span>
+            }}>#{detail.order_number || detail.id}</span>
           </h2>
           <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 4 }}>
             {detail.payment_method === 'cib' ? 'Paiement en ligne (CIB/Edahabia)' : detail.payment_method === 'yassir' ? 'Yassir Cash' : 'Paiement à la livraison'} - {new Date(detail.created_at).toLocaleString('fr-DZ')}
@@ -646,7 +667,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                             <span style={{ fontSize: '1.2rem' }}>{ms.icon}</span>
                             <div style={{ flex: 1 }}>
                               <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: ms.color, marginBottom: 2 }}>Statut Mylerz</div>
-                              <div style={{ fontWeight: 800, fontSize: '0.9rem', color: ms.color }}>{detail.mylerz_status || 'Shipment Created'}</div>
+                              <div style={{ fontWeight: 800, fontSize: '0.9rem', color: ms.color }}>{MYLERZ_STATUS_LABEL(detail.mylerz_status || 'Shipment Created')}</div>
                             </div>
                           </div>
                           {fmtDate && (
@@ -727,7 +748,7 @@ ${d.error ? `<h3>âŒ ERREUR lors de la construction du payload</h3><pre>${d.e
                         return (
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: ms.bg, border: `1px solid ${ms.border}`, borderRadius: 20, padding: '3px 10px', marginBottom: 4 }}>
                             <span style={{ fontSize: '0.9rem' }}>{ms.icon}</span>
-                            <span style={{ fontWeight: 700, fontSize: '0.82rem', color: ms.color }}>{mylerzLabel}</span>
+                            <span style={{ fontWeight: 700, fontSize: '0.82rem', color: ms.color }}>{MYLERZ_STATUS_LABEL(mylerzLabel)}</span>
                           </div>
                         )
                       }

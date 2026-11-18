@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nouvelle commande #{{ order.id }}</title>
+<title>Nouvelle commande #{{ order.order_number }}</title>
 </head>
 <body style="margin:0;padding:0;background:#f0f0f0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
 
@@ -37,7 +37,7 @@
         <tr>
           <td>
             <div style="color:rgba(255,255,255,0.8);font-size:11px;letter-spacing:2px;text-transform:uppercase;">Commande</div>
-            <div style="color:#fff;font-size:28px;font-weight:700;margin-top:2px;">#{{ order.id }}</div>
+            <div style="color:#fff;font-size:28px;font-weight:700;margin-top:2px;">#{{ order.order_number }}</div>
           </td>
           <td align="right">
             <div style="color:rgba(255,255,255,0.8);font-size:11px;letter-spacing:1px;text-transform:uppercase;">Total</div>
@@ -181,7 +181,7 @@
             Notification automatique — Piové Cosmetics
           </td>
           <td align="right" style="font-size:11px;color:#666;">
-            Commande #{{ order.id }}
+            Commande #{{ order.order_number }}
           </td>
         </tr>
       </table>

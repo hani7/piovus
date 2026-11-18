@@ -255,6 +255,7 @@ export default function CheckoutPage() {
           replace: true,
           state: {
             orderId: res.data.id,
+            orderNumber: res.data.order_number,
             total:   finalValue,
             items:   items,
             method:  'cash',

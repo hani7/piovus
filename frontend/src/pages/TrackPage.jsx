@@ -121,7 +121,7 @@ export default function TrackPage() {
             {/* Card header */}
             <div className="track-card__header">
               <div>
-                <span className="track-card__num">Commande #{order.id}</span>
+                <span className="track-card__num">Commande #{order.order_number || order.id}</span>
                 <span className="track-card__date">{order.created_at}</span>
               </div>
               <div

@@ -189,7 +189,7 @@ export default function AdminOrderHistory({ isB2B = false }) {
                   {orders.map(o => (
                   <tr key={o.id} style={{ ...(o.is_deleted ? { background: '#f8fafc', opacity: 0.8 } : {}) }}>
                     <td style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>
-                      #{o.id}
+                      #{o.order_number || o.id}
                     </td>
                     <td style={{ fontWeight: 500 }}>
                       {o.customer_name}

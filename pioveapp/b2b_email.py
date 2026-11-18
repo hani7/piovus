@@ -1,7 +1,8 @@
 import logging
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from rest_framework.exceptions import APIException
 
 logger = logging.getLogger(__name__)
@@ -13,6 +14,15 @@ class B2BEmailDeliveryError(APIException):
         "L'email de validation n'a pas pu être envoyé. Le compte reste en attente. "
         "Vérifiez la configuration email puis réessayez la validation."
     )
+
+
+def send_mail(subject, message, from_email, recipient_list, html_message=None, **kwargs):
+    """Send the approval email with a plain-text fallback and an HTML version."""
+    fail_silently = kwargs.pop('fail_silently', False)
+    email = EmailMultiAlternatives(subject, message, from_email, recipient_list, **kwargs)
+    if html_message:
+        email.attach_alternative(html_message, 'text/html')
+    return email.send(fail_silently=fail_silently)
 
 
 def send_b2b_approval_email(user):
@@ -29,9 +39,14 @@ def send_b2b_approval_email(user):
     try:
         if not user.email:
             raise ValueError('Missing B2B account email')
+        html_body = render_to_string('emails/b2b_approval.html', {
+            'user': user,
+            'login_url': login_url,
+        })
         sent = send_mail(
             'Votre compte B2B est validé — Piové Cosmetics',
             body, settings.DEFAULT_FROM_EMAIL, [user.email],
+            html_message=html_body,
             fail_silently=False,
         )
         if sent != 1:

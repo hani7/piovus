@@ -1,6 +1,6 @@
 /* HomePage Base */
 .homepage {
-  padding-top: 0;
+  padding-top: var(--navbar-height);
 }
 
 /* Hero Section */
@@ -177,7 +177,7 @@
 
 /* Collections Section */
 .collections-section {
-  padding: 32px 40px 80px;
+  padding: 32px 0 80px;
   background: #fdfdfd;
   text-align: center;
 }
@@ -203,7 +203,7 @@
 .collections-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 20px;
+  gap: 0;
 }
 
 .collection-card {
@@ -417,7 +417,7 @@
     display: none;
   }
   .collections-section {
-    padding: 24px 20px 40px;
+    padding: 24px 0 40px;
   }
   .collections-title {
     font-size: 1.8rem;

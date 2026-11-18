@@ -194,7 +194,7 @@ export default function AdminDashboard() {
                     >
                       <div>
                         <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--admin-text)', marginBottom: 2 }}>{o.customer_name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>Commande #{o.id} • {Number(o.total).toLocaleString('fr-DZ')} DA</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>Commande #{o.order_number || o.id} • {Number(o.total).toLocaleString('fr-DZ')} DA</div>
                       </div>
                       <span className="badge badge-warning">À vérifier</span>
                     </li>
@@ -229,7 +229,7 @@ export default function AdminDashboard() {
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                       <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--admin-surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 600, color: 'var(--admin-text-muted)' }}>
-                        #{o.id}
+                        #{o.order_number || o.id}
                       </div>
                       <div>
                         <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--admin-text)', marginBottom: 2 }}>{o.customer_name}</div>

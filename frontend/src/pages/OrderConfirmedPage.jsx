@@ -12,6 +12,7 @@ export default function OrderConfirmedPage() {
   // Données passées via navigate state depuis CheckoutPage
   const state = location.state || {}
   const orderId   = state.orderId
+  const orderNumber = state.orderNumber || orderId
   const total     = state.total     || 0
   const items     = state.items     || []
   const method    = state.method    || 'cash' // 'cash' | 'cib'
@@ -115,7 +116,7 @@ export default function OrderConfirmedPage() {
         }}>
           <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: 4 }}>Numéro de commande</p>
           <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-accent, #c9485b)', letterSpacing: '0.5px' }}>
-            #{orderId}
+            #{orderNumber}
           </p>
         </div>
 

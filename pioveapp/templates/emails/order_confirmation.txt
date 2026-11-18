@@ -3,7 +3,7 @@ Bonjour {{ order.guest_name|default:order.user.first_name|default:"chère client
 🎉 Votre commande a bien été reçue !
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-COMMANDE N° #{{ order.id }}
+COMMANDE N° #{{ order.order_number }}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ARTICLES COMMANDÉS :

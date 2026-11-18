@@ -207,7 +207,7 @@ const ProductInfo = memo(function ProductInfo({
       {!isCollection && product.variants?.length > 0 && (
         <div className="product-info__variants">
           <p className="product-info__variant-label">
-            Teinte: <strong>{selectedVariant?.name}</strong>
+            Teinte: <strong>{selectedVariant?.name || 'Choisissez une teinte'}</strong>
             {selectedVariant && !selectedVariant.is_available && (
               <span className="variant-unavailable">Indisponible</span>
             )}
@@ -283,7 +283,10 @@ const ProductInfo = memo(function ProductInfo({
         <button
           className={`btn btn-accent product-info__add-btn${added ? ' added' : ''}`}
           onClick={onAddToCart}
-          disabled={isCollection && !allChoicesMade}
+          disabled={
+            (isCollection && !allChoicesMade) ||
+            (!isCollection && product.variants?.length > 0 && !selectedVariant)
+          }
           id="add-to-cart-btn"
           aria-label={added ? 'Produit ajouté au panier' : `Ajouter ${product.name} au panier`}
         >

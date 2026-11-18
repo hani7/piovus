@@ -137,7 +137,12 @@ const ProductCard = memo(function ProductCard({ product }) {
             <span className="product-card__rating-num">({product.avg_rating})</span>
           </div>
         )}
-
+        <div className="product-card__cart">
+          <button type="button" className="product-card__cart-btn" onClick={handleAddToCart}>
+            <ShoppingBag size={15} />
+            <span>Ajouter au panier</span>
+          </button>
+        </div>
       </div>
     </article>
   )

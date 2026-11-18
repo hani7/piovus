@@ -8,7 +8,9 @@ const EMPTY_FORM = { title: '', subtitle: '', cta_label: 'Découvrir', cta_url: 
 
 const PLACEMENT_LABELS = {
   'hero': 'Hero Slider (Accueil)',
+  'horizontal_new_banner': 'Horizontal New Banner (Accueil)',
   'curated_bestseller': 'Fond Best Seller (Accueil)',
+  'curated_new': 'Fond Nouveauté (Accueil)',
   'curated_promo': 'Fond Promo (Accueil)',
   'curated_special': 'Fond Offre Spéciale (Accueil)',
   'popup': 'Pop-up d\'entrée',

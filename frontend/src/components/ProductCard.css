@@ -179,6 +179,36 @@
   font-weight: 400;
 }
 
+/* Black add-to-cart button, pinned to the card bottom so it aligns across cards */
+.product-card__cart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 12px;
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+  border-radius: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.product-card__cart-btn:hover,
+.product-card__cart-btn.added {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.product-card__cart {
+  margin-top: auto;
+  padding-top: 12px;
+}
+
 .product-card__rating {
   display: flex;
   align-items: center;

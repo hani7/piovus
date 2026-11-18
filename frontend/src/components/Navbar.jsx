@@ -7,11 +7,17 @@ import { getCategories, getProducts } from '../api/products'
 import CartDrawer from './CartDrawer'
 import './Navbar.css'
 
+const isNightTime = () => {
+  const hour = new Date().getHours()
+  return hour >= 20 || hour < 6
+}
+
 export default function Navbar() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [isNight, setIsNight] = useState(isNightTime)
   const [query, setQuery] = useState('')
   const [suggestions, setSuggestions] = useState([])
   const [sugLoading, setSugLoading] = useState(false)
@@ -31,7 +37,11 @@ export default function Navbar() {
     getCategories().then((r) => setCategories(r.data.results || r.data))
     const onScroll = () => setScrolled(window.scrollY > 30)
     window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
+    const timer = window.setInterval(() => setIsNight(isNightTime()), 60000)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.clearInterval(timer)
+    }
   }, [])
 
   // Close suggestions on outside click
@@ -79,7 +89,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
+      <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''} ${isNight ? 'navbar--night' : ''}`}>
         <div className="navbar__inner navbar__inner--wide">
           {/* Left: Search */}
           <div className="navbar__left">

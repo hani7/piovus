@@ -222,6 +222,7 @@ class Banner(models.Model):
         ('side_right', 'Bannière Flottante Droite'),
         ('horizontal_new_banner', 'Horizontal New Banner (Accueil)'),
         ('curated_bestseller', 'Fond Best Seller (Accueil)'),
+        ('curated_new', 'Fond Nouveauté (Accueil)'),
         ('curated_promo', 'Fond Promo (Accueil)'),
         ('curated_special', 'Fond Offre Spéciale (Accueil)'),
     ]
@@ -341,7 +342,7 @@ class Coupon(models.Model):
         now = timezone.now()
         if self.start_date and now < self.start_date:
             return False
-        if self.end_date and now > self.end_date:
+        if self.end_date and now >= self.end_date:
             return False
         return True
 

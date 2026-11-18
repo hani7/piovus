@@ -517,6 +517,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         coupon_id = data.pop('coupon_id', None)
         discount_amount = data.pop('discount_amount', 0)
 
+        if coupon_id:
+            try:
+                coupon = Coupon.objects.get(pk=coupon_id)
+            except Coupon.DoesNotExist:
+                return Response({'error': 'Ce code promo est invalide.'}, status=status.HTTP_400_BAD_REQUEST)
+            if not coupon.is_valid():
+                return Response({'error': 'Ce code promo est expiré ou inactif.'}, status=status.HTTP_400_BAD_REQUEST)
+
         is_b2b_user = bool(
             request.user and request.user.is_authenticated
             and hasattr(request.user, 'profile') and request.user.profile.is_b2b

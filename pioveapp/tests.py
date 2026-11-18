@@ -12,6 +12,8 @@ from .models import (
     UserProfile, Customer, Coupon, DeliveryCompany, DeliveryRate,
 )
 from decimal import Decimal
+from django.utils import timezone
+from datetime import timedelta
 
 
 # ---------------------------------------------------------------------------
@@ -247,6 +249,12 @@ class CouponTests(TestCase):
     def test_apply_invalid_coupon(self):
         r = self.client.post('/api/apply-coupon/', {'code': 'FAKECODE', 'cart_total': 5000}, format='json')
         self.assertEqual(r.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_apply_expired_coupon(self):
+        self.coupon.end_date = timezone.now() - timedelta(seconds=1)
+        self.coupon.save(update_fields=['end_date'])
+        r = self.client.post('/api/apply-coupon/', {'code': 'TEST10', 'cart_total': 5000}, format='json')
+        self.assertEqual(r.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 # ---------------------------------------------------------------------------

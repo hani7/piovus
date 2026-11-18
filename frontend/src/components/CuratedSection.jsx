@@ -5,9 +5,8 @@ import ProductCarousel from './ProductCarousel'
 import './CuratedSection.css'
 
 export default function CuratedSection() {
-  const [activeTab, setActiveTab] = useState('bestseller')
+  const [activeTab, setActiveTab] = useState('new')
   const [products, setProducts] = useState({
-    bestseller: [],
     new: [],
     promo: [],
     special: []
@@ -16,7 +15,6 @@ export default function CuratedSection() {
   const [tabBackgrounds, setTabBackgrounds] = useState({})
 
   const tabs = [
-    { id: 'bestseller', label: 'BEST SELLER', subtitle: 'LES INCONTOURNABLES', query: { is_bestseller: true, page_size: 10 }, link: '/shop?bestseller=true' },
     { id: 'new', label: 'NOUVEAUTÉS', subtitle: 'LES DERNIÈRES NOUVEAUTÉS', query: { is_new: true, page_size: 10 }, link: '/shop?new=true' },
     { id: 'promo', label: 'PROMO', subtitle: 'OFFRES LIMITÉES', query: { is_promotion: true, page_size: 10 }, link: '/shop?promo=true' },
     { id: 'special', label: 'OFFRE SPÉCIALE', subtitle: 'BONS PLANS', query: { categories__slug: 'offres-speciales', page_size: 10 }, link: '/offres-speciales' }
@@ -42,6 +40,7 @@ export default function CuratedSection() {
       const backgrounds = {}
       banners.forEach(banner => {
         if (banner.placement === 'curated_bestseller') backgrounds.bestseller = banner.image
+        if (banner.placement === 'curated_new') backgrounds.new = banner.image
         if (banner.placement === 'curated_promo') backgrounds.promo = banner.image
         if (banner.placement === 'curated_special') backgrounds.special = banner.image
       })
@@ -55,7 +54,7 @@ export default function CuratedSection() {
     <section className="curated-section">
       {/* Mobile Tabs */}
       <div className="curated-mobile-tabs">
-        {tabs.filter(tab => tab.id !== 'bestseller').map(tab => (
+        {tabs.map(tab => (
           <button 
             key={tab.id} 
             className={`curated-tab ${activeTab === tab.id ? 'active' : ''}`}
@@ -73,7 +72,7 @@ export default function CuratedSection() {
           style={tabBackgrounds[activeTab] ? { '--curated-bg-image': `url("${tabBackgrounds[activeTab]}")` } : undefined}
         >
           <ul>
-            {tabs.filter(tab => tab.id !== 'bestseller').map(tab => (
+            {tabs.map(tab => (
               <li 
                 key={tab.id} 
                 className={activeTab === tab.id ? 'active' : ''}

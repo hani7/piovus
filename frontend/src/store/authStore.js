@@ -2,6 +2,46 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { login as apiLogin, verifyOTP as apiVerifyOTP, register as apiRegister, registerB2B as apiRegisterB2B, logout as apiLogout } from '../api/auth'
 
+const stripHtml = (value) => value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+const toErrorMessage = (err, fallback) => {
+  const status = err?.response?.status
+  const data = err?.response?.data
+
+  const raw = (() => {
+    if (!data) return null
+
+    if (typeof data === 'string') return data
+
+    if (typeof data === 'object') {
+      const preferred = data.error || data.detail || data.message
+      if (typeof preferred === 'string' && preferred.trim()) return preferred
+
+      const values = Object.values(data)
+      const flattened = values.flatMap((value) => (Array.isArray(value) ? value : [value]))
+      const firstString = flattened.find((value) => typeof value === 'string' && value.trim())
+      if (firstString) return firstString
+    }
+
+    return null
+  })()
+
+  const cleaned = typeof raw === 'string' ? stripHtml(raw) : ''
+
+  if (cleaned) {
+    if (status >= 500 && /server\s*error/i.test(cleaned)) {
+      return "Une erreur serveur est survenue. Veuillez réessayer plus tard."
+    }
+    return cleaned
+  }
+
+  if (status >= 500) {
+    return "Une erreur serveur est survenue. Veuillez réessayer plus tard."
+  }
+
+  return fallback
+}
+
 export const useAuthStore = create(
   persist(
     (set, get) => ({
@@ -31,7 +71,7 @@ export const useAuthStore = create(
           })
           return { success: true, mfa_required: false }
         } catch (err) {
-          const msg = err.response?.data?.error || 'Identifiants invalides'
+          const msg = toErrorMessage(err, 'Identifiants invalides')
           set({ isLoading: false, error: msg })
           return { success: false, error: msg, code: err.response?.data?.code }
         }
@@ -51,7 +91,7 @@ export const useAuthStore = create(
           })
           return { success: true }
         } catch (err) {
-          const msg = err.response?.data?.error || 'Code invalide'
+          const msg = toErrorMessage(err, 'Code invalide')
           set({ isLoading: false, error: msg })
           return { success: false, error: msg }
         }
@@ -71,8 +111,7 @@ export const useAuthStore = create(
           })
           return { success: true }
         } catch (err) {
-          const errors = err.response?.data || {}
-          const msg = Object.values(errors).flat().join(' ')
+          const msg = toErrorMessage(err, "Erreur lors de l'inscription")
           set({ isLoading: false, error: msg })
           return { success: false, error: msg }
         }
@@ -92,8 +131,7 @@ export const useAuthStore = create(
           })
           return { success: true, code: res.data.code, message: res.data.message }
         } catch (err) {
-          const errors = err.response?.data || {}
-          const msg = Object.values(errors).flat().join(' ')
+          const msg = toErrorMessage(err, "Erreur lors de la demande d'accès")
           set({ isLoading: false, error: msg })
           return { success: false, error: msg }
         }
@@ -123,7 +161,7 @@ export const useAuthStore = create(
           })
           return { success: true }
         } catch (err) {
-          const msg = err.response?.data?.error || `Erreur de connexion via ${provider}`
+          const msg = toErrorMessage(err, `Erreur de connexion via ${provider}`)
           set({ isLoading: false, error: msg })
           return { success: false, error: msg, code: err.response?.data?.code }
         }

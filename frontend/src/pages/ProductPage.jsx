@@ -78,10 +78,8 @@ export default function ProductPage() {
         setProduct(r.data)
         // Reset choices when product changes
         setSelectedChoices({})
-        // For regular products, auto-select first variant
-        const vars = r.data.variants || []
-        const hasGroups = vars.some(v => v.choice_group)
-        if (!hasGroups && vars.length > 0) setSelectedVariant(vars[0])
+        // A color must be selected explicitly before adding a product to the cart.
+        setSelectedVariant(null)
       })
       .catch(() => { if (!product) setError('Produit introuvable.') })
       .finally(() => setLoading(false))
@@ -122,6 +120,7 @@ export default function ProductPage() {
       addItem(product, null, quantity, isB2B ? packaging : 'boite', choicesArray);
       
     } else {
+      if (product.variants?.length > 0 && !selectedVariant) return
       addItem(product, selectedVariant, quantity, isB2B ? packaging : 'boite')
       selectedRelated.forEach((rpId) => {
         const rp = product.related_products?.find((p) => p.id === rpId)

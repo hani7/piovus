@@ -55,11 +55,11 @@ export default function CategoryPage() {
       />
       {/* Banners supp (1e, 2e...) en dessous si plusieurs */}
       {categoryBanners.length > 0 && (
-        <div className="container">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '40px' }}>
+        <div className="category-page__banner-container">
+          <div className="category-page__banners">
             {categoryBanners.map(banner => (
-              <a key={banner.id} href={banner.cta_url || '#'} style={{ display: 'block', borderRadius: '12px', overflow: 'hidden' }}>
-                <img src={mediaUrl(banner.image)} alt={banner.title} style={{ width: '100%', height: 'auto', maxHeight: '300px', objectFit: 'cover', display: 'block' }} />
+              <a key={banner.id} href={banner.cta_url || '#'}>
+                <img src={mediaUrl(banner.image)} alt={banner.title} />
               </a>
             ))}
           </div>

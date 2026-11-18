@@ -1,4 +1,30 @@
-.category-page { padding-top: calc(var(--navbar-height) + 24px); }
+.category-page { padding-top: var(--navbar-height); }
+
+.category-page__banner-container {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+
+.category-page__banners {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.category-page__banners a {
+  display: block;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.category-page__banners img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+}
 
 /* Hero Banner */
 .category-page__hero {

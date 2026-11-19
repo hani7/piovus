@@ -1,5 +1,6 @@
 import { memo, useState, useEffect } from 'react'
 import mediaUrl from '../api/mediaUrl'
+import { useAuthStore } from '../store/authStore'
 
 /** ProductGallery — image/video carousel with thumbnail strip */
 const ProductGallery = memo(function ProductGallery({
@@ -11,6 +12,9 @@ const ProductGallery = memo(function ProductGallery({
 }) {
   const [imgError, setImgError] = useState(false)
   const [useFallback, setUseFallback] = useState(false)
+  const isB2B = useAuthStore((s) => s.user?.profile?.is_b2b)
+  const isPromo = isB2B ? product.is_b2b_promotion : product.is_promo
+  const isNew = isB2B ? product.is_b2b_new : product.is_new
 
   // Reset l'erreur si l'image sélectionnée change
   useEffect(() => {
@@ -90,12 +94,12 @@ const ProductGallery = memo(function ProductGallery({
         ) : renderPlaceholder()}
         
         <div className="product-gallery__badges">
-          {product.is_promo && (
+          {isPromo && (
             <span className="badge badge-promo">
-              Promo -{Math.round((1 - product.promo_price / product.price) * 100)}%
+              {isB2B ? 'Promo' : `Promo -${Math.round((1 - product.promo_price / product.price) * 100)}%`}
             </span>
           )}
-          {product.is_new && <span className="badge badge-new">Nouveau</span>}
+          {isNew && <span className="badge badge-new">Nouveau</span>}
         </div>
       </div>
 

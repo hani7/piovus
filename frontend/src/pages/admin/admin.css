@@ -559,6 +559,11 @@
   opacity: 0.9; transform: translateY(-1px);
 }
 
+.admin-product-extension-btn {
+  background: linear-gradient(135deg, #f04444 0%, #cc0000 55%, #8f0000 100%);
+  box-shadow: 0 3px 8px rgba(204, 0, 0, 0.2);
+}
+
 .btn-danger {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 7px 16px;

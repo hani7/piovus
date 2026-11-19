@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { X, Edit, Trash2, LayoutList, LayoutGrid, Eye, Save, Plus, ArrowLeft } from 'lucide-react'
+import { X, Edit, Trash2, LayoutList, LayoutGrid, Eye, Save, Plus, ArrowLeft, Images, Layers, Palette } from 'lucide-react'
 import adminClient from '../../api/adminClient'
 import mediaUrl from '../../api/mediaUrl'
 
 const EMPTY_FORM = {
   name: '', sku: '', category_ids: [], description: '', short_description: '', price: '',
-  promo_price: '', b2b_price: '', b2b_price_box: '', b2b_promo_price_box: '', b2b_price_carton: '', b2b_promo_price_carton: '', qty_per_box: 1, qty_per_carton: 1, b2b_min_stock: 1, weight_box: '', weight_carton: '', contenance: '', contenance_unit: 'g', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true,
+  promo_price: '', b2b_price: '', b2b_price_box: '', b2b_promo_price_box: '', b2b_price_carton: '', b2b_promo_price_carton: '', qty_per_box: 1, qty_per_carton: 1, b2b_min_stock: 1, weight_box: '', weight_carton: '', contenance: '', contenance_unit: 'g', stock: '', min_stock_alert: 5, is_featured: false, is_new: false, is_bestseller: false, is_promotion: false, is_active: true, is_b2b_featured: false, is_b2b_new: false, is_b2b_bestseller: false, is_b2b_promotion: false, is_b2b_active: true,
 }
 
 function Pagination({ page, totalPages, onPage }) {
@@ -127,6 +127,7 @@ export default function AdminProducts() {
       contenance: p.contenance || '', contenance_unit: p.contenance_unit || 'g',
       stock: p.stock, min_stock_alert: p.min_stock_alert,
       is_featured: p.is_featured, is_new: p.is_new, is_bestseller: p.is_bestseller, is_promotion: p.is_promotion, is_active: p.is_active,
+      is_b2b_featured: p.is_b2b_featured, is_b2b_new: p.is_b2b_new, is_b2b_bestseller: p.is_b2b_bestseller, is_b2b_promotion: p.is_b2b_promotion, is_b2b_active: p.is_b2b_active,
     })
     setEditId(p.id); setThumbFile(null); setThumbPreview(p.thumbnail ? mediaUrl(p.thumbnail) : null); setModal('edit')
     setVariants(p.variants || [])
@@ -806,7 +807,8 @@ export default function AdminProducts() {
                         {/* Variations */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                           <h4 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Variations (Teintes / Couleurs)</h4>
-                          <button type="button" className="btn-secondary" onClick={() => setShowVariants(!showVariants)}>
+                          <button type="button" className="btn-secondary admin-product-extension-btn" onClick={() => setShowVariants(!showVariants)}>
+                            <Palette size={16} aria-hidden="true" />
                             {showVariants ? 'Masquer' : 'Gérer les variations'}
                           </button>
                         </div>
@@ -936,7 +938,8 @@ export default function AdminProducts() {
                         {/* Galerie */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                           <h4 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Galerie (Images & Vidéos)</h4>
-                          <button type="button" className="btn-secondary" onClick={() => setShowGallery(!showGallery)}>
+                          <button type="button" className="btn-secondary admin-product-extension-btn" onClick={() => setShowGallery(!showGallery)}>
+                            <Images size={16} aria-hidden="true" />
                             {showGallery ? 'Masquer' : 'Gérer la galerie'}
                           </button>
                         </div>
@@ -987,7 +990,8 @@ export default function AdminProducts() {
                         {/* Produits Similaires */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                           <h4 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Produits Similaires</h4>
-                          <button type="button" className="btn-secondary" onClick={() => setShowRelated(!showRelated)}>
+                          <button type="button" className="btn-secondary admin-product-extension-btn" onClick={() => setShowRelated(!showRelated)}>
+                            <Layers size={16} aria-hidden="true" />
                             {showRelated ? 'Masquer' : 'Gérer les produits similaires'}
                           </button>
                         </div>
@@ -1076,6 +1080,25 @@ export default function AdminProducts() {
                           <input type="checkbox" checked={form.is_promotion} onChange={e => setForm(f => ({ ...f, is_promotion: e.target.checked }))} style={{ width: '18px', height: '18px', accentColor: 'var(--color-primary)' }} />
                           <span style={{ fontSize: '0.95rem', fontWeight: 500 }}>Promotion</span>
                         </label>
+                      </div>
+                    </div>
+
+                    {/* Statut & Visibilité B2B */}
+                    <div className="admin-card" style={{ padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+                      <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '10px' }}>Statut &amp; Visibilité B2B</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        {[
+                          ['is_b2b_active', 'Actif (Publié)'],
+                          ['is_b2b_featured', 'Mis en avant (Vedette)'],
+                          ['is_b2b_new', 'Nouveauté'],
+                          ['is_b2b_bestseller', 'Best Seller'],
+                          ['is_b2b_promotion', 'Promotion'],
+                        ].map(([field, label], index) => (
+                          <label key={field} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', userSelect: 'none' }}>
+                            <input type="checkbox" checked={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.checked }))} style={{ width: '18px', height: '18px', accentColor: 'var(--color-primary)' }} />
+                            <span style={{ fontSize: '0.95rem', fontWeight: index === 0 ? 600 : 500 }}>{label}</span>
+                          </label>
+                        ))}
                       </div>
                     </div>
 

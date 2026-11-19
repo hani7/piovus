@@ -58,11 +58,12 @@
   transition: transform 0.15s;
 }
 .product-carousel-btn:hover {
-  transform: scale(1.15);
+  transform: none;
   background: transparent !important;
   border: none;
-  color: #000 !important;
+  color: #cc0000 !important;
 }
+.product-carousel-btn:hover svg { stroke: #cc0000 !important; }
 .product-carousel-btn:focus-visible {
   outline: none;
   background: transparent !important;

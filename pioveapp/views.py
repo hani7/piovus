@@ -62,19 +62,47 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 # ÔöÇÔöÇÔöÇ Products ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.filter(is_active=True).prefetch_related('categories', 'images', 'variants', 'reviews')
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = {
-        'categories__slug': ['exact'],
-        'is_featured': ['exact'],
-        'is_new': ['exact'],
-        'is_bestseller': ['exact'],
-        'is_promotion': ['exact'],
-        'price': ['gte', 'lte'],
-    }
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'description']
     ordering_fields = ['price', 'created_at', 'name']
     ordering = ['-is_featured', '-created_at']
     lookup_field = 'slug'
+
+    def is_b2b_user(self):
+        user = self.request.user
+        return bool(user and user.is_authenticated and getattr(getattr(user, 'profile', None), 'is_b2b', False))
+
+    def get_queryset(self):
+        status_prefix = 'is_b2b_' if self.is_b2b_user() else 'is_'
+        qs = Product.objects.filter(
+            **{f'{status_prefix}active': True}
+        ).prefetch_related('categories', 'images', 'variants', 'reviews')
+        params = self.request.query_params
+        status_filters = {
+            'is_featured': f'{status_prefix}featured',
+            'is_new': f'{status_prefix}new',
+            'is_bestseller': f'{status_prefix}bestseller',
+            'is_promotion': f'{status_prefix}promotion',
+        }
+        for param, field in status_filters.items():
+            if param in params:
+                value = str(params[param]).lower()
+                if value in ('true', '1'):
+                    qs = qs.filter(**{field: True})
+                elif value in ('false', '0'):
+                    qs = qs.filter(**{field: False})
+        if params.get('categories__slug'):
+            qs = qs.filter(categories__slug=params['categories__slug'])
+        if params.get('price__gte'):
+            qs = qs.filter(price__gte=params['price__gte'])
+        if params.get('price__lte'):
+            qs = qs.filter(price__lte=params['price__lte'])
+        return qs
+
+    def filter_queryset(self, queryset):
+        for backend in (filters.SearchFilter, filters.OrderingFilter):
+            queryset = backend().filter_queryset(self.request, queryset, self)
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -83,19 +111,22 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='featured')
     def featured(self, request):
-        qs = self.get_queryset().filter(is_bestseller=True)[:8]
+        field = 'is_b2b_bestseller' if self.is_b2b_user() else 'is_bestseller'
+        qs = self.get_queryset().filter(**{field: True})[:8]
         serializer = ProductListSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='new-arrivals')
     def new_arrivals(self, request):
-        qs = self.get_queryset().filter(is_new=True)[:8]
+        field = 'is_b2b_new' if self.is_b2b_user() else 'is_new'
+        qs = self.get_queryset().filter(**{field: True})[:8]
         serializer = ProductListSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='promotions')
     def promotions(self, request):
-        qs = self.get_queryset().filter(is_promotion=True)[:8]
+        field = 'is_b2b_promotion' if self.is_b2b_user() else 'is_promotion'
+        qs = self.get_queryset().filter(**{field: True})[:8]
         serializer = ProductListSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -531,9 +562,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         )
         priced_items = []
         total = 0
+        active_field = 'is_b2b_active' if is_b2b_user else 'is_active'
         for item_data in items_data:
             try:
-                product = Product.objects.get(pk=item_data['product_id'], is_active=True)
+                product = Product.objects.get(pk=item_data['product_id'], **{active_field: True})
             except Product.DoesNotExist:
                 return Response(
                     {'error': f"Produit {item_data['product_id']} introuvable."},

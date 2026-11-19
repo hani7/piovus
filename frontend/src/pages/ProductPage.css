@@ -1,5 +1,5 @@
 .product-page {
-  padding-top: 185px;
+  padding-top: 50px;
   padding-bottom: 80px;
 }
 
@@ -18,7 +18,7 @@
 }
 
 .product-page-loading, .product-page-error {
-  padding-top: 185px;
+  padding-top: 50px;
   min-height: 50vh;
   display: flex;
   flex-direction: column;
@@ -342,6 +342,7 @@
   padding: 14px;
   font-size: 0.85rem;
   border-radius: 0;
+  border: none;
   background: #cc0000;
 }
 .product-info__add-btn::before { content: '🛍'; font-size: 1rem; line-height: 1; }

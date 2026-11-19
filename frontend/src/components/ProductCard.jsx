@@ -18,10 +18,10 @@ const ProductCard = memo(function ProductCard({ product }) {
 
   const hasVariants = product.variants?.length > 0
   const visibleVariants = (product.variants || []).slice(0, 4)
-  const isPromo = product.is_promo || product.is_promotion
-  const isNew = product.is_new
-  const isBestSeller = product.is_bestseller
   const isB2B = user?.profile?.is_b2b
+  const isPromo = isB2B ? product.is_b2b_promotion : (product.is_promo || product.is_promotion)
+  const isNew = isB2B ? product.is_b2b_new : product.is_new
+  const isBestSeller = isB2B ? product.is_b2b_bestseller : product.is_bestseller
   const price = Number.parseFloat(product.price)
   const promoPrice = Number.parseFloat(product.promo_price)
   const b2bPrice = Number.parseFloat(product.b2b_price || product.effective_price * (product.units_per_carton || 1))

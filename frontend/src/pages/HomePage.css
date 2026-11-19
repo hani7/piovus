@@ -166,9 +166,12 @@
   transition: opacity 0.2s, transform 0.2s;
 }
 .new-arrivals-carousel .product-carousel-btn:hover {
-  opacity: 1;
-  transform: scale(1.1);
+  opacity: 0.85;
+  transform: none;
+  background: transparent !important;
+  border: none !important;
 }
+.new-arrivals-carousel .product-carousel-btn:hover svg { stroke: #cc0000 !important; }
 .new-arrivals-carousel .product-carousel-btn svg {
   width: 44px !important;
   height: 44px !important;

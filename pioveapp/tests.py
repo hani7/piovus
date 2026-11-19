@@ -144,6 +144,27 @@ class ProductTests(TestCase):
         self.assertEqual(r.data['qty_per_box'], 10)
         self.assertEqual(r.data['qty_per_carton'], 20)
 
+    def test_b2b_status_filter_is_separate_from_b2c(self):
+        b2c_only = make_product('B2C Nouveau', is_active=True)
+        b2c_only.is_new = True
+        b2c_only.is_b2b_new = False
+        b2c_only.save(update_fields=['is_new', 'is_b2b_new'])
+        b2b_only = make_product('B2B Nouveau', is_active=True)
+        b2b_only.is_b2b_new = True
+        b2b_only.is_new = False
+        b2b_only.save(update_fields=['is_b2b_new', 'is_new'])
+        user = make_user('b2b-products')
+        user.profile.is_b2b = True
+        user.profile.save(update_fields=['is_b2b'])
+        self.client.force_authenticate(user=user)
+
+        r = self.client.get('/api/products/?is_new=true')
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        names = [p['name'] for p in r.data.get('results', r.data)]
+        self.assertIn('B2B Nouveau', names)
+        self.assertNotIn('B2C Nouveau', names)
+
 
 # ---------------------------------------------------------------------------
 # Order Tests

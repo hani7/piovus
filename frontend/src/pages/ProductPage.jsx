@@ -3,7 +3,6 @@ import { useParams, Link, useLocation } from 'react-router-dom'
 import { getProduct, getRelatedProducts } from '../api/products'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
-import { useWishlistStore } from '../store/wishlistStore'
 import ProductCard from '../components/ProductCard'
 import ProductGallery from '../components/ProductGallery'
 import ProductInfo from '../components/ProductInfo'
@@ -33,7 +32,6 @@ export default function ProductPage() {
   const addItem = useCartStore((s) => s.addItem)
   const user = useAuthStore((s) => s.user)
   const isB2B = user?.profile?.is_b2b
-  const { toggle: toggleWishlist, isWishlisted } = useWishlistStore()
 
   // Detect if this product is a collection
   const isCollection = useMemo(() => {
@@ -211,12 +209,10 @@ export default function ProductPage() {
             added={added}
             selectedRelated={selectedRelated}
             isB2B={isB2B}
-            isWishlisted={isWishlisted(product.id)}
             onVariantSelect={handleVariantSelect}
             onQuantityChange={setQuantity}
             onPackagingChange={setPackaging}
             onAddToCart={handleAddToCart}
-            onToggleWishlist={() => toggleWishlist(product)}
             onRelatedChange={handleRelatedChange}
             isCollection={isCollection}
             selectedChoices={selectedChoices}

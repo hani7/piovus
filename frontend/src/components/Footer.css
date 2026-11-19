@@ -3,6 +3,7 @@
   background: #000000;
   color: #fff;
   padding-top: 60px;
+  text-transform: uppercase;
 }
 
 .footer__container {
@@ -161,4 +162,21 @@
     gap: 15px;
     text-align: center;
   }
+}
+
+@media (max-width: 768px) {
+  .footer.footer--day {
+    background: #fff;
+    color: #000;
+  }
+  .footer--day .footer__logo-img { filter: none; }
+  .footer--day .footer__tagline,
+  .footer--day .footer__links-col a,
+  .footer--day .footer__newsletter-col p,
+  .footer--day .footer__bottom,
+  .footer--day .footer__legal a { color: #666; }
+  .footer--day .footer__links-col h4,
+  .footer--day .footer__newsletter-col h4 { color: #000; }
+  .footer--day .footer__socials a { color: #000; }
+  .footer--day .footer__top { border-color: rgba(0, 0, 0, 0.1); }
 }

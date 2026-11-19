@@ -271,7 +271,7 @@
     left: 0;
     right: 0;
     background: white;
-    padding: 8px 12px;
+    padding: 8px 14px 8px 12px;
     margin: 0;
     z-index: 99;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
@@ -294,6 +294,7 @@
   }
   .product-info__add-btn {
     flex-grow: 1;
+    min-width: 0;
     margin: 0;
     padding: 8px 10px;
     font-size: 0.9rem !important;

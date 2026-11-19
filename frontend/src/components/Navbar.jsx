@@ -244,7 +244,7 @@ export default function Navbar() {
       <div className={`sidebar-overlay ${sidebarOpen ? 'sidebar-overlay--open' : ''}`} onClick={closeSidebar} />
 
       {/* Sidebar */}
-      <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''}`}>
+      <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''} ${isNight ? 'sidebar--night' : ''}`}>
         <div className="sidebar__header">
         <img src="/logo.png" alt="Piové Cosmetics" className="sidebar__logo" />
           <button onClick={closeSidebar} className="sidebar__close" id="sidebar-close-btn">✕</button>

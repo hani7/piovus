@@ -4,14 +4,22 @@ import { getCategories } from '../api/products'
 import apiClient from '../api/client'
 import './Footer.css'
 
+const isNightTime = () => {
+  const hour = new Date().getHours()
+  return hour >= 20 || hour < 6
+}
+
 export default function Footer() {
   const [categories, setCategories] = useState([])
+  const [isNight, setIsNight] = useState(isNightTime)
   const [nlEmail, setNlEmail] = useState('')
   const [nlStatus, setNlStatus] = useState(null) // null | 'loading' | 'success' | 'error'
   const [nlMsg, setNlMsg] = useState('')
 
   useEffect(() => {
     getCategories().then((r) => setCategories(r.data.results || r.data)).catch(() => {})
+    const timer = window.setInterval(() => setIsNight(isNightTime()), 60000)
+    return () => window.clearInterval(timer)
   }, [])
 
   const handleSubscribe = async (e) => {
@@ -30,7 +38,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="footer">
+    <footer className={`footer ${isNight ? 'footer--night' : 'footer--day'}`}>
       <div className="footer__container">
         <div className="footer__top">
           <div className="footer__brand-col">

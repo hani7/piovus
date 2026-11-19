@@ -13,7 +13,7 @@
 
 @media (max-width: 768px) {
   .account-page {
-    --account-top-offset: 140px;
+    --account-top-offset: 88px;
   }
 }
 
@@ -130,7 +130,50 @@
   max-width: 480px;
 }
 @media (max-width: 600px) {
-  .auth-form-card { padding: 20px; }
+  .auth-form-card {
+    padding: 20px 16px;
+    border-radius: 16px;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .account-auth-page {
+    padding-bottom: 72px;
+  }
+
+  .auth-tabs-row {
+    width: calc(100% - 32px);
+    max-width: 480px;
+    gap: 2px;
+    margin-bottom: 20px;
+    padding: 4px;
+    border-radius: 12px;
+  }
+
+  .auth-tab-pill {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 6px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    white-space: normal;
+  }
+
+  .auth-single-wrap {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .auth-form-card .form-input {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+
+  .auth-form-card .auth-submit {
+    min-height: 48px;
+    padding: 13px 12px;
+  }
 }
 
 .auth-error {

@@ -199,7 +199,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 }
 
 /* Shared hover state for every interactive button. */
-button:not(.swatch):not(:disabled):hover,
+button:not(.swatch):not(.product-card__variant-dot):not(:disabled):hover,
 .btn:not(:disabled):hover {
   background: #cc0000 !important;
   color: #fff !important;

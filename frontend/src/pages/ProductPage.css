@@ -59,6 +59,10 @@
     padding-left: 2px;
     padding-right: 2px;
   }
+  .product-info {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
   .product-page__breadcrumb { display: none; }
   .product-page__layout { grid-template-columns: 1fr; gap: 32px; }
   .product-gallery__main {

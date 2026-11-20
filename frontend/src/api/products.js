@@ -2,6 +2,7 @@ import client from './client'
 
 export const getCategories = () => client.get('/categories/')
 export const getProducts = (params = {}) => client.get('/products/', { params })
+export const getProductColors = () => client.get('/products/colors/')
 export const getProduct = (slug) => client.get(`/products/${slug}/`)
 export const getRelatedProducts = async (slug) => {
   const res = await client.get(`/products/${slug}/related/`)

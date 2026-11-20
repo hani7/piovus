@@ -1,5 +1,6 @@
 import { memo, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ShoppingBag } from 'lucide-react'
 import { ProductShare } from './ProductReviews'
 import mediaUrl from '../api/mediaUrl'
 
@@ -288,6 +289,7 @@ const ProductInfo = memo(function ProductInfo({
           id="add-to-cart-btn"
           aria-label={added ? 'Produit ajouté au panier' : `Ajouter ${product.name} au panier`}
         >
+          <ShoppingBag size={17} strokeWidth={2.2} aria-hidden="true" />
           {added ? '✓ Ajouté au panier' : 'Ajouter au panier'}
         </button>
       </div>

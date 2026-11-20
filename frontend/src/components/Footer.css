@@ -107,7 +107,7 @@
   color: #666;
 }
 .footer__newsletter-form button {
-  background: var(--navbar-accent, #c41e3a);
+  background: #cc0000;
   color: #fff;
   border: none;
   width: 28px;
@@ -119,7 +119,7 @@
   border-radius: 4px;
 }
 .footer__newsletter-form button:hover {
-  background: #a0152e;
+  background: #cc0000;
 }
 .footer__cursive-text {
   font-family: 'Brush Script MT', 'Bradley Hand', cursive;

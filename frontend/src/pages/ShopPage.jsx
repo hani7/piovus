@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import PageSEO from '../components/PageSEO'
-import { getProducts, getCategories } from '../api/products'
+import { getProducts, getCategories, getProductColors } from '../api/products'
 import './ShopPage.css'
 
 const SORT_OPTIONS = [
@@ -17,6 +17,7 @@ export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
+  const [colors, setColors] = useState([])
   const [loading, setLoading] = useState(true)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [page, setPage] = useState(1)
@@ -32,8 +33,9 @@ export default function ShopPage() {
   const maxPrice = searchParams.get('max_price') || ''
   const filterBestseller = searchParams.get('bestseller') === 'true'
   const filterPromo = searchParams.get('promo') === 'true'
+  const selectedColor = searchParams.get('variant_color') || ''
 
-  const hasActiveFilters = selectedCategory || searchQuery || showNew || minPrice || maxPrice || filterBestseller || filterPromo
+  const hasActiveFilters = selectedCategory || searchQuery || showNew || minPrice || maxPrice || filterBestseller || filterPromo || selectedColor
 
   const fetchProducts = useCallback(() => {
     setLoading(true)
@@ -46,6 +48,7 @@ export default function ShopPage() {
     if (maxPrice) params.price__lte = maxPrice
     if (filterBestseller) params.is_bestseller = true
     if (filterPromo) params.is_promotion = true
+    if (selectedColor) params.variant_color = selectedColor
 
     getProducts(params)
       .then((r) => {
@@ -53,13 +56,14 @@ export default function ShopPage() {
         setTotalCount(r.data.count || (r.data.results || r.data).length)
       })
       .finally(() => setLoading(false))
-  }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, minPrice, maxPrice, filterBestseller, filterPromo, page])
+  }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, minPrice, maxPrice, filterBestseller, filterPromo, selectedColor, page])
 
   useEffect(() => {
     getCategories().then((r) => setCategories(r.data.results || r.data))
+    getProductColors().then((r) => setColors(r.data))
   }, [])
 
-  useEffect(() => { setPage(1) }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, minPrice, maxPrice, filterBestseller, filterPromo])
+  useEffect(() => { setPage(1) }, [selectedCategory, searchQuery, sortBy, showNew, isBestSellers, minPrice, maxPrice, filterBestseller, filterPromo, selectedColor])
 
   useEffect(() => {
     fetchProducts()
@@ -152,6 +156,26 @@ export default function ShopPage() {
               onChange={(e) => updateParam('min_price', e.target.value)} style={{ padding: '8px' }} />
             <input type="number" className="form-input" placeholder="Max" value={maxPrice}
               onChange={(e) => updateParam('max_price', e.target.value)} style={{ padding: '8px' }} />
+          </div>
+        </div>
+
+        <div className="filter-drawer__section">
+          <p className="filter-drawer__label">Teinte / Couleur</p>
+          <div className="filter-color-list">
+            {colors.map((color) => (
+              <button
+                key={color.value}
+                type="button"
+                className={`filter-color-option ${selectedColor === color.value ? 'active' : ''}`}
+                onClick={() => updateParam('variant_color', selectedColor === color.value ? '' : color.value)}
+                aria-pressed={selectedColor === color.value}
+              >
+                {/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(color.color_hex) && (
+                  <span className="filter-color-option__swatch" style={{ backgroundColor: color.color_hex }} />
+                )}
+                <span>{color.name}</span>
+              </button>
+            ))}
           </div>
         </div>
 

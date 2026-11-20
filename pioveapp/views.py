@@ -97,6 +97,11 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(price__gte=params['price__gte'])
         if params.get('price__lte'):
             qs = qs.filter(price__lte=params['price__lte'])
+        variant_color = params.get('variant_color', '')
+        if variant_color.startswith('hex:'):
+            qs = qs.filter(variants__is_available=True, variants__color_hex=variant_color[4:]).distinct()
+        elif variant_color.startswith('name:'):
+            qs = qs.filter(variants__is_available=True, variants__name=variant_color[5:]).distinct()
         return qs
 
     def filter_queryset(self, queryset):
@@ -108,6 +113,19 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == 'retrieve':
             return ProductDetailSerializer
         return ProductListSerializer
+
+    @action(detail=False, methods=['get'], url_path='colors')
+    def colors(self, request):
+        active_field = 'is_b2b_active' if self.is_b2b_user() else 'is_active'
+        variants = ProductVariant.objects.filter(
+            **{f'product__{active_field}': True},
+            is_available=True,
+        ).exclude(name='').order_by('name', 'color_hex').values_list('name', 'color_hex').distinct()
+        colors = {}
+        for name, color_hex in variants:
+            value = f'hex:{color_hex}' if color_hex else f'name:{name}'
+            colors.setdefault(value, {'value': value, 'name': name, 'color_hex': color_hex})
+        return Response(list(colors.values()))
 
     @action(detail=False, methods=['get'], url_path='featured')
     def featured(self, request):
@@ -146,11 +164,11 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         qs = self.get_queryset().none()
         
         if product.categories.exists():
-            qs = self.get_queryset().filter(categories__in=product.categories.all()).exclude(id=product.id).distinct()[:5]
+            qs = self.get_queryset().filter(categories__in=product.categories.all()).exclude(id=product.id).distinct()[:6]
             
         # Fallback if no products found in same category
         if not qs.exists():
-            qs = self.get_queryset().exclude(id=product.id).order_by('?')[:5]
+            qs = self.get_queryset().exclude(id=product.id).order_by('?')[:6]
             
         serializer = ProductListSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)

@@ -8,6 +8,7 @@ import './CategoryPage.css'
 
 export default function CategoryPage() {
   const { slug } = useParams()
+  const PAGE_SIZE = 24
   const [products, setProducts] = useState([])
   const [category, setCategory] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -20,7 +21,7 @@ export default function CategoryPage() {
     if (!category || category.slug !== slug) setLoading(true)
     setIsFetching(true)
     Promise.all([
-      getProductsByCategory(slug, { page }), 
+      getProductsByCategory(slug, { page, page_size: PAGE_SIZE }), 
       getCategories(),
       getBanners()
     ]).then(([prods, cats, bans]) => {
@@ -89,7 +90,7 @@ export default function CategoryPage() {
             </div>
             
             {/* Pagination */}
-            {totalCount > 20 && (
+            {totalCount > PAGE_SIZE && (
               <nav className="shop-pagination" aria-label="Pagination">
                 <button
                   className="shop-pagination__arrow"
@@ -100,8 +101,8 @@ export default function CategoryPage() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
                 </button>
 
-                {Array.from({ length: Math.ceil(totalCount / 20) }, (_, i) => i + 1)
-                  .filter(p => p === 1 || p === Math.ceil(totalCount / 20) || Math.abs(p - page) <= 2)
+                {Array.from({ length: Math.ceil(totalCount / PAGE_SIZE) }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === Math.ceil(totalCount / PAGE_SIZE) || Math.abs(p - page) <= 2)
                   .reduce((acc, p, idx, arr) => {
                     if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...')
                     acc.push(p)
@@ -123,7 +124,7 @@ export default function CategoryPage() {
 
                 <button
                   className="shop-pagination__arrow"
-                  disabled={page >= Math.ceil(totalCount / 20)}
+                  disabled={page >= Math.ceil(totalCount / PAGE_SIZE)}
                   onClick={() => { setPage(page + 1); window.scrollTo(0,0) }}
                   aria-label="Page suivante"
                 >
